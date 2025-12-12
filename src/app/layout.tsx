@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegister } from "./sw-register";
+import { PwaActionsBar } from "./pwa-actions";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,6 +76,7 @@ export default function RootLayout({
 
           <main className="flex-1">
             <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+              <PwaActionsBar />
               {children}
             </div>
           </main>
