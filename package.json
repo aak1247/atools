@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "predev": "npm run generate:manifests",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

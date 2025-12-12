@@ -6,16 +6,7 @@ const TOOLS_DIR = path.join(ROOT, "src", "app", "tools");
 const PUBLIC_TOOLS_DIR = path.join(ROOT, "public", "tools");
 
 /**
- * @typedef {Object} ToolConfig
- * @property {string} name
- * @property {string} [shortName]
- * @property {string} description
- * @property {string} [lang]
- * @property {string} [themeColor]
- * @property {string} [backgroundColor]
- * @property {string} [icon]
- * @property {string} [startUrl]
- * @property {string} [scope]
+ * @typedef {import("../src/types/tools").ToolConfig} ToolConfig
  */
 
 function readJson(filePath) {
@@ -119,4 +110,3 @@ function main() {
 }
 
 main();
-
