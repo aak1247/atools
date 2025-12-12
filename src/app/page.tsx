@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "工具导航 | 前端工具站",
+  title: "工具导航 | 纯粹工具站",
   description: "精选纯前端工具集合，科学计算器、图片压缩等，隐私安全，极致体验。",
 };
 

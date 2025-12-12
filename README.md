@@ -1,4 +1,4 @@
-## atools · 前端工具站（PWA + 静态导出）
+## atools · 纯粹工具站（PWA + 静态导出）
 
 一个基于 Next.js App Router 的前端工具集合站点，每个工具都是独立路由，支持 PWA 安装和纯静态部署，并针对搜索引擎做了优化和自动链接提交。
 
@@ -155,7 +155,7 @@ npm run build
    - 新建 `src/app/tools/my-tool/tool.json`，示例：
      ```jsonc
      {
-       "name": "我的新工具 - 前端工具站",
+      "name": "我的新工具 - 纯粹工具站",
        "shortName": "我的工具",
        "description": "一句话描述这个工具做什么。",
        "lang": "zh-CN",

@@ -17,9 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "前端工具站",
+  title: "纯粹工具站",
   description: "纯前端 SSR 工具集合示例站点",
-  applicationName: "前端工具站",
+  applicationName: "纯粹工具站",
   themeColor: "#0f172a",
   icons: {
     icon: "/icon.svg",
@@ -48,12 +48,12 @@ export default function RootLayout({
               >
                 <Image
                   src="/icon.svg"
-                  alt="前端工具站"
+                  alt="纯粹工具站"
                   width={24}
                   height={24}
                   className="rounded-lg shadow-sm"
                 />
-                <span>前端工具站</span>
+                <span>纯粹工具站</span>
               </Link>
               <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
                 <Link
@@ -83,7 +83,7 @@ export default function RootLayout({
 
           <footer className="border-t border-slate-200/60 bg-white/50 py-8 text-center text-xs text-slate-500 backdrop-blur-sm">
             <div className="mx-auto max-w-5xl px-4">
-              <p>© {new Date().getFullYear()} 前端工具站. Crafted with precision.</p>
+              <p>© {new Date().getFullYear()} 纯粹工具站. Crafted with precision.</p>
             </div>
           </footer>
         </div>

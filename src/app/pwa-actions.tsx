@@ -19,13 +19,13 @@ const PwaActionsBar: FC = () => {
     useState<BeforeInstallPromptEvent | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIos, setIsIos] = useState(false);
-  const [title, setTitle] = useState<string>("前端工具站");
+  const [title, setTitle] = useState<string>("纯粹工具站");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     setCanShare(typeof navigator !== "undefined" && "share" in navigator);
-    setTitle(document.title || "前端工具站");
+    setTitle(document.title || "纯粹工具站");
 
     const displayModeStandalone =
       window.matchMedia &&
