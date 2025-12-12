@@ -29,6 +29,27 @@ const tools = [
     ),
     gradient: "from-blue-50 to-indigo-50",
   },
+  {
+    slug: "seal-extractor",
+    name: "印章提取",
+    description: "智能识别扫描件中的红色公章，一键生成透明背景电子章。",
+    icon: (
+      <svg
+        className="h-6 w-6 text-rose-500"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 4a4 4 0 00-4 4c0 1.485.81 2.776 2.01 3.47C8.82 12.35 8 13.62 8 15v1h8v-1c0-1.38-.82-2.65-2.01-3.53A4.002 4.002 0 0012 4zM6 19h12"
+        />
+      </svg>
+    ),
+    gradient: "from-rose-50 to-red-50",
+  },
 ];
 
 export default function Home() {

@@ -39,9 +39,27 @@ function generateManifestForTool(slug, config) {
   const backgroundColor = tool.backgroundColor || "#0f172a";
   const themeColor = tool.themeColor || "#0f172a";
 
-  let iconSrc = tool.icon || "/favicon.ico";
+  let iconSrc = tool.icon || "/icon.svg";
   if (!iconSrc.startsWith("/")) {
     iconSrc = `/${iconSrc}`;
+  }
+
+  /** @type {string} */
+  let iconType = "image/svg+xml";
+  /** @type {string} */
+  let iconSizes = "any";
+
+  const lowerIcon = iconSrc.toLowerCase();
+  if (lowerIcon.endsWith(".ico")) {
+    iconType = "image/x-icon";
+    iconSizes = "any";
+  } else if (
+    lowerIcon.endsWith(".png") ||
+    lowerIcon.endsWith(".jpg") ||
+    lowerIcon.endsWith(".jpeg")
+  ) {
+    iconType = "image/png";
+    iconSizes = "512x512";
   }
 
   const manifest = {
@@ -57,8 +75,8 @@ function generateManifestForTool(slug, config) {
     icons: [
       {
         src: iconSrc,
-        sizes: "any",
-        type: "image/x-icon",
+        sizes: iconSizes,
+        type: iconType,
       },
     ],
   };

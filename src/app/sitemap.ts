@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     "/tools/calculator",
     "/tools/image-compressor",
+    "/tools/seal-extractor",
   ];
 
   const lastModified = new Date();
@@ -21,4 +22,3 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: route === "/" ? 1 : 0.8,
   }));
 }
-

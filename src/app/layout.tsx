@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -18,7 +19,12 @@ export const metadata: Metadata = {
   title: "前端工具站",
   description: "纯前端 SSR 工具集合示例站点",
   applicationName: "前端工具站",
-  themeColor: "#f5f5f7",
+  themeColor: "#0f172a",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -39,19 +45,25 @@ export default function RootLayout({
                 href="/"
                 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-slate-900 transition-opacity hover:opacity-80"
               >
-                <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm"></div>
+                <Image
+                  src="/icon.svg"
+                  alt="前端工具站"
+                  width={24}
+                  height={24}
+                  className="rounded-lg shadow-sm"
+                />
                 <span>前端工具站</span>
               </Link>
               <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
-                <Link 
-                  href="/" 
+                <Link
+                  href="/"
                   className="transition-colors hover:text-slate-900"
                 >
                   工具导航
                 </Link>
-                <a 
-                  href="https://github.com" 
-                  target="_blank" 
+                <a
+                  href="https://github.com/aak1247/atools"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="transition-colors hover:text-slate-900"
                 >

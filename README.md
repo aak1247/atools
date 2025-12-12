@@ -7,7 +7,7 @@
 - 科学计算器：`/tools/calculator`
 - 图片压缩工具：`/tools/image-compressor`
 
-> 仓库地址：`git@github.com:aak1247/atools.git`
+> 仓库地址：https://github.com/aak1247/atools （本目录为 `site` 子项目）
 
 ---
 
