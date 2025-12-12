@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "push:search": "node scripts/push-search.mjs",
+    "postbuild": "node scripts/push-search.mjs"
   },
   "dependencies": {
     "next": "16.0.8",

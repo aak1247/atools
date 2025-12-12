@@ -1,0 +1,19 @@
+{
+  "name": "科学计算器 - 前端工具站",
+  "short_name": "计算器",
+  "description": "纯前端科学计算器，支持四则运算和常用三角、平方根、对数函数，所有计算都在浏览器本地完成。",
+  "start_url": "/tools/calculator",
+  "scope": "/tools/calculator",
+  "display": "standalone",
+  "lang": "zh-CN",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
+
