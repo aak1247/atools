@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "generate:manifests": "node scripts/generate-tool-manifests.mjs",
     "push:search": "node scripts/push-search.mjs",
+    "prebuild": "npm run generate:manifests",
     "postbuild": "node scripts/push-search.mjs"
   },
   "dependencies": {
