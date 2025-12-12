@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/tools/calculator",
     "/tools/image-compressor",
     "/tools/seal-extractor",
+    "/tools/watermark-remover",
   ];
 
   const lastModified = new Date();
