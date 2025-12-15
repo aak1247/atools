@@ -1,0 +1,10 @@
+{
+  "name": "PDF 盖章工具 - 纯粹工具站",
+  "shortName": "PDF 盖章",
+  "description": "纯前端 PDF 盖章工具，支持上传 PDF 与透明印章图片，在浏览器中拖拽、缩放、旋转印章后生成带章 PDF，适合内部审批和日常文档场景。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "PDF 工具"
+}

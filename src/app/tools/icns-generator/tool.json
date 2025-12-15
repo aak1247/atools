@@ -1,0 +1,10 @@
+{
+  "name": "ICNS 图标生成工具 - 纯粹工具站",
+  "shortName": "ICNS 生成",
+  "description": "将单张图片转换为苹果 ICNS 图标文件，自动生成多个常用尺寸图标资源，整个过程在浏览器本地完成，不上传任何文件。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "图标工具"
+}

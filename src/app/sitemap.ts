@@ -10,8 +10,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     "/tools/calculator",
     "/tools/image-compressor",
+    "/tools/image-resizer",
+    "/tools/image-converter",
     "/tools/seal-extractor",
-    "/tools/watermark-remover",
+    "/tools/pdf-merge",
+    "/tools/pdf-stamp",
+    "/tools/pdf-trim",
   ];
 
   const lastModified = new Date();

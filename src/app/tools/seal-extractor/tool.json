@@ -5,5 +5,6 @@
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
-  "icon": "/icon.svg"
+  "icon": "/icon.svg",
+  "category": "图片工具"
 }

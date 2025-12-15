@@ -1,0 +1,10 @@
+{
+  "name": "PDF 拼接工具 - 纯粹工具站",
+  "shortName": "PDF 拼接",
+  "description": "纯前端 PDF 拼接工具，支持选择两个 PDF 文件按顺序合并为一个新的 PDF，整个过程在浏览器本地完成，不上传服务器，适合合同、多页资料整理等场景。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "PDF 工具"
+}

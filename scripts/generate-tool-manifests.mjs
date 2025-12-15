@@ -4,6 +4,7 @@ import path from "node:path";
 const ROOT = process.cwd();
 const TOOLS_DIR = path.join(ROOT, "src", "app", "tools");
 const PUBLIC_TOOLS_DIR = path.join(ROOT, "public", "tools");
+const NAV_DATA_PATH = path.join(ROOT, "src", "app", "tools", "tools-meta.json");
 
 /**
  * @typedef {import("../src/types/tools").ToolConfig} ToolConfig
@@ -20,7 +21,7 @@ function ensureDir(dir) {
   }
 }
 
-function generateManifestForTool(slug, config) {
+function generateManifestForTool(slug, config, navItems) {
   /** @type {ToolConfig} */
   const tool = config;
 
@@ -88,6 +89,41 @@ function generateManifestForTool(slug, config) {
   fs.writeFileSync(outPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
   console.log(`[manifest] 已生成 ${outPath}`);
+
+  const category =
+    typeof tool.category === "string" && tool.category.trim()
+      ? tool.category.trim()
+      : "其他工具";
+
+  const keywords = Array.isArray(tool.keywords)
+    ? tool.keywords.map((keyword) => String(keyword))
+    : [];
+
+  navItems.push({
+    slug,
+    path: basePath,
+    name: tool.name,
+    shortName: tool.shortName || tool.name,
+    description: tool.description,
+    category,
+    icon: iconSrc,
+    keywords,
+  });
+}
+
+function writeNavData(navItems) {
+  const sorted = navItems.slice().sort((a, b) =>
+    String(a.name).localeCompare(String(b.name), "zh-CN"),
+  );
+
+  ensureDir(path.dirname(NAV_DATA_PATH));
+  fs.writeFileSync(
+    NAV_DATA_PATH,
+    `${JSON.stringify(sorted, null, 2)}\n`,
+    "utf8",
+  );
+
+  console.log(`[manifest] 已生成工具导航数据 ${NAV_DATA_PATH}`);
 }
 
 function main() {
@@ -101,6 +137,7 @@ function main() {
   ensureDir(PUBLIC_TOOLS_DIR);
 
   const entries = fs.readdirSync(TOOLS_DIR, { withFileTypes: true });
+  const navItems = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
@@ -117,7 +154,7 @@ function main() {
 
     try {
       const config = readJson(toolJsonPath);
-      generateManifestForTool(slug, config);
+      generateManifestForTool(slug, config, navItems);
     } catch (error) {
       console.error(
         `[manifest] 解析 ${toolJsonPath} 时出错，已跳过该工具。`,
@@ -125,6 +162,8 @@ function main() {
       );
     }
   }
+
+  writeNavData(navItems);
 }
 
 main();

@@ -1,0 +1,10 @@
+{
+  "name": "图片尺寸调整工具 - 纯粹工具站",
+  "shortName": "图片尺寸",
+  "description": "纯前端图片尺寸调整工具，支持查看原图分辨率并设置新的宽高，提供自动拉伸和透明背景等比填充两种模式，整个过程在浏览器本地完成，不上传服务器。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "图片工具"
+}

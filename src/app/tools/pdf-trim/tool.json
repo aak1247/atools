@@ -1,0 +1,10 @@
+{
+  "name": "PDF 剪切工具 - 纯粹工具站",
+  "shortName": "PDF 剪切",
+  "description": "纯前端 PDF 剪切工具，支持上传一个 PDF 并删除其中几页后导出新的 PDF，适合同一份合同中删除隐私页、说明书裁剪等日常文档整理场景。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "PDF 工具"
+}

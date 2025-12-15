@@ -1,0 +1,10 @@
+{
+  "name": "图片格式转换工具 - 纯粹工具站",
+  "shortName": "图片格式",
+  "description": "纯前端图片格式转换工具，支持在 JPG、PNG、BMP、WebP、ICO、GIF 等常见格式之间转换，转换过程完全在浏览器本地进行，不上传服务器。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "图片工具"
+}

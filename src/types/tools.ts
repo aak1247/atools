@@ -8,5 +8,6 @@ export interface ToolConfig {
   icon?: string;
   startUrl?: string;
   scope?: string;
+  category?: string;
+  keywords?: string[];
 }
-

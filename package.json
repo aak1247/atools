@@ -10,13 +10,16 @@
     "start": "next start",
     "lint": "eslint",
     "generate:manifests": "node scripts/generate-tool-manifests.mjs",
+    "generate:sw": "node scripts/generate-sw.mjs",
     "push:search": "node scripts/push-search.mjs",
-    "prebuild": "npm run generate:manifests",
+    "prebuild": "npm run generate:manifests && npm run generate:sw",
     "postbuild": "node scripts/push-search.mjs"
   },
   "dependencies": {
-    "@tensorflow/tfjs": "^4.22.0",
-    "next": "16.0.8",
+    "fabric": "^6.9.0",
+    "lucide-react": "^0.561.0",
+    "next": "^16.0.10",
+    "pdf-lib": "^1.17.1",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },
