@@ -1,0 +1,10 @@
+{
+  "name": "ICO 图标生成工具 - 纯粹工具站",
+  "shortName": "ICO 图标生成",
+  "description": "在线生成 Windows ICO 图标文件，多种尺寸可选（一次生成一个尺寸），浏览器本地处理。",
+  "category": "图标工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg"
+}

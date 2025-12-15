@@ -7,7 +7,6 @@ import * as fabric from "fabric";
 import {
   FileUp,
   ImagePlus,
-  Stamp,
   Download,
   Trash2,
   ChevronLeft,
@@ -16,8 +15,7 @@ import {
   CheckCircle2,
   MousePointerClick,
   FileText,
-  Layers,
-  Save
+  Save,
 } from "lucide-react";
 
 const PDFJS_URL =
@@ -27,9 +25,54 @@ const PDFJS_WORKER_URL =
 
 declare global {
   interface Window {
-    pdfjsLib?: any;
+    pdfjsLib?: unknown;
   }
 }
+
+type PdfJsViewport = {
+  width: number;
+  height: number;
+};
+
+type PdfJsRenderTask = {
+  promise: Promise<void>;
+};
+
+type PdfJsPage = {
+  getViewport: (options: { scale: number }) => PdfJsViewport;
+  render: (options: {
+    canvasContext: CanvasRenderingContext2D;
+    viewport: PdfJsViewport;
+  }) => PdfJsRenderTask;
+};
+
+type PdfJsDocument = {
+  numPages: number;
+  getPage: (pageNumber: number) => Promise<PdfJsPage>;
+};
+
+type PdfJsLoadingTask = {
+  promise: Promise<PdfJsDocument>;
+};
+
+type PdfJsLib = {
+  getDocument: (options: { data: Uint8Array }) => PdfJsLoadingTask;
+  GlobalWorkerOptions?: {
+    workerSrc: string;
+  };
+  disableWorker?: boolean;
+};
+
+type StampTagged = { isStamp?: boolean };
+
+const getPdfJsLibFromWindow = (): PdfJsLib | null => {
+  if (typeof window === "undefined") return null;
+  const candidate = window.pdfjsLib;
+  if (!candidate || typeof candidate !== "object") return null;
+  const lib = candidate as Partial<PdfJsLib>;
+  if (typeof lib.getDocument !== "function") return null;
+  return lib as PdfJsLib;
+};
 
 type LoadedPdf = {
   bytes: Uint8Array;
@@ -41,15 +84,16 @@ type PdfViewportInfo = {
   height: number;
 };
 
-let pdfjsPromise: Promise<any> | null = null;
+let pdfjsPromise: Promise<PdfJsLib> | null = null;
 
-async function loadPdfJs(): Promise<any> {
+async function loadPdfJs(): Promise<PdfJsLib> {
   if (typeof window === "undefined") {
     throw new Error("PDF 预览仅在浏览器环境中可用");
   }
 
-  if (window.pdfjsLib && window.pdfjsLib.getDocument) {
-    const pdfjsLib = window.pdfjsLib;
+  const existingLib = getPdfJsLibFromWindow();
+  if (existingLib) {
+    const pdfjsLib = existingLib;
     if (pdfjsLib.GlobalWorkerOptions) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_URL;
     }
@@ -65,8 +109,9 @@ async function loadPdfJs(): Promise<any> {
       const existing = document.querySelector<HTMLScriptElement>(
         `script[src="${PDFJS_URL}"]`,
       );
-      if (existing && window.pdfjsLib && window.pdfjsLib.getDocument) {
-        const pdfjsLib = window.pdfjsLib;
+      const preloadedLib = getPdfJsLibFromWindow();
+      if (existing && preloadedLib) {
+        const pdfjsLib = preloadedLib;
         if (pdfjsLib.GlobalWorkerOptions) {
           pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_URL;
         }
@@ -81,8 +126,9 @@ async function loadPdfJs(): Promise<any> {
       script.src = PDFJS_URL;
       script.async = true;
       script.onload = () => {
-        const pdfjsLib = window.pdfjsLib;
-        if (pdfjsLib && pdfjsLib.getDocument) {
+        const loadedLib = getPdfJsLibFromWindow();
+        if (loadedLib) {
+          const pdfjsLib = loadedLib;
           if (pdfjsLib.GlobalWorkerOptions) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_URL;
           }
@@ -122,9 +168,9 @@ const PdfStampClient: FC = () => {
 
   const pdfFileRef = useRef<File | null>(null);
   const loadedPdfRef = useRef<LoadedPdf | null>(null);
-  const pdfJsDocRef = useRef<any | null>(null);
+  const pdfJsDocRef = useRef<PdfJsDocument | null>(null);
   const pdfViewportRef = useRef<PdfViewportInfo | null>(null);
-  const fabricCanvasRef = useRef<any | null>(null);
+  const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
   const stampImageBytesRef = useRef<Uint8Array | null>(null);
 
   const formatSize = (bytes: number | null): string => {
@@ -318,7 +364,7 @@ const PdfStampClient: FC = () => {
     try {
       const imageElement = new Image();
       imageElement.onload = () => {
-        const img: any = new (fabric.Image as any)(imageElement);
+        const img = new fabric.Image(imageElement);
 
         const canvasWidth = fabricCanvas.getWidth();
         const canvasHeight = fabricCanvas.getHeight();
@@ -343,7 +389,7 @@ const PdfStampClient: FC = () => {
           cornerColor: "#f97316",
         });
 
-        (img as any).isStamp = true;
+        (img as unknown as StampTagged).isStamp = true;
 
         fabricCanvas.add(img);
         fabricCanvas.setActiveObject(img);
@@ -363,13 +409,13 @@ const PdfStampClient: FC = () => {
     if (!fabricCanvas) return;
 
     const objects = fabricCanvas.getObjects();
-    const stamps = objects.filter(
-      (obj: any) => (obj as any).isStamp,
+    const stamps = objects.filter((obj) =>
+      Boolean((obj as unknown as StampTagged).isStamp),
     );
 
     if (stamps.length === 0) return;
 
-    stamps.forEach((stamp: any) => fabricCanvas.remove(stamp));
+    stamps.forEach((stamp) => fabricCanvas.remove(stamp));
     fabricCanvas.discardActiveObject();
     fabricCanvas.renderAll();
   };
@@ -390,8 +436,8 @@ const PdfStampClient: FC = () => {
     }
 
     const objects = fabricCanvas.getObjects();
-    const stamps = objects.filter(
-      (obj: any) => (obj as any).isStamp,
+    const stamps = objects.filter((obj) =>
+      Boolean((obj as unknown as StampTagged).isStamp),
     );
 
     if (stamps.length === 0) {
@@ -423,8 +469,8 @@ const PdfStampClient: FC = () => {
       const scaleX = pageWidth / viewport.width;
       const scaleY = pageHeight / viewport.height;
 
-      stamps.forEach((stamp: any) => {
-        const bounds = stamp.getBoundingRect(true);
+      stamps.forEach((stamp) => {
+        const bounds = stamp.getBoundingRect();
 
         const displayLeft = bounds.left;
         const displayTop = bounds.top;
@@ -450,7 +496,7 @@ const PdfStampClient: FC = () => {
       });
 
       const modifiedBytes = await pdfDoc.save();
-      const blob = new Blob([modifiedBytes], {
+      const blob = new Blob([new Uint8Array(modifiedBytes)], {
         type: "application/pdf",
       });
       const url = URL.createObjectURL(blob);

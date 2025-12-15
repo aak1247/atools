@@ -132,7 +132,7 @@ const PdfMergeClient: FC = () => {
       }
 
       const mergedBytes = await merged.save();
-      const blob = new Blob([mergedBytes], {
+      const blob = new Blob([new Uint8Array(mergedBytes)], {
         type: "application/pdf",
       });
       const url = URL.createObjectURL(blob);
@@ -372,4 +372,3 @@ const PdfMergeClient: FC = () => {
 };
 
 export default PdfMergeClient;
-

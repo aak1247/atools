@@ -1,0 +1,11 @@
+{
+  "name": "局域网 P2P 文件传输工具 - 纯粹工具站",
+  "shortName": "P2P 传输",
+  "description": "纯前端 WebRTC P2P 文件传输工具，适合局域网/热点环境下电脑手机互传文件；无需登录、无需服务器中转，不上传服务器；通过复制/粘贴连接码完成连接。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "网络工具",
+  "keywords": ["WebRTC", "P2P", "局域网", "文件传输", "点对点", "离线"]
+}

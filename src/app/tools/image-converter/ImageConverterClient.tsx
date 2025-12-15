@@ -81,8 +81,6 @@ const formatLabel = (format: TargetFormat): string => {
       return "ICO";
     case "gif":
       return "GIF";
-    default:
-      return format.toUpperCase();
   }
 };
 
@@ -300,7 +298,7 @@ const ImageConverterClient: FC = () => {
                     目标格式
                   </span>
                   {(
-                    ["jpg", "png", "webp", "bmp", "ico", "gif"] as TargetFormat[],
+                    ["jpg", "png", "webp", "bmp", "ico", "gif"] as TargetFormat[]
                   ).map(
                     (format) => (
                       <button

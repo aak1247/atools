@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "fabric": "^6.9.0",
+    "geomagnetism": "^0.2.0",
     "lucide-react": "^0.561.0",
     "next": "^16.0.10",
     "pdf-lib": "^1.17.1",

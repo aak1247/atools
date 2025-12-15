@@ -1,0 +1,10 @@
+{
+  "name": "噪音计 - 纯粹工具站",
+  "shortName": "噪音计",
+  "description": "纯前端噪音测量工具，通过设备麦克风实时测量环境噪音分贝水平，适用于噪音检测和环境监测。",
+  "category": "测量工具",
+  "lang": "zh-CN",
+  "themeColor": "#1e40af",
+  "backgroundColor": "#1e293b",
+  "icon": "/icon.svg"
+}

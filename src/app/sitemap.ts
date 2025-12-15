@@ -14,6 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/tools/image-converter",
     "/tools/seal-extractor",
     "/tools/pdf-merge",
+    "/tools/ico-generator",
+    "/tools/icns-generator",
     "/tools/pdf-stamp",
     "/tools/pdf-trim",
   ];

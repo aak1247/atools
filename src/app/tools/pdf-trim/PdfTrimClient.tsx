@@ -178,7 +178,7 @@ const PdfTrimClient: FC = () => {
       copiedPages.forEach((page) => trimmedDoc.addPage(page));
 
       const trimmedBytes = await trimmedDoc.save();
-      const blob = new Blob([trimmedBytes], {
+      const blob = new Blob([new Uint8Array(trimmedBytes)], {
         type: "application/pdf",
       });
       const url = URL.createObjectURL(blob);
@@ -375,4 +375,3 @@ const PdfTrimClient: FC = () => {
 };
 
 export default PdfTrimClient;
-
