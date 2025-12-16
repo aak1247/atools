@@ -19,10 +19,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: yarn
+          cache-dependency-path: yarn.lock
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build static site (Next.js export, webpack on CI)
         env:
@@ -30,7 +31,7 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL }}
           ENABLE_SEARCH_PUSH: ${{ secrets.ENABLE_SEARCH_PUSH }}
           BAIDU_PUSH_ENDPOINT: ${{ secrets.BAIDU_PUSH_ENDPOINT }}
-        run: npm run build:webpack
+        run: yarn build:webpack
 
       - name: Upload static site artifact
         uses: actions/upload-artifact@v4
