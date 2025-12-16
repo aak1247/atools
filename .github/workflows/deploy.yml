@@ -33,7 +33,7 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL }}
           ENABLE_SEARCH_PUSH: ${{ secrets.ENABLE_SEARCH_PUSH }}
           BAIDU_PUSH_ENDPOINT: ${{ secrets.BAIDU_PUSH_ENDPOINT }}
-        run: yarn build:webpack
+        run: yarn build
 
       - name: Build Docker image (nginx static site)
         env:
