@@ -1,0 +1,12 @@
+{
+  "name": "JSON 格式化 - 纯粹工具站",
+  "shortName": "JSON格式化",
+  "description": "纯前端 JSON 格式化与压缩工具，支持缩进、排序键与一键复制，所有处理均在浏览器本地完成。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "数据处理工具",
+  "keywords": ["JSON", "格式化", "压缩", "排序"]
+}
+

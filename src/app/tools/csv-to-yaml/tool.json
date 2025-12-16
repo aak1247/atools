@@ -1,0 +1,12 @@
+{
+  "name": "CSV-YAML 转换器 - 纯粹工具站",
+  "shortName": "CSV→YAML",
+  "description": "纯前端 CSV 转 YAML 工具，支持自动识别分隔符、首行表头与一键复制下载。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "数据处理工具",
+  "keywords": ["CSV", "YAML", "转换", "表头", "分隔符"]
+}
+

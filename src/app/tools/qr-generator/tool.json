@@ -1,0 +1,12 @@
+{
+  "name": "二维码生成器 - 纯粹工具站",
+  "shortName": "二维码",
+  "description": "纯前端二维码生成器，支持自定义尺寸、容错等级与配色，生成 PNG 下载。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "图片工具",
+  "keywords": ["二维码", "QR", "生成", "PNG"]
+}
+

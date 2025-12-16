@@ -1,0 +1,12 @@
+{
+  "name": "盐值生成器 - 纯粹工具站",
+  "shortName": "盐值",
+  "description": "纯前端盐值生成器，支持自定义字节长度与输出格式（Hex/Base64/Base64URL），一键复制。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "密码学工具",
+  "keywords": ["盐", "salt", "随机", "hex", "base64"]
+}
+

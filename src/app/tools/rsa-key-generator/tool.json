@@ -1,0 +1,12 @@
+{
+  "name": "RSA 密钥生成器 - 纯粹工具站",
+  "shortName": "RSA密钥",
+  "description": "纯前端 RSA 密钥生成器，支持生成 2048/3072/4096 位密钥，并导出 PEM（PKCS8 私钥 / SPKI 公钥）。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "密码学工具",
+  "keywords": ["RSA", "密钥", "PEM", "PKCS8", "SPKI", "生成器"]
+}
+

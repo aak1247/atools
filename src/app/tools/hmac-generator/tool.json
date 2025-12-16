@@ -1,0 +1,12 @@
+{
+  "name": "HMAC 生成器 - 纯粹工具站",
+  "shortName": "HMAC",
+  "description": "纯前端 HMAC 生成器，支持 SHA1/SHA256/SHA512，支持文本或十六进制 Key，输出 Hex/Base64 并可一键复制。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "密码学工具",
+  "keywords": ["HMAC", "SHA1", "SHA256", "SHA512", "签名"]
+}
+

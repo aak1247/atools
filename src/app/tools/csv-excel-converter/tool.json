@@ -1,0 +1,12 @@
+{
+  "name": "CSV-Excel 转换器 - 纯粹工具站",
+  "shortName": "CSV↔Excel",
+  "description": "纯前端 CSV 与 Excel（.xlsx）互转工具，支持分隔符与工作表选择，一键下载。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "数据处理工具",
+  "keywords": ["CSV", "Excel", "XLSX", "转换", "工作表"]
+}
+

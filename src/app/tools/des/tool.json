@@ -1,0 +1,12 @@
+{
+  "name": "DES 加解密 - 纯粹工具站",
+  "shortName": "DES",
+  "description": "纯前端 DES 加解密工具（CBC/ECB + PKCS7），支持输入十六进制 Key/IV 并输出 Base64 密文。注意：DES 已不安全，仅用于兼容场景。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "密码学工具",
+  "keywords": ["DES", "加密", "解密", "CBC", "ECB", "Base64"]
+}
+

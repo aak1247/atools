@@ -1,0 +1,12 @@
+{
+  "name": "AES256 加解密 - 纯粹工具站",
+  "shortName": "AES256",
+  "description": "纯前端 AES-256-GCM 加解密工具，使用 PBKDF2 派生密钥并输出可复制的加密结果（JSON），所有处理均在浏览器本地完成。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "密码学工具",
+  "keywords": ["AES", "AES256", "加密", "解密", "PBKDF2", "GCM"]
+}
+

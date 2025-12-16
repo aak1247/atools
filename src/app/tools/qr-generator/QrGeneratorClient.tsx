@@ -1,0 +1,188 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import QRCode from "qrcode";
+
+type Level = "L" | "M" | "Q" | "H";
+
+const clampInt = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, Math.trunc(value)));
+
+export default function QrGeneratorClient() {
+  const [text, setText] = useState("https://example.com");
+  const [size, setSize] = useState(320);
+  const [margin, setMargin] = useState(2);
+  const [level, setLevel] = useState<Level>("M");
+  const [dark, setDark] = useState("#0f172a");
+  const [light, setLight] = useState("#ffffff");
+  const [error, setError] = useState<string | null>(null);
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const options = useMemo(
+    () => ({
+      errorCorrectionLevel: level,
+      margin: clampInt(margin, 0, 16),
+      width: clampInt(size, 128, 1024),
+      color: {
+        dark,
+        light,
+      },
+    }),
+    [dark, level, light, margin, size],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      setError(null);
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      if (!text.trim()) {
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+      try {
+        await QRCode.toCanvas(canvas, text, options);
+      } catch (e) {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "生成失败");
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [options, text]);
+
+  const download = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/png", 1),
+    );
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "qrcode.png";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">二维码生成器</h1>
+        <p className="mt-2 text-sm text-slate-500">输入内容，一键生成二维码 PNG</p>
+      </div>
+
+      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+          <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
+            <div className="text-sm font-semibold text-slate-900">内容</div>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="输入要生成二维码的文本或链接…"
+              className="mt-2 h-40 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+            />
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="block">
+                <div className="text-xs text-slate-500">尺寸（px）</div>
+                <input
+                  type="number"
+                  min={128}
+                  max={1024}
+                  value={size}
+                  onChange={(e) => setSize(Number(e.target.value))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                />
+              </label>
+              <label className="block">
+                <div className="text-xs text-slate-500">留白（margin）</div>
+                <input
+                  type="number"
+                  min={0}
+                  max={16}
+                  value={margin}
+                  onChange={(e) => setMargin(Number(e.target.value))}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                />
+              </label>
+              <label className="block">
+                <div className="text-xs text-slate-500">容错等级</div>
+                <select
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value as Level)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                >
+                  <option value="L">L（7%）</option>
+                  <option value="M">M（15%）</option>
+                  <option value="Q">Q（25%）</option>
+                  <option value="H">H（30%）</option>
+                </select>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <div className="text-xs text-slate-500">前景色</div>
+                  <input
+                    type="color"
+                    value={dark}
+                    onChange={(e) => setDark(e.target.value)}
+                    className="mt-1 h-10 w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+                  />
+                </label>
+                <label className="block">
+                  <div className="text-xs text-slate-500">背景色</div>
+                  <input
+                    type="color"
+                    value={light}
+                    onChange={(e) => setLight(e.target.value)}
+                    className="mt-1 h-10 w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={download}
+                className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-700 active:scale-[0.99]"
+              >
+                下载 PNG
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setText("");
+                  setError(null);
+                }}
+                className="rounded-2xl px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 active:scale-[0.99]"
+              >
+                清空
+              </button>
+            </div>
+
+            {error && <div className="mt-3 text-sm text-rose-600">错误：{error}</div>}
+          </div>
+
+          <div className="rounded-2xl bg-white p-4 ring-1 ring-black/5">
+            <div className="text-sm font-semibold text-slate-900">预览</div>
+            <div className="mt-4 flex items-center justify-center rounded-2xl bg-slate-50 p-6">
+              <canvas ref={canvasRef} className="h-auto w-full max-w-[320px]" />
+            </div>
+            <div className="mt-3 text-xs text-slate-500">
+              提示：二维码在浏览器本地生成，不上传任何内容。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
