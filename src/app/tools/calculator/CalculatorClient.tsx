@@ -2,6 +2,8 @@
 
 import type { FC } from "react";
 import { useState, useEffect } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalI18n } from "../../../i18n/I18nProvider";
 
 const scientificFunctions = [
   { label: "sin", fn: "sin" },
@@ -14,6 +16,17 @@ const scientificFunctions = [
 type ScientificFn = (typeof scientificFunctions)[number]["fn"];
 
 const CalculatorClient: FC = () => {
+  const i18n = useOptionalI18n();
+  const locale = i18n?.locale ?? "zh-cn";
+  const ui =
+    locale === "en-us"
+      ? {
+          footer: "Keyboard supported • Local-only calculation",
+        }
+      : {
+          footer: "支持键盘输入 • 纯本地计算",
+        };
+
   const [display, setDisplay] = useState("0");
   const [error, setError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<string | null>(null);
@@ -124,12 +137,9 @@ const CalculatorClient: FC = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] animate-fade-in-up">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">科学计算器</h1>
-          <p className="mt-2 text-sm text-slate-500">优雅、精准的本地计算体验</p>
-        </div>
+    <ToolPageLayout toolSlug="calculator" maxWidthClassName="max-w-2xl">
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="w-full max-w-sm">
 
         <div className="glass-card overflow-hidden rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
           {/* Display Screen */}
@@ -186,10 +196,11 @@ const CalculatorClient: FC = () => {
         </div>
         
         <div className="mt-8 text-center text-xs text-slate-400">
-          <p>支持键盘输入 • 纯本地计算</p>
+          <p>{ui.footer}</p>
         </div>
       </div>
     </div>
+    </ToolPageLayout>
   );
 };
 

@@ -1,0 +1,19 @@
+{
+  "name": "免费在线 PDF 压缩工具 - 纯粹工具站",
+  "shortName": "PDF压缩",
+  "description": "PDF 压缩（轻量）：在浏览器本地重写/优化 PDF 结构尝试减小体积，不保证一定变小。",
+  "seoDescription": "免费在线 PDF 压缩工具（轻量）。支持上传 PDF 并在浏览器本地使用 pdf-lib 重新保存（可选对象流等参数）以尝试优化结构，在部分 PDF 上可能减少体积；不做图片重采样与重编码，因此不保证一定变小。全程本地处理不上传，适合快速尝试瘦身与分享前优化。",
+  "category": "文档工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "PDF压缩",
+    "PDF优化",
+    "重写PDF",
+    "pdf-lib",
+    "本地处理"
+  ]
+}
+

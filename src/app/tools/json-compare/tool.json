@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 JSON 对比工具 - 纯粹工具站",
+  "shortName": "JSON对比",
+  "description": "免费在线 JSON 对比工具：结构化递归比较两份 JSON，输出新增/删除/变化/类型变化的差异列表。",
+  "seoDescription": "免费在线JSON对比工具，支持粘贴两份JSON并进行结构化递归diff，对比对象字段、数组元素与嵌套结构，输出新增(added)、删除(removed)、变化(changed)、类型变化(type-changed)等差异信息。支持复制差异结果JSON，纯前端本地运行不上传数据，适合接口响应对比、配置变更检查、联调排查与代码审查。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "JSON对比",
+    "JSON diff",
+    "接口响应对比",
+    "配置对比",
+    "结构化对比",
+    "本地处理"
+  ]
+}
+

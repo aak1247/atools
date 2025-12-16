@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 PPT 压缩工具 - 纯粹工具站",
+  "shortName": "PPT压缩",
+  "description": "PPTX 压缩（轻量）：通过重新打包 ZIP 容器尝试减小体积，纯前端本地运行。",
+  "seoDescription": "免费在线 PPT 压缩工具（PPTX）。支持上传 .pptx 文件并在浏览器本地重新打包 ZIP 容器（可选压缩等级），在部分文件上可减少体积；不会解析或重压图片与媒体资源，因此不保证一定变小。全程本地处理，不上传服务器，适合快速尝试瘦身与分享前优化。",
+  "category": "文档工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "PPT压缩",
+    "PPTX压缩",
+    "PowerPoint压缩",
+    "重打包",
+    "ZIP压缩",
+    "本地处理"
+  ]
+}
+

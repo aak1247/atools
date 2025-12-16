@@ -8,6 +8,22 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费进制转换", "在线进制计算", "二进制转换", "十六进制转换", "进制转换器"]
+  "keywords": ["免费进制转换", "在线进制计算", "二进制转换", "十六进制转换", "进制转换器"],
+  "ui": {
+    "inputTitle": "输入",
+    "fromBase": "从（base）",
+    "toBase": "到（base）",
+    "numberLabel": "数字（仅整数，可用 _ 分隔）",
+    "numberPlaceholder": "例如 0xff / 1010_0101 / -42",
+    "swap": "交换",
+    "prefix": "输出前缀（0x/0b/0o）",
+    "resultTitle": "结果",
+    "copy": "复制",
+    "decimalPrefix": "十进制：",
+    "hint": "提示：仅支持整数；如需小数/浮点进制转换，可另行扩展。",
+    "errorBaseRange": "base 必须在 2–36 之间。",
+    "errorEmpty": "请输入数字。",
+    "errorInvalidCharTemplate": "非法字符：{ch}（base={base}）",
+    "errorConvert": "无法转换"
+  }
 }
-

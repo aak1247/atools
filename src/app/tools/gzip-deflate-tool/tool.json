@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 Gzip/Deflate 压缩解压工具 - 纯粹工具站",
+  "shortName": "Gzip解压",
+  "description": "Gzip/Deflate 压缩与解压：支持文本与文件，纯前端本地运行。",
+  "seoDescription": "免费在线 Gzip/Deflate 压缩解压工具，支持对文本或文件进行 gzip/deflate 压缩与解压，提供压缩等级设置与一键下载/复制 Base64。全程浏览器本地处理，不上传文件内容，适合开发调试、数据传输排查与办公场景快速处理。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "gzip解压",
+    "gzip压缩",
+    "deflate解压",
+    "base64",
+    "fflate",
+    "本地处理"
+  ]
+}
+

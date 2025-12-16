@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { DEFAULT_LOCALE } from "../i18n/locales";
 
 export const dynamic = "force-static";
 
@@ -7,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "纯粹工具站",
     short_name: "纯粹工具站",
     description: "一个纯前端工具集合站点。",
-    start_url: "/",
+    start_url: `/${DEFAULT_LOCALE}`,
     display: "standalone",
     lang: "zh-CN",
     background_color: "#0f172a",
@@ -23,12 +24,12 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         name: "科学计算器",
         short_name: "计算器",
-        url: "/tools/calculator",
+        url: `/${DEFAULT_LOCALE}/tools/calculator`,
       },
       {
         name: "图片压缩工具",
         short_name: "图片压缩",
-        url: "/tools/image-compressor",
+        url: `/${DEFAULT_LOCALE}/tools/image-compressor`,
       },
     ],
   };

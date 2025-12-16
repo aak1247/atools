@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 JSON 转 JSON Schema 工具 - 纯粹工具站",
+  "shortName": "JSON→Schema",
+  "description": "JSON 转 JSON Schema：粘贴 JSON 示例自动生成 Schema，支持嵌套对象与数组，纯前端本地运行。",
+  "seoDescription": "免费在线 JSON 转 JSON Schema 工具，支持粘贴 JSON 示例并自动推断字段类型，生成 JSON Schema（含 properties、required、items 等），适合接口定义、数据校验与文档规范。全程浏览器本地运行，不上传数据，支持自定义标题与是否禁止额外字段。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "json schema生成",
+    "json转schema",
+    "schema推断",
+    "接口定义",
+    "数据校验",
+    "本地处理"
+  ]
+}
+

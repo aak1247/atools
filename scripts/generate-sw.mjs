@@ -5,6 +5,8 @@ const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, "public");
 const PACKAGE_JSON_PATH = path.join(ROOT, "package.json");
 const SW_PATH = path.join(PUBLIC_DIR, "sw.js");
+const DEFAULT_LOCALE = "zh-cn";
+const SUPPORTED_LOCALES = ["zh-cn", "en-us"];
 
 function readPackageVersion() {
   try {
@@ -29,12 +31,15 @@ function generateServiceWorker() {
   const version = readPackageVersion();
   const cacheName = `tools-pwa-v${version}`;
 
+  const offlineUrls = [
+    "/",
+    ...SUPPORTED_LOCALES.map((locale) => `/${locale}`),
+    `/${DEFAULT_LOCALE}/tools/calculator`,
+    `/${DEFAULT_LOCALE}/tools/image-compressor`,
+  ];
+
   const swSource = `const CACHE_NAME = "${cacheName}";
-const OFFLINE_URLS = [
-  "/",
-  "/tools/calculator",
-  "/tools/image-compressor",
-];
+const OFFLINE_URLS = ${JSON.stringify(offlineUrls, null, 2)};
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -78,7 +83,7 @@ self.addEventListener("fetch", (event) => {
       .catch(() =>
         caches
           .match(request)
-          .then((cachedResponse) => cachedResponse || caches.match("/")),
+          .then((cachedResponse) => cachedResponse || caches.match("/${DEFAULT_LOCALE}")),
       ),
   );
 });

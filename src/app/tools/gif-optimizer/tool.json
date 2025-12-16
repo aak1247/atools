@@ -1,0 +1,21 @@
+{
+  "name": "免费在线 GIF 动图优化器 - 纯粹工具站",
+  "shortName": "GIF优化",
+  "description": "GIF 动图压缩与优化：调整尺寸、帧率、色彩数量与抖动算法，基于 ffmpeg.wasm 本地生成。",
+  "seoDescription": "免费在线 GIF 动图优化器，支持上传 GIF 并通过调整宽度、帧率(FPS)、最大颜色数与抖动(dither)算法降低体积，同时尽量保持画质。工具基于 ffmpeg.wasm 在浏览器本地执行，不上传服务器，适合动图压缩、分享前瘦身与性能优化。",
+  "category": "媒体工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "GIF压缩",
+    "GIF优化",
+    "动图压缩",
+    "palettegen",
+    "paletteuse",
+    "ffmpeg.wasm",
+    "本地处理"
+  ]
+}
+

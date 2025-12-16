@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 cURL 转代码工具 - 纯粹工具站",
+  "shortName": "cURL转码",
+  "description": "cURL 转代码：一键生成 fetch/Axios 等请求代码，解析 URL、方法、Headers 与 Body，纯前端本地运行。",
+  "seoDescription": "免费在线 cURL 转代码工具，支持粘贴 curl 命令并自动解析请求方法、URL、请求头(headers)、请求体(body)、查询参数等，生成 JavaScript fetch、Axios 等常用调用代码。全程浏览器本地运行，不上传命令内容，适合接口调试、文档编写与开发协作。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "curl转fetch",
+    "curl转axios",
+    "curl转代码",
+    "API调试",
+    "请求头",
+    "请求体",
+    "本地处理"
+  ]
+}

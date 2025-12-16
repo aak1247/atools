@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, Sparkles, ArrowRight, Command } from "lucide-react";
-import toolsMeta from "./tools/tools-meta.json";
+import toolsMetaZh from "./tools/tools-meta.zh-cn.json";
+import toolsMetaEn from "./tools/tools-meta.en-us.json";
+import { getMessages } from "../i18n/messages";
+import { useOptionalI18n } from "../i18n/I18nProvider";
 
 type ToolNavItem = {
   slug: string;
@@ -16,18 +19,41 @@ type ToolNavItem = {
   keywords?: string[];
 };
 
-const allTools: ToolNavItem[] = toolsMeta as ToolNavItem[];
-
-const ALL_CATEGORY = "全部";
+const ALL_CATEGORY = "__ALL__";
 
 const normalizeText = (value: string): string =>
   value.toLowerCase().normalize("NFKC");
 
 export default function ToolNavClient() {
+  const i18n = useOptionalI18n();
+  const locale = i18n?.locale ?? "zh-cn";
+  const messages = i18n?.messages ?? getMessages("zh-cn");
+  const allTools: ToolNavItem[] =
+    locale === "en-us" ? (toolsMetaEn as ToolNavItem[]) : (toolsMetaZh as ToolNavItem[]);
+
   const [activeCategory, setActiveCategory] = useState<string>(ALL_CATEGORY);
   const [query, setQuery] = useState<string>("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const categoryContainerRef = useRef<HTMLDivElement>(null);
+  const categoryDragStateRef = useRef<{
+    isPointerDown: boolean;
+    pointerId: number;
+    startClientX: number;
+    startClientY: number;
+    startScrollLeft: number;
+    hasDragged: boolean;
+    blockClick: boolean;
+  }>({
+    isPointerDown: false,
+    pointerId: -1,
+    startClientX: 0,
+    startClientY: 0,
+    startScrollLeft: 0,
+    hasDragged: false,
+    blockClick: false,
+  });
+  const categoryDragAbortRef = useRef<AbortController | null>(null);
+  const bodyUserSelectRestoreRef = useRef<string | null>(null);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -37,7 +63,7 @@ export default function ToolNavClient() {
       }
     }
     return [ALL_CATEGORY, ...Array.from(set)];
-  }, []);
+  }, [allTools]);
 
   const filteredTools = useMemo(() => {
     const normalizedQuery = normalizeText(query.trim());
@@ -70,7 +96,7 @@ export default function ToolNavClient() {
       const tokens = normalizedQuery.split(/\s+/);
       return tokens.every((token) => normalizedSource.includes(token));
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, allTools, query]);
 
   // Smooth scroll to active category on change
   useEffect(() => {
@@ -87,6 +113,68 @@ export default function ToolNavClient() {
       }
     }
   }, [activeCategory]);
+
+  const endCategoryDrag = useCallback(() => {
+    const drag = categoryDragStateRef.current;
+    drag.isPointerDown = false;
+    drag.pointerId = -1;
+    drag.blockClick = drag.hasDragged;
+    drag.hasDragged = false;
+
+    if (bodyUserSelectRestoreRef.current !== null) {
+      document.body.style.userSelect = bodyUserSelectRestoreRef.current;
+      bodyUserSelectRestoreRef.current = null;
+    }
+
+    categoryDragAbortRef.current?.abort();
+    categoryDragAbortRef.current = null;
+  }, []);
+
+  const onCategoryPointerMove = useCallback((e: PointerEvent) => {
+    const container = categoryContainerRef.current;
+    const drag = categoryDragStateRef.current;
+    if (!container || !drag.isPointerDown) return;
+    if (e.pointerType !== "mouse") return;
+    if (drag.pointerId !== e.pointerId) return;
+
+    const deltaX = e.clientX - drag.startClientX;
+    const deltaY = e.clientY - drag.startClientY;
+    const shouldStartDragging = Math.abs(deltaX) > 6 && Math.abs(deltaX) > Math.abs(deltaY);
+
+    if (shouldStartDragging && !drag.hasDragged) {
+      drag.hasDragged = true;
+      if (bodyUserSelectRestoreRef.current === null) {
+        bodyUserSelectRestoreRef.current = document.body.style.userSelect;
+        document.body.style.userSelect = "none";
+      }
+    }
+
+    if (drag.hasDragged) {
+      container.scrollLeft = drag.startScrollLeft - deltaX;
+    }
+  }, []);
+
+  const onCategoryPointerUp = useCallback(
+    (e: PointerEvent) => {
+      const drag = categoryDragStateRef.current;
+      if (!drag.isPointerDown) return;
+      if (e.pointerType !== "mouse") return;
+      if (drag.pointerId !== e.pointerId) return;
+      endCategoryDrag();
+    },
+    [endCategoryDrag]
+  );
+
+  useEffect(() => {
+    return () => {
+      categoryDragAbortRef.current?.abort();
+      categoryDragAbortRef.current = null;
+      if (bodyUserSelectRestoreRef.current !== null) {
+        document.body.style.userSelect = bodyUserSelectRestoreRef.current;
+        bodyUserSelectRestoreRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <section className="min-h-[80vh] space-y-10 py-8">
@@ -110,7 +198,7 @@ export default function ToolNavClient() {
               </div>
               <input
                 type="text"
-                placeholder="搜索工具..."
+                placeholder={messages.searchPlaceholder}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
@@ -127,19 +215,57 @@ export default function ToolNavClient() {
         </div>
 
         {/* Categories */}
-        <div className="w-full overflow-hidden">
+        <div className="w-full">
           <div
             ref={categoryContainerRef}
-            className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto px-4 pb-4 pt-2 sm:justify-center"
+            className="pretty-scrollbar w-full select-none overflow-x-auto px-4 pb-4 pt-2 cursor-grab active:cursor-grabbing"
             style={{
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
               WebkitOverflowScrolling: "touch",
             }}
+            onPointerDown={(e) => {
+              if (e.pointerType !== "mouse") return;
+              const container = categoryContainerRef.current;
+              if (!container) return;
+              if (e.button !== 0) return;
+
+              categoryDragAbortRef.current?.abort();
+              categoryDragAbortRef.current = new AbortController();
+              window.addEventListener("pointermove", onCategoryPointerMove, { signal: categoryDragAbortRef.current.signal });
+              window.addEventListener("pointerup", onCategoryPointerUp, { signal: categoryDragAbortRef.current.signal });
+              window.addEventListener("pointercancel", onCategoryPointerUp, { signal: categoryDragAbortRef.current.signal });
+
+              categoryDragStateRef.current = {
+                isPointerDown: true,
+                pointerId: e.pointerId,
+                startClientX: e.clientX,
+                startClientY: e.clientY,
+                startScrollLeft: container.scrollLeft,
+                hasDragged: false,
+                blockClick: false,
+              };
+            }}
+            onClickCapture={(e) => {
+              if (!categoryDragStateRef.current.blockClick) return;
+              categoryDragStateRef.current.blockClick = false;
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onWheel={(e) => {
+              const container = categoryContainerRef.current;
+              if (!container) return;
+              if (e.shiftKey) return;
+              if (container.scrollWidth <= container.clientWidth) return;
+              if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+
+              container.scrollLeft += e.deltaY;
+              e.preventDefault();
+            }}
           >
-            {categories.map((category) => {
-              const isActive = category === activeCategory;
-              return (
+            <div className="mx-auto flex w-max items-center gap-2">
+              {categories.map((category) => {
+                const isActive = category === activeCategory;
+                const label = category === ALL_CATEGORY ? messages.categoryAll : category;
+                return (
                 <button
                   key={category}
                   data-active={isActive}
@@ -158,23 +284,24 @@ export default function ToolNavClient() {
                         }`}
                       />
                     )}
-                    {category}
-                  </span>
-                </button>
-              );
-            })}
+	                    {label}
+	                  </span>
+	                </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Tools Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredTools.map((tool) => (
-          <Link
-            key={tool.slug}
-            href={tool.path}
-            className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50 hover:ring-slate-300"
-          >
+	        {filteredTools.map((tool) => (
+	          <Link
+	            key={tool.slug}
+	            href={`/${locale}${tool.path}`}
+	            className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50 hover:ring-slate-300"
+	          >
             <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             
             <div className="relative z-10 flex h-full flex-col">
@@ -200,14 +327,14 @@ export default function ToolNavClient() {
               <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
                 <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                   <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                   </span>
-                  本地运行
+                  {messages.toolCardLocal}
                 </span>
                 
                 <span className="flex items-center gap-1 text-xs font-semibold text-slate-400 transition-colors group-hover:text-slate-900">
-                  Try it
+                  {messages.toolCardTry}
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
               </div>
@@ -220,10 +347,8 @@ export default function ToolNavClient() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-100 transition-transform duration-300 group-hover:scale-110 group-hover:shadow-md">
             <Sparkles className="h-6 w-6 text-slate-400 transition-colors group-hover:text-indigo-500" />
           </div>
-          <h3 className="text-base font-semibold text-slate-900">更多工具</h3>
-          <p className="mt-2 text-sm text-slate-500">
-            持续更新中，敬请期待...
-          </p>
+          <h3 className="text-base font-semibold text-slate-900">{messages.moreToolsTitle}</h3>
+          <p className="mt-2 text-sm text-slate-500">{messages.moreToolsDescription}</p>
         </div>
       </div>
 
@@ -233,10 +358,8 @@ export default function ToolNavClient() {
           <div className="mb-4 rounded-full bg-slate-50 p-4">
             <Search className="h-8 w-8 text-slate-300" />
           </div>
-          <h3 className="text-lg font-medium text-slate-900">未找到相关工具</h3>
-          <p className="mt-2 text-slate-500">
-            尝试更换关键字，或者切换到其他分类看看
-          </p>
+          <h3 className="text-lg font-medium text-slate-900">{messages.emptyTitle}</h3>
+          <p className="mt-2 text-slate-500">{messages.emptyDescription}</p>
           <button 
             onClick={() => {
               setQuery("");
@@ -244,11 +367,10 @@ export default function ToolNavClient() {
             }}
             className="mt-6 rounded-full bg-slate-900 px-6 py-2 text-sm font-medium text-white transition-transform hover:scale-105 active:scale-95"
           >
-            清除筛选
+            {messages.clearFilters}
           </button>
         </div>
       )}
     </section>
   );
 }
-

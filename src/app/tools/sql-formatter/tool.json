@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 SQL 查询美化器 - 纯粹工具站",
+  "shortName": "SQL美化",
+  "description": "SQL 查询美化与格式化：自动换行、缩进、关键字大写，支持一键复制，纯前端本地运行。",
+  "seoDescription": "免费在线 SQL 查询美化器/格式化工具，支持对 SELECT/INSERT/UPDATE/DELETE 等常见 SQL 进行自动换行与缩进，按语句块分段并可选择关键字大写、缩进空格数。所有处理在浏览器本地完成，不上传服务器，适合开发调试、排查慢查询与代码审阅。",
+  "category": "实用工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "SQL格式化",
+    "SQL美化",
+    "SQL换行",
+    "SQL缩进",
+    "开发工具",
+    "本地处理"
+  ]
+}
+

@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest a new tool or improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What problem are you trying to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What would you like to see?
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Target area
+      options:
+        - Developer
+        - Office
+        - Audio/Video
+        - Image
+        - PDF/Docs
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+

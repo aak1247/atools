@@ -2,6 +2,7 @@
 
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type PickedColor = {
   r: number;
@@ -47,7 +48,35 @@ const rgbToHsl = (r: number, g: number, b: number) => {
 
 const MAX_DISPLAY = 900;
 
-export default function ColorPickerClient() {
+type ColorPickerUi = {
+  pickImageError: string;
+  dropTitle: string;
+  dropSubtitle: string;
+  currentImagePrefix: string;
+  reselect: string;
+  hintPick: string;
+  colorInfo: string;
+  pixelPrefix: string;
+  notPicked: string;
+  copy: string;
+  alphaNote: string;
+};
+
+const DEFAULT_UI: ColorPickerUi = {
+  pickImageError: "请选择图片文件",
+  dropTitle: "点击或拖拽图片到此处",
+  dropSubtitle: "支持常见图片格式（JPG/PNG/WebP…）",
+  currentImagePrefix: "当前图片：",
+  reselect: "重新选择",
+  hintPick: "提示：点击画布任意位置即可取色。",
+  colorInfo: "颜色信息",
+  pixelPrefix: "像素坐标：",
+  notPicked: "未取色",
+  copy: "复制",
+  alphaNote: "说明：带透明度的颜色会输出 8 位 HEX（#RRGGBBAA）。",
+};
+
+function ColorPickerInner({ ui }: { ui: ColorPickerUi }) {
   const [file, setFile] = useState<File | null>(null);
   const [bitmap, setBitmap] = useState<ImageBitmap | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +136,7 @@ export default function ColorPickerClient() {
 
   const processFile = async (selected: File) => {
     if (!selected.type.startsWith("image/")) {
-      setError("请选择图片文件");
+      setError(ui.pickImageError);
       return;
     }
     setError(null);
@@ -197,12 +226,7 @@ export default function ColorPickerClient() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">图片取色器</h1>
-        <p className="mt-2 text-sm text-slate-500">上传图片后点击取色，纯本地运行</p>
-      </div>
-
+    <>
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         {!file ? (
           <div
@@ -223,14 +247,14 @@ export default function ColorPickerClient() {
               className="hidden"
               onChange={handleFileChange}
             />
-            <div className="text-sm font-medium text-slate-700">点击或拖拽图片到此处</div>
-            <div className="mt-1 text-xs text-slate-500">支持常见图片格式（JPG/PNG/WebP…）</div>
+            <div className="text-sm font-medium text-slate-700">{ui.dropTitle}</div>
+            <div className="mt-1 text-xs text-slate-500">{ui.dropSubtitle}</div>
           </div>
         ) : (
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50/80 p-4">
               <div className="text-sm text-slate-700">
-                <span className="font-semibold text-slate-900">当前图片：</span>
+                <span className="font-semibold text-slate-900">{ui.currentImagePrefix}</span>
                 {file.name}
                 {bitmap && (
                   <span className="ml-2 text-xs text-slate-500">
@@ -251,7 +275,7 @@ export default function ColorPickerClient() {
                 }}
                 className="rounded-xl bg-white px-4 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95"
               >
-                重新选择
+                {ui.reselect}
               </button>
             </div>
 
@@ -265,12 +289,12 @@ export default function ColorPickerClient() {
                   />
                 )}
                 <div className="mt-3 text-xs text-slate-500">
-                  提示：点击画布任意位置即可取色。
+                  {ui.hintPick}
                 </div>
               </div>
 
               <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
-                <div className="text-sm font-semibold text-slate-900">颜色信息</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.colorInfo}</div>
 
                 <div className="mt-4 flex items-center gap-3">
                   <div
@@ -282,10 +306,10 @@ export default function ColorPickerClient() {
                   <div className="text-xs text-slate-500">
                     {picked ? (
                       <div>
-                        像素坐标：{picked.x}, {picked.y}
+                        {ui.pixelPrefix}{picked.x}, {picked.y}
                       </div>
                     ) : (
-                      <div>未取色</div>
+                      <div>{ui.notPicked}</div>
                     )}
                   </div>
                 </div>
@@ -306,7 +330,7 @@ export default function ColorPickerClient() {
                           onClick={() => copy(item.value)}
                           className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60"
                         >
-                          复制
+                          {ui.copy}
                         </button>
                       </div>
                       <div className="mt-1 break-all font-mono text-xs text-slate-900">
@@ -317,7 +341,7 @@ export default function ColorPickerClient() {
                 </div>
 
                 <div className="mt-4 text-xs text-slate-500">
-                  说明：带透明度的颜色会输出 8 位 HEX（#RRGGBBAA）。
+                  {ui.alphaNote}
                 </div>
               </div>
             </div>
@@ -330,7 +354,16 @@ export default function ColorPickerClient() {
           {error}
         </div>
       )}
-    </div>
+    </>
   );
 }
 
+export default function ColorPickerClient() {
+  return (
+    <ToolPageLayout toolSlug="color-picker">
+      {({ config }) => (
+        <ColorPickerInner ui={{ ...DEFAULT_UI, ...(config.ui as Partial<ColorPickerUi> | undefined) }} />
+      )}
+    </ToolPageLayout>
+  );
+}

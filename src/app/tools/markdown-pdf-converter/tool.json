@@ -1,0 +1,18 @@
+{
+  "name": "免费在线 Markdown 转 PDF 转换器 - 纯粹工具站",
+  "shortName": "MD→PDF",
+  "description": "Markdown 转 PDF：支持上传/粘贴 Markdown，实时预览并通过浏览器打印保存为 PDF，纯前端本地运行。",
+  "seoDescription": "免费在线 Markdown 转 PDF 转换器，支持粘贴或上传 .md 文件并实时渲染预览，支持标题、列表、引用、代码块与链接等常用语法。点击导出会打开浏览器打印面板，可直接“另存为 PDF”。全程在本地完成，不上传服务器，适合文档导出、笔记归档与分享。",
+  "category": "文档工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "Markdown转PDF",
+    "md转pdf",
+    "文档导出",
+    "打印保存为PDF",
+    "本地处理"
+  ]
+}

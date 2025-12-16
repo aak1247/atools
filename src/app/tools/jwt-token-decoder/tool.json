@@ -1,0 +1,22 @@
+{
+  "name": "JWT令牌解码器 - 纯粹工具站",
+  "shortName": "JWT解码器",
+  "description": "免费在线 JWT 令牌解码器：解码 header/payload，检查签名段格式并解析常见声明，纯前端本地运行。",
+  "seoDescription": "免费在线JWT令牌解码工具，支持解码JSON Web Token的头部(header)和载荷(payload)，验证签名格式。实时显示token结构信息，包括过期时间、签发者、受众等声明。支持RS256、HS256等算法识别，100%本地处理保护数据隐私，无需注册。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "JWT解码",
+    "JWT解析",
+    "JSON Web Token",
+    "token解码",
+    "API调试",
+    "开发工具",
+    "签名验证",
+    "免费在线工具",
+    "本地处理"
+  ]
+}

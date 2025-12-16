@@ -1,0 +1,19 @@
+{
+  "name": "免费在线 HTTP Header 解析工具 - 纯粹工具站",
+  "shortName": "Header解析",
+  "description": "HTTP Header 解析：Raw headers 转 JSON、提取 Cookie，并支持 JSON 生成 headers，纯前端本地运行。",
+  "seoDescription": "免费在线 HTTP Header 解析工具，支持粘贴请求/响应的 raw headers，自动解析为 JSON 映射，提取 Cookie 字段并解析为键值对，同时支持从 JSON 生成可粘贴的 headers 文本。全程浏览器本地处理不上传，适合接口调试、抓包排查与办公协作。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "header解析",
+    "http header",
+    "cookie解析",
+    "raw headers",
+    "本地处理"
+  ]
+}
+

@@ -1,0 +1,19 @@
+{
+  "name": "免费在线 URL 解析与构造工具 - 纯粹工具站",
+  "shortName": "URL解析",
+  "description": "URL 解析与构造：拆分协议/域名/路径/参数/哈希，支持编辑参数并重组 URL，纯前端本地运行。",
+  "seoDescription": "免费在线 URL 解析与构造工具，支持粘贴任意链接并解析协议、域名、端口、路径、查询参数与 hash；可在页面中编辑 query 参数并一键重组 URL，支持解码显示与复制。全程浏览器本地处理，不上传链接内容，适合开发调试、办公分享与链接排错。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "URL解析",
+    "URL参数",
+    "query解析",
+    "链接拆分",
+    "本地处理"
+  ]
+}
+

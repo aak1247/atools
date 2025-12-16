@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 JSON 转 Kotlin Data Class 工具 - 纯粹工具站",
+  "shortName": "JSON→Kotlin",
+  "description": "免费在线 JSON 转 Kotlin data class：从样例 JSON 推断类型，生成 data class（可选 kotlinx.serialization 注解），纯前端本地运行。",
+  "seoDescription": "免费在线JSON转Kotlin Data Class工具，支持粘贴JSON样例并自动推断字段类型，生成Kotlin data class代码。支持嵌套对象、数组(List<T>)、可空类型(T?)，并可选择生成kotlinx.serialization的@Serializable/@SerialName映射注解。纯前端本地运行不上传数据，适合Android/后端开发联调、接口响应建模与快速生成模型代码。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "JSON转Kotlin",
+    "Kotlin data class",
+    "kotlinx.serialization",
+    "Android开发",
+    "接口响应建模",
+    "本地处理"
+  ]
+}
+

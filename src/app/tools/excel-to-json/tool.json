@@ -1,0 +1,19 @@
+{
+  "name": "免费在线 Excel 转 JSON 工具 - 纯粹工具站",
+  "shortName": "Excel→JSON",
+  "description": "Excel（.xlsx）转 JSON：选择工作表并导出为 JSON 数组或二维数组，纯前端本地运行。",
+  "seoDescription": "免费在线 Excel 转 JSON 工具，支持上传 .xlsx 文件并选择工作表，将表格数据导出为 JSON（数组对象/二维数组），支持首行作为字段名、跳过空行、空值填充等选项。全程浏览器本地处理不上传，适合数据清洗、接口 mock、报表导出与办公协作。",
+  "category": "数据处理工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "excel转json",
+    "xlsx转json",
+    "表格导出",
+    "数据处理",
+    "本地处理"
+  ]
+}
+

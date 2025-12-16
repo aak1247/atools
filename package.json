@@ -2,9 +2,11 @@
   "name": "site",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "next dev",
-    "predev": "npm run generate:manifests",
+    "prepare:ffmpeg": "node scripts/copy-ffmpeg-core.mjs",
+    "predev": "node scripts/copy-ffmpeg-core.mjs && node scripts/generate-tool-manifests.mjs",
     "build": "next build --webpack",
     "build:turbo": "next build",
     "start": "next start",
@@ -12,10 +14,12 @@
     "generate:manifests": "node scripts/generate-tool-manifests.mjs",
     "generate:sw": "node scripts/generate-sw.mjs",
     "push:search": "node scripts/push-search.mjs",
-    "prebuild": "npm run generate:manifests && npm run generate:sw",
+    "prebuild": "node scripts/copy-ffmpeg-core.mjs && node scripts/generate-tool-manifests.mjs && node scripts/generate-sw.mjs",
+    "prebuild:turbo": "node scripts/copy-ffmpeg-core.mjs && node scripts/generate-tool-manifests.mjs && node scripts/generate-sw.mjs",
     "postbuild": "node scripts/push-search.mjs"
   },
   "dependencies": {
+    "@ffmpeg/core": "0.12.6",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
     "crypto-js": "^4.2.0",

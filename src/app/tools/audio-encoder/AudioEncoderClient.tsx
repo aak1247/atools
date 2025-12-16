@@ -16,8 +16,16 @@ type ParsedInfo = {
   channels?: string;
 };
 
-const CORE_VERSION = "0.12.6";
-const CORE_BASE = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/`;
+const CORE_BASE = "/vendor/ffmpeg/core/";
+
+const SAMPLE_RATE_PRESETS = [
+  8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000,
+] as const;
+type SampleRatePreset = (typeof SAMPLE_RATE_PRESETS)[number];
+type SampleRateChoice = "keep" | "custom" | SampleRatePreset;
+
+const SAMPLE_RATE_MIN = 8000;
+const SAMPLE_RATE_MAX = 384000;
 
 const formatSeconds = (seconds: number | undefined): string => {
   if (!seconds || !Number.isFinite(seconds) || seconds <= 0) return "-";
@@ -83,7 +91,8 @@ export default function AudioEncoderClient() {
   const [file, setFile] = useState<File | null>(null);
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("mp3");
   const [bitrateKbps, setBitrateKbps] = useState(192);
-  const [sampleRate, setSampleRate] = useState<"keep" | 22050 | 44100 | 48000>("keep");
+  const [sampleRateChoice, setSampleRateChoice] = useState<SampleRateChoice>("keep");
+  const [customSampleRate, setCustomSampleRate] = useState<number>(44100);
   const [channels, setChannels] = useState<"keep" | 1 | 2>("keep");
 
   const [isWorking, setIsWorking] = useState(false);
@@ -127,9 +136,8 @@ export default function AudioEncoderClient() {
 
       const coreURL = await toBlobURL(`${CORE_BASE}ffmpeg-core.js`, "text/javascript");
       const wasmURL = await toBlobURL(`${CORE_BASE}ffmpeg-core.wasm`, "application/wasm");
-      const workerURL = await toBlobURL(`${CORE_BASE}ffmpeg-core.worker.js`, "text/javascript");
 
-      await ffmpeg.load({ coreURL, wasmURL, workerURL });
+      await ffmpeg.load({ coreURL, wasmURL });
       ffmpegRef.current = ffmpeg;
       setFfmpegState("ready");
     } catch (e) {
@@ -214,7 +222,12 @@ export default function AudioEncoderClient() {
 
     const args: string[] = ["-hide_banner", "-y", "-i", inputName, "-vn"];
     if (channels !== "keep") args.push("-ac", String(channels));
-    if (sampleRate !== "keep") args.push("-ar", String(sampleRate));
+    const resolvedSampleRate =
+      sampleRateChoice === "keep" ? null : sampleRateChoice === "custom" ? customSampleRate : sampleRateChoice;
+    if (resolvedSampleRate != null) {
+      const clamped = Math.max(SAMPLE_RATE_MIN, Math.min(SAMPLE_RATE_MAX, Math.round(resolvedSampleRate)));
+      args.push("-ar", String(clamped));
+    }
 
     if (outputFormat === "wav") {
       args.push("-c:a", "pcm_s16le", outName);
@@ -384,15 +397,37 @@ export default function AudioEncoderClient() {
                   <label className="block text-sm text-slate-700">
                     采样率
                     <select
-                      value={sampleRate}
-                      onChange={(e) => setSampleRate(e.target.value === "keep" ? "keep" : (Number(e.target.value) as 22050 | 44100 | 48000))}
+                      value={sampleRateChoice}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "keep" || value === "custom") {
+                          setSampleRateChoice(value);
+                          return;
+                        }
+                        setSampleRateChoice(Number(value) as SampleRatePreset);
+                      }}
                       className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
                       <option value="keep">保持原始</option>
-                      <option value={22050}>22050 Hz</option>
-                      <option value={44100}>44100 Hz</option>
-                      <option value={48000}>48000 Hz</option>
+                      {SAMPLE_RATE_PRESETS.map((rate) => (
+                        <option key={rate} value={rate}>
+                          {rate} Hz
+                        </option>
+                      ))}
+                      <option value="custom">自定义…</option>
                     </select>
+                    {sampleRateChoice === "custom" && (
+                      <input
+                        type="number"
+                        min={SAMPLE_RATE_MIN}
+                        max={SAMPLE_RATE_MAX}
+                        step={1}
+                        value={customSampleRate}
+                        onChange={(e) => setCustomSampleRate(Number(e.target.value))}
+                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                        placeholder="例如 44100"
+                      />
+                    )}
                   </label>
 
                   <label className="block text-sm text-slate-700">

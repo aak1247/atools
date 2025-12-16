@@ -1,0 +1,29 @@
+{
+  "name": "Free Online Color Picker - ATools",
+  "shortName": "Color Picker",
+  "description": "Free online Color Picker. Runs locally in your browser with zero uploads for privacy and speed.",
+  "seoDescription": "The ultimate free online Color Picker — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Color Picker on any device, this is the one you bookmark and share.",
+  "category": "Image Tools",
+  "lang": "en-US",
+  "ui": {
+    "pickImageError": "Please select an image file.",
+    "dropTitle": "Click or drag an image here",
+    "dropSubtitle": "Supports common formats (JPG/PNG/WebP…)",
+    "currentImagePrefix": "Current image: ",
+    "reselect": "Choose another",
+    "hintPick": "Tip: Click anywhere on the canvas to pick a color.",
+    "colorInfo": "Color info",
+    "pixelPrefix": "Pixel: ",
+    "notPicked": "No color selected",
+    "copy": "Copy",
+    "alphaNote": "Note: Colors with alpha output 8-digit HEX (#RRGGBBAA)."
+  },
+  "keywords": [
+    "free online Color Picker",
+    "Color Picker tool",
+    "Color Picker web app",
+    "color-picker",
+    "ATools",
+    "Pure Tools"
+  ]
+}

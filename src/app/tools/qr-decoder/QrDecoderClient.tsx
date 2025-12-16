@@ -3,6 +3,8 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import jsQR from "jsqr";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalI18n } from "../../../i18n/I18nProvider";
 
 type InversionAttempts = "attemptBoth" | "dontInvert" | "onlyInvert" | "invertFirst";
 
@@ -22,6 +24,47 @@ type DecodeResult =
 const MAX_DECODE_SIZE = 1200;
 
 export default function QrDecoderClient() {
+  const i18n = useOptionalI18n();
+  const locale = i18n?.locale ?? "zh-cn";
+  const ui =
+    locale === "en-us"
+      ? {
+          errCanvasContext: "Unable to create canvas context",
+          errNoQr: "No QR code detected",
+          errSelectImage: "Please select an image file",
+          dropTitle: "Click or drop a QR image here",
+          dropSubtitle: "Supports JPG/PNG/WebP, etc.",
+          currentImage: "Current image:",
+          inversion: "Inversion attempts",
+          inversionRecommended: "attemptBoth (recommended)",
+          chooseAgain: "Choose again",
+          preview: "Preview",
+          previewHint: "Tip: The detected location box is highlighted in green.",
+          resultTitle: "Decoded content",
+          copy: "Copy",
+          resultPlaceholder: "Decoded QR content will appear here...",
+          errorPrefix: "Error:",
+          note: "Note: Decoding runs locally in your browser. No images are uploaded.",
+        }
+      : {
+          errCanvasContext: "无法创建画布上下文",
+          errNoQr: "未识别到二维码",
+          errSelectImage: "请选择图片文件",
+          dropTitle: "点击或拖拽二维码图片到此处",
+          dropSubtitle: "支持 JPG/PNG/WebP 等",
+          currentImage: "当前图片：",
+          inversion: "反色尝试",
+          inversionRecommended: "attemptBoth（推荐）",
+          chooseAgain: "重新选择",
+          preview: "预览",
+          previewHint: "提示：识别结果的定位框会以绿色描边显示。",
+          resultTitle: "解析结果",
+          copy: "复制",
+          resultPlaceholder: "识别后会显示二维码内容…",
+          errorPrefix: "错误：",
+          note: "说明：解析在浏览器本地完成，不上传任何图片。",
+        };
+
   const [file, setFile] = useState<File | null>(null);
   const [bitmap, setBitmap] = useState<ImageBitmap | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -80,20 +123,20 @@ export default function QrDecoderClient() {
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return { ok: false as const, error: "无法创建画布上下文" };
+    if (!ctx) return { ok: false as const, error: ui.errCanvasContext };
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(img, 0, 0, width, height);
 
     const imageData = ctx.getImageData(0, 0, width, height);
     const qr = jsQR(imageData.data, width, height, { inversionAttempts: inversion });
-    if (!qr) return { ok: false as const, error: "未识别到二维码" };
+    if (!qr) return { ok: false as const, error: ui.errNoQr };
     return { ok: true as const, data: qr.data, location: qr.location };
   };
 
   const processFile = async (selected: File) => {
     if (!selected.type.startsWith("image/")) {
-      setError("请选择图片文件");
+      setError(ui.errSelectImage);
       return;
     }
     setError(null);
@@ -120,7 +163,7 @@ export default function QrDecoderClient() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bitmap, inversion]);
+  }, [bitmap, inversion, locale]);
 
   useEffect(() => {
     return () => {
@@ -158,12 +201,7 @@ export default function QrDecoderClient() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">二维码解析器</h1>
-        <p className="mt-2 text-sm text-slate-500">上传二维码图片，自动识别并输出内容</p>
-      </div>
-
+    <ToolPageLayout toolSlug="qr-decoder" maxWidthClassName="max-w-5xl">
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         {!file ? (
           <div
@@ -184,14 +222,14 @@ export default function QrDecoderClient() {
               className="hidden"
               onChange={handleFileChange}
             />
-            <div className="text-sm font-medium text-slate-700">点击或拖拽二维码图片到此处</div>
-            <div className="mt-1 text-xs text-slate-500">支持 JPG/PNG/WebP 等</div>
+            <div className="text-sm font-medium text-slate-700">{ui.dropTitle}</div>
+            <div className="mt-1 text-xs text-slate-500">{ui.dropSubtitle}</div>
           </div>
         ) : (
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50/80 p-4">
               <div className="text-sm text-slate-700">
-                <span className="font-semibold text-slate-900">当前图片：</span>
+                <span className="font-semibold text-slate-900">{ui.currentImage}</span>
                 {file.name}
                 {bitmap && (
                   <span className="ml-2 text-xs text-slate-500">
@@ -201,13 +239,13 @@ export default function QrDecoderClient() {
               </div>
               <div className="flex items-center gap-2">
                 <label className="flex items-center gap-2 text-xs text-slate-700">
-                  反色尝试
+                  {ui.inversion}
                   <select
                     value={inversion}
                     onChange={(e) => setInversion(e.target.value as InversionAttempts)}
                     className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                   >
-                    <option value="attemptBoth">attemptBoth（推荐）</option>
+                    <option value="attemptBoth">{ui.inversionRecommended}</option>
                     <option value="dontInvert">dontInvert</option>
                     <option value="onlyInvert">onlyInvert</option>
                     <option value="invertFirst">invertFirst</option>
@@ -226,49 +264,48 @@ export default function QrDecoderClient() {
                   }}
                   className="rounded-xl bg-white px-4 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95"
                 >
-                  重新选择
+                  {ui.chooseAgain}
                 </button>
               </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <div className="text-sm font-semibold text-slate-900">预览</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.preview}</div>
                 <div className="mt-4 overflow-auto rounded-2xl bg-slate-50 p-4">
                   <canvas ref={canvasRef} className="block rounded-xl shadow-sm" />
                 </div>
-                <div className="mt-3 text-xs text-slate-500">
-                  提示：识别结果的定位框会以绿色描边显示。
-                </div>
+                <div className="mt-3 text-xs text-slate-500">{ui.previewHint}</div>
               </div>
 
               <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="text-sm font-semibold text-slate-900">解析结果</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.resultTitle}</div>
                   <button
                     type="button"
                     disabled={!canCopy}
                     onClick={copy}
                     className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
                   >
-                    复制
+                    {ui.copy}
                   </button>
                 </div>
 
                 <textarea
                   value={result?.ok ? result.data : ""}
                   readOnly
-                  placeholder="识别后会显示二维码内容…"
+                  placeholder={ui.resultPlaceholder}
                   className="mt-3 h-48 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none"
                 />
 
                 {result && !result.ok && (
-                  <div className="mt-3 text-sm text-rose-600">错误：{result.error}</div>
+                  <div className="mt-3 text-sm text-rose-600">
+                    {ui.errorPrefix}
+                    {result.error}
+                  </div>
                 )}
 
-                <div className="mt-4 text-xs text-slate-500">
-                  说明：解析在浏览器本地完成，不上传任何图片。
-                </div>
+                <div className="mt-4 text-xs text-slate-500">{ui.note}</div>
               </div>
             </div>
           </div>
@@ -280,7 +317,6 @@ export default function QrDecoderClient() {
           {error}
         </div>
       )}
-    </div>
+    </ToolPageLayout>
   );
 }
-

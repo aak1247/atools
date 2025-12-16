@@ -2,6 +2,8 @@
 
 import type { FC } from "react";
 import { useEffect, useState } from "react";
+import { useOptionalI18n } from "../i18n/I18nProvider";
+import { getMessages } from "../i18n/messages";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -13,19 +15,21 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const PwaActionsBar: FC = () => {
+  const i18n = useOptionalI18n();
+  const messages = i18n?.messages ?? getMessages("zh-cn");
   const [canShare, setCanShare] = useState(false);
   const [shareInProgress, setShareInProgress] = useState(false);
   const [installPromptEvent, setInstallPromptEvent] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIos, setIsIos] = useState(false);
-  const [title, setTitle] = useState<string>("纯粹工具站");
+  const [title, setTitle] = useState<string>(messages.siteName);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     setCanShare(typeof navigator !== "undefined" && "share" in navigator);
-    setTitle(document.title || "纯粹工具站");
+    setTitle(document.title || messages.siteName);
 
     const displayModeStandalone =
       window.matchMedia &&
@@ -57,7 +61,7 @@ const PwaActionsBar: FC = () => {
         handleBeforeInstallPrompt as EventListener,
       );
     };
-  }, []);
+  }, [messages.siteName]);
 
   const handleShare = async () => {
     if (!canShare || typeof navigator === "undefined") return;
@@ -92,9 +96,8 @@ const PwaActionsBar: FC = () => {
 
     if (isIos && typeof window !== "undefined") {
       // iOS 不会触发 beforeinstallprompt，提示用户手动添加到桌面
-      // eslint-disable-next-line no-alert
       window.alert(
-        "在 Safari 浏览器底部菜单中选择“分享”，然后点击“添加到主屏幕”即可安装此工具。",
+        messages.iosInstallHint,
       );
     }
   };
@@ -133,7 +136,7 @@ const PwaActionsBar: FC = () => {
               d="M4.5 12a7.5 7.5 0 0115 0v4.5a2.25 2.25 0 01-2.25 2.25h-10.5A2.25 2.25 0 014.5 16.5V12z"
             />
           </svg>
-          <span>{shareInProgress ? "分享中..." : "分享当前页面"}</span>
+          <span>{shareInProgress ? messages.sharing : messages.shareCurrentPage}</span>
         </button>
       )}
       {showInstallButton && (
@@ -155,7 +158,7 @@ const PwaActionsBar: FC = () => {
               d="M12 5v10m0 0l-3.5-3.5M12 15l3.5-3.5M6 19h12"
             />
           </svg>
-          <span>安装此页面为应用</span>
+          <span>{messages.installAsApp}</span>
         </button>
       )}
     </div>

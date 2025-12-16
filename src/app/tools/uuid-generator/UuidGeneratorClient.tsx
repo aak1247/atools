@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalI18n } from "../../../i18n/I18nProvider";
 
 const bytesToUuidV4 = (bytes: Uint8Array) => {
   const b = new Uint8Array(bytes);
@@ -25,6 +27,35 @@ const generateUuidV4 = () => {
 };
 
 export default function UuidGeneratorClient() {
+  const i18n = useOptionalI18n();
+  const locale = i18n?.locale ?? "zh-cn";
+  const ui =
+    locale === "en-us"
+      ? {
+          count: "Count",
+          uppercase: "Uppercase",
+          noHyphen: "Remove hyphens",
+          generate: "Generate",
+          copyAll: "Copy all",
+          result: "Result",
+          empty: "Click “Generate” to start",
+          copy: "Copy",
+          hint:
+            "Tip: UUID v4 is generated using cryptographically secure randomness (crypto.getRandomValues / randomUUID).",
+        }
+      : {
+          count: "数量",
+          uppercase: "大写",
+          noHyphen: "去掉短横线",
+          generate: "生成",
+          copyAll: "复制全部",
+          result: "结果",
+          empty: "点击“生成”开始",
+          copy: "复制",
+          hint:
+            "提示：UUID v4 使用加密安全随机数生成（crypto.getRandomValues / randomUUID）。",
+        };
+
   const [count, setCount] = useState(5);
   const [uppercase, setUppercase] = useState(false);
   const [noHyphen, setNoHyphen] = useState(false);
@@ -50,21 +81,12 @@ export default function UuidGeneratorClient() {
   const canCopyAll = normalized.length > 0;
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          UUID 生成器
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          UUID v4 批量生成，一键复制，纯本地运行
-        </p>
-      </div>
-
+    <ToolPageLayout toolSlug="uuid-generator" maxWidthClassName="max-w-4xl">
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-slate-700">
-              数量
+              {ui.count}
               <input
                 type="number"
                 min={1}
@@ -86,7 +108,7 @@ export default function UuidGeneratorClient() {
                 onChange={(e) => setUppercase(e.target.checked)}
                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
-              大写
+              {ui.uppercase}
             </label>
 
             <label className="flex items-center gap-2 text-sm text-slate-700">
@@ -96,7 +118,7 @@ export default function UuidGeneratorClient() {
                 onChange={(e) => setNoHyphen(e.target.checked)}
                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
-              去掉短横线
+              {ui.noHyphen}
             </label>
           </div>
 
@@ -106,7 +128,7 @@ export default function UuidGeneratorClient() {
               onClick={generate}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-700 active:scale-[0.99]"
             >
-              生成
+              {ui.generate}
             </button>
             <button
               type="button"
@@ -114,17 +136,17 @@ export default function UuidGeneratorClient() {
               onClick={() => copy(normalized.join("\n"))}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60 active:scale-[0.99]"
             >
-              复制全部
+              {ui.copyAll}
             </button>
           </div>
         </div>
 
         <div className="mt-6">
-          <div className="mb-2 text-sm font-semibold text-slate-900">结果</div>
+          <div className="mb-2 text-sm font-semibold text-slate-900">{ui.result}</div>
           <div className="rounded-2xl border border-slate-200 bg-white">
             {normalized.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-slate-500">
-                点击“生成”开始
+                {ui.empty}
               </div>
             ) : (
               <ul className="divide-y divide-slate-100">
@@ -138,7 +160,7 @@ export default function UuidGeneratorClient() {
                       onClick={() => copy(id)}
                       className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
                     >
-                      复制
+                      {ui.copy}
                     </button>
                   </li>
                 ))}
@@ -147,11 +169,8 @@ export default function UuidGeneratorClient() {
           </div>
         </div>
 
-        <div className="mt-6 text-xs text-slate-500">
-          提示：UUID v4 使用加密安全随机数生成（crypto.getRandomValues / randomUUID）。
-        </div>
+        <div className="mt-6 text-xs text-slate-500">{ui.hint}</div>
       </div>
-    </div>
+    </ToolPageLayout>
   );
 }
-

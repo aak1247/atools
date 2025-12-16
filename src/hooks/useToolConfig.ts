@@ -1,43 +1,49 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useOptionalToolConfig } from "../components/ToolConfigProvider";
+import type { ToolConfig } from "../types/tools";
 
-interface ToolConfig {
-  name: string;
-  shortName: string;
-  description: string;
-  seoDescription?: string;
-  category: string;
-  lang: string;
-  themeColor: string;
-  backgroundColor: string;
-  icon: string;
-  keywords?: string[];
-}
-
-export function useToolConfig(toolSlug: string) {
-  const [config, setConfig] = useState<ToolConfig | null>(null);
-  const [loading, setLoading] = useState(true);
+export function useToolConfig(toolSlug: string, locale?: string) {
+  const providedConfig = useOptionalToolConfig(toolSlug, locale);
+  const [config, setConfig] = useState<ToolConfig | null>(providedConfig ?? null);
+  const [loading, setLoading] = useState(!providedConfig);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadConfig() {
+      if (providedConfig) {
+        setConfig(providedConfig);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
       try {
-        const response = await fetch(`/tools/${toolSlug}/tool.json`);
-        if (!response.ok) {
-          throw new Error(`Failed to load tool config: ${response.statusText}`);
+        const urls = locale
+          ? [`/tools/${toolSlug}/tool.${locale}.json`, `/tools/${toolSlug}/tool.json`]
+          : [`/tools/${toolSlug}/tool.json`];
+
+        for (const url of urls) {
+          const response = await fetch(url, { cache: "no-store" });
+          if (!response.ok) continue;
+          const data = (await response.json()) as ToolConfig;
+          setConfig(data);
+          return;
         }
-        const data = await response.json();
-        setConfig(data);
+        throw new Error("Failed to load tool config");
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : "Unknown error");
+        setConfig(null);
       } finally {
         setLoading(false);
       }
     }
 
     loadConfig();
-  }, [toolSlug]);
+  }, [locale, providedConfig, toolSlug]);
 
   return { config, loading, error };
 }

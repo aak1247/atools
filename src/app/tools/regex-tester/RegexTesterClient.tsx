@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalI18n } from "../../../i18n/I18nProvider";
 
 type MatchItem = {
   index: number;
@@ -11,6 +13,51 @@ type MatchItem = {
 const safeFlags = (raw: string) => raw.replace(/[^dgimsuvy]/g, "");
 
 export default function RegexTesterClient() {
+  const i18n = useOptionalI18n();
+  const locale = i18n?.locale ?? "zh-cn";
+  const ui =
+    locale === "en-us"
+      ? {
+          expression: "Pattern",
+          flags: "Flags",
+          effectiveFlags: "Effective:",
+          invalidRegex: "Invalid regular expression",
+          errorPrefix: "Error:",
+          replaceFailed: "Replacement failed",
+          testText: "Test text",
+          matches: (count: number) => `Matches (${count})`,
+          copy: "Copy",
+          noMatches: "No matches",
+          fixRegexFirst: "Fix the regex first",
+          replaceWith: "Replace with",
+          replacePreview: "Replacement preview",
+          replacePlaceholder: "e.g. $&",
+          replaceResultPlaceholder: "Replacement result will appear here...",
+          enterTestText: "Enter test text",
+          hint:
+            "Tip: Without the “g” flag, only the first match is shown. To avoid freezing, up to 1000 matches are displayed.",
+        }
+      : {
+          expression: "表达式",
+          flags: "flags",
+          effectiveFlags: "实际使用：",
+          invalidRegex: "正则表达式无效",
+          errorPrefix: "错误：",
+          replaceFailed: "替换失败",
+          testText: "测试文本",
+          matches: (count: number) => `匹配结果（${count}）`,
+          copy: "复制",
+          noMatches: "暂无匹配",
+          fixRegexFirst: "请先修正正则表达式",
+          replaceWith: "替换为",
+          replacePreview: "替换预览",
+          replacePlaceholder: "例如：$&",
+          replaceResultPlaceholder: "替换结果会显示在这里…",
+          enterTestText: "请输入测试文本",
+          hint:
+            "提示：若未使用 g 标志，将只显示第一次匹配；为避免卡顿，最多展示 1000 条匹配。",
+        };
+
   const [pattern, setPattern] = useState("\\b\\w+\\b");
   const [flags, setFlags] = useState("g");
   const [text, setText] = useState("Hello world\nHello regex");
@@ -23,10 +70,10 @@ export default function RegexTesterClient() {
     } catch (e) {
       return {
         ok: false as const,
-        error: e instanceof Error ? e.message : "正则表达式无效",
+        error: e instanceof Error ? e.message : ui.invalidRegex,
       };
     }
-  }, [flags, pattern]);
+  }, [flags, locale, pattern]);
 
   const matches = useMemo(() => {
     if (!compiled.ok) return [] as MatchItem[];
@@ -71,36 +118,29 @@ export default function RegexTesterClient() {
       const regex = new RegExp(compiled.regex.source, compiled.regex.flags);
       return text.replace(regex, replacement);
     } catch (e) {
-      return e instanceof Error ? e.message : "替换失败";
+      return e instanceof Error ? e.message : ui.replaceFailed;
     }
-  }, [compiled, replacement, text]);
+  }, [compiled, locale, replacement, text]);
 
   const copy = async (value: string) => {
     await navigator.clipboard.writeText(value);
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          正则表达式测试
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">匹配、分组与替换预览（纯本地）</p>
-      </div>
-
+    <ToolPageLayout toolSlug="regex-tester">
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="grid gap-4 lg:grid-cols-3">
           <label className="block lg:col-span-2">
-            <div className="text-sm font-semibold text-slate-900">表达式</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.expression}</div>
             <input
               value={pattern}
               onChange={(e) => setPattern(e.target.value)}
-              placeholder="例如：\\b\\w+\\b"
+              placeholder={locale === "en-us" ? "e.g. \\b\\w+\\b" : "例如：\\b\\w+\\b"}
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
             />
           </label>
           <label className="block">
-            <div className="text-sm font-semibold text-slate-900">flags</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.flags}</div>
             <input
               value={flags}
               onChange={(e) => setFlags(e.target.value)}
@@ -108,20 +148,22 @@ export default function RegexTesterClient() {
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
             />
             <div className="mt-2 text-xs text-slate-500">
-              实际使用：<span className="font-mono">{compiled.ok ? compiled.flags : "-"}</span>
+              {ui.effectiveFlags}{" "}
+              <span className="font-mono">{compiled.ok ? compiled.flags : "-"}</span>
             </div>
           </label>
         </div>
 
         {!compiled.ok && (
           <div className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            错误：{compiled.error}
+            {ui.errorPrefix}
+            {compiled.error}
           </div>
         )}
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div>
-            <div className="mb-2 text-sm font-semibold text-slate-900">测试文本</div>
+            <div className="mb-2 text-sm font-semibold text-slate-900">{ui.testText}</div>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -132,7 +174,7 @@ export default function RegexTesterClient() {
           <div>
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="text-sm font-semibold text-slate-900">
-                匹配结果（{matches.length}）
+                {ui.matches(matches.length)}
               </div>
               <button
                 type="button"
@@ -146,14 +188,14 @@ export default function RegexTesterClient() {
                 }
                 className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
               >
-                复制
+                {ui.copy}
               </button>
             </div>
 
             <div className="h-64 overflow-auto rounded-2xl border border-slate-200 bg-slate-50">
               {matches.length === 0 ? (
                 <div className="px-4 py-8 text-center text-sm text-slate-500">
-                  {compiled.ok ? "暂无匹配" : "请先修正正则表达式"}
+                  {compiled.ok ? ui.noMatches : ui.fixRegexFirst}
                 </div>
               ) : (
                 <ul className="divide-y divide-slate-100">
@@ -169,7 +211,10 @@ export default function RegexTesterClient() {
                         <div className="mt-2 space-y-1">
                           {m.groups.map((g, gi) => (
                             <div key={gi} className="break-all font-mono text-xs text-slate-700">
-                              <span className="text-slate-500">${gi + 1}：</span>
+                              <span className="text-slate-500">
+                                ${gi + 1}
+                                {locale === "en-us" ? ":" : "："}
+                              </span>
                               {g}
                             </div>
                           ))}
@@ -186,43 +231,43 @@ export default function RegexTesterClient() {
         <div className="mt-6 rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
           <div className="grid gap-3 lg:grid-cols-2">
             <label className="block">
-              <div className="text-sm font-semibold text-slate-900">替换为</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.replaceWith}</div>
               <input
                 value={replacement}
                 onChange={(e) => setReplacement(e.target.value)}
-                placeholder="例如：$&"
+                placeholder={ui.replacePlaceholder}
                 className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
             </label>
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">替换预览</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.replacePreview}</div>
                 <button
                   type="button"
                   disabled={typeof replaced !== "string"}
                   onClick={() => copy(replaced ?? "")}
                   className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
                 >
-                  复制
+                  {ui.copy}
                 </button>
               </div>
               <textarea
                 value={typeof replaced === "string" ? replaced : ""}
                 readOnly
-                placeholder="替换结果会显示在这里…"
+                placeholder={ui.replaceResultPlaceholder}
                 className="h-24 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm text-slate-900 outline-none"
               />
               {compiled.ok && replaced == null && (
-                <div className="mt-2 text-xs text-slate-500">请输入测试文本</div>
+                <div className="mt-2 text-xs text-slate-500">{ui.enterTestText}</div>
               )}
             </div>
           </div>
         </div>
 
         <div className="mt-6 text-xs text-slate-500">
-          提示：若未使用 g 标志，将只显示第一次匹配；为避免卡顿，最多展示 1000 条匹配。
+          {ui.hint}
         </div>
       </div>
-    </div>
+    </ToolPageLayout>
   );
 }

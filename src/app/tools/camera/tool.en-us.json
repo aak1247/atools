@@ -1,0 +1,38 @@
+{
+  "name": "Free Online Camera - ATools",
+  "shortName": "Camera",
+  "description": "Free online Camera. Runs locally in your browser with zero uploads for privacy and speed.",
+  "seoDescription": "The ultimate free online Camera — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Camera on any device, this is the one you bookmark and share.",
+  "category": "Utilities",
+  "lang": "en-US",
+  "ui": {
+    "controls": "Controls",
+    "camera": "Camera",
+    "rear": "Rear (environment)",
+    "front": "Front (user)",
+    "start": "Start camera",
+    "stop": "Stop",
+    "capture": "Capture",
+    "photo": "Photo",
+    "capturedAlt": "Captured photo",
+    "downloadPng": "Download PNG",
+    "noPhoto": "No photo yet.",
+    "errorPrefix": "Error: ",
+    "unsupported": "This browser does not support camera access.",
+    "videoNotReady": "Video element is not initialized.",
+    "unableStart": "Unable to start camera.",
+    "statusStarting": "Starting",
+    "statusRunning": "Running",
+    "statusError": "Error",
+    "statusStopped": "Stopped",
+    "statusIdle": "Idle"
+  },
+  "keywords": [
+    "free online Camera",
+    "Camera tool",
+    "Camera web app",
+    "camera",
+    "ATools",
+    "Pure Tools"
+  ]
+}

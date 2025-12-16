@@ -1,0 +1,21 @@
+{
+  "name": "XML转JSON转换器 - 纯粹工具站",
+  "shortName": "XML转JSON",
+  "description": "🔄 免费在线XML转JSON转换器 - 将XML文档转换为JSON格式。",
+  "seoDescription": "免费在线XML转JSON转换工具，支持XML文档格式化转换为JSON格式。智能解析XML结构，处理属性和CDATA，支持格式化输出。提供实时转换预览，支持复杂嵌套结构，100%本地处理保护隐私，无需注册。",
+  "category": "数据处理工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "XML转换",
+    "JSON转换",
+    "数据格式转换",
+    "XML解析",
+    "JSON格式化",
+    "免费在线工具",
+    "本地处理",
+    "隐私保护"
+  ]
+}

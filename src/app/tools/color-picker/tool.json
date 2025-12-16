@@ -8,6 +8,18 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "图片工具",
-  "keywords": ["免费图片取色", "在线取色器", "颜色提取", "HEX颜色", "RGB取色工具"]
+  "keywords": ["免费图片取色", "在线取色器", "颜色提取", "HEX颜色", "RGB取色工具"],
+  "ui": {
+    "pickImageError": "请选择图片文件",
+    "dropTitle": "点击或拖拽图片到此处",
+    "dropSubtitle": "支持常见图片格式（JPG/PNG/WebP…）",
+    "currentImagePrefix": "当前图片：",
+    "reselect": "重新选择",
+    "hintPick": "提示：点击画布任意位置即可取色。",
+    "colorInfo": "颜色信息",
+    "pixelPrefix": "像素坐标：",
+    "notPicked": "未取色",
+    "copy": "复制",
+    "alphaNote": "说明：带透明度的颜色会输出 8 位 HEX（#RRGGBBAA）。"
+  }
 }
-

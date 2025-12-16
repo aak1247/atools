@@ -1,0 +1,21 @@
+{
+  "name": "免费在线 JSON Schema 校验工具 - 纯粹工具站",
+  "shortName": "Schema校验",
+  "description": "JSON Schema 校验：输入 JSON 与 Schema 进行校验并输出错误路径，纯前端本地运行。",
+  "seoDescription": "免费在线 JSON Schema 校验工具，支持粘贴 JSON 数据与 JSON Schema，在浏览器本地进行校验并输出错误列表与路径，帮助快速定位字段类型不匹配、缺少 required、枚举 enum 不符合等问题。无需上传数据，适合接口联调、数据质量检查与文档验证。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "json schema校验",
+    "schema validator",
+    "JSON校验",
+    "required",
+    "type",
+    "enum",
+    "本地处理"
+  ]
+}
+

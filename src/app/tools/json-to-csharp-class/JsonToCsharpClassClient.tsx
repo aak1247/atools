@@ -1,0 +1,421 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+
+type Schema =
+  | { kind: "string"; nullable: boolean }
+  | { kind: "number"; isInteger: boolean; nullable: boolean }
+  | { kind: "boolean"; nullable: boolean }
+  | { kind: "null"; nullable: true }
+  | { kind: "array"; item: Schema; nullable: boolean }
+  | { kind: "object"; fields: Record<string, Schema>; nullable: boolean }
+  | { kind: "any"; nullable: boolean };
+
+const safeJsonParse = (text: string): unknown => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const mergeSchemas = (a: Schema, b: Schema): Schema => {
+  const nullable = a.nullable || b.nullable;
+
+  if (a.kind === "null") return { ...b, nullable: true };
+  if (b.kind === "null") return { ...a, nullable: true };
+
+  if (a.kind === "any" || b.kind === "any") return { kind: "any", nullable };
+  if (a.kind !== b.kind) return { kind: "any", nullable };
+
+  if (a.kind === "string" && b.kind === "string") return { kind: "string", nullable };
+  if (a.kind === "boolean" && b.kind === "boolean") return { kind: "boolean", nullable };
+  if (a.kind === "number" && b.kind === "number") return { kind: "number", isInteger: a.isInteger && b.isInteger, nullable };
+
+  if (a.kind === "array" && b.kind === "array") return { kind: "array", item: mergeSchemas(a.item, b.item), nullable };
+
+  if (a.kind === "object" && b.kind === "object") {
+    const keys = Array.from(new Set([...Object.keys(a.fields), ...Object.keys(b.fields)])).sort();
+    const fields: Record<string, Schema> = {};
+    for (const key of keys) {
+      const left = a.fields[key] ?? { kind: "null", nullable: true };
+      const right = b.fields[key] ?? { kind: "null", nullable: true };
+      fields[key] = mergeSchemas(left, right);
+    }
+    return { kind: "object", fields, nullable };
+  }
+
+  return { kind: "any", nullable };
+};
+
+const inferSchema = (value: unknown): Schema => {
+  if (value === null) return { kind: "null", nullable: true };
+
+  if (typeof value === "string") return { kind: "string", nullable: false };
+  if (typeof value === "boolean") return { kind: "boolean", nullable: false };
+  if (typeof value === "number") return { kind: "number", isInteger: Number.isInteger(value), nullable: false };
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) return { kind: "array", item: { kind: "any", nullable: false }, nullable: false };
+    const merged = value.map(inferSchema).reduce<Schema>((acc, cur) => mergeSchemas(acc, cur), { kind: "null", nullable: true });
+    return { kind: "array", item: merged.kind === "null" ? { kind: "any", nullable: true } : merged, nullable: false };
+  }
+
+  if (isRecord(value)) {
+    const fields: Record<string, Schema> = {};
+    for (const [k, v] of Object.entries(value)) fields[k] = inferSchema(v);
+    return { kind: "object", fields, nullable: false };
+  }
+
+  return { kind: "any", nullable: false };
+};
+
+const csharpKeywords = new Set([
+  "abstract",
+  "as",
+  "base",
+  "bool",
+  "break",
+  "byte",
+  "case",
+  "catch",
+  "char",
+  "checked",
+  "class",
+  "const",
+  "continue",
+  "decimal",
+  "default",
+  "delegate",
+  "do",
+  "double",
+  "else",
+  "enum",
+  "event",
+  "explicit",
+  "extern",
+  "false",
+  "finally",
+  "fixed",
+  "float",
+  "for",
+  "foreach",
+  "goto",
+  "if",
+  "implicit",
+  "in",
+  "int",
+  "interface",
+  "internal",
+  "is",
+  "lock",
+  "long",
+  "namespace",
+  "new",
+  "null",
+  "object",
+  "operator",
+  "out",
+  "override",
+  "params",
+  "private",
+  "protected",
+  "public",
+  "readonly",
+  "ref",
+  "return",
+  "sbyte",
+  "sealed",
+  "short",
+  "sizeof",
+  "stackalloc",
+  "static",
+  "string",
+  "struct",
+  "switch",
+  "this",
+  "throw",
+  "true",
+  "try",
+  "typeof",
+  "uint",
+  "ulong",
+  "unchecked",
+  "unsafe",
+  "ushort",
+  "using",
+  "virtual",
+  "void",
+  "volatile",
+  "while",
+]);
+
+const toPascal = (input: string) => {
+  const parts = input
+    .trim()
+    .replace(/[^a-zA-Z0-9]+/g, " ")
+    .split(" ")
+    .filter(Boolean);
+  let out = parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join("");
+  out = out.replace(/^[^A-Za-z_]+/, "");
+  if (!out) out = "Field";
+  if (/^[0-9]/.test(out)) out = `Field${out}`;
+  if (csharpKeywords.has(out.toLowerCase())) out = `@${out}`;
+  return out;
+};
+
+const escapeString = (value: string) => value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+
+type FieldDef = { jsonKey: string; propName: string; type: string; nullable: boolean; isRef: boolean; isList: boolean };
+type ClassDef = { name: string; fields: FieldDef[] };
+
+type EmitCtx = {
+  usedNames: Set<string>;
+  order: string[];
+  classes: Map<string, ClassDef>;
+};
+
+const uniqueTypeName = (ctx: EmitCtx, desired: string) => {
+  const base = desired || "AutoGenerated";
+  if (!ctx.usedNames.has(base)) {
+    ctx.usedNames.add(base);
+    return base;
+  }
+  let i = 2;
+  while (ctx.usedNames.has(`${base}${i}`)) i += 1;
+  const next = `${base}${i}`;
+  ctx.usedNames.add(next);
+  return next;
+};
+
+const isValueTypeName = (type: string) => type === "bool" || type === "long" || type === "double";
+
+const typeFromSchema = (
+  schema: Schema,
+  typeNameHint: string,
+  ctx: EmitCtx,
+  opts: { listType: "List" | "Array" },
+): { type: string; nullable: boolean; isRef: boolean; isList: boolean } => {
+  if (schema.kind === "string") return { type: "string", nullable: schema.nullable, isRef: true, isList: false };
+  if (schema.kind === "boolean") return { type: "bool", nullable: schema.nullable, isRef: false, isList: false };
+  if (schema.kind === "number") return { type: schema.isInteger ? "long" : "double", nullable: schema.nullable, isRef: false, isList: false };
+  if (schema.kind === "null") return { type: "object", nullable: true, isRef: true, isList: false };
+  if (schema.kind === "any") return { type: "object", nullable: schema.nullable || true, isRef: true, isList: false };
+
+  if (schema.kind === "array") {
+    const item = typeFromSchema(schema.item, `${typeNameHint}Item`, ctx, opts);
+    const t = opts.listType === "Array" ? `${item.type}[]` : `List<${item.type}>`;
+    return { type: t, nullable: schema.nullable, isRef: true, isList: opts.listType === "List" };
+  }
+
+  if (schema.kind === "object") {
+    const className = ensureClass(ctx, toPascal(typeNameHint), schema, opts);
+    return { type: className, nullable: schema.nullable, isRef: true, isList: false };
+  }
+
+  return { type: "object", nullable: true, isRef: true, isList: false };
+};
+
+const ensureClass = (ctx: EmitCtx, desiredName: string, schema: Extract<Schema, { kind: "object" }>, opts: { listType: "List" | "Array" }) => {
+  const name = uniqueTypeName(ctx, desiredName);
+  if (ctx.classes.has(name)) return name;
+
+  const fields: FieldDef[] = Object.keys(schema.fields)
+    .sort()
+    .map((jsonKey) => {
+      const child = schema.fields[jsonKey] ?? { kind: "any", nullable: true };
+      const propName = toPascal(jsonKey);
+      const childType = typeFromSchema(child, `${name}${propName.replace(/^@/, "")}`, ctx, opts);
+      const nullable = childType.nullable;
+      return { jsonKey, propName, type: childType.type, nullable, isRef: childType.isRef, isList: childType.isList };
+    });
+
+  ctx.classes.set(name, { name, fields });
+  ctx.order.push(name);
+  return name;
+};
+
+const generateCsharp = (
+  value: unknown,
+  rootName: string,
+  opts: { listType: "List" | "Array"; useJsonPropertyName: boolean; nullableRef: boolean },
+) => {
+  const ctx: EmitCtx = { usedNames: new Set<string>(), order: [], classes: new Map<string, ClassDef>() };
+  const rootTypeName = toPascal(rootName || "AutoGenerated");
+
+  const schema = inferSchema(value);
+  const wrapped: Schema = (() => {
+    if (schema.kind === "object") return schema;
+    if (schema.kind === "array") return { kind: "object", nullable: false, fields: { items: { ...schema, nullable: false } } };
+    return { kind: "object", nullable: false, fields: { value: schema } };
+  })();
+
+  ensureClass(ctx, rootTypeName, wrapped as Extract<Schema, { kind: "object" }>, { listType: opts.listType });
+
+  const needsList = opts.listType === "List" && Array.from(ctx.classes.values()).some((c) => c.fields.some((f) => f.isList));
+  const usings = ["using System;"];
+  if (needsList) usings.push("using System.Collections.Generic;");
+  if (opts.useJsonPropertyName) usings.push("using System.Text.Json.Serialization;");
+
+  const lines: string[] = [];
+  lines.push(usings.join("\n"), "");
+
+  for (const name of ctx.order) {
+    const def = ctx.classes.get(name);
+    if (!def) continue;
+    lines.push(`public class ${def.name}`, "{");
+
+    for (const f of def.fields) {
+      const propNameNoAt = f.propName.replace(/^@/, "");
+      const needsAttr = opts.useJsonPropertyName && f.jsonKey !== propNameNoAt;
+      if (needsAttr) lines.push(`  [JsonPropertyName("${escapeString(f.jsonKey)}")]`);
+
+      const nullableSuffix = (() => {
+        if (!f.nullable) return "";
+        if (isValueTypeName(f.type)) return "?";
+        return opts.nullableRef ? "?" : "";
+      })();
+
+      const initSuffix = (() => {
+        if (opts.listType === "List" && f.isList && !f.nullable) return " = new();";
+        if (opts.nullableRef && f.isRef && !f.nullable && !f.isList) return " = default!;";
+        return "";
+      })();
+
+      lines.push(`  public ${f.type}${nullableSuffix} ${f.propName} { get; set; }${initSuffix}`);
+    }
+
+    lines.push("}", "");
+  }
+
+  return lines.join("\n").trim();
+};
+
+export default function JsonToCsharpClassClient() {
+  const [rootName, setRootName] = useState("AutoGenerated");
+  const [listType, setListType] = useState<"List" | "Array">("List");
+  const [useJsonPropertyName, setUseJsonPropertyName] = useState(true);
+  const [nullableRef, setNullableRef] = useState(true);
+
+  const [input, setInput] = useState('{\n  "id": 1,\n  "name": "Alice",\n  "tags": ["a", "b"],\n  "profile": { "email": "a@example.com" }\n}\n');
+
+  const result = useMemo(() => {
+    const trimmed = input.trim();
+    if (!trimmed) return { ok: true as const, code: "" };
+    const parsed = safeJsonParse(trimmed);
+    if (parsed === null && trimmed !== "null") return { ok: false as const, error: "JSON 解析失败，请检查格式。" };
+    try {
+      return {
+        ok: true as const,
+        code: generateCsharp(parsed, rootName, { listType, useJsonPropertyName, nullableRef }),
+      };
+    } catch (e) {
+      return { ok: false as const, error: e instanceof Error ? e.message : "生成失败" };
+    }
+  }, [input, listType, nullableRef, rootName, useJsonPropertyName]);
+
+  const formatInput = () => {
+    const parsed = safeJsonParse(input);
+    if (parsed === null && input.trim() !== "null") return;
+    setInput(JSON.stringify(parsed, null, 2));
+  };
+
+  const copy = async (value: string) => {
+    await navigator.clipboard.writeText(value);
+  };
+
+  return (
+    <ToolPageLayout toolSlug="json-to-csharp-class">
+      <div className="w-full px-4">
+        <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                根类型名
+                <input
+                  value={rootName}
+                  onChange={(e) => setRootName(e.target.value)}
+                  className="w-44 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                数组类型
+                <select
+                  value={listType}
+                  onChange={(e) => setListType(e.target.value as "List" | "Array")}
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                >
+                  <option value="List">List&lt;T&gt;</option>
+                  <option value="Array">T[]</option>
+                </select>
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                JsonPropertyName
+                <input
+                  type="checkbox"
+                  checked={useJsonPropertyName}
+                  onChange={(e) => setUseJsonPropertyName(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                Nullable 引用类型
+                <input
+                  type="checkbox"
+                  checked={nullableRef}
+                  onChange={(e) => setNullableRef(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={formatInput}
+                className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
+              >
+                格式化 JSON
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => void copy(result.ok ? result.code : "")}
+              disabled={!result.ok || !result.code}
+              className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
+            >
+              复制 C# 代码
+            </button>
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            <div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">JSON 输入</div>
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+              />
+              {!result.ok && <div className="mt-2 text-sm text-rose-600">错误：{result.error}</div>}
+              <div className="mt-3 text-xs text-slate-500">
+                说明：混合类型/混合数组会降级为 <span className="font-mono">object</span>；字段缺失/为 null 会生成可空类型。
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">C# 输出</div>
+              <textarea
+                value={result.ok ? result.code : ""}
+                readOnly
+                className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </ToolPageLayout>
+  );
+}
+

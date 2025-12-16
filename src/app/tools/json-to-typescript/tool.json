@@ -1,0 +1,21 @@
+{
+  "name": "免费在线 JSON 转 TypeScript 工具 - 纯粹工具站",
+  "shortName": "JSON→TS",
+  "description": "JSON 转 TypeScript：JSON 示例一键生成 interface/type，支持嵌套结构与数组，纯前端本地运行。",
+  "seoDescription": "免费在线 JSON 转 TypeScript 工具，支持粘贴 JSON 示例并自动推断字段类型，生成 TypeScript interface/type 定义，处理嵌套对象、数组与可选字段，支持自定义根类型名称与输出风格。全程浏览器本地运行，不上传数据，适合接口对接、前端建模与文档编写。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "json转typescript",
+    "json to ts",
+    "interface生成",
+    "type生成",
+    "类型推断",
+    "开发工具",
+    "本地处理"
+  ]
+}
+

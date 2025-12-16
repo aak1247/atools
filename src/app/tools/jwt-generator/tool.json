@@ -1,0 +1,21 @@
+{
+  "name": "免费在线 JWT 生成器工具 - 纯粹工具站",
+  "shortName": "JWT生成器",
+  "description": "免费在线 JWT 生成器：编辑 header/payload，选择 HS256/HS384/HS512 或 none，本地签名生成 token。",
+  "seoDescription": "免费在线JWT生成器工具，支持自定义JWT头部(header)与载荷(payload)，一键生成并签名JSON Web Token。支持HS256、HS384、HS512等HMAC算法与none算法，提供Secret文本/Base64/Hex多种输入格式。全程纯前端本地运行，密钥与内容不上传，适合接口调试、联调测试、鉴权开发与文档示例生成。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "JWT生成",
+    "JWT签名",
+    "HS256",
+    "HMAC",
+    "token生成器",
+    "接口调试",
+    "本地处理"
+  ]
+}
+

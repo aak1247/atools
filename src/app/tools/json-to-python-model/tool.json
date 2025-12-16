@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 JSON 转 Python 模型工具 - 纯粹工具站",
+  "shortName": "JSON→Python",
+  "description": "免费在线 JSON 转 Python 模型：从样例 JSON 生成 Pydantic BaseModel（可选 alias），纯前端本地运行。",
+  "seoDescription": "免费在线JSON转Python模型工具，支持粘贴JSON样例并自动推断字段类型，生成Python Pydantic BaseModel代码。支持嵌套对象、数组(List[T])、Optional可选类型，并可生成字段alias映射以兼容snake_case变量名与原始JSON键。纯前端本地运行不上传数据，适合后端开发、数据校验、接口响应建模与快速生成模型代码。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "JSON转Python",
+    "Pydantic",
+    "BaseModel",
+    "Python模型生成",
+    "接口响应建模",
+    "本地处理"
+  ]
+}
+

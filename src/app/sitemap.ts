@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { SUPPORTED_LOCALES } from "../i18n/locales";
+import { toolSlugs } from "./tools/tool-registry";
 
 export const dynamic = "force-static";
 
@@ -6,19 +8,10 @@ const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ??
   "https://example.com") as string;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = [
-    "/",
-    "/tools/calculator",
-    "/tools/image-compressor",
-    "/tools/image-resizer",
-    "/tools/image-converter",
-    "/tools/seal-extractor",
-    "/tools/pdf-merge",
-    "/tools/ico-generator",
-    "/tools/icns-generator",
-    "/tools/pdf-stamp",
-    "/tools/pdf-trim",
-  ];
+  const routes = SUPPORTED_LOCALES.flatMap((locale) => [
+    `/${locale}`,
+    ...toolSlugs.map((slug) => `/${locale}/tools/${slug}`),
+  ]);
 
   const lastModified = new Date();
 

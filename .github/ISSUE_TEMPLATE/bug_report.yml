@@ -1,0 +1,50 @@
+name: Bug report
+description: Report a reproducible bug
+labels: ["bug"]
+body:
+  - type: input
+    id: tool
+    attributes:
+      label: Tool slug
+      description: e.g. audio-encoder
+      placeholder: audio-encoder
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      description: Browser name and version
+      placeholder: Chrome 123 / Edge 123 / Safari 17
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Clear steps to reproduce the issue
+      placeholder: |
+        1. Go to ...
+        2. Upload ...
+        3. Click ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console/log output
+      description: Paste relevant logs (if any)
+      render: shell
+

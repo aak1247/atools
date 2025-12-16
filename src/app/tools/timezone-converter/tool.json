@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 时区转换工具 - 纯粹工具站",
+  "shortName": "时区转换",
+  "description": "时区转换：输入某时区的日期时间，换算为目标时区/UTC/时间戳，纯前端本地运行。",
+  "seoDescription": "免费在线时区转换工具，支持选择源时区与目标时区（IANA 时区，如 Asia/Shanghai、America/New_York），输入日期与时间后自动换算，输出目标时区时间、UTC 时间以及 Unix 时间戳（秒/毫秒）。全程浏览器本地运行，不上传数据，适合跨时区协作、会议排期与开发调试。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "时区转换",
+    "timezone converter",
+    "UTC",
+    "IANA时区",
+    "时间戳",
+    "本地处理"
+  ]
+}
+

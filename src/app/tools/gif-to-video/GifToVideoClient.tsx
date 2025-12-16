@@ -7,8 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type OutputFormat = "webm" | "mp4";
 
-const CORE_VERSION = "0.12.6";
-const CORE_BASE = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/`;
+const CORE_BASE = "/vendor/ffmpeg/core/";
 
 const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
   const copy = new Uint8Array(bytes.byteLength);
@@ -64,8 +63,7 @@ export default function GifToVideoClient() {
 
       const coreURL = await toBlobURL(`${CORE_BASE}ffmpeg-core.js`, "text/javascript");
       const wasmURL = await toBlobURL(`${CORE_BASE}ffmpeg-core.wasm`, "application/wasm");
-      const workerURL = await toBlobURL(`${CORE_BASE}ffmpeg-core.worker.js`, "text/javascript");
-      await ffmpeg.load({ coreURL, wasmURL, workerURL });
+      await ffmpeg.load({ coreURL, wasmURL });
 
       ffmpegRef.current = ffmpeg;
       setFfmpegState("ready");
@@ -308,4 +306,3 @@ export default function GifToVideoClient() {
     </div>
   );
 }
-

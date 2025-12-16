@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type Rgb = { r: number; g: number; b: number };
 type Hsl = { h: number; s: number; l: number };
@@ -91,7 +92,33 @@ const formatRgb = ({ r, g, b }: Rgb): string =>
 const formatHsl = ({ h, s, l }: Hsl): string =>
   `hsl(${Math.round(((h % 360) + 360) % 360)}, ${Math.round(clamp(s, 0, 100))}%, ${Math.round(clamp(l, 0, 100))}%)`;
 
-export default function ColorConverterClient() {
+type ColorConverterUi = {
+  inputTitle: string;
+  previewTitle: string;
+  outputTitle: string;
+  copy: string;
+  colorPickerLabel: string;
+  inputPlaceholder: string;
+  invalidFormat: string;
+  enterToShow: string;
+  supportedExamplesPrefix: string;
+  examplesSeparator: string;
+};
+
+const DEFAULT_UI: ColorConverterUi = {
+  inputTitle: "输入",
+  previewTitle: "预览",
+  outputTitle: "输出",
+  copy: "复制",
+  colorPickerLabel: "选择颜色",
+  inputPlaceholder: "#RRGGBB / rgb(...) / hsl(...)",
+  invalidFormat: "无法识别输入格式（支持 #RGB/#RRGGBB、rgb(...)、hsl(...)）",
+  enterToShow: "请输入颜色值以显示转换结果。",
+  supportedExamplesPrefix: "支持格式示例：",
+  examplesSeparator: "、",
+};
+
+function ColorConverterInner({ ui }: { ui: ColorConverterUi }) {
   const [input, setInput] = useState("#3B82F6");
 
   const parsed = useMemo(() => {
@@ -101,8 +128,8 @@ export default function ColorConverterClient() {
     if (fromRgb) return { ok: true as const, rgb: fromRgb };
     const fromHsl = parseHslFunc(input);
     if (fromHsl) return { ok: true as const, rgb: hslToRgb(fromHsl) };
-    return { ok: false as const, error: "无法识别输入格式（支持 #RGB/#RRGGBB、rgb(...)、hsl(...)）" };
-  }, [input]);
+    return { ok: false as const, error: ui.invalidFormat };
+  }, [input, ui.invalidFormat]);
 
   const outputs = useMemo(() => {
     if (!parsed.ok) return null;
@@ -117,82 +144,79 @@ export default function ColorConverterClient() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">颜色转换器</h1>
-        <p className="mt-2 text-sm text-slate-500">HEX / RGB / HSL 互转（纯本地处理）</p>
-      </div>
-
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <div className="space-y-4">
-            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">输入</div>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                  placeholder="#RRGGBB / rgb(...) / hsl(...)"
-                />
-                <input
-                  type="color"
-                  value={outputs?.hex ?? "#000000"}
-                  onChange={(e) => setInput(e.target.value)}
-                  className="h-10 w-14 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
-                  aria-label="选择颜色"
-                />
-              </div>
-              {!parsed.ok && <div className="mt-3 text-sm text-rose-600">{parsed.error}</div>}
+    <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+            <div className="text-sm font-semibold text-slate-900">{ui.inputTitle}</div>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                placeholder={ui.inputPlaceholder}
+              />
+              <input
+                type="color"
+                value={outputs?.hex ?? "#000000"}
+                onChange={(e) => setInput(e.target.value)}
+                className="h-10 w-14 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+                aria-label={ui.colorPickerLabel}
+              />
             </div>
-
-            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">预览</div>
-              <div className="mt-4 overflow-hidden rounded-2xl ring-1 ring-slate-200">
-                <div className="h-28 w-full" style={{ background: outputs?.hex ?? "#ffffff" }} />
-              </div>
-              {outputs && (
-                <div className="mt-3 text-xs text-slate-500">
-                  {outputs.hex} · {formatRgb(outputs.rgb)} · {formatHsl(outputs.hsl)}
-                </div>
-              )}
-            </div>
+            {!parsed.ok && <div className="mt-3 text-sm text-rose-600">{parsed.error}</div>}
           </div>
 
-          <div className="space-y-4">
-            <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">输出</div>
-              {outputs ? (
-                <div className="mt-4 space-y-3">
-                  {[
-                    { label: "HEX", value: outputs.hex },
-                    { label: "RGB", value: formatRgb(outputs.rgb) },
-                    { label: "HSL", value: formatHsl(outputs.hsl) },
-                  ].map((row) => (
-                    <div key={row.label} className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200">
-                      <div className="min-w-0">
-                        <div className="text-xs font-semibold text-slate-500">{row.label}</div>
-                        <div className="mt-1 font-mono text-sm text-slate-900 break-all">{row.value}</div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => void copy(row.value)}
-                        className="shrink-0 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-                      >
-                        复制
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-4 text-sm text-slate-500">请输入颜色值以显示转换结果。</div>
-              )}
+          <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+            <div className="text-sm font-semibold text-slate-900">{ui.previewTitle}</div>
+            <div className="mt-4 overflow-hidden rounded-2xl ring-1 ring-slate-200">
+              <div className="h-28 w-full" style={{ background: outputs?.hex ?? "#ffffff" }} />
             </div>
+            {outputs && (
+              <div className="mt-3 text-xs text-slate-500">
+                {outputs.hex} · {formatRgb(outputs.rgb)} · {formatHsl(outputs.hsl)}
+              </div>
+            )}
+          </div>
+        </div>
 
-            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200 text-xs text-slate-500">
-              支持格式示例：<code className="font-mono">#3B82F6</code>、<code className="font-mono">rgb(59, 130, 246)</code>、<code className="font-mono">hsl(217, 91%, 60%)</code>
-            </div>
+        <div className="space-y-4">
+          <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="text-sm font-semibold text-slate-900">{ui.outputTitle}</div>
+            {outputs ? (
+              <div className="mt-4 space-y-3">
+                {[
+                  { label: "HEX", value: outputs.hex },
+                  { label: "RGB", value: formatRgb(outputs.rgb) },
+                  { label: "HSL", value: formatHsl(outputs.hsl) },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-slate-200">
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold text-slate-500">{row.label}</div>
+                      <div className="mt-1 font-mono text-sm text-slate-900 break-all">{row.value}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void copy(row.value)}
+                      className="shrink-0 rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      {ui.copy}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-4 text-sm text-slate-500">{ui.enterToShow}</div>
+            )}
+          </div>
+
+          <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200 text-xs text-slate-500">
+            {ui.supportedExamplesPrefix} <code className="font-mono">#3B82F6</code>
+            {ui.examplesSeparator}
+            <code className="font-mono">rgb(59, 130, 246)</code>
+            {ui.examplesSeparator}
+            <code className="font-mono">hsl(217, 91%, 60%)</code>
           </div>
         </div>
       </div>
@@ -200,3 +224,12 @@ export default function ColorConverterClient() {
   );
 }
 
+export default function ColorConverterClient() {
+  return (
+    <ToolPageLayout toolSlug="color-converter">
+      {({ config }) => (
+        <ColorConverterInner ui={{ ...DEFAULT_UI, ...(config.ui as Partial<ColorConverterUi> | undefined) }} />
+      )}
+    </ToolPageLayout>
+  );
+}

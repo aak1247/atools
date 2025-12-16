@@ -1,0 +1,21 @@
+{
+  "name": "SVG转PNG/JPG转换器 - 纯粹工具站",
+  "shortName": "SVG转图片",
+  "description": "🖼️ 免费在线SVG转PNG/JPG转换器 - 将SVG矢量图转换为位图格式。",
+  "seoDescription": "免费在线SVG转换工具，支持SVG转PNG、SVG转JPG图片格式转换。自定义输出尺寸、背景色设置，保持矢量图质量。支持批量处理，透明背景处理，100%本地转换保护隐私，无需注册。",
+  "category": "图片工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "SVG转换",
+    "SVG转PNG",
+    "SVG转JPG",
+    "矢量图转换",
+    "图片格式转换",
+    "免费在线工具",
+    "本地处理",
+    "隐私保护"
+  ]
+}

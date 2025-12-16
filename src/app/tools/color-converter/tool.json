@@ -8,6 +8,17 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费颜色转换", "在线颜色工具", "HEX转RGB", "颜色格式转换", "色彩转换器"]
+  "keywords": ["免费颜色转换", "在线颜色工具", "HEX转RGB", "颜色格式转换", "色彩转换器"],
+  "ui": {
+    "inputTitle": "输入",
+    "previewTitle": "预览",
+    "outputTitle": "输出",
+    "copy": "复制",
+    "colorPickerLabel": "选择颜色",
+    "inputPlaceholder": "#RRGGBB / rgb(...) / hsl(...)",
+    "invalidFormat": "无法识别输入格式（支持 #RGB/#RRGGBB、rgb(...)、hsl(...)）",
+    "enterToShow": "请输入颜色值以显示转换结果。",
+    "supportedExamplesPrefix": "支持格式示例：",
+    "examplesSeparator": "、"
+  }
 }
-

@@ -1,0 +1,28 @@
+{
+  "name": "Free Online Color Converter - ATools",
+  "shortName": "Color Converter",
+  "description": "Free online Color Converter. Runs locally in your browser with zero uploads for privacy and speed.",
+  "seoDescription": "The ultimate free online Color Converter — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Color Converter on any device, this is the one you bookmark and share.",
+  "category": "Utilities",
+  "lang": "en-US",
+  "ui": {
+    "inputTitle": "Input",
+    "previewTitle": "Preview",
+    "outputTitle": "Output",
+    "copy": "Copy",
+    "colorPickerLabel": "Pick a color",
+    "inputPlaceholder": "#RRGGBB / rgb(...) / hsl(...)",
+    "invalidFormat": "Unrecognized input format (supports #RGB/#RRGGBB, rgb(...), hsl(...))",
+    "enterToShow": "Enter a color value to see the converted results.",
+    "supportedExamplesPrefix": "Supported examples:",
+    "examplesSeparator": ", "
+  },
+  "keywords": [
+    "free online Color Converter",
+    "Color Converter tool",
+    "Color Converter web app",
+    "color-converter",
+    "ATools",
+    "Pure Tools"
+  ]
+}

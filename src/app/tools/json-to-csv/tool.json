@@ -1,0 +1,21 @@
+{
+  "name": "免费在线 JSON 转 CSV 工具 - 纯粹工具站",
+  "shortName": "JSON→CSV",
+  "description": "免费在线 JSON 转 CSV：支持数组/对象输入，自动扁平化嵌套字段，输出/下载 CSV（可选分隔符与引号）。",
+  "seoDescription": "免费在线JSON转CSV工具，支持粘贴JSON数组或对象并一键转换为CSV/TSV等表格文本，自动将嵌套对象扁平化为a.b.c列名，数组与复杂值会序列化为JSON字符串。支持表头开关、分隔符选择（逗号/Tab/分号）、复制与下载。纯前端本地运行不上传数据，适合数据整理、报表导入、接口结果落表与办公处理。",
+  "category": "数据处理工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "JSON转CSV",
+    "JSON转Excel",
+    "JSON转TSV",
+    "数据转换",
+    "扁平化",
+    "表格导入",
+    "本地处理"
+  ]
+}
+

@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 JSON 转 Rust Serde Struct 工具 - 纯粹工具站",
+  "shortName": "JSON→Rust",
+  "description": "免费在线 JSON 转 Rust Serde：从样例 JSON 生成 Rust struct 与 serde(rename)，支持 Option/Vec，纯前端本地运行。",
+  "seoDescription": "免费在线JSON转Rust Serde Struct工具，支持粘贴JSON样例并自动推断字段类型，生成Rust struct与serde的Serialize/Deserialize派生代码。支持嵌套对象、数组(Vec<T>)、可选字段(Option<T>)与字段rename映射，混合类型会降级为serde_json::Value。纯前端本地运行不上传数据，适合Rust后端开发、接口响应建模与快速生成数据结构代码。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "JSON转Rust",
+    "Serde",
+    "Rust struct 生成",
+    "serde rename",
+    "接口响应建模",
+    "本地处理"
+  ]
+}
+

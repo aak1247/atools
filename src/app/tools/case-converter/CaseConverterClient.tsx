@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalI18n } from "../../../i18n/I18nProvider";
 
 type Mode =
   | "upper"
@@ -45,6 +47,27 @@ const toSentence = (text: string): string => {
 };
 
 export default function CaseConverterClient() {
+  const i18n = useOptionalI18n();
+  const locale = i18n?.locale ?? "zh-cn";
+  const ui =
+    locale === "en-us"
+      ? {
+          modeLabel: "Mode",
+          copyResult: "Copy result",
+          inputLabel: "Input",
+          outputLabel: "Output",
+          inputPlaceholder: "Type or paste text...",
+          outputPlaceholder: "Result will appear here...",
+        }
+      : {
+          modeLabel: "转换模式",
+          copyResult: "复制结果",
+          inputLabel: "输入",
+          outputLabel: "输出",
+          inputPlaceholder: "输入或粘贴文本…",
+          outputPlaceholder: "结果会显示在这里…",
+        };
+
   const [mode, setMode] = useState<Mode>("upper");
   const [input, setInput] = useState("hello world\nfoo_bar Baz");
 
@@ -67,21 +90,16 @@ export default function CaseConverterClient() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">大小写转换</h1>
-        <p className="mt-2 text-sm text-slate-500">upper/lower/title/camel/snake/kebab 等转换</p>
-      </div>
-
+    <ToolPageLayout toolSlug="case-converter">
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-slate-900">转换模式</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.modeLabel}</div>
           <button
             type="button"
             onClick={() => void copy()}
             className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            复制结果
+            {ui.copyResult}
           </button>
         </div>
 
@@ -114,24 +132,25 @@ export default function CaseConverterClient() {
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <div>
-            <div className="mb-2 text-sm font-semibold text-slate-900">输入</div>
+            <div className="mb-2 text-sm font-semibold text-slate-900">{ui.inputLabel}</div>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              placeholder={ui.inputPlaceholder}
               className="h-72 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
             />
           </div>
           <div>
-            <div className="mb-2 text-sm font-semibold text-slate-900">输出</div>
+            <div className="mb-2 text-sm font-semibold text-slate-900">{ui.outputLabel}</div>
             <textarea
               value={output}
               readOnly
+              placeholder={ui.outputPlaceholder}
               className="h-72 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none"
             />
           </div>
         </div>
       </div>
-    </div>
+    </ToolPageLayout>
   );
 }
-

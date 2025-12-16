@@ -1,0 +1,21 @@
+{
+  "name": "免费在线 Base32/Base58 转换工具 - 纯粹工具站",
+  "shortName": "Base32/Base58",
+  "description": "免费在线 Base32/Base58 转换工具：支持 UTF-8/Hex/Base32/Base58 互转，纯前端本地运行。",
+  "seoDescription": "免费在线Base32/Base58转换工具，支持UTF-8文本、Hex字节、Base32（RFC4648）与Base58（Bitcoin alphabet）之间相互转换。支持Base32填充(padding)开关，显示字节数/Hex/UTF-8解码结果，适合开发调试、区块链地址处理、二进制编码转换等场景。全程浏览器本地运行，不上传输入内容，保护隐私。",
+  "category": "密码学工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "Base32转换",
+    "Base58转换",
+    "编码互转",
+    "Hex转Base58",
+    "Base32解码",
+    "Base58解码",
+    "本地处理"
+  ]
+}
+

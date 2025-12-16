@@ -8,6 +8,27 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费网页相机", "在线拍照工具", "摄像头拍照", "证件照拍摄", "网页拍照"]
+  "keywords": ["免费网页相机", "在线拍照工具", "摄像头拍照", "证件照拍摄", "网页拍照"],
+  "ui": {
+    "controls": "控制",
+    "camera": "摄像头",
+    "rear": "后置（environment）",
+    "front": "前置（user）",
+    "start": "启动相机",
+    "stop": "停止",
+    "capture": "拍照",
+    "photo": "照片",
+    "capturedAlt": "拍照结果",
+    "downloadPng": "下载 PNG",
+    "noPhoto": "尚未拍照。",
+    "errorPrefix": "错误：",
+    "unsupported": "当前浏览器不支持摄像头访问。",
+    "videoNotReady": "视频元素未初始化。",
+    "unableStart": "无法启动摄像头。",
+    "statusStarting": "启动中",
+    "statusRunning": "运行中",
+    "statusError": "错误",
+    "statusStopped": "已停止",
+    "statusIdle": "未启动"
+  }
 }
-

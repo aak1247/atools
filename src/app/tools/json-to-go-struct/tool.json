@@ -1,0 +1,20 @@
+{
+  "name": "免费在线 JSON 转 Go Struct 工具 - 纯粹工具站",
+  "shortName": "JSON→Go",
+  "description": "免费在线 JSON 转 Go Struct：从样例 JSON 生成 Go struct 与 json tag，支持嵌套对象/数组，纯前端本地运行。",
+  "seoDescription": "免费在线JSON转Go Struct工具，支持粘贴JSON样例并自动推断字段类型，生成Go语言struct定义与json tag，支持嵌套对象、数组、可选字段(omitempty)等常见场景。纯前端本地运行，不上传数据，适合接口响应建模、后端开发联调、快速生成结构体代码与数据结构文档。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "JSON转Go",
+    "JSON转Struct",
+    "Go结构体生成",
+    "接口响应建模",
+    "json tag",
+    "本地处理"
+  ]
+}
+

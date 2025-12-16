@@ -1,0 +1,33 @@
+{
+  "name": "Free Online Base Converter - ATools",
+  "shortName": "Base Converter",
+  "description": "Free online Base Converter. Runs locally in your browser with zero uploads for privacy and speed.",
+  "seoDescription": "The ultimate free online Base Converter — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Base Converter on any device, this is the one you bookmark and share.",
+  "category": "Utilities",
+  "lang": "en-US",
+  "ui": {
+    "inputTitle": "Input",
+    "fromBase": "From (base)",
+    "toBase": "To (base)",
+    "numberLabel": "Number (integers only, “_” allowed)",
+    "numberPlaceholder": "e.g. 0xff / 1010_0101 / -42",
+    "swap": "Swap",
+    "prefix": "Prefix output (0x/0b/0o)",
+    "resultTitle": "Result",
+    "copy": "Copy",
+    "decimalPrefix": "Decimal: ",
+    "hint": "Tip: Integers only; extend for fractions/floats if needed.",
+    "errorBaseRange": "Base must be between 2 and 36.",
+    "errorEmpty": "Please enter a number.",
+    "errorInvalidCharTemplate": "Invalid character: {ch} (base={base})",
+    "errorConvert": "Unable to convert."
+  },
+  "keywords": [
+    "free online Base Converter",
+    "Base Converter tool",
+    "Base Converter web app",
+    "base-converter",
+    "ATools",
+    "Pure Tools"
+  ]
+}

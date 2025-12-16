@@ -17,6 +17,9 @@
 /.next/
 /out/
 /public/tools/*/manifest.webmanifest
+/public/tools/*/tool.json
+/public/tools/*/tool.*.json
+/public/vendor/ffmpeg/**
 
 # production
 /build

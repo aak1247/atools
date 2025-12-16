@@ -1,0 +1,22 @@
+{
+  "name": "Cron表达式解析器 - 纯粹工具站",
+  "shortName": "Cron解析器",
+  "description": "⚡ 免费在线Cron表达式解析器 - 解析、验证、生成cron表达式，显示下次执行时间。",
+  "seoDescription": "免费在线Cron表达式解析工具，支持标准5位和6位cron格式。实时解析cron表达式语法，验证表达式正确性，计算未来5次执行时间。支持便捷的cron表达式生成器，可视化配置，无需注册，100%本地处理保护隐私。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "Cron表达式",
+    "定时任务",
+    "Cron解析",
+    "调度器",
+    "DevOps",
+    "定时任务配置",
+    "免费在线工具",
+    "开发工具",
+    "本地处理"
+  ]
+}
