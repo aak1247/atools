@@ -19,15 +19,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: yarn
+          cache: "npm"
           cache-dependency-path: yarn.lock
-      - name: Enable Corepack (Yarn Classic)
-        run: |
-          corepack enable
-          corepack prepare yarn@1.22.22 --activate
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: |
+          npm install -g yarn@1.22.22
+          yarn install --frozen-lockfile
 
       - name: Build static site (Next.js export, webpack on CI)
         env:
