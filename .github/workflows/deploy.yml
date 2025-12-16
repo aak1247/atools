@@ -21,6 +21,10 @@ jobs:
           node-version: 22
           cache: yarn
           cache-dependency-path: yarn.lock
+      - name: Enable Corepack (Yarn Classic)
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
