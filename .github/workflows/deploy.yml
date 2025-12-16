@@ -33,17 +33,7 @@ jobs:
           BAIDU_PUSH_ENDPOINT: ${{ secrets.BAIDU_PUSH_ENDPOINT }}
         run: yarn build:webpack
 
-      - name: Upload static site artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: static-site
-          path: out
-
-      - name: Deploy to your server (optional, self-hosted runner)
-        if: env.DEPLOY_COMMAND != ''
+      - name: Build Docker image (nginx static site)
         env:
-          DEPLOY_COMMAND: ${{ secrets.DEPLOY_COMMAND }}
-        run: |
-          echo "DEPLOY_COMMAND is set. Please customize this step to run your actual deployment logic on the self-hosted runner."
-          echo "Current DEPLOY_COMMAND value:"
-          echo "$DEPLOY_COMMAND"
+          IMAGE_NAME: puretools-site
+        run: docker build -t $IMAGE_NAME:latest .

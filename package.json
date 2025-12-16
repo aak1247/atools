@@ -16,6 +16,7 @@
     "postbuild": "node scripts/push-search.mjs"
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "fabric": "^6.9.0",
     "geomagnetism": "^0.2.0",
     "jsqr": "^1.4.0",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",

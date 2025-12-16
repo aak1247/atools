@@ -1,0 +1,9 @@
+.git
+.github
+.next
+node_modules
+yarn-error.log
+README.md
+todo
+tool-analysis.md
+.claude
