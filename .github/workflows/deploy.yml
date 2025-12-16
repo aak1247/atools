@@ -37,5 +37,5 @@ jobs:
 
       - name: Build Docker image (nginx static site)
         env:
-          IMAGE_NAME: puretools-site
+          IMAGE_NAME: aak1247/atools
         run: docker build -t $IMAGE_NAME:latest .
