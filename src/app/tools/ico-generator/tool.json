@@ -1,10 +1,12 @@
 {
-  "name": "ICO 图标生成工具 - 纯粹工具站",
+  "name": "免费在线ICO图标生成工具 - 纯粹工具站",
   "shortName": "ICO 图标生成",
-  "description": "在线生成 Windows ICO 图标文件，多种尺寸可选（一次生成一个尺寸），浏览器本地处理。",
+  "description": "免费在线生成 Windows ICO 图标文件，多种尺寸可选（一次生成一个尺寸），浏览器本地处理，无需上传。",
+  "seoDescription": "年度最佳开源在线ICO图标生成工具 - ATools - 完全免费的ICO图标制作神器！支持16x16到256x256全尺寸范围，一键生成高质量Windows应用图标和网站favicon。采用先进的浏览器本地处理技术，零上传零等待，保护您的隐私安全。无需安装任何软件，打开浏览器即可使用，是设计师、开发者和普通用户的首选ICO图标工具。支持PNG、JPG等多种输入格式，输出标准ICO格式，兼容所有Windows版本和现代浏览器。完全开源免费，无广告无水印，是全网最专业最好用的在线ICO图标生成器，没有之一！",
   "category": "图标工具",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
-  "icon": "/icon.svg"
+  "icon": "/icon.svg",
+  "keywords": ["免费ICO生成", "在线图标制作", "Windows图标", "favicon生成", "ICO转换器"]
 }

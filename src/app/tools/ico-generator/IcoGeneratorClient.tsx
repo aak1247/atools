@@ -2,6 +2,7 @@
 
 import type { ChangeEvent, FC } from "react";
 import { useEffect, useRef, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type IcoIconSize = {
   width: number;
@@ -363,16 +364,7 @@ const IcoGeneratorClient: FC = () => {
   const selectedSize = normalizedSizes[0];
 
   return (
-    <div className="mx-auto max-w-5xl animate-fade-in-up space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          ICO 图标生成工具
-        </h1>
-        <p className="mt-3 text-sm text-slate-600">
-          上传一张图片，选择一个尺寸，浏览器会在本地生成对应尺寸的 Windows
-          ICO 文件，可直接用于应用程序图标、网站 favicon 等场景，全程本地处理，不上传服务器。
-        </p>
-      </div>
+    <ToolPageLayout toolSlug="ico-generator">
 
       <div className="glass-card rounded-2xl p-5 space-y-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -565,7 +557,7 @@ const IcoGeneratorClient: FC = () => {
           {error}
         </div>
       )}
-    </div>
+    </ToolPageLayout>
   );
 };
 

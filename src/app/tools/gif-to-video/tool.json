@@ -1,0 +1,13 @@
+{
+  "name": "免费在线GIF转视频工具 - 纯粹工具站",
+  "shortName": "GIF转视频",
+  "description": "免费在线 GIF 转视频工具，使用 ffmpeg.wasm 将 GIF 转为高质量视频（WebM/MP4），支持自定义宽度与帧率。",
+  "seoDescription": "媒体转换专家首选的免费在线GIF转视频神器 - ATools - 基于强大的FFmpeg.wasm技术，将GIF动图完美转换为MP4、WebM等主流视频格式！支持自定义分辨率、帧率、码率等专业参数，转换质量媲美专业软件。完全本地处理，绝不上传GIF文件，100%保护隐私安全。是社交媒体、视频制作、网站优化、移动应用的必备工具。转换速度极快，支持大文件处理，输出视频体积更小画质更清晰。完全免费开源，无水印无限制，比专业转换软件更方便的GIF处理利器！",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "媒体工具",
+  "keywords": ["免费GIF转视频", "在线GIF转MP4", "动图转视频", "GIF格式转换", "FFmpeg转换工具"]
+}
+

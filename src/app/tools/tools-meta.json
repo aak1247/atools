@@ -1,0 +1,844 @@
+[
+  {
+    "slug": "case-converter",
+    "path": "/tools/case-converter",
+    "name": "大小写转换 - 纯粹工具站",
+    "shortName": "大小写",
+    "description": "大小写/命名风格转换：upper/lower/title/camel/snake/kebab 等，支持一键复制。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "大小写",
+      "camelCase",
+      "snake_case",
+      "kebab-case",
+      "转换"
+    ]
+  },
+  {
+    "slug": "unit-converter",
+    "path": "/tools/unit-converter",
+    "name": "单位换算 - 纯粹工具站",
+    "shortName": "换算",
+    "description": "常用单位换算：长度、质量、温度、面积、体积、速度、数据大小等，纯前端本地运行。",
+    "category": "开发工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "单位换算",
+      "长度",
+      "质量",
+      "温度",
+      "进制",
+      "数据大小"
+    ]
+  },
+  {
+    "slug": "qr-decoder",
+    "path": "/tools/qr-decoder",
+    "name": "二维码解析器 - 纯粹工具站",
+    "shortName": "二维码解析",
+    "description": "纯前端二维码解析器，支持上传二维码图片并解析内容，一键复制结果。",
+    "category": "图片工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "二维码",
+      "QR",
+      "解析",
+      "识别"
+    ]
+  },
+  {
+    "slug": "qr-scanner",
+    "path": "/tools/qr-scanner",
+    "name": "二维码扫描器 - 纯粹工具站",
+    "shortName": "扫码",
+    "description": "使用摄像头扫描二维码，实时识别并复制结果，纯前端本地运行。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "二维码",
+      "扫描",
+      "摄像头",
+      "QR",
+      "jsQR"
+    ]
+  },
+  {
+    "slug": "qr-generator",
+    "path": "/tools/qr-generator",
+    "name": "二维码生成器 - 纯粹工具站",
+    "shortName": "二维码",
+    "description": "纯前端二维码生成器，支持自定义尺寸、容错等级与配色，生成 PNG 下载。",
+    "category": "图片工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "二维码",
+      "QR",
+      "生成",
+      "PNG"
+    ]
+  },
+  {
+    "slug": "hash-tools",
+    "path": "/tools/hash-tools",
+    "name": "哈希生成与校验 - 纯粹工具站",
+    "shortName": "哈希工具",
+    "description": "纯前端哈希生成与校验工具，支持 MD5、SHA1、SHA256、SHA512（文本/文件），所有计算均在浏览器本地完成。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "MD5",
+      "SHA1",
+      "SHA256",
+      "SHA512",
+      "哈希",
+      "校验",
+      "文件校验"
+    ]
+  },
+  {
+    "slug": "timer",
+    "path": "/tools/timer",
+    "name": "计时器 - 纯粹工具站",
+    "shortName": "计时器",
+    "description": "纯前端计时器工具，支持倒计时与秒表，所有计时均在浏览器本地完成。",
+    "category": "测量工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "计时器",
+      "倒计时",
+      "秒表"
+    ]
+  },
+  {
+    "slug": "base-converter",
+    "path": "/tools/base-converter",
+    "name": "进制转换 - 纯粹工具站",
+    "shortName": "进制",
+    "description": "整数进制转换：支持 2–36 进制互转，使用 BigInt 处理大整数。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "进制",
+      "base",
+      "BigInt",
+      "二进制",
+      "十六进制"
+    ]
+  },
+  {
+    "slug": "p2p-file-transfer",
+    "path": "/tools/p2p-file-transfer",
+    "name": "局域网 P2P 文件传输工具 - 纯粹工具站",
+    "shortName": "P2P 传输",
+    "description": "纯前端 WebRTC P2P 文件传输工具，适合局域网/热点环境下电脑手机互传文件；无需登录、无需服务器中转，不上传服务器；通过复制/粘贴连接码完成连接。",
+    "category": "网络工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "WebRTC",
+      "P2P",
+      "局域网",
+      "文件传输",
+      "点对点",
+      "离线"
+    ]
+  },
+  {
+    "slug": "calculator",
+    "path": "/tools/calculator",
+    "name": "科学计算器 - 纯粹工具站",
+    "shortName": "计算器",
+    "description": "纯前端科学计算器，支持四则运算和常用三角、平方根、对数函数，所有计算都在浏览器本地完成。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "protractor",
+    "path": "/tools/protractor",
+    "name": "量角器 - 纯粹工具站",
+    "shortName": "量角器",
+    "description": "在线量角器：拖动两条射线测量夹角，支持复制角度值，纯前端本地运行。",
+    "category": "测量工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "量角器",
+      "角度",
+      "测量",
+      "degree",
+      "angle"
+    ]
+  },
+  {
+    "slug": "palette-generator",
+    "path": "/tools/palette-generator",
+    "name": "配色生成器 - 纯粹工具站",
+    "shortName": "配色",
+    "description": "输入主色生成多种配色方案（单色/互补/类似/三色），支持一键复制 HEX。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "配色",
+      "调色板",
+      "palette",
+      "颜色",
+      "HEX"
+    ]
+  },
+  {
+    "slug": "timestamp-converter",
+    "path": "/tools/timestamp-converter",
+    "name": "时间戳转换 - 纯粹工具站",
+    "shortName": "时间戳",
+    "description": "纯前端时间戳转换工具（Unix 秒/毫秒 ↔ 日期时间），支持本地时区与 UTC，一键复制结果。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "时间戳",
+      "Unix",
+      "秒",
+      "毫秒",
+      "UTC",
+      "日期"
+    ]
+  },
+  {
+    "slug": "video-player",
+    "path": "/tools/video-player",
+    "name": "视频播放器 - 纯粹工具站",
+    "shortName": "视频",
+    "description": "本地视频播放器：导入视频文件播放，支持倍速、循环与画中画（若浏览器支持）。",
+    "category": "媒体工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "视频",
+      "播放器",
+      "倍速",
+      "PiP",
+      "本地"
+    ]
+  },
+  {
+    "slug": "video-trimmer",
+    "path": "/tools/video-trimmer",
+    "name": "视频剪辑器 - 纯粹工具站",
+    "shortName": "视频剪辑",
+    "description": "纯前端视频剪辑：设置起止时间，导出 WebM（基于浏览器 MediaRecorder，实时转码）。",
+    "category": "媒体工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "视频",
+      "剪辑",
+      "裁剪",
+      "WebM",
+      "MediaRecorder"
+    ]
+  },
+  {
+    "slug": "random-number-generator",
+    "path": "/tools/random-number-generator",
+    "name": "随机数生成器 - 纯粹工具站",
+    "shortName": "随机数",
+    "description": "纯前端随机数生成器，支持区间、数量、去重与一键复制，并使用本地存储记住偏好设置。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "随机数",
+      "生成器",
+      "区间",
+      "去重",
+      "本地存储"
+    ]
+  },
+  {
+    "slug": "escape-tool",
+    "path": "/tools/escape-tool",
+    "name": "特殊字符转义工具 - 纯粹工具站",
+    "shortName": "转义",
+    "description": "HTML/JSON/Unicode 转义与反转义，支持复制结果，纯前端运行。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "转义",
+      "escape",
+      "HTML",
+      "JSON",
+      "Unicode"
+    ]
+  },
+  {
+    "slug": "image-cropper",
+    "path": "/tools/image-cropper",
+    "name": "图片裁剪工具 - 纯粹工具站",
+    "shortName": "图片裁剪",
+    "description": "纯前端图片裁剪工具，支持鼠标拖拽选择裁剪区域，输出 PNG 结果下载。",
+    "category": "图片工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "图片裁剪",
+      "裁剪",
+      "Crop",
+      "PNG"
+    ]
+  },
+  {
+    "slug": "image-resizer",
+    "path": "/tools/image-resizer",
+    "name": "图片尺寸调整工具 - 纯粹工具站",
+    "shortName": "图片尺寸",
+    "description": "纯前端图片尺寸调整工具，支持查看原图分辨率并设置新的宽高，提供自动拉伸和透明背景等比填充两种模式，整个过程在浏览器本地完成，不上传服务器。",
+    "category": "图片工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "image-converter",
+    "path": "/tools/image-converter",
+    "name": "图片格式转换工具 - 纯粹工具站",
+    "shortName": "图片格式",
+    "description": "纯前端图片格式转换工具，支持在 JPG、PNG、BMP、WebP、ICO、GIF 等常见格式之间转换，转换过程完全在浏览器本地进行，不上传服务器。",
+    "category": "图片工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "color-picker",
+    "path": "/tools/color-picker",
+    "name": "图片取色器 - 纯粹工具站",
+    "shortName": "取色器",
+    "description": "纯前端图片取色器，支持上传图片并点击取色，输出 HEX/RGB 等格式，一键复制。",
+    "category": "图片工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "取色",
+      "图片取色",
+      "HEX",
+      "RGB",
+      "颜色"
+    ]
+  },
+  {
+    "slug": "image-compressor",
+    "path": "/tools/image-compressor",
+    "name": "图片压缩工具 - 纯粹工具站",
+    "shortName": "图片压缩",
+    "description": "在浏览器本地对图片进行压缩处理，不上传服务器，支持调节压缩质量，保护隐私且节省带宽。",
+    "category": "图片工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "text-diff",
+    "path": "/tools/text-diff",
+    "name": "文本差异对比 - 纯粹工具站",
+    "shortName": "Diff",
+    "description": "文本差异对比（按行）：高亮新增/删除/未变更内容，支持复制 unified diff。",
+    "category": "开发工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "diff",
+      "文本对比",
+      "差异",
+      "代码审查",
+      "unified"
+    ]
+  },
+  {
+    "slug": "camera",
+    "path": "/tools/camera",
+    "name": "相机 - 纯粹工具站",
+    "shortName": "相机",
+    "description": "使用摄像头拍照并下载 PNG，支持前后置切换，纯前端本地运行。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "相机",
+      "拍照",
+      "摄像头",
+      "PNG",
+      "getUserMedia"
+    ]
+  },
+  {
+    "slug": "salt-generator",
+    "path": "/tools/salt-generator",
+    "name": "盐值生成器 - 纯粹工具站",
+    "shortName": "盐值",
+    "description": "纯前端盐值生成器，支持自定义字节长度与输出格式（Hex/Base64/Base64URL），一键复制。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "盐",
+      "salt",
+      "随机",
+      "hex",
+      "base64"
+    ]
+  },
+  {
+    "slug": "color-converter",
+    "path": "/tools/color-converter",
+    "name": "颜色转换器 - 纯粹工具站",
+    "shortName": "颜色",
+    "description": "颜色格式转换：HEX / RGB / HSL 互转，带实时预览与复制，纯前端运行。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "颜色",
+      "HEX",
+      "RGB",
+      "HSL",
+      "转换"
+    ]
+  },
+  {
+    "slug": "music-player",
+    "path": "/tools/music-player",
+    "name": "音乐播放器 - 纯粹工具站",
+    "shortName": "音乐",
+    "description": "本地音乐播放器：导入多个音频文件，支持播放列表、倍速与循环，纯前端运行。",
+    "category": "媒体工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "音乐",
+      "播放器",
+      "音频",
+      "playlist",
+      "本地"
+    ]
+  },
+  {
+    "slug": "audio-encoder",
+    "path": "/tools/audio-encoder",
+    "name": "音频编码与格式解析 - 纯粹工具站",
+    "shortName": "音频编码",
+    "description": "使用 ffmpeg.wasm 解析音频信息并转码导出（MP3/WAV/OGG/FLAC/M4A，取决于浏览器与内置编码器）。",
+    "category": "媒体工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "音频",
+      "转码",
+      "编码",
+      "ffmpeg",
+      "ffmpeg.wasm",
+      "格式解析",
+      "metadata"
+    ]
+  },
+  {
+    "slug": "audio-trimmer",
+    "path": "/tools/audio-trimmer",
+    "name": "音频剪辑器 - 纯粹工具站",
+    "shortName": "音频剪辑",
+    "description": "纯前端音频剪辑：选择音频文件，设置起止时间，导出 WAV 到本地。",
+    "category": "媒体工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "音频",
+      "剪辑",
+      "裁剪",
+      "WAV",
+      "Web Audio"
+    ]
+  },
+  {
+    "slug": "audio-merger",
+    "path": "/tools/audio-merger",
+    "name": "音频拼接器 - 纯粹工具站",
+    "shortName": "音频拼接",
+    "description": "纯前端音频拼接：选择多个音频文件，按顺序合并后导出 WAV。",
+    "category": "媒体工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "音频",
+      "拼接",
+      "合并",
+      "WAV",
+      "Web Audio"
+    ]
+  },
+  {
+    "slug": "av-transcoder",
+    "path": "/tools/av-transcoder",
+    "name": "音视频转码 - 纯粹工具站",
+    "shortName": "转码",
+    "description": "纯前端音视频转码：基于浏览器 MediaRecorder 导出 WebM，或将音频导出 WAV（实时转码）。",
+    "category": "媒体工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "转码",
+      "MediaRecorder",
+      "WebM",
+      "WAV",
+      "本地"
+    ]
+  },
+  {
+    "slug": "seal-extractor",
+    "path": "/tools/seal-extractor",
+    "name": "印章提取工具 - 纯粹工具站",
+    "shortName": "印章提取",
+    "description": "从扫描件或拍照图片中自动识别并提取红色公章，生成透明背景电子章，全程本地处理，隐私安全。",
+    "category": "图片工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "noise-meter",
+    "path": "/tools/noise-meter",
+    "name": "噪音计 - 纯粹工具站",
+    "shortName": "噪音计",
+    "description": "纯前端噪音测量工具，通过设备麦克风实时测量环境噪音分贝水平，适用于噪音检测和环境监测。",
+    "category": "测量工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "regex-tester",
+    "path": "/tools/regex-tester",
+    "name": "正则表达式测试工具 - 纯粹工具站",
+    "shortName": "正则测试",
+    "description": "纯前端正则表达式测试工具，支持匹配、分组查看与替换预览，所有处理均在浏览器本地完成。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "正则",
+      "Regex",
+      "匹配",
+      "分组",
+      "替换"
+    ]
+  },
+  {
+    "slug": "compass",
+    "path": "/tools/compass",
+    "name": "指南针 - 纯粹工具站",
+    "shortName": "指南针",
+    "description": "纯前端指南针工具，支持 iPhone 方向传感器权限流程，可结合定位计算磁偏角以尽量接近真北显示；所有数据仅在本地处理。",
+    "category": "测量工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "word-counter",
+    "path": "/tools/word-counter",
+    "name": "字数统计 - 纯粹工具站",
+    "shortName": "字数",
+    "description": "统计字符数、去空格字符数、单词数、行数与中文字符数，支持复制统计结果。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "字数统计",
+      "字符",
+      "单词",
+      "行数",
+      "中文"
+    ]
+  },
+  {
+    "slug": "aes256",
+    "path": "/tools/aes256",
+    "name": "AES256 加解密 - 纯粹工具站",
+    "shortName": "AES256",
+    "description": "纯前端 AES-256-GCM 加解密工具，使用 PBKDF2 派生密钥并输出可复制的加密结果（JSON），所有处理均在浏览器本地完成。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "AES",
+      "AES256",
+      "加密",
+      "解密",
+      "PBKDF2",
+      "GCM"
+    ]
+  },
+  {
+    "slug": "api-tester",
+    "path": "/tools/api-tester",
+    "name": "API 测试工具 - 纯粹工具站",
+    "shortName": "API测试",
+    "description": "在线 API 测试：自定义方法、URL、请求头与请求体，查看响应状态与内容（受 CORS 限制）。",
+    "category": "开发工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "API",
+      "HTTP",
+      "fetch",
+      "POST",
+      "GET",
+      "CORS"
+    ]
+  },
+  {
+    "slug": "base64",
+    "path": "/tools/base64",
+    "name": "Base64 编码解码 - 纯粹工具站",
+    "shortName": "Base64",
+    "description": "纯前端 Base64 编码/解码工具，支持 UTF-8 文本与 URL-safe Base64，所有处理均在浏览器本地完成。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "Base64",
+      "编码",
+      "解码",
+      "URL-safe"
+    ]
+  },
+  {
+    "slug": "csv-excel-converter",
+    "path": "/tools/csv-excel-converter",
+    "name": "CSV-Excel 转换器 - 纯粹工具站",
+    "shortName": "CSV↔Excel",
+    "description": "纯前端 CSV 与 Excel（.xlsx）互转工具，支持分隔符与工作表选择，一键下载。",
+    "category": "数据处理工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "CSV",
+      "Excel",
+      "XLSX",
+      "转换",
+      "工作表"
+    ]
+  },
+  {
+    "slug": "csv-to-json",
+    "path": "/tools/csv-to-json",
+    "name": "CSV-JSON 转换器 - 纯粹工具站",
+    "shortName": "CSV→JSON",
+    "description": "纯前端 CSV 转 JSON 工具，支持自动识别分隔符、首行表头与一键复制下载。",
+    "category": "数据处理工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "CSV",
+      "JSON",
+      "转换",
+      "表头",
+      "分隔符"
+    ]
+  },
+  {
+    "slug": "csv-to-yaml",
+    "path": "/tools/csv-to-yaml",
+    "name": "CSV-YAML 转换器 - 纯粹工具站",
+    "shortName": "CSV→YAML",
+    "description": "纯前端 CSV 转 YAML 工具，支持自动识别分隔符、首行表头与一键复制下载。",
+    "category": "数据处理工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "CSV",
+      "YAML",
+      "转换",
+      "表头",
+      "分隔符"
+    ]
+  },
+  {
+    "slug": "des",
+    "path": "/tools/des",
+    "name": "DES 加解密 - 纯粹工具站",
+    "shortName": "DES",
+    "description": "纯前端 DES 加解密工具（CBC/ECB + PKCS7），支持输入十六进制 Key/IV 并输出 Base64 密文。注意：DES 已不安全，仅用于兼容场景。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "DES",
+      "加密",
+      "解密",
+      "CBC",
+      "ECB",
+      "Base64"
+    ]
+  },
+  {
+    "slug": "hmac-generator",
+    "path": "/tools/hmac-generator",
+    "name": "HMAC 生成器 - 纯粹工具站",
+    "shortName": "HMAC",
+    "description": "纯前端 HMAC 生成器，支持 SHA1/SHA256/SHA512，支持文本或十六进制 Key，输出 Hex/Base64 并可一键复制。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "HMAC",
+      "SHA1",
+      "SHA256",
+      "SHA512",
+      "签名"
+    ]
+  },
+  {
+    "slug": "html-stripper",
+    "path": "/tools/html-stripper",
+    "name": "HTML 标签去除 - 纯粹工具站",
+    "shortName": "去标签",
+    "description": "去除 HTML 标签并提取纯文本，支持复制结果，纯前端本地运行。",
+    "category": "实用工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "HTML",
+      "去标签",
+      "提取文本",
+      "strip",
+      "sanitize"
+    ]
+  },
+  {
+    "slug": "icns-generator",
+    "path": "/tools/icns-generator",
+    "name": "ICNS 图标生成工具 - 纯粹工具站",
+    "shortName": "ICNS 生成",
+    "description": "将单张图片转换为苹果 ICNS 图标文件，自动生成多个常用尺寸图标资源，整个过程在浏览器本地完成，不上传任何文件。",
+    "category": "图标工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "ico-generator",
+    "path": "/tools/ico-generator",
+    "name": "ICO 图标生成工具 - 纯粹工具站",
+    "shortName": "ICO 图标生成",
+    "description": "在线生成 Windows ICO 图标文件，多种尺寸可选（一次生成一个尺寸），浏览器本地处理。",
+    "category": "图标工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "json-formatter",
+    "path": "/tools/json-formatter",
+    "name": "JSON 格式化 - 纯粹工具站",
+    "shortName": "JSON格式化",
+    "description": "纯前端 JSON 格式化与压缩工具，支持缩进、排序键与一键复制，所有处理均在浏览器本地完成。",
+    "category": "数据处理工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "JSON",
+      "格式化",
+      "压缩",
+      "排序"
+    ]
+  },
+  {
+    "slug": "json-yaml-converter",
+    "path": "/tools/json-yaml-converter",
+    "name": "JSON-YAML 转换器 - 纯粹工具站",
+    "shortName": "JSON↔YAML",
+    "description": "纯前端 JSON 与 YAML 互转工具，支持一键复制与格式化，所有处理均在浏览器本地完成。",
+    "category": "数据处理工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "JSON",
+      "YAML",
+      "转换",
+      "格式化"
+    ]
+  },
+  {
+    "slug": "pdf-stamp",
+    "path": "/tools/pdf-stamp",
+    "name": "PDF 盖章工具 - 纯粹工具站",
+    "shortName": "PDF 盖章",
+    "description": "纯前端 PDF 盖章工具，支持上传 PDF 与透明印章图片，在浏览器中拖拽、缩放、旋转印章后生成带章 PDF，适合内部审批和日常文档场景。",
+    "category": "PDF 工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "pdf-trim",
+    "path": "/tools/pdf-trim",
+    "name": "PDF 剪切工具 - 纯粹工具站",
+    "shortName": "PDF 剪切",
+    "description": "纯前端 PDF 剪切工具，支持上传一个 PDF 并删除其中几页后导出新的 PDF，适合同一份合同中删除隐私页、说明书裁剪等日常文档整理场景。",
+    "category": "PDF 工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "pdf-merge",
+    "path": "/tools/pdf-merge",
+    "name": "PDF 拼接工具 - 纯粹工具站",
+    "shortName": "PDF 拼接",
+    "description": "纯前端 PDF 拼接工具，支持选择两个 PDF 文件按顺序合并为一个新的 PDF，整个过程在浏览器本地完成，不上传服务器，适合合同、多页资料整理等场景。",
+    "category": "PDF 工具",
+    "icon": "/icon.svg",
+    "keywords": []
+  },
+  {
+    "slug": "rsa-key-generator",
+    "path": "/tools/rsa-key-generator",
+    "name": "RSA 密钥生成器 - 纯粹工具站",
+    "shortName": "RSA密钥",
+    "description": "纯前端 RSA 密钥生成器，支持生成 2048/3072/4096 位密钥，并导出 PEM（PKCS8 私钥 / SPKI 公钥）。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "RSA",
+      "密钥",
+      "PEM",
+      "PKCS8",
+      "SPKI",
+      "生成器"
+    ]
+  },
+  {
+    "slug": "url-encoder",
+    "path": "/tools/url-encoder",
+    "name": "URL 编码解码 - 纯粹工具站",
+    "shortName": "URL编解码",
+    "description": "纯前端 URL 编码/解码工具，支持 encodeURIComponent 与 application/x-www-form-urlencoded 模式，所有处理均在浏览器本地完成。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "URL",
+      "编码",
+      "解码",
+      "encodeURIComponent",
+      "x-www-form-urlencoded"
+    ]
+  },
+  {
+    "slug": "uuid-generator",
+    "path": "/tools/uuid-generator",
+    "name": "UUID 生成器 - 纯粹工具站",
+    "shortName": "UUID",
+    "description": "纯前端 UUID v4 生成器，支持批量生成与一键复制，所有生成均在浏览器本地完成。",
+    "category": "密码学工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "UUID",
+      "UUIDv4",
+      "随机",
+      "生成器"
+    ]
+  },
+  {
+    "slug": "websocket-tester",
+    "path": "/tools/websocket-tester",
+    "name": "WebSocket 测试工具 - 纯粹工具站",
+    "shortName": "WS测试",
+    "description": "WebSocket 测试：连接/断开、发送消息、查看收发日志与连接状态，纯前端运行。",
+    "category": "开发工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "WebSocket",
+      "ws",
+      "wss",
+      "调试",
+      "测试"
+    ]
+  },
+  {
+    "slug": "xmind-viewer",
+    "path": "/tools/xmind-viewer",
+    "name": "XMind 打开器 - 纯粹工具站",
+    "shortName": "XMind",
+    "description": "打开并预览 .xmind 文件（读取内容并生成大纲），纯前端本地解析，不上传。",
+    "category": "文档工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "xmind",
+      "思维导图",
+      "打开",
+      "预览",
+      "outline"
+    ]
+  }
+]

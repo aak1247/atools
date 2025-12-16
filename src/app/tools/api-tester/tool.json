@@ -1,0 +1,13 @@
+{
+  "name": "免费在线API测试工具 - 纯粹工具站",
+  "shortName": "API接口测试",
+  "description": "免费在线 API 测试工具：自定义 HTTP 方法、URL、请求头与请求体，实时查看响应状态与内容。",
+  "seoDescription": "开发者必备的免费在线API测试神器 - ATools - 支持GET、POST、PUT、DELETE等所有HTTP方法，自定义请求头、请求体、认证信息！实时显示响应状态码、响应头、响应体，支持JSON、XML、HTML等多种格式美化显示。提供请求历史记录、批量测试、性能分析等高级功能。是前端开发、后端调试、接口联调、API文档验证的专业工具。界面简洁专业，操作极其简单，支持快捷键和代码生成。完全本地运行，保护API密钥安全，支持环境变量和参数化测试。完全免费开源，无请求次数限制，比Postman更轻便的API测试利器！",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "开发工具",
+  "keywords": ["免费API测试", "在线接口测试", "HTTP请求工具", "API调试", "接口测试工具"]
+}
+

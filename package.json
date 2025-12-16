@@ -16,8 +16,11 @@
     "postbuild": "node scripts/push-search.mjs"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "crypto-js": "^4.2.0",
     "fabric": "^6.9.0",
+    "fflate": "^0.8.2",
     "geomagnetism": "^0.2.0",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.561.0",

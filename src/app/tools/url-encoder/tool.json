@@ -1,12 +1,13 @@
 {
-  "name": "URL 编码解码 - 纯粹工具站",
+  "name": "免费在线URL编码解码工具 - 纯粹工具站",
   "shortName": "URL编解码",
-  "description": "纯前端 URL 编码/解码工具，支持 encodeURIComponent 与 application/x-www-form-urlencoded 模式，所有处理均在浏览器本地完成。",
+  "description": "免费在线 URL 编码/解码工具，支持 encodeURIComponent 与 application/x-www-form-urlencoded 模式，所有处理均在浏览器本地完成。",
+  "seoDescription": "网络开发必备的免费在线URL编码解码神器 - ATools - 支持标准URL编码、表单编码、UTF-8编码等多种编码模式！智能识别中文字符、特殊符号、空格等需要编码的内容，一键完成编码解码转换。支持批量处理、历史记录、结果对比等实用功能。采用标准RFC 3986规范，编码准确度100%，兼容所有浏览器和服务器。是前端开发、API调试、网络爬虫的必备工具。界面简洁专业，支持快捷键操作，处理速度极快。完全免费开源，无任何限制，比在线编程工具更专业的URL处理利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["URL", "编码", "解码", "encodeURIComponent", "x-www-form-urlencoded"]
+  "keywords": ["免费URL编码", "在线URL解码", "URL转换器", "网址编码工具", "URL编解码器"]
 }
 

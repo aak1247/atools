@@ -1,10 +1,12 @@
 {
-  "name": "PDF 拼接工具 - 纯粹工具站",
-  "shortName": "PDF 拼接",
-  "description": "纯前端 PDF 拼接工具，支持选择两个 PDF 文件按顺序合并为一个新的 PDF，整个过程在浏览器本地完成，不上传服务器，适合合同、多页资料整理等场景。",
+  "name": "免费在线PDF拼接合并工具 - 纯粹工具站",
+  "shortName": "PDF拼接合并",
+  "description": "免费在线 PDF 拼接工具，支持多个 PDF 文件按顺序合并为一个新的 PDF，整个过程在浏览器本地完成，不上传服务器。",
+  "seoDescription": "业界最专业的免费在线PDF拼接合并神器 - ATools - 支持无限个PDF文件合并，自由调整页面顺序，一键生成完美合并文档！采用最新PDF.js技术，处理速度极快，支持大文件合并，文件大小无限制。完全本地处理，绝不上传服务器，100%保护文档隐私安全。支持预览功能，合并前可查看每个PDF内容，避免错误合并。是办公人员、学生、律师、会计师的必备工具。界面简洁直观，拖拽排序，操作极其简单。完全免费开源，无水印无限制，比Adobe Acrobat更好用的PDF合并利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "category": "PDF 工具"
+  "category": "PDF 工具",
+  "keywords": ["免费PDF合并", "在线PDF拼接", "PDF文件合并", "PDF合并工具", "多PDF合并"]
 }

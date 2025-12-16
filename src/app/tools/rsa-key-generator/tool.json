@@ -1,12 +1,13 @@
 {
-  "name": "RSA 密钥生成器 - 纯粹工具站",
-  "shortName": "RSA密钥",
-  "description": "纯前端 RSA 密钥生成器，支持生成 2048/3072/4096 位密钥，并导出 PEM（PKCS8 私钥 / SPKI 公钥）。",
+  "name": "免费在线RSA密钥生成器 - 纯粹工具站",
+  "shortName": "RSA密钥生成器",
+  "description": "免费在线 RSA 密钥生成器，支持生成 2048/3072/4096 位密钥，并导出标准 PEM 格式（PKCS8 私钥 / SPKI 公钥）。",
+  "seoDescription": "安全等级最高的免费在线RSA密钥生成神器 - ATools - 支持2048、3072、4096位密钥长度，采用加密级随机数生成器，安全性达到银行级标准！输出标准PEM格式，兼容OpenSSL、Java、.NET等所有主流平台。完全本地生成，绝不上传私钥，100%保护密钥安全。是HTTPS证书、JWT签名、API认证、数字签名的专业工具。支持密钥强度检测、格式验证、批量生成等高级功能。界面简洁安全，操作极其简单，生成速度极快。完全免费开源，无任何限制，比专业密钥工具更安全的RSA生成利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["RSA", "密钥", "PEM", "PKCS8", "SPKI", "生成器"]
+  "keywords": ["免费RSA密钥生成", "在线RSA工具", "PEM密钥生成", "公私钥生成", "RSA密钥对"]
 }
 

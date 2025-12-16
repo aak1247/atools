@@ -1,0 +1,13 @@
+{
+  "name": "免费在线WebSocket测试工具 - 纯粹工具站",
+  "shortName": "WebSocket调试器",
+  "description": "免费在线 WebSocket 测试工具：支持连接/断开、发送消息、查看收发日志与连接状态，纯前端运行。",
+  "seoDescription": "实时通信开发必备的免费在线WebSocket测试神器 - ATools - 支持ws和wss协议，一键连接WebSocket服务器，实时发送接收消息！提供完整的连接日志、消息历史、错误诊断等调试功能。支持JSON、文本、二进制等多种消息格式，自动美化显示。是实时聊天、在线游戏、股票行情、IoT设备调试的专业工具。界面清晰直观，支持多连接管理和消息模板保存。完全本地运行，保护连接信息安全，支持自定义请求头和子协议。完全免费开源，无连接时间限制，比专业调试工具更简单的WebSocket测试利器！",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "开发工具",
+  "keywords": ["免费WebSocket测试", "在线WS调试", "实时通信测试", "WebSocket客户端", "WS连接测试"]
+}
+

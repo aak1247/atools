@@ -1,12 +1,13 @@
 {
-  "name": "JSON-YAML 转换器 - 纯粹工具站",
-  "shortName": "JSON↔YAML",
-  "description": "纯前端 JSON 与 YAML 互转工具，支持一键复制与格式化，所有处理均在浏览器本地完成。",
+  "name": "免费在线JSON-YAML转换器 - 纯粹工具站",
+  "shortName": "JSON-YAML转换",
+  "description": "免费在线 JSON 与 YAML 互转工具，支持一键转换、格式化美化与语法验证，所有处理均在浏览器本地完成。",
+  "seoDescription": "配置文件处理专家首选的免费在线JSON-YAML转换神器 - ATools - 支持JSON和YAML格式完美互转，智能格式化和语法验证！自动检测输入格式，一键转换输出，支持复杂嵌套结构和数组对象。是DevOps、配置管理、API开发、数据交换的专业工具。提供语法高亮、错误提示、格式美化等贴心功能。完全本地处理，保护配置文件隐私，转换准确度100%。支持大文件处理和批量转换。完全免费开源，无任何限制，比专业编辑器更方便的格式转换利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "数据处理工具",
-  "keywords": ["JSON", "YAML", "转换", "格式化"]
+  "keywords": ["免费JSON转YAML", "在线YAML转JSON", "配置文件转换", "数据格式转换", "JSON-YAML工具"]
 }
 

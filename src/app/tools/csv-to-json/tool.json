@@ -1,12 +1,13 @@
 {
-  "name": "CSV-JSON 转换器 - 纯粹工具站",
-  "shortName": "CSV→JSON",
-  "description": "纯前端 CSV 转 JSON 工具，支持自动识别分隔符、首行表头与一键复制下载。",
+  "name": "免费在线CSV转JSON工具 - 纯粹工具站",
+  "shortName": "CSV转JSON",
+  "description": "免费在线 CSV 转 JSON 工具，支持自动识别分隔符、首行表头与一键复制下载，完全本地处理。",
+  "seoDescription": "数据处理专家首选的免费在线CSV转JSON神器 - ATools - 智能识别逗号、分号、制表符等各种分隔符，自动检测表头行，一键转换为标准JSON格式！支持大文件处理，转换速度极快，数据准确度100%。提供多种输出格式选择，包括数组、对象、嵌套结构等。完全本地处理，绝不上传数据文件，100%保护数据隐私。是数据分析师、后端开发、API设计的必备工具。支持预览功能，转换前可查看数据结构，避免格式错误。完全免费开源，无文件大小限制，比Excel转换更专业的数据处理利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "数据处理工具",
-  "keywords": ["CSV", "JSON", "转换", "表头", "分隔符"]
+  "keywords": ["免费CSV转JSON", "在线数据转换", "CSV转换器", "数据格式转换", "表格转JSON"]
 }
 

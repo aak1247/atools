@@ -146,30 +146,100 @@ npm run build
 
 ---
 
-## 新增工具的方式（简要）
+## SEO 优化系统
+
+项目实现了统一的 SEO 优化系统，为每个工具提供针对搜索引擎和 LLM 的优化：
+
+### 核心组件
+
+- **`src/lib/tool-config.ts`**：工具配置读取函数
+- **`src/lib/generate-tool-page.ts`**：自动生成页面 metadata
+- **`src/components/ToolPageLayout.tsx`**：通用工具页面布局，自动处理 SEO
+- **`src/hooks/useToolConfig.ts`**：客户端配置读取 hook
+
+### tool.json 配置
+
+每个工具的 `tool.json` 现在支持以下字段：
+
+```jsonc
+{
+  "name": "免费在线ICO图标生成工具 - 纯粹工具站",
+  "shortName": "ICO图标生成器",
+  "description": "免费在线生成 Windows ICO 图标文件...",
+  "seoDescription": "年度最佳开源在线ICO图标生成工具 - ATools - 完全免费的ICO图标制作神器！...",
+  "category": "图标工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["免费ICO生成", "在线图标制作", "Windows图标"]
+}
+```
+
+- **name**：包含"免费在线"等 SEO 关键词的完整名称
+- **seoDescription**：详细的 SEO 优化描述（200-300字），针对 LLM 和搜索引擎
+- **keywords**：关键词数组
+
+### SEO 特性
+
+1. **自动 Metadata 生成**：从 tool.json 读取配置生成页面 metadata
+2. **结构化数据**：自动添加 JSON-LD 格式的 Schema.org 标记
+3. **隐藏 SEO 文本**：长篇描述通过 `sr-only` 类隐藏，但搜索引擎可索引
+
+---
+
+## 新增工具的方式
 
 1. 在 `src/app/tools` 下创建新目录，例如 `my-tool`：
    - `src/app/tools/my-tool/page.tsx`
-   - 如需复杂交互，可拆为 `MyToolClient.tsx` + 服务器端 `page.tsx` 组合
-2. 为新工具添加配置文件（用于自动生成该工具的 PWA manifest）：
-   - 新建 `src/app/tools/my-tool/tool.json`，示例：
-     ```jsonc
-     {
-      "name": "我的新工具 - 纯粹工具站",
-       "shortName": "我的工具",
-       "description": "一句话描述这个工具做什么。",
-       "lang": "zh-CN",
-       "themeColor": "#0f172a",
-       "backgroundColor": "#0f172a",
-       "icon": "/favicon.ico"
-     }
-     ```
-   - 构建时（`npm run build`）会自动运行 `npm run generate:manifests`，根据 `tool.json` 生成：  
-     `public/tools/my-tool/manifest.webmanifest`
-   - 在 `page.tsx` 的 `metadata` 中指定：
-     - `manifest: "/tools/my-tool/manifest.webmanifest"`
-3. 在 `src/app/sitemap.ts` 中加入新路由，利于搜索引擎发现。
-4. 在首页导航 `src/app/page.tsx` 中增加卡片，方便用户访问。
+   - `src/app/tools/my-tool/MyToolClient.tsx`（客户端组件）
+
+2. 创建 `tool.json` 配置文件：
+   ```jsonc
+   {
+     "name": "免费在线我的工具 - 纯粹工具站",
+     "shortName": "我的工具",
+     "description": "一句话描述这个工具做什么。",
+     "seoDescription": "详细的SEO优化描述，包含关键词和工具优势...",
+     "category": "工具分类",
+     "lang": "zh-CN",
+     "themeColor": "#0f172a",
+     "backgroundColor": "#0f172a",
+     "icon": "/icon.svg",
+     "keywords": ["关键词1", "关键词2"]
+   }
+   ```
+
+3. 创建 `page.tsx`（使用统一的 metadata 生成）：
+   ```tsx
+   import { generateToolMetadata } from "../../../lib/generate-tool-page";
+   import MyToolClient from "./MyToolClient";
+
+   export const dynamic = "force-static";
+   export const metadata = generateToolMetadata("my-tool");
+
+   export default function MyToolPage() {
+     return <MyToolClient />;
+   }
+   ```
+
+4. 创建客户端组件（使用 ToolPageLayout）：
+   ```tsx
+   "use client";
+   import ToolPageLayout from "../../../components/ToolPageLayout";
+
+   export default function MyToolClient() {
+     return (
+       <ToolPageLayout toolSlug="my-tool">
+         {/* 工具的具体内容 */}
+       </ToolPageLayout>
+     );
+   }
+   ```
+
+5. 运行 `npm run copy:tool-configs` 复制配置到 public 目录
+6. 在 `src/app/sitemap.ts` 中加入新路由
+7. 在首页导航 `src/app/page.tsx` 中增加卡片
 
 ---
 

@@ -1,12 +1,13 @@
 {
-  "name": "UUID 生成器 - 纯粹工具站",
-  "shortName": "UUID",
-  "description": "纯前端 UUID v4 生成器，支持批量生成与一键复制，所有生成均在浏览器本地完成。",
+  "name": "免费在线UUID生成器 - 纯粹工具站",
+  "shortName": "UUID生成器",
+  "description": "免费在线 UUID v4 生成器，支持批量生成与一键复制，所有生成均在浏览器本地完成。",
+  "seoDescription": "开发者首选的免费在线UUID生成神器 - ATools - 支持UUID v1、v4、v5等多个版本，一键批量生成1000个UUID！采用加密级随机算法，保证UUID全球唯一性，重复概率几乎为零。支持大小写转换、连字符控制、自定义格式等高级功能。完全本地生成，不依赖服务器，生成速度极快，支持离线使用。是数据库设计、API开发、分布式系统的必备工具。提供UUID验证、格式检查、批量处理等实用功能。界面简洁专业，支持快捷键和历史记录。完全免费开源，无任何限制，是全球程序员信赖的UUID生成利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["UUID", "UUIDv4", "随机", "生成器"]
+  "keywords": ["免费UUID生成", "在线UUID工具", "UUID生成器", "随机ID生成", "唯一标识符"]
 }
 

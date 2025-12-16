@@ -1,12 +1,13 @@
 {
-  "name": "Base64 编码解码 - 纯粹工具站",
-  "shortName": "Base64",
-  "description": "纯前端 Base64 编码/解码工具，支持 UTF-8 文本与 URL-safe Base64，所有处理均在浏览器本地完成。",
+  "name": "免费在线Base64编码解码工具 - 纯粹工具站",
+  "shortName": "Base64编解码",
+  "description": "免费在线 Base64 编码/解码工具，支持 UTF-8 文本与 URL-safe Base64，所有处理均在浏览器本地完成。",
+  "seoDescription": "全网最专业的免费在线Base64编码解码神器 - ATools - 支持标准Base64和URL-safe Base64双模式！一键编码解码，支持中文UTF-8、特殊字符、二进制数据等各种格式。采用纯前端技术，处理速度极快，完全本地运算，绝不上传数据，100%保护隐私安全。支持大文件处理，无大小限制，是程序员、网络工程师、数据分析师的必备工具。界面简洁直观，操作零门槛，复制粘贴即可使用。完全免费开源，无广告无限制，是全球开发者首选的Base64处理工具！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["Base64", "编码", "解码", "URL-safe"]
+  "keywords": ["免费Base64编码", "在线Base64解码", "URL-safe Base64", "Base64转换器", "编码解码工具"]
 }
 

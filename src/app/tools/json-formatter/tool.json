@@ -1,12 +1,13 @@
 {
-  "name": "JSON 格式化 - 纯粹工具站",
+  "name": "免费在线JSON格式化工具 - 纯粹工具站",
   "shortName": "JSON格式化",
-  "description": "纯前端 JSON 格式化与压缩工具，支持缩进、排序键与一键复制，所有处理均在浏览器本地完成。",
+  "description": "免费在线 JSON 格式化与压缩工具，支持缩进、排序键与一键复制，所有处理均在浏览器本地完成。",
+  "seoDescription": "全网最好用的免费在线JSON格式化美化神器 - ATools - 支持JSON格式化、压缩、验证、排序等全功能！智能语法高亮，错误定位精准，支持超大JSON文件处理。一键美化混乱的JSON数据，自动缩进对齐，键值排序，让代码结构清晰可读。支持JSON转XML、CSV、YAML等多种格式转换。采用先进的解析引擎，处理速度极快，完全本地处理，保护数据隐私。是前端开发、API调试、数据分析的必备利器。界面简洁专业，支持主题切换，操作体验极佳。完全免费开源，无任何限制，堪称程序员最爱的JSON处理工具！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "数据处理工具",
-  "keywords": ["JSON", "格式化", "压缩", "排序"]
+  "keywords": ["免费JSON格式化", "在线JSON美化", "JSON验证器", "JSON压缩", "JSON格式化工具"]
 }
 

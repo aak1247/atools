@@ -41,9 +41,17 @@ npm run lint            # Run ESLint
 ```
 src/
 ├── app/tools/[tool-name]/     # Individual tool directories
-│   ├── page.tsx              # Main tool component (must be static)
-│   └── tool.json             # PWA configuration for the tool
+│   ├── page.tsx              # Page component using generateToolMetadata()
+│   ├── [ToolName]Client.tsx  # Client component using ToolPageLayout
+│   └── tool.json             # PWA + SEO configuration for the tool
 ├── app/tools/tools-meta.json # Auto-generated tool navigation data
+├── lib/
+│   ├── tool-config.ts        # Tool configuration reader
+│   └── generate-tool-page.ts # Unified metadata generator
+├── components/
+│   └── ToolPageLayout.tsx    # Unified tool page layout with SEO
+├── hooks/
+│   └── useToolConfig.ts      # Client-side config hook
 ├── types/tools.ts            # ToolConfig TypeScript interface
 └── scripts/                  # Build and utility scripts
 ```
@@ -82,42 +90,58 @@ Each tool follows this pattern:
    mkdir src/app/tools/my-tool
    ```
 
-2. **Create Tool Component (`page.tsx`):**
-   ```tsx
-   import { Metadata } from "next";
-
-   export const dynamic = "force-static";
-
-   export const metadata: Metadata = {
-     title: "My Tool - 纯粹工具站",
-     description: "Tool description",
-     manifest: "/tools/my-tool/manifest.webmanifest",
-   };
-
-   export default function MyTool() {
-     return <div>Tool UI here</div>;
-   }
-   ```
-
-3. **Create PWA Config (`tool.json`):**
+2. **Create PWA Config (`tool.json`) with SEO fields:**
    ```json
    {
-     "name": "My Tool - 纯粹工具站",
-     "shortName": "My Tool",
-     "description": "One-sentence description of what this tool does.",
-     "category": "Tool Category",
+     "name": "免费在线我的工具 - 纯粹工具站",
+     "shortName": "我的工具",
+     "description": "一句话描述这个工具做什么。",
+     "seoDescription": "详细的SEO优化描述，包含关键词、工具优势、使用场景等，200-300字，针对搜索引擎和LLM优化...",
+     "category": "工具分类",
      "lang": "zh-CN",
      "themeColor": "#0f172a",
      "backgroundColor": "#0f172a",
-     "icon": "/icon.svg"
+     "icon": "/icon.svg",
+     "keywords": ["免费工具", "在线工具", "关键词"]
    }
    ```
 
-4. **Update Navigation:**
+3. **Create Page Component (`page.tsx`) using unified SEO system:**
+   ```tsx
+   import { generateToolMetadata } from "../../../lib/generate-tool-page";
+   import MyToolClient from "./MyToolClient";
+
+   export const dynamic = "force-static";
+   export const metadata = generateToolMetadata("my-tool");
+
+   export default function MyToolPage() {
+     return <MyToolClient />;
+   }
+   ```
+
+4. **Create Client Component (`MyToolClient.tsx`) using ToolPageLayout:**
+   ```tsx
+   "use client";
+   import ToolPageLayout from "../../../components/ToolPageLayout";
+
+   export default function MyToolClient() {
+     return (
+       <ToolPageLayout toolSlug="my-tool">
+         {/* Tool UI content here */}
+         <div className="glass-card rounded-2xl p-5">
+           {/* ... */}
+         </div>
+       </ToolPageLayout>
+     );
+   }
+   ```
+
+5. **Copy Config and Update Navigation:**
+   - Run `npm run copy:tool-configs` to copy tool.json to public directory
    - Run `npm run generate:manifests` to update `tools-meta.json`
    - Add tool card to `src/app/page.tsx` homepage
 
-5. **Update Sitemap:**
+6. **Update Sitemap:**
    - Add tool URL to `src/app/sitemap.ts`
 
 ## Testing and Quality Assurance
@@ -150,6 +174,24 @@ Each tool follows this pattern:
 - **Sitemap:** Auto-generated via `src/app/sitemap.ts`
 - **Robots:** Auto-generated via `src/app/robots.ts`
 - **Search Submission:** `scripts/push-search.mjs` runs post-build
+
+### SEO Optimization System
+All tools use a unified SEO system for better search engine and LLM visibility:
+
+1. **tool.json SEO fields:**
+   - `name`: Full name with "免费在线" keywords
+   - `seoDescription`: Detailed SEO text (200-300 chars) for search engines
+   - `keywords`: Array of relevant keywords
+
+2. **Auto-generated features:**
+   - Page metadata via `generateToolMetadata()`
+   - JSON-LD structured data (Schema.org WebApplication)
+   - Hidden SEO text via `sr-only` class in `ToolPageLayout`
+
+3. **Key files:**
+   - `src/lib/generate-tool-page.ts` - Metadata generator
+   - `src/components/ToolPageLayout.tsx` - Unified layout with SEO
+   - `scripts/copy-tool-configs.mjs` - Copy configs to public directory
 
 ## Important Development Notes
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type Mode = "encode" | "decode";
 
@@ -72,15 +73,8 @@ export default function Base64Client() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          Base64 编码解码
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          支持 UTF-8 文本与 URL-safe Base64，纯本地处理
-        </p>
-      </div>
+    <ToolPageLayout toolSlug="base64">
+      <div className="w-full max-w-4xl mx-auto px-4">
 
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -169,7 +163,8 @@ export default function Base64Client() {
           提示：解码模式会忽略空白字符；URL-safe 会使用 “-” 和 “_” 并去除填充 “=”。
         </div>
       </div>
-    </div>
+      </div>
+    </ToolPageLayout>
   );
 }
 

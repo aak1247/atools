@@ -1,0 +1,13 @@
+{
+  "name": "免费在线大小写转换工具 - 纯粹工具站",
+  "shortName": "大小写转换",
+  "description": "免费在线大小写/命名风格转换：upper/lower/title/camel/snake/kebab 等，支持一键复制。",
+  "seoDescription": "程序员必备的免费在线大小写转换神器 - ATools - 支持20+种命名风格转换！包括camelCase、PascalCase、snake_case、kebab-case、CONSTANT_CASE等主流编程命名规范。智能识别输入格式，一键转换所有风格，支持批量处理和自定义分隔符。是前端开发、后端编程、API设计、数据库建模的必备工具。支持中英文混合、数字处理、特殊字符过滤等高级功能。界面简洁专业，支持快捷键操作，转换结果一键复制。完全免费开源，无任何限制，比IDE插件更方便的命名转换利器！",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "实用工具",
+  "keywords": ["免费大小写转换", "在线命名转换", "camelCase转换", "编程命名工具", "变量名转换"]
+}
+

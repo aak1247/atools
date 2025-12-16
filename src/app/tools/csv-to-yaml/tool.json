@@ -1,12 +1,13 @@
 {
-  "name": "CSV-YAML 转换器 - 纯粹工具站",
-  "shortName": "CSV→YAML",
-  "description": "纯前端 CSV 转 YAML 工具，支持自动识别分隔符、首行表头与一键复制下载。",
+  "name": "免费在线CSV转YAML工具 - 纯粹工具站",
+  "shortName": "CSV转YAML",
+  "description": "免费在线 CSV 转 YAML 工具，智能识别分隔符、首行表头，一键转换并支持复制下载。",
+  "seoDescription": "配置管理专家首选的免费在线CSV转YAML神器 - ATools - 智能识别各种CSV分隔符，完美转换为标准YAML格式！支持嵌套结构、数组对象、数据类型自动识别等高级功能。是DevOps、配置管理、数据迁移、API开发的专业工具。完全本地处理，保护数据隐私，转换准确度100%。提供YAML语法验证、格式美化、结构预览等实用功能。支持大文件处理和批量转换，处理速度极快。完全免费开源，无任何限制，比专业数据工具更简单的格式转换利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "数据处理工具",
-  "keywords": ["CSV", "YAML", "转换", "表头", "分隔符"]
+  "keywords": ["免费CSV转YAML", "在线数据转换", "配置文件转换", "CSV-YAML工具", "表格转YAML"]
 }
 

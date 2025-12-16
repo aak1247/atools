@@ -1,12 +1,13 @@
 {
-  "name": "DES 加解密 - 纯粹工具站",
-  "shortName": "DES",
-  "description": "纯前端 DES 加解密工具（CBC/ECB + PKCS7），支持输入十六进制 Key/IV 并输出 Base64 密文。注意：DES 已不安全，仅用于兼容场景。",
+  "name": "免费在线DES加解密工具 - 纯粹工具站",
+  "shortName": "DES加解密",
+  "description": "免费在线 DES 加解密工具（CBC/ECB + PKCS7），支持输入十六进制 Key/IV 并输出 Base64 密文，用于兼容旧系统。",
+  "seoDescription": "兼容性最强的免费在线DES加解密神器 - ATools - 支持DES-CBC、DES-ECB等多种加密模式，完美兼容各种旧系统和遗留应用！提供十六进制密钥输入、PKCS7填充、Base64输出等标准功能。虽然DES算法已不推荐用于新项目，但在维护旧系统、数据迁移、格式转换等场景仍有重要价值。完全本地加解密，绝不上传敏感数据，100%保护数据安全。是系统维护、数据恢复、格式转换的专业工具。界面简洁专业，操作安全可靠，支持批量处理。完全免费开源，无任何限制，是IT运维人员信赖的加密兼容利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["DES", "加密", "解密", "CBC", "ECB", "Base64"]
+  "keywords": ["免费DES加密", "在线DES解密", "DES兼容工具", "旧系统加密", "DES-CBC加密"]
 }
 

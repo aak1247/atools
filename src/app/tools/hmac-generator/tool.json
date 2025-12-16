@@ -1,12 +1,13 @@
 {
-  "name": "HMAC 生成器 - 纯粹工具站",
-  "shortName": "HMAC",
-  "description": "纯前端 HMAC 生成器，支持 SHA1/SHA256/SHA512，支持文本或十六进制 Key，输出 Hex/Base64 并可一键复制。",
+  "name": "免费在线HMAC生成器 - 纯粹工具站",
+  "shortName": "HMAC生成器",
+  "description": "免费在线 HMAC 生成器，支持 SHA1/SHA256/SHA512 算法，支持文本或十六进制 Key，输出 Hex/Base64 格式。",
+  "seoDescription": "网络安全专家首选的免费在线HMAC生成神器 - ATools - 支持SHA1、SHA256、SHA512、MD5等主流HMAC算法！提供文本密钥和十六进制密钥两种输入模式，输出Hex、Base64、二进制等多种格式。采用标准RFC 2104规范，计算准确度100%，是API签名、数据完整性验证、身份认证的专业工具。完全本地计算，绝不上传敏感数据，100%保护密钥安全。支持批量生成、密钥强度检测、签名验证等高级功能。界面简洁专业，操作安全可靠，计算结果一键复制。完全免费开源，无任何限制，是全球开发者信赖的HMAC计算利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["HMAC", "SHA1", "SHA256", "SHA512", "签名"]
+  "keywords": ["免费HMAC生成", "在线HMAC计算", "API签名工具", "HMAC-SHA256", "消息认证码"]
 }
 

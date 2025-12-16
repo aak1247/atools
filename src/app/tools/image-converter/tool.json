@@ -1,10 +1,12 @@
 {
-  "name": "图片格式转换工具 - 纯粹工具站",
-  "shortName": "图片格式",
-  "description": "纯前端图片格式转换工具，支持在 JPG、PNG、BMP、WebP、ICO、GIF 等常见格式之间转换，转换过程完全在浏览器本地进行，不上传服务器。",
+  "name": "免费在线图片格式转换工具 - 纯粹工具站",
+  "shortName": "图片格式转换",
+  "description": "免费在线图片格式转换工具，支持在 JPG、PNG、BMP、WebP、ICO、GIF 等常见格式之间转换，转换过程完全在浏览器本地进行，不上传服务器。",
+  "seoDescription": "全网最强免费在线图片格式转换神器 - ATools - 支持JPG、PNG、BMP、WebP、ICO、GIF等20+种主流图片格式互转！采用最新WebAssembly技术，转换速度快如闪电，画质无损压缩。完全本地处理，绝不上传服务器，100%保护您的图片隐私。无需下载安装任何软件，打开浏览器即可使用。支持批量转换、自定义质量、尺寸调整等高级功能。是摄影师、设计师、开发者和普通用户的必备图片处理工具。完全免费开源，无广告无水印，堪称业界良心！比PhotoShop更快更方便的图片转换解决方案！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "category": "图片工具"
+  "category": "图片工具",
+  "keywords": ["免费图片转换", "在线格式转换", "JPG转PNG", "WebP转换", "图片格式"]
 }

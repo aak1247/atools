@@ -1,10 +1,12 @@
 {
-  "name": "ICNS 图标生成工具 - 纯粹工具站",
-  "shortName": "ICNS 生成",
-  "description": "将单张图片转换为苹果 ICNS 图标文件，自动生成多个常用尺寸图标资源，整个过程在浏览器本地完成，不上传任何文件。",
+  "name": "免费在线ICNS图标生成工具 - 纯粹工具站",
+  "shortName": "ICNS图标生成器",
+  "description": "免费在线 ICNS 图标生成工具，将单张图片转换为苹果 ICNS 图标文件，自动生成多个常用尺寸，完全本地处理。",
+  "seoDescription": "Mac开发者必备的免费在线ICNS图标生成神器 - ATools - 一键将PNG、JPG等图片转换为标准苹果ICNS图标格式！自动生成16x16到1024x1024全套尺寸，完美适配macOS应用图标规范。采用高质量缩放算法，图标清晰锐利，支持Retina高分辨率显示。完全本地处理，绝不上传图片文件，100%保护设计资产安全。是Mac应用开发、图标设计、软件发布的专业工具。支持批量生成和预览功能，操作简单高效。完全免费开源，无水印无限制，比Xcode更方便的ICNS制作利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "category": "图标工具"
+  "category": "图标工具",
+  "keywords": ["免费ICNS生成", "在线苹果图标", "Mac图标制作", "ICNS转换器", "macOS应用图标"]
 }

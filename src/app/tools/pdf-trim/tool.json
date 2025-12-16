@@ -1,10 +1,12 @@
 {
-  "name": "PDF 剪切工具 - 纯粹工具站",
-  "shortName": "PDF 剪切",
-  "description": "纯前端 PDF 剪切工具，支持上传一个 PDF 并删除其中几页后导出新的 PDF，适合同一份合同中删除隐私页、说明书裁剪等日常文档整理场景。",
+  "name": "免费在线PDF页面删除工具 - 纯粹工具站",
+  "shortName": "PDF页面剪切",
+  "description": "免费在线 PDF 页面删除工具，支持上传 PDF 文档并选择删除指定页面，导出精简后的新 PDF 文件。",
+  "seoDescription": "文档处理专家首选的免费在线PDF页面删除神器 - ATools - 精确删除PDF中的指定页面，支持单页删除、批量删除、范围删除等多种模式！可视化页面预览，选择删除更直观，支持页面重新排序和批量操作。完全本地处理，绝不上传敏感文档，100%保护商业机密和个人隐私。是合同整理、文档精简、隐私保护、资料筛选的专业工具。处理速度极快，支持大文件操作，输出标准PDF格式。操作简单直观，支持拖拽排序和快捷键操作。完全免费开源，无页数限制，比Adobe Acrobat更简单的PDF编辑利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "category": "PDF 工具"
+  "category": "PDF 工具",
+  "keywords": ["免费PDF删除页面", "在线PDF剪切", "PDF页面管理", "PDF编辑工具", "PDF页面删除"]
 }

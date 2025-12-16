@@ -1,0 +1,13 @@
+{
+  "name": "免费在线特殊字符转义工具 - 纯粹工具站",
+  "shortName": "字符转义工具",
+  "description": "免费在线特殊字符转义工具，支持 HTML/JSON/Unicode/JavaScript 转义与反转义，一键复制结果。",
+  "seoDescription": "程序员必备的免费在线特殊字符转义神器 - ATools - 支持HTML实体、JSON字符串、Unicode编码、JavaScript转义、URL编码等10+种转义格式！智能识别输入类型，自动选择合适的转义方式，支持批量处理和双向转换。完全本地处理，保护代码隐私，转义准确度100%。是前端开发、后端编程、数据处理、安全测试的必备工具。提供常用转义字符参考表，支持自定义转义规则。界面简洁专业，操作极其简单，转义结果一键复制。完全免费开源，无任何限制，比IDE插件更方便的字符处理利器！",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "实用工具",
+  "keywords": ["免费字符转义", "在线转义工具", "HTML转义", "JSON转义", "Unicode转义"]
+}
+

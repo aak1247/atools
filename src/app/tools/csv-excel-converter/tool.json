@@ -1,12 +1,13 @@
 {
-  "name": "CSV-Excel 转换器 - 纯粹工具站",
-  "shortName": "CSV↔Excel",
-  "description": "纯前端 CSV 与 Excel（.xlsx）互转工具，支持分隔符与工作表选择，一键下载。",
+  "name": "免费在线CSV-Excel转换器 - 纯粹工具站",
+  "shortName": "CSV-Excel转换",
+  "description": "免费在线 CSV 与 Excel（.xlsx）互转工具，智能识别分隔符与工作表，支持批量转换和一键下载。",
+  "seoDescription": "办公必备的免费在线CSV-Excel转换神器 - ATools - 支持CSV和Excel格式完美互转，智能识别逗号、分号、制表符等各种分隔符！支持多工作表Excel文件，自由选择转换范围，保持数据格式和公式完整。完全本地处理，绝不上传敏感数据，100%保护商业机密。是数据分析、报表制作、系统导入导出的专业工具。支持大文件处理、编码识别、格式预览等高级功能。处理速度极快，转换准确度100%，支持批量操作。完全免费开源，无文件大小限制，比Office更方便的数据转换利器！",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "数据处理工具",
-  "keywords": ["CSV", "Excel", "XLSX", "转换", "工作表"]
+  "keywords": ["免费CSV转Excel", "在线Excel转CSV", "表格格式转换", "数据文件转换", "CSV-XLSX转换"]
 }
 
