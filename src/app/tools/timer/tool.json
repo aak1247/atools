@@ -1,0 +1,12 @@
+{
+  "name": "计时器 - 纯粹工具站",
+  "shortName": "计时器",
+  "description": "纯前端计时器工具，支持倒计时与秒表，所有计时均在浏览器本地完成。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "测量工具",
+  "keywords": ["计时器", "倒计时", "秒表"]
+}
+

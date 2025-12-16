@@ -1,0 +1,12 @@
+{
+  "name": "Base64 编码解码 - 纯粹工具站",
+  "shortName": "Base64",
+  "description": "纯前端 Base64 编码/解码工具，支持 UTF-8 文本与 URL-safe Base64，所有处理均在浏览器本地完成。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "密码学工具",
+  "keywords": ["Base64", "编码", "解码", "URL-safe"]
+}
+

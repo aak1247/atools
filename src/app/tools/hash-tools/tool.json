@@ -1,0 +1,12 @@
+{
+  "name": "哈希生成与校验 - 纯粹工具站",
+  "shortName": "哈希工具",
+  "description": "纯前端哈希生成与校验工具，支持 MD5、SHA1、SHA256、SHA512（文本/文件），所有计算均在浏览器本地完成。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "密码学工具",
+  "keywords": ["MD5", "SHA1", "SHA256", "SHA512", "哈希", "校验", "文件校验"]
+}
+

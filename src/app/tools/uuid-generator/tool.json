@@ -1,0 +1,12 @@
+{
+  "name": "UUID 生成器 - 纯粹工具站",
+  "shortName": "UUID",
+  "description": "纯前端 UUID v4 生成器，支持批量生成与一键复制，所有生成均在浏览器本地完成。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "密码学工具",
+  "keywords": ["UUID", "UUIDv4", "随机", "生成器"]
+}
+

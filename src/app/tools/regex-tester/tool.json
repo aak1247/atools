@@ -1,0 +1,11 @@
+{
+  "name": "正则表达式测试工具 - 纯粹工具站",
+  "shortName": "正则测试",
+  "description": "纯前端正则表达式测试工具，支持匹配、分组查看与替换预览，所有处理均在浏览器本地完成。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "实用工具",
+  "keywords": ["正则", "Regex", "匹配", "分组", "替换"]
+}

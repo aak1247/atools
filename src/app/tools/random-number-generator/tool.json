@@ -1,0 +1,12 @@
+{
+  "name": "随机数生成器 - 纯粹工具站",
+  "shortName": "随机数",
+  "description": "纯前端随机数生成器，支持区间、数量、去重与一键复制，并使用本地存储记住偏好设置。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "实用工具",
+  "keywords": ["随机数", "生成器", "区间", "去重", "本地存储"]
+}
+
