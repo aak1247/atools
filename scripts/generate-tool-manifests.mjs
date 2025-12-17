@@ -27,6 +27,8 @@ function ensureDir(dir) {
 }
 
 function listToolSlugs() {
+  const slugs = new Set();
+
   try {
     const out = execSync('git ls-files "src/app/tools/*/tool.json"', {
       cwd: ROOT,
@@ -34,20 +36,33 @@ function listToolSlugs() {
     })
       .toString("utf8")
       .trim();
-    if (!out) return [];
-    return out
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((filePath) => filePath.replace(/^src\/app\/tools\//, "").replace(/\/tool\.json$/, ""))
-      .filter(Boolean);
+    if (out) {
+      for (const line of out.split(/\r?\n/)) {
+        const filePath = line.trim();
+        if (!filePath) continue;
+        const slug = filePath
+          .replace(/^src\/app\/tools\//, "")
+          .replace(/\/tool\.json$/, "")
+          .trim();
+        if (slug) slugs.add(slug);
+      }
+    }
   } catch {
-    if (!fs.existsSync(TOOLS_DIR)) return [];
-    return fs
-      .readdirSync(TOOLS_DIR, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name);
+    // Ignore git failures and fall back to filesystem scanning below.
   }
+
+  if (fs.existsSync(TOOLS_DIR)) {
+    for (const entry of fs.readdirSync(TOOLS_DIR, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const slug = entry.name;
+      if (!slug) continue;
+      const toolJsonPath = path.join(TOOLS_DIR, slug, "tool.json");
+      if (!fs.existsSync(toolJsonPath)) continue;
+      slugs.add(slug);
+    }
+  }
+
+  return Array.from(slugs).sort((a, b) => String(a).localeCompare(String(b), "en"));
 }
 
 function readOptionalJson(filePath) {

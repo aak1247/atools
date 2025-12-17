@@ -67,7 +67,7 @@ export default function JsonYamlConverterClient() {
         error: e instanceof Error ? e.message : ui.convertFailed,
       };
     }
-  }, [direction, indent, input, locale]);
+  }, [direction, indent, input, ui.convertFailed]);
 
   const copy = async () => {
     if (!result.ok) return;

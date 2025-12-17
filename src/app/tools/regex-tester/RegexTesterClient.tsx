@@ -73,7 +73,7 @@ export default function RegexTesterClient() {
         error: e instanceof Error ? e.message : ui.invalidRegex,
       };
     }
-  }, [flags, locale, pattern]);
+  }, [flags, pattern, ui.invalidRegex]);
 
   const matches = useMemo(() => {
     if (!compiled.ok) return [] as MatchItem[];
@@ -120,7 +120,7 @@ export default function RegexTesterClient() {
     } catch (e) {
       return e instanceof Error ? e.message : ui.replaceFailed;
     }
-  }, [compiled, locale, replacement, text]);
+  }, [compiled, replacement, text, ui.replaceFailed]);
 
   const copy = async (value: string) => {
     await navigator.clipboard.writeText(value);

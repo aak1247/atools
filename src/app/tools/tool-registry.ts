@@ -70,6 +70,7 @@ export const toolLoaders = {
   "qr-generator": () => import("./qr-generator/QrGeneratorClient"),
   "qr-scanner": () => import("./qr-scanner/QrScannerClient"),
   "random-number-generator": () => import("./random-number-generator/RandomNumberGeneratorClient"),
+  "random-password-generator": () => import("./random-password-generator/RandomPasswordGeneratorClient"),
   "regex-tester": () => import("./regex-tester/RegexTesterClient"),
   "rsa-key-generator": () => import("./rsa-key-generator/RsaKeyGeneratorClient"),
   "salt-generator": () => import("./salt-generator/SaltGeneratorClient"),

@@ -1,0 +1,19 @@
+{
+  "name": "Free Online Random Password Generator - ATools",
+  "shortName": "Password Generator",
+  "description": "Free online random password generator: configure length, character sets, excluded characters, and quantity. Saves generated passwords to local history (password + time).",
+  "seoDescription": "The ultimate free online Random Password Generator — ATools (Pure Tools). Generate cryptographically secure passwords locally in your browser (Web Crypto), with configurable length, quantity, character sets (lower/upper/digits/symbols), and excluded characters. Results are easy to copy, and generated passwords are automatically saved to localStorage with timestamps for convenient history review. No uploads, no tracking — everything runs locally for privacy.",
+  "category": "Crypto Tools",
+  "lang": "en-US",
+  "keywords": [
+    "free online password generator",
+    "random password generator",
+    "strong password generator",
+    "secure password generator",
+    "exclude characters",
+    "localStorage password history",
+    "ATools",
+    "Pure Tools"
+  ]
+}
+
