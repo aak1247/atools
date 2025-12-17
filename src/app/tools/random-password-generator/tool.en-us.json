@@ -5,6 +5,37 @@
   "seoDescription": "The ultimate free online Random Password Generator — ATools (Pure Tools). Generate cryptographically secure passwords locally in your browser (Web Crypto), with configurable length, quantity, character sets (lower/upper/digits/symbols), and excluded characters. Results are easy to copy, and generated passwords are automatically saved to localStorage with timestamps for convenient history review. No uploads, no tracking — everything runs locally for privacy.",
   "category": "Crypto Tools",
   "lang": "en-US",
+  "ui": {
+    "length": "Length",
+    "count": "Count",
+    "charset": "Character sets",
+    "lowercase": "Lowercase (a-z)",
+    "uppercase": "Uppercase (A-Z)",
+    "digits": "Digits (0-9)",
+    "symbols": "Symbols",
+    "customChars": "Custom characters",
+    "excludeChars": "Excluded characters",
+    "excludeAmbiguous": "Exclude ambiguous (O0Il1)",
+    "saveHistory": "Auto-save to local history (localStorage)",
+    "generate": "Generate",
+    "copyAll": "Copy all",
+    "clearResult": "Clear result",
+    "result": "Result",
+    "emptyResult": "Click “Generate” to start",
+    "history": "History",
+    "emptyHistory": "No saved passwords yet",
+    "clearHistory": "Clear history",
+    "copy": "Copy",
+    "remove": "Remove",
+    "charsetSize": "Charset size",
+    "charsetPreview": "Preview",
+    "note": "Note: Saved passwords are stored in your browser localStorage. Clear browser data to remove them.",
+    "errCharsetConfigInvalid": "Invalid charset settings",
+    "errGenerateFailed": "Generation failed",
+    "errEmptyCharset": "Charset is empty; cannot generate password",
+    "errCharsetTooLarge": "Charset is too large; cannot generate",
+    "errNoAvailableChars": "No available characters: choose at least one charset or reduce exclusions"
+  },
   "keywords": [
     "free online password generator",
     "random password generator",
@@ -16,4 +47,3 @@
     "Pure Tools"
   ]
 }
-

@@ -2,10 +2,42 @@
 
 import { useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
 type Mode = "cors" | "no-cors";
+
+const DEFAULT_UI = {
+  request: "请求",
+  response: "响应",
+  method: "方法",
+  url: "URL",
+  mode: "mode",
+  modeCors: "cors（默认）",
+  modeNoCors: "no-cors（opaque，读不到响应）",
+  timeoutMs: "超时（ms）",
+  headers: "请求头（每行一条：Key: Value）",
+  body: "请求体",
+  send: "发送请求",
+  sending: "发送中...",
+  cancel: "取消",
+  raw: "原始",
+  jsonPreview: "JSON 预览",
+  responseHeaders: "响应头",
+  responseBody: "响应体",
+  copy: "复制",
+  responsePlaceholder: "响应内容会显示在这里…",
+  errorPrefix: "错误：",
+  errUrlRequired: "请输入 URL。",
+  errUrlProtocol: "仅支持 http/https URL。",
+  errUrlInvalid: "URL 格式不正确。",
+  errAborted: "请求已取消或超时。",
+  errRequestFailed: "请求失败（可能是 CORS 或网络问题）。",
+  corsTipPrefix: "提示：浏览器会强制 CORS；如果接口没有正确返回",
+  corsTipSuffix: "，请求会失败或读不到响应内容。",
+} as const;
+
+type ApiTesterUi = typeof DEFAULT_UI;
 
 const parseHeaders = (raw: string): Headers => {
   const headers = new Headers();
@@ -38,64 +70,8 @@ const tryPrettyJson = (text: string): { ok: true; text: string } | { ok: false }
 };
 
 export default function ApiTesterClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          request: "Request",
-          response: "Response",
-          method: "Method",
-          url: "URL",
-          mode: "Mode",
-          modeCors: "cors (default)",
-          modeNoCors: "no-cors (opaque, unreadable response)",
-          timeoutMs: "Timeout (ms)",
-          headers: "Request headers (one per line: Key: Value)",
-          body: "Request body",
-          send: "Send request",
-          sending: "Sending...",
-          cancel: "Cancel",
-          raw: "Raw",
-          jsonPreview: "JSON preview",
-          responseHeaders: "Response headers",
-          responseBody: "Response body",
-          copy: "Copy",
-          responsePlaceholder: "Response content will appear here...",
-          errorPrefix: "Error:",
-          errUrlRequired: "Please enter a URL.",
-          errUrlProtocol: "Only http/https URLs are supported.",
-          errUrlInvalid: "Invalid URL format.",
-          errAborted: "Request canceled or timed out.",
-          errRequestFailed: "Request failed (possible CORS or network issue).",
-        }
-      : {
-          request: "请求",
-          response: "响应",
-          method: "方法",
-          url: "URL",
-          mode: "mode",
-          modeCors: "cors（默认）",
-          modeNoCors: "no-cors（opaque，读不到响应）",
-          timeoutMs: "超时（ms）",
-          headers: "请求头（每行一条：Key: Value）",
-          body: "请求体",
-          send: "发送请求",
-          sending: "发送中...",
-          cancel: "取消",
-          raw: "原始",
-          jsonPreview: "JSON 预览",
-          responseHeaders: "响应头",
-          responseBody: "响应体",
-          copy: "复制",
-          responsePlaceholder: "响应内容会显示在这里…",
-          errorPrefix: "错误：",
-          errUrlRequired: "请输入 URL。",
-          errUrlProtocol: "仅支持 http/https URL。",
-          errUrlInvalid: "URL 格式不正确。",
-          errAborted: "请求已取消或超时。",
-          errRequestFailed: "请求失败（可能是 CORS 或网络问题）。",
-        };
+  const config = useOptionalToolConfig("api-tester");
+  const ui: ApiTesterUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<ApiTesterUi>) };
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -300,19 +276,11 @@ export default function ApiTesterClient() {
             </div>
 
             <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200 text-xs text-slate-500">
-              {locale === "en-us" ? (
-                <span>
-                  Tip: Browsers enforce CORS. If the API does not return{" "}
-                  <code className="font-mono">Access-Control-Allow-Origin</code>{" "}
-                  correctly, the request may fail or the response may be unreadable.
-                </span>
-              ) : (
-                <span>
-                  提示：浏览器会强制 CORS；如果接口没有正确返回{" "}
-                  <code className="font-mono">Access-Control-Allow-Origin</code>
-                  ，请求会失败或读不到响应内容。
-                </span>
-              )}
+              <span>
+                {ui.corsTipPrefix}{" "}
+                <code className="font-mono">Access-Control-Allow-Origin</code>
+                {ui.corsTipSuffix}
+              </span>
             </div>
           </div>
 

@@ -5,6 +5,22 @@
   "seoDescription": "The ultimate free online URL Encoder / Decoder — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" URL Encoder / Decoder on any device, this is the one you bookmark and share.",
   "category": "Crypto Tools",
   "lang": "en-US",
+  "ui": {
+    "encode": "Encode",
+    "decode": "Decode",
+    "useForm": "Use x-www-form-urlencoded (space as +)",
+    "text": "Text",
+    "urlEncoded": "URL-encoded",
+    "encodedResult": "Encoded result",
+    "decodedResult": "Decoded result",
+    "copy": "Copy",
+    "encodePlaceholder": "Enter text to encode...",
+    "decodePlaceholder": "Enter URL-encoded text to decode...",
+    "resultPlaceholder": "Result will appear here...",
+    "errorPrefix": "Error:",
+    "invalidInput": "Unable to parse input",
+    "hint": "Tip: Standard mode uses encodeURIComponent/decodeURIComponent. Form mode encodes spaces as “+”."
+  },
   "keywords": [
     "free online URL Encoder Decoder",
     "URL Encoder Decoder tool",

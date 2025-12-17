@@ -1037,6 +1037,23 @@
     ]
   },
   {
+    "slug": "pdf-split",
+    "path": "/tools/pdf-split",
+    "name": "Free Online PDF Split & Page Extractor - ATools",
+    "shortName": "PDF Split",
+    "description": "Split PDFs or extract selected pages locally in your browser, exporting PDF or ZIP (no uploads).",
+    "category": "PDF Tools",
+    "icon": "/icon.svg",
+    "keywords": [
+      "PDF split",
+      "extract PDF pages",
+      "split PDF to pages",
+      "PDF to ZIP",
+      "local processing",
+      "privacy"
+    ]
+  },
+  {
     "slug": "pdf-stamp",
     "path": "/tools/pdf-stamp",
     "name": "Free Online PDF Stamp / Watermark - ATools",
@@ -1051,6 +1068,60 @@
       "pdf-stamp",
       "ATools",
       "Pure Tools"
+    ]
+  },
+  {
+    "slug": "pdf-to-images",
+    "path": "/tools/pdf-to-images",
+    "name": "Free Online PDF to Images Converter - ATools",
+    "shortName": "PDF to Images",
+    "description": "Convert PDF pages to PNG/JPG images locally and download as a ZIP (no uploads).",
+    "category": "PDF Tools",
+    "icon": "/icon.svg",
+    "keywords": [
+      "PDF to PNG",
+      "PDF to JPG",
+      "PDF to images",
+      "pdf.js",
+      "ZIP",
+      "local processing",
+      "privacy"
+    ]
+  },
+  {
+    "slug": "pdf-to-text",
+    "path": "/tools/pdf-to-text",
+    "name": "Free Online PDF to Text Extractor - ATools",
+    "shortName": "PDF to Text",
+    "description": "Extract text from PDF locally in your browser and export as TXT or ZIP (no uploads).",
+    "category": "PDF Tools",
+    "icon": "/icon.svg",
+    "keywords": [
+      "PDF to text",
+      "extract PDF text",
+      "PDF to TXT",
+      "pdf.js",
+      "local processing",
+      "privacy"
+    ]
+  },
+  {
+    "slug": "pem-jwk-toolkit",
+    "path": "/tools/pem-jwk-toolkit",
+    "name": "Free Online PEM/JWK/JWKS Converter - ATools",
+    "shortName": "PEM↔JWK",
+    "description": "Convert PEM/DER/JWK/JWKS locally in your browser and inspect key fields (no uploads).",
+    "category": "Developer Tools",
+    "icon": "/icon.svg",
+    "keywords": [
+      "PEM to JWK",
+      "JWK to PEM",
+      "JWKS",
+      "DER to PEM",
+      "SPKI",
+      "PKCS8",
+      "RFC 7638",
+      "key conversion"
     ]
   },
   {

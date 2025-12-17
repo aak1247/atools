@@ -1,0 +1,22 @@
+{
+  "name": "Free Online PEM/JWK/JWKS Converter - ATools",
+  "shortName": "PEM↔JWK",
+  "description": "Convert PEM/DER/JWK/JWKS locally in your browser and inspect key fields (no uploads).",
+  "seoDescription": "Free online PEM/JWK/JWKS converter by ATools. Convert between PEM (PUBLIC KEY/PRIVATE KEY), DER Base64 (SPKI/PKCS8) and JWK/JWKS, export public/private JWK, build a public JWKS, and inspect key fields and thumbprints (RFC 7638). Runs entirely in your browser with zero uploads for privacy.",
+  "category": "Developer Tools",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "PEM to JWK",
+    "JWK to PEM",
+    "JWKS",
+    "DER to PEM",
+    "SPKI",
+    "PKCS8",
+    "RFC 7638",
+    "key conversion"
+  ]
+}
+

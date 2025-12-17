@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 const bytesToUuidV4 = (bytes: Uint8Array) => {
   const b = new Uint8Array(bytes);
@@ -26,35 +26,23 @@ const generateUuidV4 = () => {
   return bytesToUuidV4(bytes);
 };
 
+const DEFAULT_UI = {
+  count: "数量",
+  uppercase: "大写",
+  noHyphen: "去掉短横线",
+  generate: "生成",
+  copyAll: "复制全部",
+  result: "结果",
+  empty: "点击“生成”开始",
+  copy: "复制",
+  hint: "提示：UUID v4 使用加密安全随机数生成（crypto.getRandomValues / randomUUID）。",
+} as const;
+
+type UuidGeneratorUi = typeof DEFAULT_UI;
+
 export default function UuidGeneratorClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          count: "Count",
-          uppercase: "Uppercase",
-          noHyphen: "Remove hyphens",
-          generate: "Generate",
-          copyAll: "Copy all",
-          result: "Result",
-          empty: "Click “Generate” to start",
-          copy: "Copy",
-          hint:
-            "Tip: UUID v4 is generated using cryptographically secure randomness (crypto.getRandomValues / randomUUID).",
-        }
-      : {
-          count: "数量",
-          uppercase: "大写",
-          noHyphen: "去掉短横线",
-          generate: "生成",
-          copyAll: "复制全部",
-          result: "结果",
-          empty: "点击“生成”开始",
-          copy: "复制",
-          hint:
-            "提示：UUID v4 使用加密安全随机数生成（crypto.getRandomValues / randomUUID）。",
-        };
+  const config = useOptionalToolConfig("uuid-generator");
+  const ui: UuidGeneratorUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<UuidGeneratorUi>) };
 
   const [count, setCount] = useState(5);
   const [uppercase, setUppercase] = useState(false);

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Zone = "local" | "utc";
 
@@ -41,52 +41,35 @@ const parseDateTimeLocal = (value: string) => {
   return { year, month, day, hour, minute, second };
 };
 
+const formatTemplate = (template: string, vars: Record<string, string | number>) =>
+  template.replace(/\{(\w+)\}/gu, (_, key: string) => String(vars[key] ?? ""));
+
+const DEFAULT_UI = {
+  zoneLocal: "本地时区",
+  zoneUtc: "UTC",
+  fillNow: "填入当前时间",
+  tsToDt: "时间戳 → 日期时间",
+  dtToTs: "日期时间 → 时间戳",
+  inputTsPlaceholder: "输入 Unix 时间戳（秒或毫秒）…",
+  copy: "复制",
+  datetimeLabel: "日期时间：",
+  copySecondsLabel: "复制秒：{value}",
+  copyMillisecondsLabel: "复制毫秒：{value}",
+  secondsLabel: "秒：{value}",
+  millisecondsLabel: "毫秒：{value}",
+  errorPrefix: "错误：",
+  errNeedNumber: "请输入数字时间戳",
+  errInvalidTs: "无效时间戳",
+  errNeedDatetime: "请输入有效的日期时间",
+  errInvalidDatetime: "无效日期时间",
+  hint: "提示：时间戳输入自动识别秒/毫秒（长度较长按毫秒处理）。",
+} as const;
+
+type TimestampConverterUi = typeof DEFAULT_UI;
+
 export default function TimestampConverterClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          zoneLocal: "Local timezone",
-          zoneUtc: "UTC",
-          fillNow: "Use current time",
-          tsToDt: "Timestamp → Date/Time",
-          dtToTs: "Date/Time → Timestamp",
-          inputTsPlaceholder: "Enter Unix timestamp (seconds or milliseconds)...",
-          copy: "Copy",
-          datetimeLabel: "Date/Time:",
-          copySeconds: (value: number) => `Copy seconds: ${value}`,
-          copyMilliseconds: (value: number) => `Copy milliseconds: ${value}`,
-          seconds: (value: number) => `Seconds: ${value}`,
-          milliseconds: (value: number) => `Milliseconds: ${value}`,
-          errorPrefix: "Error:",
-          errNeedNumber: "Please enter a numeric timestamp",
-          errInvalidTs: "Invalid timestamp",
-          errNeedDatetime: "Please enter a valid date/time",
-          errInvalidDatetime: "Invalid date/time",
-          hint:
-            "Tip: Timestamp input auto-detects seconds vs milliseconds (longer values are treated as milliseconds).",
-        }
-      : {
-          zoneLocal: "本地时区",
-          zoneUtc: "UTC",
-          fillNow: "填入当前时间",
-          tsToDt: "时间戳 → 日期时间",
-          dtToTs: "日期时间 → 时间戳",
-          inputTsPlaceholder: "输入 Unix 时间戳（秒或毫秒）…",
-          copy: "复制",
-          datetimeLabel: "日期时间：",
-          copySeconds: (value: number) => `复制秒：${value}`,
-          copyMilliseconds: (value: number) => `复制毫秒：${value}`,
-          seconds: (value: number) => `秒：${value}`,
-          milliseconds: (value: number) => `毫秒：${value}`,
-          errorPrefix: "错误：",
-          errNeedNumber: "请输入数字时间戳",
-          errInvalidTs: "无效时间戳",
-          errNeedDatetime: "请输入有效的日期时间",
-          errInvalidDatetime: "无效日期时间",
-          hint: "提示：时间戳输入自动识别秒/毫秒（长度较长按毫秒处理）。",
-        };
+  const config = useOptionalToolConfig("timestamp-converter");
+  const ui: TimestampConverterUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<TimestampConverterUi>) };
 
   const [zone, setZone] = useState<Zone>("local");
 
@@ -108,7 +91,7 @@ export default function TimestampConverterClient() {
       sec: Math.trunc(ms / 1000),
       text: formatDateTime(date, zone),
     };
-  }, [locale, timestampInput, zone]);
+  }, [timestampInput, ui.errInvalidTs, ui.errNeedNumber, zone]);
 
   const datetimeResult = useMemo(() => {
     const raw = datetimeInput.trim();
@@ -141,7 +124,7 @@ export default function TimestampConverterClient() {
       ms: dateMs,
       sec: Math.trunc(dateMs / 1000),
     };
-  }, [datetimeInput, locale, zone]);
+  }, [datetimeInput, ui.errInvalidDatetime, ui.errNeedDatetime, zone]);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -231,14 +214,14 @@ export default function TimestampConverterClient() {
                     onClick={() => copy(String(timestampResult.sec))}
                     className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
                   >
-                    {ui.copySeconds(timestampResult.sec)}
+                    {formatTemplate(ui.copySecondsLabel, { value: timestampResult.sec })}
                   </button>
                   <button
                     type="button"
                     onClick={() => copy(String(timestampResult.ms))}
                     className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
                   >
-                    {ui.copyMilliseconds(timestampResult.ms)}
+                    {formatTemplate(ui.copyMillisecondsLabel, { value: timestampResult.ms })}
                   </button>
                 </div>
               </div>
@@ -271,14 +254,14 @@ export default function TimestampConverterClient() {
                     onClick={() => copy(String(datetimeResult.sec))}
                     className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
                   >
-                    {ui.seconds(datetimeResult.sec)}
+                    {formatTemplate(ui.secondsLabel, { value: datetimeResult.sec })}
                   </button>
                   <button
                     type="button"
                     onClick={() => copy(String(datetimeResult.ms))}
                     className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
                   >
-                    {ui.milliseconds(datetimeResult.ms)}
+                    {formatTemplate(ui.millisecondsLabel, { value: datetimeResult.ms })}
                   </button>
                 </div>
               </div>

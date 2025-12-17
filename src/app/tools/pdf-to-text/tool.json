@@ -1,0 +1,13 @@
+{
+  "name": "免费在线PDF转文字提取工具 - 纯粹工具站",
+  "shortName": "PDF转文字",
+  "description": "免费在线 PDF 转文字提取工具，支持按页/范围提取文本并导出 TXT 或 ZIP，浏览器本地运行不上传文件。",
+  "seoDescription": "免费在线PDF转文字提取工具 - 纯粹工具站（ATools）。支持导入 PDF 并提取可复制的文本内容：可选择全部页面或指定页码范围（如 1-3,5,10-），支持合并导出单个 TXT 或按页导出并打包 ZIP。适合从合同、论文、说明书等 PDF 中快速提取文字用于编辑、检索与归档。全程浏览器本地处理，不上传 PDF 文件，保护隐私安全。提示：扫描版图片PDF可能无法提取文字，需要 OCR。",
+  "category": "PDF 工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["PDF转文字", "PDF提取文本", "PDF转TXT", "PDF文本提取", "pdf.js", "本地处理", "隐私保护"]
+}
+

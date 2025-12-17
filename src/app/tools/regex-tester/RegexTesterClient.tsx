@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type MatchItem = {
   index: number;
@@ -12,51 +12,36 @@ type MatchItem = {
 
 const safeFlags = (raw: string) => raw.replace(/[^dgimsuvy]/g, "");
 
+const formatTemplate = (template: string, vars: Record<string, string | number>) =>
+  template.replace(/\{(\w+)\}/gu, (_, key: string) => String(vars[key] ?? ""));
+
+const DEFAULT_UI = {
+  expression: "表达式",
+  flags: "flags",
+  effectiveFlags: "实际使用：",
+  invalidRegex: "正则表达式无效",
+  errorPrefix: "错误：",
+  replaceFailed: "替换失败",
+  testText: "测试文本",
+  matchesLabel: "匹配结果（{count}）",
+  copy: "复制",
+  noMatches: "暂无匹配",
+  fixRegexFirst: "请先修正正则表达式",
+  replaceWith: "替换为",
+  replacePreview: "替换预览",
+  replacePlaceholder: "例如：$&",
+  replaceResultPlaceholder: "替换结果会显示在这里…",
+  enterTestText: "请输入测试文本",
+  hint: "提示：若未使用 g 标志，将只显示第一次匹配；为避免卡顿，最多展示 1000 条匹配。",
+  patternPlaceholder: "例如：\\b\\w+\\b",
+  groupSeparator: "：",
+} as const;
+
+type RegexTesterUi = typeof DEFAULT_UI;
+
 export default function RegexTesterClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          expression: "Pattern",
-          flags: "Flags",
-          effectiveFlags: "Effective:",
-          invalidRegex: "Invalid regular expression",
-          errorPrefix: "Error:",
-          replaceFailed: "Replacement failed",
-          testText: "Test text",
-          matches: (count: number) => `Matches (${count})`,
-          copy: "Copy",
-          noMatches: "No matches",
-          fixRegexFirst: "Fix the regex first",
-          replaceWith: "Replace with",
-          replacePreview: "Replacement preview",
-          replacePlaceholder: "e.g. $&",
-          replaceResultPlaceholder: "Replacement result will appear here...",
-          enterTestText: "Enter test text",
-          hint:
-            "Tip: Without the “g” flag, only the first match is shown. To avoid freezing, up to 1000 matches are displayed.",
-        }
-      : {
-          expression: "表达式",
-          flags: "flags",
-          effectiveFlags: "实际使用：",
-          invalidRegex: "正则表达式无效",
-          errorPrefix: "错误：",
-          replaceFailed: "替换失败",
-          testText: "测试文本",
-          matches: (count: number) => `匹配结果（${count}）`,
-          copy: "复制",
-          noMatches: "暂无匹配",
-          fixRegexFirst: "请先修正正则表达式",
-          replaceWith: "替换为",
-          replacePreview: "替换预览",
-          replacePlaceholder: "例如：$&",
-          replaceResultPlaceholder: "替换结果会显示在这里…",
-          enterTestText: "请输入测试文本",
-          hint:
-            "提示：若未使用 g 标志，将只显示第一次匹配；为避免卡顿，最多展示 1000 条匹配。",
-        };
+  const config = useOptionalToolConfig("regex-tester");
+  const ui: RegexTesterUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<RegexTesterUi>) };
 
   const [pattern, setPattern] = useState("\\b\\w+\\b");
   const [flags, setFlags] = useState("g");
@@ -135,7 +120,7 @@ export default function RegexTesterClient() {
             <input
               value={pattern}
               onChange={(e) => setPattern(e.target.value)}
-              placeholder={locale === "en-us" ? "e.g. \\b\\w+\\b" : "例如：\\b\\w+\\b"}
+              placeholder={ui.patternPlaceholder}
               className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
             />
           </label>
@@ -174,7 +159,7 @@ export default function RegexTesterClient() {
           <div>
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="text-sm font-semibold text-slate-900">
-                {ui.matches(matches.length)}
+                {formatTemplate(ui.matchesLabel, { count: matches.length })}
               </div>
               <button
                 type="button"
@@ -213,7 +198,7 @@ export default function RegexTesterClient() {
                             <div key={gi} className="break-all font-mono text-xs text-slate-700">
                               <span className="text-slate-500">
                                 ${gi + 1}
-                                {locale === "en-us" ? ":" : "："}
+                                {ui.groupSeparator}
                               </span>
                               {g}
                             </div>

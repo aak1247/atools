@@ -5,6 +5,17 @@
   "seoDescription": "The ultimate free online UUID Generator — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" UUID Generator on any device, this is the one you bookmark and share.",
   "category": "Crypto Tools",
   "lang": "en-US",
+  "ui": {
+    "count": "Count",
+    "uppercase": "Uppercase",
+    "noHyphen": "Remove hyphens",
+    "generate": "Generate",
+    "copyAll": "Copy all",
+    "result": "Result",
+    "empty": "Click “Generate” to start",
+    "copy": "Copy",
+    "hint": "Tip: UUID v4 is generated using cryptographically secure randomness (crypto.getRandomValues / randomUUID)."
+  },
   "keywords": [
     "free online UUID Generator",
     "UUID Generator tool",

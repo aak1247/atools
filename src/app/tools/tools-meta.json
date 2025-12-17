@@ -1319,6 +1319,24 @@
     ]
   },
   {
+    "slug": "pdf-split",
+    "path": "/tools/pdf-split",
+    "name": "免费在线PDF拆分/提取页面工具 - 纯粹工具站",
+    "shortName": "PDF拆分",
+    "description": "免费在线 PDF 拆分/提取页面工具：按页码范围提取成新 PDF，或按页拆分并打包 ZIP，浏览器本地运行不上传文件。",
+    "category": "PDF 工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "PDF拆分",
+      "PDF分割",
+      "PDF提取页面",
+      "PDF按页导出",
+      "PDF转ZIP",
+      "本地处理",
+      "隐私保护"
+    ]
+  },
+  {
     "slug": "pdf-stamp",
     "path": "/tools/pdf-stamp",
     "name": "免费在线PDF盖章工具 - 纯粹工具站",
@@ -1364,6 +1382,63 @@
       "PDF页面管理",
       "PDF编辑工具",
       "PDF页面删除"
+    ]
+  },
+  {
+    "slug": "pdf-to-images",
+    "path": "/tools/pdf-to-images",
+    "name": "免费在线PDF转图片工具 - 纯粹工具站",
+    "shortName": "PDF转图片",
+    "description": "免费在线 PDF 转图片工具：按页导出 PNG/JPG 并打包 ZIP 下载，可选分辨率与页码范围，浏览器本地运行不上传文件。",
+    "category": "PDF 工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "PDF转图片",
+      "PDF转PNG",
+      "PDF转JPG",
+      "PDF按页导出",
+      "pdf.js",
+      "ZIP下载",
+      "本地处理",
+      "隐私保护"
+    ]
+  },
+  {
+    "slug": "pdf-to-text",
+    "path": "/tools/pdf-to-text",
+    "name": "免费在线PDF转文字提取工具 - 纯粹工具站",
+    "shortName": "PDF转文字",
+    "description": "免费在线 PDF 转文字提取工具，支持按页/范围提取文本并导出 TXT 或 ZIP，浏览器本地运行不上传文件。",
+    "category": "PDF 工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "PDF转文字",
+      "PDF提取文本",
+      "PDF转TXT",
+      "PDF文本提取",
+      "pdf.js",
+      "本地处理",
+      "隐私保护"
+    ]
+  },
+  {
+    "slug": "pem-jwk-toolkit",
+    "path": "/tools/pem-jwk-toolkit",
+    "name": "免费在线PEM/JWK/JWKS互转工具 - 纯粹工具站",
+    "shortName": "PEM↔JWK",
+    "description": "免费在线 PEM/DER/JWK/JWKS 互转工具：本地解析公钥/私钥，输出 JWK/JWKS、PEM、DER，并展示关键字段与指纹信息。",
+    "category": "开发工具",
+    "icon": "/icon.svg",
+    "keywords": [
+      "PEM转JWK",
+      "JWK转PEM",
+      "JWKS生成",
+      "DER转PEM",
+      "SPKI",
+      "PKCS8",
+      "RFC7638",
+      "密钥转换",
+      "JWT"
     ]
   },
   {

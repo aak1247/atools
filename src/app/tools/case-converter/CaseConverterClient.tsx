@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Mode =
   | "upper"
@@ -46,27 +46,20 @@ const toSentence = (text: string): string => {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 };
 
+const DEFAULT_UI = {
+  modeLabel: "转换模式",
+  copyResult: "复制结果",
+  inputLabel: "输入",
+  outputLabel: "输出",
+  inputPlaceholder: "输入或粘贴文本…",
+  outputPlaceholder: "结果会显示在这里…",
+} as const;
+
+type CaseConverterUi = typeof DEFAULT_UI;
+
 export default function CaseConverterClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          modeLabel: "Mode",
-          copyResult: "Copy result",
-          inputLabel: "Input",
-          outputLabel: "Output",
-          inputPlaceholder: "Type or paste text...",
-          outputPlaceholder: "Result will appear here...",
-        }
-      : {
-          modeLabel: "转换模式",
-          copyResult: "复制结果",
-          inputLabel: "输入",
-          outputLabel: "输出",
-          inputPlaceholder: "输入或粘贴文本…",
-          outputPlaceholder: "结果会显示在这里…",
-        };
+  const config = useOptionalToolConfig("case-converter");
+  const ui: CaseConverterUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<CaseConverterUi>) };
 
   const [mode, setMode] = useState<Mode>("upper");
   const [input, setInput] = useState("hello world\nfoo_bar Baz");

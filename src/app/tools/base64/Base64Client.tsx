@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Mode = "encode" | "decode";
 
@@ -40,40 +40,26 @@ const bytesToHex = (bytes: Uint8Array) =>
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 
+const DEFAULT_UI = {
+  encode: "编码",
+  decode: "解码",
+  plainText: "原文",
+  base64: "Base64",
+  decoded: "解码结果",
+  copy: "复制",
+  resultPlaceholder: "结果会显示在这里…",
+  encodePlaceholder: "输入要编码的文本…",
+  decodePlaceholder: "输入要解码的 Base64…",
+  errorPrefix: "错误：",
+  invalidInput: "无法解析输入内容",
+  hint: "提示：解码模式会忽略空白字符；URL-safe 会使用 “-” 和 “_” 并去除填充 “=”。",
+} as const;
+
+type Base64Ui = typeof DEFAULT_UI;
+
 export default function Base64Client() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          encode: "Encode",
-          decode: "Decode",
-          plainText: "Text",
-          base64: "Base64",
-          decoded: "Decoded",
-          copy: "Copy",
-          resultPlaceholder: "Result will appear here...",
-          encodePlaceholder: "Enter text to encode...",
-          decodePlaceholder: "Enter Base64 to decode...",
-          errorPrefix: "Error:",
-          invalidInput: "Unable to parse input",
-          hint:
-            "Tip: Decode ignores whitespace. URL-safe uses “-” and “_” and removes “=” padding.",
-        }
-      : {
-          encode: "编码",
-          decode: "解码",
-          plainText: "原文",
-          base64: "Base64",
-          decoded: "解码结果",
-          copy: "复制",
-          resultPlaceholder: "结果会显示在这里…",
-          encodePlaceholder: "输入要编码的文本…",
-          decodePlaceholder: "输入要解码的 Base64…",
-          errorPrefix: "错误：",
-          invalidInput: "无法解析输入内容",
-          hint: "提示：解码模式会忽略空白字符；URL-safe 会使用 “-” 和 “_” 并去除填充 “=”。",
-        };
+  const config = useOptionalToolConfig("base64");
+  const ui: Base64Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Base64Ui>) };
 
   const [mode, setMode] = useState<Mode>("encode");
   const [urlSafe, setUrlSafe] = useState(false);
@@ -101,7 +87,7 @@ export default function Base64Client() {
         error: error instanceof Error ? error.message : ui.invalidInput,
       };
     }
-  }, [input, locale, mode, urlSafe]);
+  }, [input, mode, ui.invalidInput, urlSafe]);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);

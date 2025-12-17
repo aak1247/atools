@@ -1,0 +1,13 @@
+{
+  "name": "免费在线PDF转图片工具 - 纯粹工具站",
+  "shortName": "PDF转图片",
+  "description": "免费在线 PDF 转图片工具：按页导出 PNG/JPG 并打包 ZIP 下载，可选分辨率与页码范围，浏览器本地运行不上传文件。",
+  "seoDescription": "免费在线PDF转图片工具 - 纯粹工具站（ATools）。支持导入 PDF 后将页面渲染导出为 PNG/JPG 图片，并自动打包 ZIP 下载；支持选择全部页面或指定页码范围（如 1-3,5,10-），可调渲染比例以提高清晰度。适合将合同/论文/说明书按页转成图片用于分享、预览、标注与归档。全程浏览器本地处理，不上传 PDF 文件，保护隐私安全。",
+  "category": "PDF 工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["PDF转图片", "PDF转PNG", "PDF转JPG", "PDF按页导出", "pdf.js", "ZIP下载", "本地处理", "隐私保护"]
+}
+

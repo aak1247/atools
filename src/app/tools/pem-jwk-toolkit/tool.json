@@ -1,0 +1,23 @@
+{
+  "name": "免费在线PEM/JWK/JWKS互转工具 - 纯粹工具站",
+  "shortName": "PEM↔JWK",
+  "description": "免费在线 PEM/DER/JWK/JWKS 互转工具：本地解析公钥/私钥，输出 JWK/JWKS、PEM、DER，并展示关键字段与指纹信息。",
+  "seoDescription": "免费在线PEM/JWK/JWKS互转工具 - 纯粹工具站（ATools）。支持 PEM（PUBLIC KEY/PRIVATE KEY）、DER（SPKI/PKCS8 Base64）、JWK/JWKS 互相转换与字段展示：可导出公钥/私钥 JWK、生成公钥 JWKS、导出 PEM/DER，并计算指纹/Thumbprint（RFC7638）等信息。全程浏览器本地处理，不上传任何密钥内容，适合 JWT/JWKS 调试、密钥分发与格式转换场景。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "PEM转JWK",
+    "JWK转PEM",
+    "JWKS生成",
+    "DER转PEM",
+    "SPKI",
+    "PKCS8",
+    "RFC7638",
+    "密钥转换",
+    "JWT"
+  ]
+}
+

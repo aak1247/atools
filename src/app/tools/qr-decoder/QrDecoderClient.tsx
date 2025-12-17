@@ -4,7 +4,7 @@ import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import jsQR from "jsqr";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type InversionAttempts = "attemptBoth" | "dontInvert" | "onlyInvert" | "invertFirst";
 
@@ -23,47 +23,30 @@ type DecodeResult =
 
 const MAX_DECODE_SIZE = 1200;
 
+const DEFAULT_UI = {
+  errCanvasContext: "无法创建画布上下文",
+  errNoQr: "未识别到二维码",
+  errSelectImage: "请选择图片文件",
+  dropTitle: "点击或拖拽二维码图片到此处",
+  dropSubtitle: "支持 JPG/PNG/WebP 等",
+  currentImage: "当前图片：",
+  inversion: "反色尝试",
+  inversionRecommended: "attemptBoth（推荐）",
+  chooseAgain: "重新选择",
+  preview: "预览",
+  previewHint: "提示：识别结果的定位框会以绿色描边显示。",
+  resultTitle: "解析结果",
+  copy: "复制",
+  resultPlaceholder: "识别后会显示二维码内容…",
+  errorPrefix: "错误：",
+  note: "说明：解析在浏览器本地完成，不上传任何图片。",
+} as const;
+
+type QrDecoderUi = typeof DEFAULT_UI;
+
 export default function QrDecoderClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          errCanvasContext: "Unable to create canvas context",
-          errNoQr: "No QR code detected",
-          errSelectImage: "Please select an image file",
-          dropTitle: "Click or drop a QR image here",
-          dropSubtitle: "Supports JPG/PNG/WebP, etc.",
-          currentImage: "Current image:",
-          inversion: "Inversion attempts",
-          inversionRecommended: "attemptBoth (recommended)",
-          chooseAgain: "Choose again",
-          preview: "Preview",
-          previewHint: "Tip: The detected location box is highlighted in green.",
-          resultTitle: "Decoded content",
-          copy: "Copy",
-          resultPlaceholder: "Decoded QR content will appear here...",
-          errorPrefix: "Error:",
-          note: "Note: Decoding runs locally in your browser. No images are uploaded.",
-        }
-      : {
-          errCanvasContext: "无法创建画布上下文",
-          errNoQr: "未识别到二维码",
-          errSelectImage: "请选择图片文件",
-          dropTitle: "点击或拖拽二维码图片到此处",
-          dropSubtitle: "支持 JPG/PNG/WebP 等",
-          currentImage: "当前图片：",
-          inversion: "反色尝试",
-          inversionRecommended: "attemptBoth（推荐）",
-          chooseAgain: "重新选择",
-          preview: "预览",
-          previewHint: "提示：识别结果的定位框会以绿色描边显示。",
-          resultTitle: "解析结果",
-          copy: "复制",
-          resultPlaceholder: "识别后会显示二维码内容…",
-          errorPrefix: "错误：",
-          note: "说明：解析在浏览器本地完成，不上传任何图片。",
-        };
+  const config = useOptionalToolConfig("qr-decoder");
+  const ui: QrDecoderUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<QrDecoderUi>) };
 
   const [file, setFile] = useState<File | null>(null);
   const [bitmap, setBitmap] = useState<ImageBitmap | null>(null);
@@ -163,7 +146,7 @@ export default function QrDecoderClient() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bitmap, inversion, locale]);
+  }, [bitmap, inversion]);
 
   useEffect(() => {
     return () => {

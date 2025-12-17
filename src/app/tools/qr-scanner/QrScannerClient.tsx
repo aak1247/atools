@@ -3,61 +3,39 @@
 import jsQR from "jsqr";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type ScanState = "idle" | "starting" | "scanning" | "stopped" | "error";
 
+const DEFAULT_UI = {
+  errCanvasContext: "无法创建画布上下文。",
+  errNoCameraSupport: "当前浏览器不支持摄像头访问。",
+  errVideoNotReady: "视频元素未初始化。",
+  errStartCamera: "无法启动摄像头。",
+  controls: "控制",
+  statusIdle: "未启动",
+  statusStarting: "启动中",
+  statusScanning: "扫描中",
+  statusStopped: "已停止",
+  statusError: "错误",
+  camera: "摄像头",
+  rear: "后置（environment）",
+  front: "前置（user）",
+  autoStop: "识别到结果后自动停止",
+  start: "开始扫描",
+  stop: "停止",
+  result: "识别结果",
+  copy: "复制",
+  waiting: "等待识别结果…",
+  openLink: "打开链接",
+  errorPrefix: "错误：",
+} as const;
+
+type QrScannerUi = typeof DEFAULT_UI;
+
 export default function QrScannerClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          errCanvasContext: "Unable to create canvas context.",
-          errNoCameraSupport: "This browser does not support camera access.",
-          errVideoNotReady: "Video element is not initialized.",
-          errStartCamera: "Unable to start camera.",
-          controls: "Controls",
-          statusIdle: "Idle",
-          statusStarting: "Starting",
-          statusScanning: "Scanning",
-          statusStopped: "Stopped",
-          statusError: "Error",
-          camera: "Camera",
-          rear: "Rear (environment)",
-          front: "Front (user)",
-          autoStop: "Auto stop when a code is found",
-          start: "Start scanning",
-          stop: "Stop",
-          result: "Result",
-          copy: "Copy",
-          waiting: "Waiting for result...",
-          openLink: "Open link",
-          errorPrefix: "Error:",
-        }
-      : {
-          errCanvasContext: "无法创建画布上下文。",
-          errNoCameraSupport: "当前浏览器不支持摄像头访问。",
-          errVideoNotReady: "视频元素未初始化。",
-          errStartCamera: "无法启动摄像头。",
-          controls: "控制",
-          statusIdle: "未启动",
-          statusStarting: "启动中",
-          statusScanning: "扫描中",
-          statusStopped: "已停止",
-          statusError: "错误",
-          camera: "摄像头",
-          rear: "后置（environment）",
-          front: "前置（user）",
-          autoStop: "识别到结果后自动停止",
-          start: "开始扫描",
-          stop: "停止",
-          result: "识别结果",
-          copy: "复制",
-          waiting: "等待识别结果…",
-          openLink: "打开链接",
-          errorPrefix: "错误：",
-        };
+  const config = useOptionalToolConfig("qr-scanner");
+  const ui: QrScannerUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<QrScannerUi>) };
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);

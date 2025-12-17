@@ -1,0 +1,13 @@
+{
+  "name": "Free Online PDF to Images Converter - ATools",
+  "shortName": "PDF to Images",
+  "description": "Convert PDF pages to PNG/JPG images locally and download as a ZIP (no uploads).",
+  "seoDescription": "Free online PDF to images converter by ATools. Import a PDF and export pages as PNG/JPG images bundled in a ZIP. Choose all pages or custom page ranges (e.g., 1-3,5,10-) and adjust render scale for higher resolution. Runs entirely in your browser with zero uploads for privacy.",
+  "category": "PDF Tools",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["PDF to PNG", "PDF to JPG", "PDF to images", "pdf.js", "ZIP", "local processing", "privacy"]
+}
+

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Mode = "pretty" | "minify";
 
@@ -18,37 +18,25 @@ const sortJsonKeysDeep = (value: unknown): unknown => {
   return value;
 };
 
+const DEFAULT_UI = {
+  pretty: "格式化",
+  minify: "压缩",
+  sortKeys: "键排序",
+  indent: "缩进",
+  copyResult: "复制结果",
+  input: "输入",
+  output: "输出",
+  inputPlaceholder: "粘贴 JSON…",
+  outputPlaceholder: "结果会显示在这里…",
+  errorPrefix: "错误：",
+  invalidJson: "JSON 无法解析",
+} as const;
+
+type JsonFormatterUi = typeof DEFAULT_UI;
+
 export default function JsonFormatterClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          pretty: "Pretty",
-          minify: "Minify",
-          sortKeys: "Sort keys",
-          indent: "Indent",
-          copyResult: "Copy result",
-          input: "Input",
-          output: "Output",
-          inputPlaceholder: "Paste JSON...",
-          outputPlaceholder: "Result will appear here...",
-          errorPrefix: "Error:",
-          invalidJson: "Invalid JSON",
-        }
-      : {
-          pretty: "格式化",
-          minify: "压缩",
-          sortKeys: "键排序",
-          indent: "缩进",
-          copyResult: "复制结果",
-          input: "输入",
-          output: "输出",
-          inputPlaceholder: "粘贴 JSON…",
-          outputPlaceholder: "结果会显示在这里…",
-          errorPrefix: "错误：",
-          invalidJson: "JSON 无法解析",
-        };
+  const config = useOptionalToolConfig("json-formatter");
+  const ui: JsonFormatterUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<JsonFormatterUi>) };
 
   const [mode, setMode] = useState<Mode>("pretty");
   const [indent, setIndent] = useState(2);
@@ -70,7 +58,7 @@ export default function JsonFormatterClient() {
         error: e instanceof Error ? e.message : ui.invalidJson,
       };
     }
-  }, [indent, input, locale, mode, sortKeys]);
+  }, [indent, input, mode, sortKeys, ui.invalidJson]);
 
   const copy = async () => {
     if (!result.ok) return;

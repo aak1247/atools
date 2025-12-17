@@ -5,6 +5,20 @@
   "seoDescription": "The ultimate free online Base64 — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Base64 on any device, this is the one you bookmark and share.",
   "category": "Crypto Tools",
   "lang": "en-US",
+  "ui": {
+    "encode": "Encode",
+    "decode": "Decode",
+    "plainText": "Text",
+    "base64": "Base64",
+    "decoded": "Decoded",
+    "copy": "Copy",
+    "resultPlaceholder": "Result will appear here...",
+    "encodePlaceholder": "Enter text to encode...",
+    "decodePlaceholder": "Enter Base64 to decode...",
+    "errorPrefix": "Error:",
+    "invalidInput": "Unable to parse input",
+    "hint": "Tip: Decode ignores whitespace. URL-safe uses “-” and “_” and removes “=” padding."
+  },
   "keywords": [
     "free online Base64",
     "Base64 tool",

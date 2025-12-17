@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Settings = {
   length: number;
@@ -36,6 +36,10 @@ const AMBIGUOUS = "O0Il1";
 const clampInt = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.trunc(value)));
 
+const ERR_EMPTY_CHARSET = "ERR_EMPTY_CHARSET";
+const ERR_CHARSET_TOO_LARGE = "ERR_CHARSET_TOO_LARGE";
+const ERR_NO_AVAILABLE_CHARS = "ERR_NO_AVAILABLE_CHARS";
+
 const randomUint32 = () => {
   const buf = new Uint32Array(1);
   crypto.getRandomValues(buf);
@@ -44,10 +48,10 @@ const randomUint32 = () => {
 
 const randomIndex = (maxExclusive: number) => {
   if (!Number.isSafeInteger(maxExclusive) || maxExclusive <= 0) {
-    throw new Error("字符集为空，无法生成密码");
+    throw new Error(ERR_EMPTY_CHARSET);
   }
   if (maxExclusive > 2 ** 32) {
-    throw new Error("字符集过大，无法生成");
+    throw new Error(ERR_CHARSET_TOO_LARGE);
   }
 
   const range = maxExclusive;
@@ -75,7 +79,7 @@ const buildCharset = (settings: Settings) => {
   ]);
   const charset = candidates.filter((ch) => !exclude.has(ch));
   if (charset.length === 0) {
-    throw new Error("可用字符集为空：请至少选择一种字符集，或减少排除字符");
+    throw new Error(ERR_NO_AVAILABLE_CHARS);
   }
   return charset;
 };
@@ -98,72 +102,64 @@ const isObjectRecord = (value: unknown): value is Record<string, unknown> =>
 
 function formatTime(ts: number, locale: string) {
   try {
-    const lang = locale === "en-us" ? "en-US" : "zh-CN";
-    return new Date(ts).toLocaleString(lang, { hour12: false });
+    return new Date(ts).toLocaleString(locale, { hour12: false });
   } catch {
     return new Date(ts).toISOString();
   }
 }
 
-export default function RandomPasswordGeneratorClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
+const DEFAULT_UI = {
+  length: "长度",
+  count: "数量",
+  charset: "字符集",
+  lowercase: "小写字母 (a-z)",
+  uppercase: "大写字母 (A-Z)",
+  digits: "数字 (0-9)",
+  symbols: "符号",
+  customChars: "自定义字符",
+  excludeChars: "排除字符",
+  excludeAmbiguous: `排除易混淆字符（${AMBIGUOUS}）`,
+  saveHistory: "自动保存到本地历史记录（localStorage）",
+  generate: "生成",
+  copyAll: "复制全部",
+  clearResult: "清空结果",
+  result: "生成结果",
+  emptyResult: "点击“生成”开始",
+  history: "历史记录",
+  emptyHistory: "暂无历史记录",
+  clearHistory: "清空历史",
+  copy: "复制",
+  remove: "删除",
+  charsetSize: "字符集数量",
+  charsetPreview: "预览",
+  note: "提示：保存的密码存储在浏览器 localStorage；清除浏览器数据即可移除。",
+  errCharsetConfigInvalid: "字符集配置有误",
+  errGenerateFailed: "生成失败",
+  errEmptyCharset: "字符集为空，无法生成密码",
+  errCharsetTooLarge: "字符集过大，无法生成",
+  errNoAvailableChars: "可用字符集为空：请至少选择一种字符集，或减少排除字符",
+} as const;
 
-  const ui =
-    locale === "en-us"
-      ? {
-          length: "Length",
-          count: "Count",
-          charset: "Character sets",
-          lowercase: "Lowercase (a-z)",
-          uppercase: "Uppercase (A-Z)",
-          digits: "Digits (0-9)",
-          symbols: "Symbols",
-          customChars: "Custom characters",
-          excludeChars: "Excluded characters",
-          excludeAmbiguous: `Exclude ambiguous (${AMBIGUOUS})`,
-          saveHistory: "Auto-save to local history (localStorage)",
-          generate: "Generate",
-          copyAll: "Copy all",
-          clearResult: "Clear result",
-          result: "Result",
-          emptyResult: "Click “Generate” to start",
-          history: "History",
-          emptyHistory: "No saved passwords yet",
-          clearHistory: "Clear history",
-          copy: "Copy",
-          remove: "Remove",
-          charsetSize: "Charset size",
-          charsetPreview: "Preview",
-          note:
-            "Note: Saved passwords are stored in your browser localStorage. Clear browser data to remove them.",
-        }
-      : {
-          length: "长度",
-          count: "数量",
-          charset: "字符集",
-          lowercase: "小写字母 (a-z)",
-          uppercase: "大写字母 (A-Z)",
-          digits: "数字 (0-9)",
-          symbols: "符号",
-          customChars: "自定义字符",
-          excludeChars: "排除字符",
-          excludeAmbiguous: `排除易混淆字符（${AMBIGUOUS}）`,
-          saveHistory: "自动保存到本地历史记录（localStorage）",
-          generate: "生成",
-          copyAll: "复制全部",
-          clearResult: "清空结果",
-          result: "生成结果",
-          emptyResult: "点击“生成”开始",
-          history: "历史记录",
-          emptyHistory: "暂无历史记录",
-          clearHistory: "清空历史",
-          copy: "复制",
-          remove: "删除",
-          charsetSize: "字符集数量",
-          charsetPreview: "预览",
-          note: "提示：保存的密码存储在浏览器 localStorage；清除浏览器数据即可移除。",
-        };
+type RandomPasswordGeneratorUi = typeof DEFAULT_UI;
+
+export default function RandomPasswordGeneratorClient() {
+  const config = useOptionalToolConfig("random-password-generator");
+  const ui: RandomPasswordGeneratorUi = {
+    ...DEFAULT_UI,
+    ...((config?.ui ?? {}) as Partial<RandomPasswordGeneratorUi>),
+  };
+  const locale = config?.lang ?? "zh-CN";
+
+  const localizeError = useCallback(
+    (err: unknown) => {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg === ERR_EMPTY_CHARSET) return ui.errEmptyCharset;
+      if (msg === ERR_CHARSET_TOO_LARGE) return ui.errCharsetTooLarge;
+      if (msg === ERR_NO_AVAILABLE_CHARS) return ui.errNoAvailableChars;
+      return err instanceof Error ? err.message : ui.errGenerateFailed;
+    },
+    [ui.errCharsetTooLarge, ui.errEmptyCharset, ui.errGenerateFailed, ui.errNoAvailableChars],
+  );
 
   const defaultSettings: Settings = useMemo(
     () => ({
@@ -277,10 +273,10 @@ export default function RandomPasswordGeneratorClient() {
         ok: false as const,
         size: 0,
         preview: "",
-        message: e instanceof Error ? e.message : "字符集配置有误",
+        message: e instanceof Error ? localizeError(e) : ui.errCharsetConfigInvalid,
       };
     }
-  }, [settingsForCharset]);
+  }, [localizeError, settingsForCharset, ui.errCharsetConfigInvalid]);
 
   const resultText = useMemo(() => passwords.join("\n"), [passwords]);
 
@@ -311,7 +307,7 @@ export default function RandomPasswordGeneratorClient() {
       }
     } catch (e) {
       setPasswords([]);
-      setError(e instanceof Error ? e.message : "生成失败");
+      setError(localizeError(e));
     }
   };
 

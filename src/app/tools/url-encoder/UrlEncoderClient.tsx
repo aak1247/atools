@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Mode = "encode" | "decode";
 
@@ -12,45 +12,29 @@ const encodeForm = (text: string) =>
 const decodeForm = (text: string) =>
   decodeURIComponent(text.replace(/\+/g, "%20"));
 
+const DEFAULT_UI = {
+  encode: "编码",
+  decode: "解码",
+  useForm: "使用 x-www-form-urlencoded（空格为 +）",
+  text: "原文",
+  urlEncoded: "URL 编码",
+  encodedResult: "编码结果",
+  decodedResult: "解码结果",
+  copy: "复制",
+  encodePlaceholder: "输入要编码的内容…",
+  decodePlaceholder: "输入要解码的 URL 编码内容…",
+  resultPlaceholder: "结果会显示在这里…",
+  errorPrefix: "错误：",
+  invalidInput: "无法解析输入内容",
+  hint:
+    "提示：标准模式使用 encodeURIComponent / decodeURIComponent；表单模式会将空格编码为 “+”。",
+} as const;
+
+type UrlEncoderUi = typeof DEFAULT_UI;
+
 export default function UrlEncoderClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          encode: "Encode",
-          decode: "Decode",
-          useForm: "Use x-www-form-urlencoded (space as +)",
-          text: "Text",
-          urlEncoded: "URL-encoded",
-          encodedResult: "Encoded result",
-          decodedResult: "Decoded result",
-          copy: "Copy",
-          encodePlaceholder: "Enter text to encode...",
-          decodePlaceholder: "Enter URL-encoded text to decode...",
-          resultPlaceholder: "Result will appear here...",
-          errorPrefix: "Error:",
-          invalidInput: "Unable to parse input",
-          hint:
-            "Tip: Standard mode uses encodeURIComponent/decodeURIComponent. Form mode encodes spaces as “+”.",
-        }
-      : {
-          encode: "编码",
-          decode: "解码",
-          useForm: "使用 x-www-form-urlencoded（空格为 +）",
-          text: "原文",
-          urlEncoded: "URL 编码",
-          encodedResult: "编码结果",
-          decodedResult: "解码结果",
-          copy: "复制",
-          encodePlaceholder: "输入要编码的内容…",
-          decodePlaceholder: "输入要解码的 URL 编码内容…",
-          resultPlaceholder: "结果会显示在这里…",
-          errorPrefix: "错误：",
-          invalidInput: "无法解析输入内容",
-          hint:
-            "提示：标准模式使用 encodeURIComponent / decodeURIComponent；表单模式会将空格编码为 “+”。",
-        };
+  const config = useOptionalToolConfig("url-encoder");
+  const ui: UrlEncoderUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<UrlEncoderUi>) };
 
   const [mode, setMode] = useState<Mode>("encode");
   const [useFormEncoding, setUseFormEncoding] = useState(false);
@@ -71,7 +55,7 @@ export default function UrlEncoderClient() {
         error: error instanceof Error ? error.message : ui.invalidInput,
       };
     }
-  }, [input, locale, mode, useFormEncoding]);
+  }, [input, mode, ui.invalidInput, useFormEncoding]);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);

@@ -5,6 +5,22 @@
   "seoDescription": "The ultimate free online JSON ↔ YAML Converter — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" JSON ↔ YAML Converter on any device, this is the one you bookmark and share.",
   "category": "Data Tools",
   "lang": "en-US",
+  "ui": {
+    "jsonToYaml": "JSON → YAML",
+    "yamlToJson": "YAML → JSON",
+    "jsonIndent": "JSON indent",
+    "copyResult": "Copy result",
+    "inputJson": "JSON input",
+    "inputYaml": "YAML input",
+    "outputYaml": "YAML output",
+    "outputJson": "JSON output",
+    "pasteJson": "Paste JSON...",
+    "pasteYaml": "Paste YAML...",
+    "resultPlaceholder": "Result will appear here...",
+    "errorPrefix": "Error:",
+    "convertFailed": "Conversion failed",
+    "hint": "Tip: YAML supports many syntax features. If parsing fails, double-check indentation and special characters."
+  },
   "keywords": [
     "free online JSON to YAML Converter",
     "JSON to YAML Converter tool",

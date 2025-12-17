@@ -3,7 +3,7 @@
 import type { FC } from "react";
 import { useState, useEffect } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 const scientificFunctions = [
   { label: "sin", fn: "sin" },
@@ -15,17 +15,15 @@ const scientificFunctions = [
 
 type ScientificFn = (typeof scientificFunctions)[number]["fn"];
 
+const DEFAULT_UI = {
+  footer: "支持键盘输入 • 纯本地计算",
+} as const;
+
+type CalculatorUi = typeof DEFAULT_UI;
+
 const CalculatorClient: FC = () => {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          footer: "Keyboard supported • Local-only calculation",
-        }
-      : {
-          footer: "支持键盘输入 • 纯本地计算",
-        };
+  const config = useOptionalToolConfig("calculator");
+  const ui: CalculatorUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<CalculatorUi>) };
 
   const [display, setDisplay] = useState("0");
   const [error, setError] = useState<string | null>(null);

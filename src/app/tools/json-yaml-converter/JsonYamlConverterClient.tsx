@@ -3,48 +3,32 @@
 import { useMemo, useState } from "react";
 import YAML from "yaml";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Direction = "jsonToYaml" | "yamlToJson";
 
+const DEFAULT_UI = {
+  jsonToYaml: "JSON → YAML",
+  yamlToJson: "YAML → JSON",
+  jsonIndent: "JSON 缩进",
+  copyResult: "复制结果",
+  inputJson: "JSON 输入",
+  inputYaml: "YAML 输入",
+  outputYaml: "YAML 输出",
+  outputJson: "JSON 输出",
+  pasteJson: "粘贴 JSON…",
+  pasteYaml: "粘贴 YAML…",
+  resultPlaceholder: "结果会显示在这里…",
+  errorPrefix: "错误：",
+  convertFailed: "转换失败",
+  hint: "提示：YAML 支持多种语法特性，若解析失败请检查缩进与特殊字符。",
+} as const;
+
+type JsonYamlUi = typeof DEFAULT_UI;
+
 export default function JsonYamlConverterClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          jsonToYaml: "JSON → YAML",
-          yamlToJson: "YAML → JSON",
-          jsonIndent: "JSON indent",
-          copyResult: "Copy result",
-          inputJson: "JSON input",
-          inputYaml: "YAML input",
-          outputYaml: "YAML output",
-          outputJson: "JSON output",
-          pasteJson: "Paste JSON...",
-          pasteYaml: "Paste YAML...",
-          resultPlaceholder: "Result will appear here...",
-          errorPrefix: "Error:",
-          convertFailed: "Conversion failed",
-          hint:
-            "Tip: YAML supports many syntax features. If parsing fails, double-check indentation and special characters.",
-        }
-      : {
-          jsonToYaml: "JSON → YAML",
-          yamlToJson: "YAML → JSON",
-          jsonIndent: "JSON 缩进",
-          copyResult: "复制结果",
-          inputJson: "JSON 输入",
-          inputYaml: "YAML 输入",
-          outputYaml: "YAML 输出",
-          outputJson: "JSON 输出",
-          pasteJson: "粘贴 JSON…",
-          pasteYaml: "粘贴 YAML…",
-          resultPlaceholder: "结果会显示在这里…",
-          errorPrefix: "错误：",
-          convertFailed: "转换失败",
-          hint: "提示：YAML 支持多种语法特性，若解析失败请检查缩进与特殊字符。",
-        };
+  const config = useOptionalToolConfig("json-yaml-converter");
+  const ui: JsonYamlUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<JsonYamlUi>) };
 
   const [direction, setDirection] = useState<Direction>("jsonToYaml");
   const [indent, setIndent] = useState(2);

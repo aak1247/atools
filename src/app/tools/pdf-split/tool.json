@@ -1,0 +1,13 @@
+{
+  "name": "免费在线PDF拆分/提取页面工具 - 纯粹工具站",
+  "shortName": "PDF拆分",
+  "description": "免费在线 PDF 拆分/提取页面工具：按页码范围提取成新 PDF，或按页拆分并打包 ZIP，浏览器本地运行不上传文件。",
+  "seoDescription": "免费在线PDF拆分/提取页面工具 - 纯粹工具站（ATools）。支持导入 PDF 后按页码范围（如 1-3,5,10-）提取指定页面生成新的 PDF；也支持将选定页面按页拆分为多个独立 PDF 并打包 ZIP 下载。适合合同/标书按章节分发、按页归档、抽取附件页等场景。全程浏览器本地处理，不上传 PDF 文件，保护隐私安全。",
+  "category": "PDF 工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["PDF拆分", "PDF分割", "PDF提取页面", "PDF按页导出", "PDF转ZIP", "本地处理", "隐私保护"]
+}
+

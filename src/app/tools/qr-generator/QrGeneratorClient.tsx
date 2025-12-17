@@ -3,56 +3,38 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Level = "L" | "M" | "Q" | "H";
 
 const clampInt = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, Math.trunc(value)));
 
+const DEFAULT_UI = {
+  content: "内容",
+  placeholder: "输入要生成二维码的文本或链接…",
+  size: "尺寸（px）",
+  margin: "留白（margin）",
+  level: "容错等级",
+  levelL: "L（7%）",
+  levelM: "M（15%）",
+  levelQ: "Q（25%）",
+  levelH: "H（30%）",
+  fg: "前景色",
+  bg: "背景色",
+  download: "下载 PNG",
+  clear: "清空",
+  preview: "预览",
+  hint: "提示：二维码在浏览器本地生成，不上传任何内容。",
+  errorPrefix: "错误：",
+  genFailed: "生成失败",
+} as const;
+
+type QrGeneratorUi = typeof DEFAULT_UI;
+
 export default function QrGeneratorClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-  const ui =
-    locale === "en-us"
-      ? {
-          content: "Content",
-          placeholder: "Enter text or a link to encode...",
-          size: "Size (px)",
-          margin: "Margin",
-          level: "Error correction",
-          levelL: "L (7%)",
-          levelM: "M (15%)",
-          levelQ: "Q (25%)",
-          levelH: "H (30%)",
-          fg: "Foreground",
-          bg: "Background",
-          download: "Download PNG",
-          clear: "Clear",
-          preview: "Preview",
-          hint: "Tip: QR codes are generated locally in your browser. No content is uploaded.",
-          errorPrefix: "Error:",
-          genFailed: "Failed to generate QR code",
-        }
-      : {
-          content: "内容",
-          placeholder: "输入要生成二维码的文本或链接…",
-          size: "尺寸（px）",
-          margin: "留白（margin）",
-          level: "容错等级",
-          levelL: "L（7%）",
-          levelM: "M（15%）",
-          levelQ: "Q（25%）",
-          levelH: "H（30%）",
-          fg: "前景色",
-          bg: "背景色",
-          download: "下载 PNG",
-          clear: "清空",
-          preview: "预览",
-          hint: "提示：二维码在浏览器本地生成，不上传任何内容。",
-          errorPrefix: "错误：",
-          genFailed: "生成失败",
-        };
+  const config = useOptionalToolConfig("qr-generator");
+  const ui: QrGeneratorUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<QrGeneratorUi>) };
 
   const [text, setText] = useState("https://example.com");
   const [size, setSize] = useState(320);
@@ -100,7 +82,7 @@ export default function QrGeneratorClient() {
     return () => {
       cancelled = true;
     };
-  }, [locale, options, text]);
+  }, [options, text, ui.genFailed]);
 
   const download = async () => {
     const canvas = canvasRef.current;
