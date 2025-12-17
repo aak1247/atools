@@ -40,6 +40,9 @@ export default async function LocaleLayout({
               <Link href={`/${locale}`} className="transition-colors hover:text-slate-900">
                 {messages.navTools}
               </Link>
+              <Link href="/sitemap.xml" className="transition-colors hover:text-slate-900">
+                {messages.navSitemap}
+              </Link>
               <a
                 href="https://github.com/aak1247/atools"
                 target="_blank"
