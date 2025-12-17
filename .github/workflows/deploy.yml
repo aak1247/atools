@@ -49,4 +49,4 @@ jobs:
       - name: Build Docker image (nginx static site)
         env:
           IMAGE_NAME: puretools-site
-        run: docker build -t $IMAGE_NAME:latest .
+        run: docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${GITHUB_SHA} .
