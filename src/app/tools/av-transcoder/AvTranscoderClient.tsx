@@ -2,8 +2,40 @@
 
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type OutputFormat = "webm" | "wav";
+
+const DEFAULT_UI = {
+  pickTitle: "选择文件",
+  pickFile: "选择文件",
+  clear: "清空",
+  previewTitle: "预览",
+  fileInfoTemplate: "文件：{name} · 时长：{time}（{seconds}s）",
+  outputFormatTitle: "输出格式",
+  webmOption: "WebM（实时转码）",
+  wavOption: "WAV（仅音频）",
+  startTranscodeTitle: "开始转码",
+  transcodeHint: "WebM 导出依赖浏览器对 MediaRecorder/captureStream 的支持；WAV 导出会解码并重编码，文件较大时耗时较长。",
+  transcoding: "转码中...",
+  startTranscode: "开始转码",
+  progress: "进度",
+  generated: "已生成输出文件：",
+  download: "下载",
+  errorPrefix: "错误：",
+  errChooseFile: "请先选择一个音频或视频文件。",
+  errWavAudioOnly: "WAV 导出仅支持音频文件（video 请导出 WebM）。",
+  errNoMediaRecorder: "当前浏览器不支持 MediaRecorder 导出 WebM。",
+  errMediaNotReady: "媒体元素未初始化，请刷新页面重试。",
+  errNoCaptureStream: "当前浏览器不支持 captureStream，无法在纯前端导出 WebM。",
+  errTranscodeFailed: "转码失败，请稍后重试。",
+} as const;
+
+type AvTranscoderUi = typeof DEFAULT_UI;
+
+const applyTemplate = (template: string, vars: Record<string, string>) =>
+  template.replace(/\{(\w+)\}/g, (m, key: string) => vars[key] ?? m);
 
 const formatTime = (seconds: number): string => {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -69,6 +101,17 @@ const encodeWav = (audio: AudioBuffer): Blob => {
 };
 
 export default function AvTranscoderClient() {
+  return (
+    <ToolPageLayout toolSlug="av-transcoder" maxWidthClassName="max-w-6xl">
+      <AvTranscoderInner />
+    </ToolPageLayout>
+  );
+}
+
+function AvTranscoderInner() {
+  const config = useOptionalToolConfig("av-transcoder");
+  const ui: AvTranscoderUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<AvTranscoderUi>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -134,7 +177,7 @@ export default function AvTranscoderClient() {
 
   const transcode = async () => {
     if (!file || !kind) {
-      setError("请先选择一个音频或视频文件。");
+      setError(ui.errChooseFile);
       return;
     }
     setError(null);
@@ -148,7 +191,7 @@ export default function AvTranscoderClient() {
     try {
       if (output === "wav") {
         if (kind !== "audio") {
-          setError("WAV 导出仅支持音频文件（video 请导出 WebM）。");
+          setError(ui.errWavAudioOnly);
           return;
         }
         const context = new AudioContext();
@@ -166,17 +209,17 @@ export default function AvTranscoderClient() {
 
       const mimeType = pickMimeType(kind);
       if (!mimeType) {
-        setError("当前浏览器不支持 MediaRecorder 导出 WebM。");
+        setError(ui.errNoMediaRecorder);
         return;
       }
 
       const element = kind === "video" ? videoRef.current : audioRef.current;
       if (!element) {
-        setError("媒体元素未初始化，请刷新页面重试。");
+        setError(ui.errMediaNotReady);
         return;
       }
       if (typeof (element as HTMLMediaElement & { captureStream?: () => MediaStream }).captureStream !== "function") {
-        setError("当前浏览器不支持 captureStream，无法在纯前端导出 WebM。");
+        setError(ui.errNoCaptureStream);
         return;
       }
 
@@ -217,29 +260,23 @@ export default function AvTranscoderClient() {
       setDownloadUrl(URL.createObjectURL(blob));
       setProgress(1);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "转码失败，请稍后重试。");
+      setError(e instanceof Error ? e.message : ui.errTranscodeFailed);
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">音视频转码</h1>
-        <p className="mt-2 text-sm text-slate-500">导出 WebM / WAV（基于浏览器能力，纯本地处理）</p>
-      </div>
-
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+    <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-slate-900">选择文件</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.pickTitle}</div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
-              选择文件
+              {ui.pickFile}
             </button>
             <button
               type="button"
@@ -247,7 +284,7 @@ export default function AvTranscoderClient() {
               disabled={!file || isProcessing}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              清空
+              {ui.clear}
             </button>
             <input ref={inputRef} type="file" accept="audio/*,video/*" className="hidden" onChange={onChange} />
           </div>
@@ -268,7 +305,7 @@ export default function AvTranscoderClient() {
                 </div>
               ) : (
                 <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                  <div className="text-sm font-semibold text-slate-900">预览</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.previewTitle}</div>
                   <div className="mt-3">
                     <audio
                       ref={audioRef}
@@ -282,16 +319,20 @@ export default function AvTranscoderClient() {
               )}
 
               <div className="text-xs text-slate-500">
-                文件：{file?.name ?? "-"} · 时长：{formatTime(duration)}（{duration.toFixed(2)}s）
+                {applyTemplate(ui.fileInfoTemplate, {
+                  name: file?.name ?? "-",
+                  time: formatTime(duration),
+                  seconds: duration.toFixed(2),
+                })}
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">输出格式</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.outputFormatTitle}</div>
                 <div className="mt-4 grid gap-3">
                   <label className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-slate-200">
-                    <span className="text-sm font-semibold text-slate-900">WebM（实时转码）</span>
+                    <span className="text-sm font-semibold text-slate-900">{ui.webmOption}</span>
                     <input
                       type="radio"
                       name="format"
@@ -301,7 +342,7 @@ export default function AvTranscoderClient() {
                     />
                   </label>
                   <label className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-slate-200">
-                    <span className="text-sm font-semibold text-slate-900">WAV（仅音频）</span>
+                    <span className="text-sm font-semibold text-slate-900">{ui.wavOption}</span>
                     <input
                       type="radio"
                       name="format"
@@ -314,9 +355,9 @@ export default function AvTranscoderClient() {
               </div>
 
               <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">开始转码</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.startTranscodeTitle}</div>
                 <p className="mt-2 text-xs text-slate-500">
-                  WebM 导出依赖浏览器对 MediaRecorder/captureStream 的支持；WAV 导出会解码并重编码，文件较大时耗时较长。
+                  {ui.transcodeHint}
                 </p>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <button
@@ -325,14 +366,14 @@ export default function AvTranscoderClient() {
                     onClick={() => void transcode()}
                     className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
                   >
-                    {isProcessing ? "转码中..." : "开始转码"}
+                    {isProcessing ? ui.transcoding : ui.startTranscode}
                   </button>
                 </div>
 
                 {progress != null && (
                   <div className="mt-4">
                     <div className="flex items-center justify-between text-xs text-slate-600">
-                      <span>进度</span>
+                      <span>{ui.progress}</span>
                       <span>{Math.round(progress * 100)}%</span>
                     </div>
                     <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
@@ -343,24 +384,27 @@ export default function AvTranscoderClient() {
 
                 {downloadUrl && (
                   <div className="mt-4 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                    已生成输出文件：
+                    {ui.generated}
                     <a
                       href={downloadUrl}
                       download={downloadName}
                       className="ml-2 font-semibold underline decoration-emerald-400 underline-offset-2"
                     >
-                      下载 {downloadName}
+                      {ui.download} {downloadName}
                     </a>
                   </div>
                 )}
 
-                {error && <div className="mt-4 text-sm text-rose-600">错误：{error}</div>}
+                {error && (
+                  <div className="mt-4 text-sm text-rose-600">
+                    {ui.errorPrefix}
+                    {error}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 }
-

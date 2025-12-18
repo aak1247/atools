@@ -70,6 +70,14 @@ const tryPrettyJson = (text: string): { ok: true; text: string } | { ok: false }
 };
 
 export default function ApiTesterClient() {
+  return (
+    <ToolPageLayout toolSlug="api-tester" maxWidthClassName="max-w-6xl">
+      <ApiTesterInner />
+    </ToolPageLayout>
+  );
+}
+
+function ApiTesterInner() {
   const config = useOptionalToolConfig("api-tester");
   const ui: ApiTesterUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<ApiTesterUi>) };
 
@@ -175,9 +183,8 @@ export default function ApiTesterClient() {
   }, [responseBody, view]);
 
   return (
-    <ToolPageLayout toolSlug="api-tester" maxWidthClassName="max-w-6xl">
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-        <div className="grid gap-6 lg:grid-cols-2">
+    <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+      <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
               <div className="text-sm font-semibold text-slate-900">{ui.request}</div>
@@ -355,8 +362,7 @@ export default function ApiTesterClient() {
               )}
             </div>
           </div>
-        </div>
       </div>
-    </ToolPageLayout>
+    </div>
   );
 }

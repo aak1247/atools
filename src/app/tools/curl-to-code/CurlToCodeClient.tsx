@@ -1,5 +1,6 @@
 "use client";
 
+import type { FC } from "react";
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 
@@ -14,6 +15,21 @@ type ParsedCurl = {
 } | { ok: false; error: string };
 
 type OutputTarget = "fetch" | "axios";
+
+const DEFAULT_UI = {
+  copyCode: "复制代码",
+  curlInputTitle: "cURL 输入",
+  generatedCodeTitle: "生成代码",
+  generatedCodePlaceholder: "解析成功后会在这里生成代码…",
+  methodLabel: "方法：",
+  urlLabel: "URL：",
+  note: "提示：当前为轻量解析器，复杂 curl（多文件 form、证书、代理等）可能需要手动调整。",
+  errorPrefix: "错误：",
+  errEmpty: "请输入 curl 命令。",
+  errNoUrl: "未识别到 URL，请确认 curl 命令包含请求地址。",
+} as const;
+
+type CurlToCodeUi = typeof DEFAULT_UI;
 
 const splitShellArgs = (input: string): string[] => {
   const args: string[] = [];
@@ -87,7 +103,7 @@ const parseHeaderLine = (line: string): { key: string; value: string } | null =>
 
 const parseCurl = (command: string): ParsedCurl => {
   const raw = command.trim();
-  if (!raw) return { ok: false, error: "请输入 curl 命令。" };
+  if (!raw) return { ok: false, error: "ERR_EMPTY" };
 
   const args = splitShellArgs(raw);
   const startIndex = args[0] === "curl" ? 1 : 0;
@@ -186,7 +202,7 @@ const parseCurl = (command: string): ParsedCurl => {
     }
   }
 
-  if (!url) return { ok: false, error: "未识别到 URL，请确认 curl 命令包含请求地址。" };
+  if (!url) return { ok: false, error: "ERR_NO_URL" };
 
   const finalMethod = (method || (dataParts.length > 0 || isForm ? "POST" : "GET")).toUpperCase();
 
@@ -212,6 +228,12 @@ const parseCurl = (command: string): ParsedCurl => {
   const body = treatDataAsQuery || isForm || dataParts.length === 0 ? null : dataParts.join("&");
 
   return { ok: true, url: finalUrl, method: finalMethod, headers, body, isForm, formParts };
+};
+
+const formatCurlError = (error: string, ui: CurlToCodeUi) => {
+  if (error === "ERR_EMPTY") return ui.errEmpty;
+  if (error === "ERR_NO_URL") return ui.errNoUrl;
+  return error;
 };
 
 const jsString = (value: string) => JSON.stringify(value);
@@ -302,7 +324,7 @@ const buildAxiosCode = (parsed: Extract<ParsedCurl, { ok: true }>): string => {
   return lines.join("\n");
 };
 
-export default function CurlToCodeClient() {
+const CurlToCodeInner: FC<{ ui: CurlToCodeUi }> = ({ ui }) => {
   const [target, setTarget] = useState<OutputTarget>("fetch");
   const [input, setInput] = useState("");
 
@@ -317,9 +339,8 @@ export default function CurlToCodeClient() {
   };
 
   return (
-    <ToolPageLayout toolSlug="curl-to-code">
-      <div className="w-full px-4">
-        <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+    <div className="w-full px-4">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex rounded-2xl bg-slate-100/60 p-1">
               <button
@@ -348,13 +369,13 @@ export default function CurlToCodeClient() {
               disabled={!code}
               className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              复制代码
+              {ui.copyCode}
             </button>
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
             <div>
-              <div className="mb-2 text-sm font-semibold text-slate-900">cURL 输入</div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">{ui.curlInputTitle}</div>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -362,15 +383,20 @@ export default function CurlToCodeClient() {
                 className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
               {!parsed.ok && input.trim() && (
-                <div className="mt-2 text-sm text-rose-600">错误：{parsed.error}</div>
+                <div className="mt-2 text-sm text-rose-600" aria-live="polite">
+                  {ui.errorPrefix}
+                  {formatCurlError(parsed.error, ui)}
+                </div>
               )}
               {parsed.ok && (
                 <div className="mt-3 grid gap-2 text-xs text-slate-600 sm:grid-cols-2">
                   <div>
-                    方法：<span className="font-mono">{parsed.method}</span>
+                    {ui.methodLabel}
+                    <span className="font-mono">{parsed.method}</span>
                   </div>
                   <div className="sm:col-span-2">
-                    URL：<span className="font-mono break-all">{parsed.url}</span>
+                    {ui.urlLabel}
+                    <span className="font-mono break-all">{parsed.url}</span>
                   </div>
                 </div>
               )}
@@ -378,22 +404,37 @@ export default function CurlToCodeClient() {
 
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">生成代码</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.generatedCodeTitle}</div>
               </div>
               <textarea
                 value={code}
                 readOnly
-                placeholder="解析成功后会在这里生成代码…"
+                placeholder={ui.generatedCodePlaceholder}
                 className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
               />
               <div className="mt-3 text-xs text-slate-500">
-                提示：当前为轻量解析器，复杂 curl（多文件 form、证书、代理等）可能需要手动调整。
+                {ui.note}
               </div>
             </div>
           </div>
-        </div>
       </div>
+    </div>
+  );
+};
+
+const CurlToCodeClient: FC = () => {
+  return (
+    <ToolPageLayout toolSlug="curl-to-code">
+      {({ config }) => (
+        <CurlToCodeInner
+          ui={{
+            ...DEFAULT_UI,
+            ...((config.ui as Partial<CurlToCodeUi> | undefined) ?? {}),
+          }}
+        />
+      )}
     </ToolPageLayout>
   );
-}
+};
 
+export default CurlToCodeClient;

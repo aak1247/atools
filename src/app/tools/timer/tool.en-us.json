@@ -5,6 +5,22 @@
   "seoDescription": "The ultimate free online Timer — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Timer on any device, this is the one you bookmark and share.",
   "category": "Measurement Tools",
   "lang": "en-US",
+  "ui": {
+    "modeCountdown": "Countdown",
+    "modeStopwatch": "Stopwatch",
+    "start": "Start",
+    "pause": "Pause",
+    "reset": "Reset",
+    "timeRemaining": "Time remaining",
+    "timeElapsed": "Time elapsed",
+    "duration": "Duration",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "durationLockedHint": "To keep timing accurate, duration cannot be changed while running.",
+    "presets": "Presets",
+    "presetMinutesTemplate": "{minutes} min",
+    "privacyHint": "Tip: Everything runs locally in your browser. No data is uploaded."
+  },
   "keywords": [
     "free online Timer",
     "Timer tool",

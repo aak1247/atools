@@ -3,6 +3,7 @@ import type { Locale } from "./locales";
 export type Messages = {
   siteName: string;
   navTools: string;
+  navSitemap: string;
   navGithub: string;
   footerTagline: string;
   homeBadge: string;
@@ -29,6 +30,7 @@ export type Messages = {
 const zhCN: Messages = {
   siteName: "纯粹工具站",
   navTools: "工具导航",
+  navSitemap: "站点地图",
   navGithub: "GitHub",
   footerTagline: "Crafted with precision.",
   homeBadge: "纯前端 · 零上传 · 极致体验",
@@ -56,6 +58,7 @@ const zhCN: Messages = {
 const enUS: Messages = {
   siteName: "Pure Tools",
   navTools: "Tools",
+  navSitemap: "Sitemap",
   navGithub: "GitHub",
   footerTagline: "Crafted with precision.",
   homeBadge: "Pure frontend · No upload · Fast & private",

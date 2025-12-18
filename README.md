@@ -1,7 +1,13 @@
 # ATools · 纯粹工具站
 
-> 一个「100% 纯前端本地运行」的工具集合站：PWA 可安装、支持 Next.js 静态导出、内置统一 SEO 系统。  
-> 目标用户：开发者 / 办公场景（偏“流量优先”的高频工具）。
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Next.js](https://img.shields.io/badge/Next.js-16+-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![PWA](https://img.shields.io/badge/PWA-Ready-green?logo=pwa)](https://web.dev/progressive-web-apps/)
+[![100% Client-Side](https://img.shields.io/badge/100%25-Client--Side-orange)](https://github.com/your-repo)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green?logo=node.js)](https://nodejs.org/)
+
+> 一个「100% 纯前端本地运行」的工具集合站：PWA 可安装、支持 Next.js 静态导出、内置统一 SEO 系统。
 
 本目录为 `site/` 子项目（Next.js App Router 应用）。你可以将它单独开源/部署，或作为 monorepo 的前端部分使用。
 
@@ -10,10 +16,9 @@
 ## 特性
 
 - **纯前端**：所有文件处理默认在浏览器本地完成（不上传服务器），适合隐私敏感场景。
-- **90+ 工具**：覆盖文本/编码/JSON/图片/音视频/PDF/办公格式等高频需求（见 `src/app/tools`）。
-- **PWA 可安装**：每个工具都有独立 `manifest`，支持“添加到主屏幕”与离线缓存策略。
-- **静态导出**：`next.config.ts` 使用 `output: "export"`，产物在 `out/`，可部署到任意静态托管/CDN。
-- **统一 SEO 系统**：按工具的 `tool.json` 自动生成 Metadata + OpenGraph + JSON-LD（Schema.org WebApplication）。
+- **95+ 工具**：覆盖文本/编码/JSON/图片/音视频/PDF/办公格式等高频需求（见 `src/app/tools`）。
+- **PWA 可安装**：每个工具都有独立 `manifest`，支持"添加到主屏幕"与离线缓存策略。
+- **完整 i18n 支持**：所有工具支持中英双语，基于 `tool.en-us.json` 的 UI 字段实现优雅的多语言架构。
 - **FFmpeg.wasm 本地资源**：音视频工具使用本地打包的 `@ffmpeg/core`（避免 CDN/CORS 问题）。
 
 <details>
@@ -79,14 +84,19 @@
 - `password-strength-checker` — 密码强度检测
 - `pdf-compressor` — PDF压缩
 - `pdf-merge` — PDF拼接合并
+- `pdf-split` — PDF拆分
 - `pdf-stamp` — PDF电子盖章
+- `pdf-to-images` — PDF转图片
+- `pdf-to-text` — PDF转文本
 - `pdf-trim` — PDF页面剪切
+- `pem-jwk-toolkit` — PEM/JWK工具包
 - `ppt-compressor` — PPT压缩
 - `protractor` — 数字量角器
 - `qr-decoder` — 二维码解析器
 - `qr-generator` — 二维码生成
 - `qr-scanner` — 二维码扫描器
 - `random-number-generator` — 随机数生成器
+- `random-password-generator` — 随机密码生成器
 - `regex-tester` — 正则表达式测试
 - `rsa-key-generator` — RSA密钥生成器
 - `salt-generator` — 随机盐值生成器
@@ -135,7 +145,9 @@ yarn dev
 
 ---
 
-## 常用命令
+## 开发与构建
+
+### 常用命令
 
 - `yarn dev`：本地开发（Next Dev）
 - `yarn build`：生产构建（CI 使用 `next build --webpack`）
@@ -144,30 +156,85 @@ yarn dev
 - `yarn generate:manifests`：生成 `public/tools/<slug>/manifest.webmanifest` 与导航数据
 - `yarn generate:sw`：生成 `public/sw.js`
 
+### 开发调试
+
+1. **渐进式开发**：先实现基础功能，再添加高级特性
+2. **频繁测试**：每次修改后及时测试功能是否正常
+3. **代码审查**：提交前检查代码质量和类型安全
+4. **性能监控**：定期检查页面加载速度和资源使用
+5. **多语言测试**：确保中英双语环境下功能正常
+
 ---
 
 ## 项目结构（核心约定）
 
 - `src/app/tools/<slug>/`：每个工具一个目录（路由：`/<locale>/tools/<slug>`）
   - `tool.json`：工具配置（名称/描述/关键词/SEO 文本等）
+  - `tool.en-us.json`：英文 UI 配置文件（含 `ui` 字段）
   - `page.tsx`：App Router 页面，导出 `dynamic = "force-static"` 与 `metadata`
   - `*Client.tsx`：客户端组件，使用统一布局 `ToolPageLayout`
 - `src/lib/`：工具配置、SEO 生成等通用逻辑
 - `src/components/ToolPageLayout.tsx`：统一工具页布局（含 SEO/结构化数据/隐藏 SEO 文本）
+- `src/components/ToolConfigProvider.tsx`：工具配置上下文，支持多语言
 - `scripts/`：
   - `generate-tool-manifests.mjs`：扫描 `tool.json`，生成工具 manifests、导航数据、tool registry
   - `generate-sw.mjs`：生成 `public/sw.js`
-  - `push-search.mjs`：可选的搜索引擎主动提交（构建后执行）
-  - `copy-ffmpeg-core.mjs`：复制 `@ffmpeg/core` 到 `public/vendor/ffmpeg/core/`
 
 ---
 
-## 新增工具（最小流程）
+## 新增工具
 
-1. 新建目录：`src/app/tools/my-tool/`
-2. 添加 `tool.json`（至少包含 `name` / `description` / `keywords` / `seoDescription`）
-3. 添加 `page.tsx`：
+### 1. 创建工具目录和基础文件
 
+```bash
+mkdir src/app/tools/my-tool
+```
+
+### 2. 添加工具配置文件
+
+**`tool.json`**（SEO 和元数据）：
+```json
+{
+  "name": "免费在线我的工具 - 纯粹工具站",
+  "shortName": "我的工具",
+  "description": "一句话描述这个工具做什么。",
+  "seoDescription": "详细的SEO优化描述，包含关键词、工具优势、使用场景等，200-300字，针对搜索引擎和LLM优化...",
+  "category": "工具分类",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["免费工具", "在线工具", "关键词"]
+}
+```
+
+**`tool.en-us.json`**（英文 UI 配置）：
+```json
+{
+  "name": "Free Online My Tool - ATools",
+  "shortName": "My Tool",
+  "description": "Brief description of what this tool does.",
+  "seoDescription": "Detailed SEO-optimized description for search engines and LLM indexing, 200-300 characters...",
+  "category": "Tool Category",
+  "lang": "en-US",
+  "ui": {
+    "title": "My Tool",
+    "inputLabel": "Input",
+    "outputLabel": "Output",
+    "processButton": "Process",
+    "clearButton": "Clear",
+    "inputPlaceholder": "Enter your input here...",
+    "outputPlaceholder": "Results will appear here...",
+    "errorMessage": "Error: {message}",
+    "successMessage": "Processing completed successfully!"
+  },
+  "keywords": ["free online tool", "web tool", "keyword"]
+}
+```
+
+### 3. 添加页面组件
+
+**`page.tsx`**：
 ```tsx
 import { generateToolMetadata } from "../../../lib/generate-tool-page";
 import MyToolClient from "./MyToolClient";
@@ -180,60 +247,99 @@ export default function Page() {
 }
 ```
 
-4. 添加客户端组件并套用统一布局：
+### 4. 添加客户端组件
 
+**`MyToolClient.tsx`**：
 ```tsx
 "use client";
+
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 
+// 中文默认值
+const DEFAULT_UI = {
+  title: "我的工具",
+  inputLabel: "输入",
+  outputLabel: "输出",
+  processButton: "处理",
+  clearButton: "清空",
+  inputPlaceholder: "请输入内容...",
+  outputPlaceholder: "处理结果会显示在这里...",
+  errorMessage: "错误：{message}",
+  successMessage: "处理完成！"
+} as const;
+
+// 类型安全
+type MyToolUi = typeof DEFAULT_UI;
+
 export default function MyToolClient() {
-  return <ToolPageLayout toolSlug="my-tool">{/* UI */}</ToolPageLayout>;
+  const config = useOptionalToolConfig("my-tool");
+  // 配置合并，英文优先，中文回退
+  const ui: MyToolUi = {
+    ...DEFAULT_UI,
+    ...((config?.ui ?? {}) as Partial<MyToolUi>)
+  };
+
+  return (
+    <ToolPageLayout toolSlug="my-tool">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+        <div className="text-sm font-semibold text-slate-900">{ui.title}</div>
+
+        <div className="mt-4 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              {ui.inputLabel}
+            </label>
+            <textarea
+              placeholder={ui.inputPlaceholder}
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <button className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">
+              {ui.processButton}
+            </button>
+            <button className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-200">
+              {ui.clearButton}
+            </button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              {ui.outputLabel}
+            </label>
+            <textarea
+              placeholder={ui.outputPlaceholder}
+              readOnly
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"
+            />
+          </div>
+        </div>
+      </div>
+    </ToolPageLayout>
+  );
 }
 ```
 
-5. 运行 `yarn dev` 或 `yarn generate:manifests`，脚本会自动生成：
-   - `src/app/tools/tools-meta*.json`（工具导航数据）
-   - `src/app/tools/tool-registry.ts`（工具 registry，用于 sitemap/导航）
-   - `public/tools/<slug>/*`（tool.json + manifest）
-
----
-
-## 部署
-
-### 1) 任意静态托管（推荐）
-
-```bash
-yarn build
-```
-
-部署 `out/` 目录即可。
-
-### 2) Docker（Nginx 静态站点）
-
-```bash
-yarn build
-docker build -t atools:latest .
-docker run --rm -p 8080:80 atools:latest
-```
-
----
-
-## 环境变量
-
-- `NEXT_PUBLIC_SITE_URL`：站点公开域名（用于 `sitemap.xml` / `robots.txt` 等）
-- `SITE_URL`：站点公开域名（用于搜索引擎主动提交脚本）
-- `ENABLE_SEARCH_PUSH`：`"true"` 时启用搜索引擎主动提交
-- `BAIDU_PUSH_ENDPOINT`：百度站长推送接口（可选）
-
-> 未设置 `ENABLE_SEARCH_PUSH="true"` 时，`scripts/push-search.mjs` 会自动跳过且不会使构建失败。
 
 ---
 
 ## 贡献指南
 
-- 保持工具**纯前端**（尽量不引入后端依赖）；默认不上传用户文件。
-- 新工具请遵循 `src/app/tools/<slug>/` 约定，并补齐 `tool.json` 的 SEO 字段。
-- PR 尽量小而专注；UI/交互请优先保持一致的布局与可访问性。
+### 核心原则
+
+- **PR 规范**：PR 尽量小而专注，每个 PR 专注一个功能或修复
+- **纯前端**：保持工具纯前端运行（不引入后端依赖）；不上传用户文件。
+- **多语言支持**：所有工具必须实现完整的多语言支持（基于 `tool.en-us.json` 的 `ui` 字段）。
+- **UI/UX 一致性**：优先保持一致的布局与可访问性
+
+
+### 代码规范
+
+- **类型安全**：所有 TypeScript 代码必须严格类型检查通过
+- **测试验证**：确保多语言环境下功能正常工作
+- **统一规范**：遵循 `src/app/tools/<slug>/` 目录约定和统一的代码模式。
 
 更多细节见：
 

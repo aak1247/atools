@@ -12,5 +12,27 @@
     "des",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "actionEncrypt": "Encrypt",
+    "actionDecrypt": "Decrypt",
+    "cipherModeLabel": "Mode",
+    "copyResult": "Copy result",
+    "plaintextLabel": "Plaintext",
+    "ciphertextLabel": "Ciphertext (Base64)",
+    "plaintextPlaceholder": "Enter text to encrypt…",
+    "ciphertextPlaceholder": "Paste Base64 ciphertext…",
+    "resultLabel": "Result",
+    "resultPlaceholder": "Result will appear here…",
+    "errorPrefix": "Error: ",
+    "keyLabel": "Key (8-byte hex)",
+    "randomKey": "Generate random key",
+    "ivLabel": "IV (8-byte hex, required for CBC)",
+    "randomIv": "Generate random IV",
+    "insecureTip": "Tip: DES is considered insecure. Prefer AES-GCM when possible.",
+    "errKeyInvalid": "Key must be 8-byte hex (16 hex chars).",
+    "errIvInvalid": "IV must be 8-byte hex (16 hex chars).",
+    "errDecryptFailed": "Decryption failed (wrong key/IV or invalid ciphertext).",
+    "errProcessFailed": "Operation failed"
+  }
 }

@@ -4,6 +4,7 @@ import type { FC } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import geomagnetism from "geomagnetism";
 import { Compass, Info, LocateFixed, Navigation, Shield } from "lucide-react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type PermissionStateLite = "prompt" | "granted" | "denied" | "unsupported";
 
@@ -23,6 +24,44 @@ type CompassState = {
   useTrueNorth: boolean;
   smoothing: number;
 };
+
+const DEFAULT_UI = {
+  dash: "—",
+  trueNorth: "真北",
+  magneticNorth: "磁北",
+  needleAriaLabel: "指南针指针",
+  sourcePrefix: "来源：",
+  sourceIos: "iOS 指南针",
+  sourceAbsolute: "绝对方位",
+  sourceRelative: "相对方位",
+  controls: "控制",
+  statusRunning: "运行中",
+  statusIdle: "未开始",
+  startCompass: "启动指南针",
+  stop: "停止",
+  enableTrueNorth: "启用真北",
+  smoothing: "平滑",
+  smoothingAriaLabel: "平滑系数",
+  smoothingHint: "平滑越高越跟手，越低越稳定。",
+  trueNorthInfo: "真北信息",
+  enabled: "已启用",
+  disabled: "未启用",
+  declination: "磁偏角",
+  location: "定位",
+  trueNorthExplain: "真北为：磁北 + 磁偏角（基于 WMM 模型估算，精度受设备磁力计与环境干扰影响）。",
+  insecureContextHint:
+    "当前页面不是安全上下文，浏览器可能会禁止传感器/定位。请使用 HTTPS 或在本机通过 localhost 访问。",
+  tipsTitle: "使用提示",
+  tipSensorPermission:
+    "iPhone 首次使用需要点击“启动指南针”并允许“动作与方向”权限；若指南针不稳定，远离金属物体并做“8 字”校准动作。",
+  tipTrueNorth: "“启用真北”会请求定位权限，用于估算磁偏角；拒绝定位仍可使用磁北。",
+  errNeedSecureContext: "需要在 HTTPS 或 localhost 环境下使用方向传感器。",
+  errSensorPermissionDenied: "无法获取方向传感器权限，请在浏览器设置中允许访问“动作与方向”。",
+  errLocationPermissionDenied: "无法获取定位权限，已切换为磁北显示。",
+  errDeclinationUnavailable: "已获取定位，但无法计算磁偏角，已切换为磁北显示。",
+} as const;
+
+type CompassUi = typeof DEFAULT_UI;
 
 const normalizeDegrees = (deg: number) => {
   const value = ((deg % 360) + 360) % 360;
@@ -77,7 +116,7 @@ const estimateDeclinationDeg = (latDeg: number, lonDeg: number) => {
   }
 };
 
-const CompassClient: FC = () => {
+const CompassInner: FC<{ ui: CompassUi }> = ({ ui }) => {
   const [state, setState] = useState<CompassState>({
     isListening: false,
     sensorPermission: "prompt",
@@ -108,10 +147,10 @@ const CompassClient: FC = () => {
   }, [state.magneticHeading, state.trueHeading, state.useTrueNorth]);
 
   const displayedLabel = useMemo(() => {
-    if (displayedHeading == null) return "—";
+    if (displayedHeading == null) return ui.dash;
     const cardinal = degreesToCardinal(displayedHeading);
     return `${displayedHeading.toFixed(0)}° ${cardinal}`;
-  }, [displayedHeading]);
+  }, [displayedHeading, ui.dash]);
 
   useEffect(() => {
     declinationRef.current = state.declinationDeg;
@@ -237,13 +276,13 @@ const CompassClient: FC = () => {
     setState((prev) => ({ ...prev, error: null }));
 
     if (typeof window !== "undefined" && window.isSecureContext === false) {
-      setState((prev) => ({ ...prev, error: "需要在 HTTPS 或 localhost 环境下使用方向传感器。" }));
+      setState((prev) => ({ ...prev, error: ui.errNeedSecureContext }));
       return;
     }
 
     const ok = await requestSensorPermission();
     if (!ok) {
-      setState((prev) => ({ ...prev, error: "无法获取方向传感器权限，请在浏览器设置中允许访问“动作与方向”。" }));
+      setState((prev) => ({ ...prev, error: ui.errSensorPermissionDenied }));
       return;
     }
 
@@ -256,7 +295,14 @@ const CompassClient: FC = () => {
     attachListeners();
     setState((prev) => ({ ...prev, isListening: true }));
     rafRef.current = requestAnimationFrame(updateDerivedHeadings);
-  }, [attachListeners, cleanup, requestSensorPermission, updateDerivedHeadings]);
+  }, [
+    attachListeners,
+    cleanup,
+    requestSensorPermission,
+    ui.errNeedSecureContext,
+    ui.errSensorPermissionDenied,
+    updateDerivedHeadings,
+  ]);
 
   const stop = useCallback(() => {
     cleanup();
@@ -273,7 +319,7 @@ const CompassClient: FC = () => {
         declinationDeg: null,
         latitude: null,
         longitude: null,
-        error: "无法获取定位权限，已切换为磁北显示。",
+        error: ui.errLocationPermissionDenied,
       }));
       return;
     }
@@ -288,7 +334,7 @@ const CompassClient: FC = () => {
         declinationDeg: null,
         latitude: lat,
         longitude: lon,
-        error: "已获取定位，但无法计算磁偏角，已切换为磁北显示。",
+        error: ui.errDeclinationUnavailable,
       }));
       return;
     }
@@ -300,7 +346,7 @@ const CompassClient: FC = () => {
       longitude: lon,
       declinationDeg: decl,
     }));
-  }, [requestLocation]);
+  }, [requestLocation, ui.errDeclinationUnavailable, ui.errLocationPermissionDenied]);
 
   useEffect(() => () => cleanup(), [cleanup]);
 
@@ -308,20 +354,13 @@ const CompassClient: FC = () => {
 
   const modeLabel =
     state.useTrueNorth && typeof state.declinationDeg === "number"
-      ? "真北"
-      : "磁北";
+      ? ui.trueNorth
+      : ui.magneticNorth;
 
   const effectiveHeadingForNeedle = displayedHeading ?? 0;
 
   return (
-    <div className="mx-auto max-w-3xl animate-fade-in-up space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">指南针</h1>
-        <p className="mt-2 text-sm text-slate-500">
-          支持 iPhone • 纯前端本地运行 • 可选真北（需定位）
-        </p>
-      </div>
-
+    <div className="mt-8 space-y-8">
       <div className="glass-card overflow-hidden rounded-3xl p-8 shadow-xl ring-1 ring-black/5">
         <div className="grid gap-8 md:grid-cols-2 md:items-center">
           <div className="flex flex-col items-center">
@@ -337,7 +376,7 @@ const CompassClient: FC = () => {
               <div
                 className="absolute h-40 w-40"
                 style={{ transform: `rotate(${effectiveHeadingForNeedle}deg)` }}
-                aria-label="指南针指针"
+                aria-label={ui.needleAriaLabel}
               >
                 <div className="absolute left-1/2 top-1/2 h-0 w-0 -translate-x-1/2 -translate-y-[90%]">
                   <div className="h-20 w-1.5 rounded-full bg-gradient-to-b from-rose-500 to-rose-600 shadow-sm" />
@@ -356,13 +395,14 @@ const CompassClient: FC = () => {
                 {displayedLabel}
               </div>
               <div className="mt-2 text-xs text-slate-500">
-                来源：{state.headingSource === "webkitCompassHeading"
-                  ? "iOS 指南针"
+                {ui.sourcePrefix}
+                {state.headingSource === "webkitCompassHeading"
+                  ? ui.sourceIos
                   : state.headingSource === "absolute-alpha"
-                    ? "绝对方位"
+                    ? ui.sourceAbsolute
                     : state.headingSource === "alpha"
-                      ? "相对方位"
-                      : "—"}
+                      ? ui.sourceRelative
+                      : ui.dash}
               </div>
             </div>
           </div>
@@ -370,9 +410,9 @@ const CompassClient: FC = () => {
           <div className="space-y-4">
             <div className="rounded-2xl bg-white/60 p-5 ring-1 ring-black/5">
               <div className="flex items-center justify-between gap-4">
-                <div className="text-sm font-medium text-slate-700">控制</div>
+                <div className="text-sm font-medium text-slate-700">{ui.controls}</div>
                 <div className="text-xs text-slate-500">
-                  {state.isListening ? "运行中" : "未开始"}
+                  {state.isListening ? ui.statusRunning : ui.statusIdle}
                 </div>
               </div>
               <div className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -383,7 +423,7 @@ const CompassClient: FC = () => {
                     className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-700 active:scale-[0.98]"
                   >
                     <Navigation className="h-4 w-4" />
-                    启动指南针
+                    {ui.startCompass}
                   </button>
                 ) : (
                   <button
@@ -391,7 +431,7 @@ const CompassClient: FC = () => {
                     onClick={stop}
                     className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-rose-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-rose-500/20 transition-all hover:bg-rose-700 active:scale-[0.98]"
                   >
-                    停止
+                    {ui.stop}
                   </button>
                 )}
 
@@ -401,13 +441,13 @@ const CompassClient: FC = () => {
                   className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-slate-900/15 transition-all hover:bg-slate-800 active:scale-[0.98]"
                 >
                   <LocateFixed className="h-4 w-4" />
-                  启用真北
+                  {ui.enableTrueNorth}
                 </button>
               </div>
 
-              <div className="mt-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="text-sm font-medium text-slate-700">平滑</div>
+                <div className="mt-4">
+                  <div className="flex items-center justify-between gap-4">
+                  <div className="text-sm font-medium text-slate-700">{ui.smoothing}</div>
                   <div className="text-sm font-semibold tabular-nums text-slate-900">
                     {Math.round(state.smoothing * 100)}%
                   </div>
@@ -425,39 +465,39 @@ const CompassClient: FC = () => {
                     }))
                   }
                   className="mt-3 w-full accent-blue-600"
-                  aria-label="平滑系数"
+                  aria-label={ui.smoothingAriaLabel}
                 />
                 <div className="mt-2 text-xs text-slate-500">
-                  平滑越高越跟手，越低越稳定。
+                  {ui.smoothingHint}
                 </div>
               </div>
             </div>
 
             <div className="rounded-2xl bg-white/60 p-5 ring-1 ring-black/5">
               <div className="flex items-center justify-between gap-4">
-                <div className="text-sm font-medium text-slate-700">真北信息</div>
+                <div className="text-sm font-medium text-slate-700">{ui.trueNorthInfo}</div>
                 <div className="text-xs text-slate-500">
-                  {state.declinationDeg == null ? "未启用" : "已启用"}
+                  {state.declinationDeg == null ? ui.disabled : ui.enabled}
                 </div>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-black/5">
-                  <div className="text-xs text-slate-500">磁偏角</div>
+                  <div className="text-xs text-slate-500">{ui.declination}</div>
                   <div className="mt-1 font-semibold text-slate-900 tabular-nums">
-                    {state.declinationDeg == null ? "—" : formatSigned(state.declinationDeg)}
+                    {state.declinationDeg == null ? ui.dash : formatSigned(state.declinationDeg)}
                   </div>
                 </div>
                 <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-black/5">
-                  <div className="text-xs text-slate-500">定位</div>
+                  <div className="text-xs text-slate-500">{ui.location}</div>
                   <div className="mt-1 font-semibold text-slate-900 tabular-nums">
                     {state.latitude == null || state.longitude == null
-                      ? "—"
+                      ? ui.dash
                       : `${state.latitude.toFixed(3)}, ${state.longitude.toFixed(3)}`}
                   </div>
                 </div>
               </div>
               <div className="mt-3 text-xs text-slate-500">
-                真北为：磁北 + 磁偏角（基于 WMM 模型估算，精度受设备磁力计与环境干扰影响）。
+                {ui.trueNorthExplain}
               </div>
             </div>
           </div>
@@ -475,7 +515,7 @@ const CompassClient: FC = () => {
         <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/60 px-4 py-3 text-slate-700 ring-1 ring-black/5">
           <Info className="h-5 w-5 flex-shrink-0 text-slate-500" />
           <div className="text-sm">
-            当前页面不是安全上下文，浏览器可能会禁止传感器/定位。请使用 HTTPS 或在本机通过 localhost 访问。
+            {ui.insecureContextHint}
           </div>
         </div>
       )}
@@ -483,18 +523,33 @@ const CompassClient: FC = () => {
       <div className="glass-card rounded-3xl p-6 shadow-xl ring-1 ring-black/5">
         <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-slate-900">
           <Shield className="h-5 w-5 text-slate-700" />
-          使用提示
+          {ui.tipsTitle}
         </h2>
         <div className="space-y-3 text-slate-700">
           <div className="text-sm">
-            iPhone 首次使用需要点击“启动指南针”并允许“动作与方向”权限；若指南针不稳定，远离金属物体并做“8 字”校准动作。
+            {ui.tipSensorPermission}
           </div>
           <div className="text-sm">
-            “启用真北”会请求定位权限，用于估算磁偏角；拒绝定位仍可使用磁北。
+            {ui.tipTrueNorth}
           </div>
         </div>
       </div>
     </div>
+  );
+};
+
+const CompassClient: FC = () => {
+  return (
+    <ToolPageLayout toolSlug="compass" maxWidthClassName="max-w-3xl">
+      {({ config }) => (
+        <CompassInner
+          ui={{
+            ...DEFAULT_UI,
+            ...((config.ui as Partial<CompassUi> | undefined) ?? {}),
+          }}
+        />
+      )}
+    </ToolPageLayout>
   );
 };
 

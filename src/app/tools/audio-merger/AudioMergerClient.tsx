@@ -2,12 +2,44 @@
 
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type PickedAudio = {
   id: string;
   file: File;
   durationSec: number | null;
 };
+
+const DEFAULT_UI = {
+  pickTitle: "选择多个音频文件",
+  addFiles: "添加文件",
+  probeDurations: "读取时长",
+  orderTitle: "拼接顺序",
+  totalDurationUnknown: "未读取时长",
+  totalDurationTemplate: "总时长：{time}（{seconds}s）",
+  durationUnknown: "时长：-",
+  durationTemplate: "时长：{time}（{seconds}s）",
+  moveUp: "上移",
+  moveDown: "下移",
+  remove: "移除",
+  exportTitle: "导出",
+  exportHint: "会将所有音频解码并重新编码为 WAV（16-bit PCM，立体声）。文件较大时导出耗时较长。",
+  mergeExport: "合并并导出 WAV",
+  processing: "处理中...",
+  clear: "清空",
+  generated: "已生成合并文件：",
+  download: "下载",
+  errorPrefix: "错误：",
+  errReadAudio: "读取音频时出错。",
+  errNeedAtLeastTwo: "请至少选择 2 个音频文件再进行拼接。",
+  errMergeFailed: "拼接失败，请换一批音频再试。",
+} as const;
+
+type AudioMergerUi = typeof DEFAULT_UI;
+
+const applyTemplate = (template: string, vars: Record<string, string>) =>
+  template.replace(/\{(\w+)\}/g, (m, key: string) => vars[key] ?? m);
 
 const formatTime = (seconds: number): string => {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -71,6 +103,17 @@ const normalizeToStereo = async (buffer: AudioBuffer, sampleRate: number): Promi
 };
 
 export default function AudioMergerClient() {
+  return (
+    <ToolPageLayout toolSlug="audio-merger" maxWidthClassName="max-w-6xl">
+      <AudioMergerInner />
+    </ToolPageLayout>
+  );
+}
+
+function AudioMergerInner() {
+  const config = useOptionalToolConfig("audio-merger");
+  const ui: AudioMergerUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<AudioMergerUi>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [items, setItems] = useState<PickedAudio[]>([]);
@@ -139,7 +182,7 @@ export default function AudioMergerClient() {
         await context.close().catch(() => undefined);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "读取音频时出错。");
+      setError(e instanceof Error ? e.message : ui.errReadAudio);
     } finally {
       setIsProcessing(false);
     }
@@ -147,7 +190,7 @@ export default function AudioMergerClient() {
 
   const merge = async () => {
     if (items.length < 2) {
-      setError("请至少选择 2 个音频文件再进行拼接。");
+      setError(ui.errNeedAtLeastTwo);
       return;
     }
 
@@ -191,29 +234,23 @@ export default function AudioMergerClient() {
         await context.close().catch(() => undefined);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "拼接失败，请换一批音频再试。");
+      setError(e instanceof Error ? e.message : ui.errMergeFailed);
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">音频拼接器</h1>
-        <p className="mt-2 text-sm text-slate-500">多个音频按顺序合并导出 WAV（纯本地处理）</p>
-      </div>
-
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+    <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-slate-900">选择多个音频文件</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.pickTitle}</div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
-              添加文件
+              {ui.addFiles}
             </button>
             <button
               type="button"
@@ -221,7 +258,7 @@ export default function AudioMergerClient() {
               onClick={probeDurations}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              读取时长
+              {ui.probeDurations}
             </button>
           </div>
           <input
@@ -234,18 +271,23 @@ export default function AudioMergerClient() {
           />
         </div>
 
-        {items.length > 0 && (
-          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+	        {items.length > 0 && (
+	          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
             <div className="space-y-3">
-              <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-slate-900">拼接顺序</div>
-                  <div className="text-xs text-slate-500">
-                    {totalDuration === null ? "未读取时长" : `总时长：${formatTime(totalDuration)}（${totalDuration.toFixed(2)}s）`}
+                <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold text-slate-900">{ui.orderTitle}</div>
+                    <div className="text-xs text-slate-500">
+                      {totalDuration === null
+                        ? ui.totalDurationUnknown
+                        : applyTemplate(ui.totalDurationTemplate, {
+                            time: formatTime(totalDuration),
+                            seconds: totalDuration.toFixed(2),
+                          })}
+                    </div>
                   </div>
-                </div>
-                <div className="mt-4 space-y-2">
-                  {items.map((item, index) => (
+                  <div className="mt-4 space-y-2">
+                    {items.map((item, index) => (
                     <div
                       key={item.id}
                       className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-sm ring-1 ring-slate-200"
@@ -255,7 +297,12 @@ export default function AudioMergerClient() {
                           {index + 1}. {item.file.name}
                         </div>
                         <div className="mt-1 text-xs text-slate-500">
-                          {item.durationSec == null ? "时长：-" : `时长：${formatTime(item.durationSec)}（${item.durationSec.toFixed(2)}s）`}
+                          {item.durationSec == null
+                            ? ui.durationUnknown
+                            : applyTemplate(ui.durationTemplate, {
+                                time: formatTime(item.durationSec),
+                                seconds: item.durationSec.toFixed(2),
+                              })}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -265,7 +312,7 @@ export default function AudioMergerClient() {
                           disabled={index === 0 || isProcessing}
                           className="rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100 disabled:opacity-60"
                         >
-                          上移
+                          {ui.moveUp}
                         </button>
                         <button
                           type="button"
@@ -273,7 +320,7 @@ export default function AudioMergerClient() {
                           disabled={index === items.length - 1 || isProcessing}
                           className="rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100 disabled:opacity-60"
                         >
-                          下移
+                          {ui.moveDown}
                         </button>
                         <button
                           type="button"
@@ -281,7 +328,7 @@ export default function AudioMergerClient() {
                           disabled={isProcessing}
                           className="rounded-xl bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 ring-1 ring-rose-100 transition hover:bg-rose-100 disabled:opacity-60"
                         >
-                          移除
+                          {ui.remove}
                         </button>
                       </div>
                     </div>
@@ -292,9 +339,9 @@ export default function AudioMergerClient() {
 
             <div className="space-y-4">
               <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">导出</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.exportTitle}</div>
                 <p className="mt-2 text-xs text-slate-500">
-                  会将所有音频解码并重新编码为 WAV（16-bit PCM，立体声）。文件较大时导出耗时较长。
+                  {ui.exportHint}
                 </p>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <button
@@ -303,7 +350,7 @@ export default function AudioMergerClient() {
                     disabled={isProcessing || items.length < 2}
                     className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
                   >
-                    {isProcessing ? "处理中..." : "合并并导出 WAV"}
+                    {isProcessing ? ui.processing : ui.mergeExport}
                   </button>
                   <button
                     type="button"
@@ -317,30 +364,33 @@ export default function AudioMergerClient() {
                     }}
                     className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
                   >
-                    清空
+                    {ui.clear}
                   </button>
                 </div>
 
                 {downloadUrl && (
                   <div className="mt-4 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                    已生成合并文件：
+                    {ui.generated}
                     <a
                       href={downloadUrl}
                       download={downloadName}
                       className="ml-2 font-semibold underline decoration-emerald-400 underline-offset-2"
                     >
-                      下载 {downloadName}
+                      {ui.download} {downloadName}
                     </a>
                   </div>
                 )}
 
-                {error && <div className="mt-4 text-sm text-rose-600">错误：{error}</div>}
+                {error && (
+                  <div className="mt-4 text-sm text-rose-600">
+                    {ui.errorPrefix}
+                    {error}
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+	          </div>
+	        )}
+	    </div>
+	  );
 }
-

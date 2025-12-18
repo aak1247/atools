@@ -1,8 +1,29 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Mode = "countdown" | "stopwatch";
+
+const DEFAULT_UI = {
+  modeCountdown: "倒计时",
+  modeStopwatch: "秒表",
+  start: "开始",
+  pause: "暂停",
+  reset: "复位",
+  timeRemaining: "剩余时间",
+  timeElapsed: "已用时间",
+  duration: "时长",
+  minutes: "分钟",
+  seconds: "秒",
+  durationLockedHint: "运行中为保证准确性，暂不允许修改时长",
+  presets: "快捷预设",
+  presetMinutesTemplate: "{minutes} 分钟",
+  privacyHint: "提示：所有计时均在浏览器本地完成，不上传任何数据。",
+} as const;
+
+type TimerUi = typeof DEFAULT_UI;
 
 const formatTime = (totalMs: number) => {
   const clamped = Math.max(0, Math.floor(totalMs));
@@ -26,7 +47,13 @@ const clampInt = (value: string, min: number, max: number) => {
   return Math.min(max, Math.max(min, parsed));
 };
 
+const applyTemplate = (template: string, vars: Record<string, string>) =>
+  template.replace(/\{(\w+)\}/g, (m, key: string) => vars[key] ?? m);
+
 export default function TimerClient() {
+  const config = useOptionalToolConfig("timer");
+  const ui: TimerUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<TimerUi>) };
+
   const [mode, setMode] = useState<Mode>("countdown");
 
   const [durationMinutes, setDurationMinutes] = useState(5);
@@ -150,25 +177,16 @@ export default function TimerClient() {
   };
 
   const presets = [
-    { label: "1 分钟", minutes: 1, seconds: 0 },
-    { label: "5 分钟", minutes: 5, seconds: 0 },
-    { label: "10 分钟", minutes: 10, seconds: 0 },
-    { label: "25 分钟", minutes: 25, seconds: 0 },
+    { minutes: 1, seconds: 0 },
+    { minutes: 5, seconds: 0 },
+    { minutes: 10, seconds: 0 },
+    { minutes: 25, seconds: 0 },
   ] as const;
 
   const time = formatTime(mode === "countdown" ? countdownRemainingMs : stopwatchElapsedMs);
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          计时器
-        </h1>
-        <p className="mt-2 text-sm text-slate-500">
-          倒计时与秒表，纯本地运行
-        </p>
-      </div>
-
+    <ToolPageLayout toolSlug="timer" maxWidthClassName="max-w-3xl">
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex rounded-2xl bg-slate-100/60 p-1">
@@ -184,7 +202,7 @@ export default function TimerClient() {
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              倒计时
+              {ui.modeCountdown}
             </button>
             <button
               type="button"
@@ -198,7 +216,7 @@ export default function TimerClient() {
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              秒表
+              {ui.modeStopwatch}
             </button>
           </div>
 
@@ -212,14 +230,14 @@ export default function TimerClient() {
                   : "bg-blue-600 text-white shadow-lg shadow-blue-500/30 hover:bg-blue-700"
               }`}
             >
-              {isRunning ? "暂停" : "开始"}
+              {isRunning ? ui.pause : ui.start}
             </button>
             <button
               type="button"
               onClick={reset}
               className="rounded-2xl px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 active:scale-[0.99]"
             >
-              复位
+              {ui.reset}
             </button>
           </div>
         </div>
@@ -230,17 +248,17 @@ export default function TimerClient() {
             <span className="text-white/70">.{time.ms2}</span>
           </div>
           <div className="mt-3 text-xs text-white/60">
-            {mode === "countdown" ? "剩余时间" : "已用时间"}
+            {mode === "countdown" ? ui.timeRemaining : ui.timeElapsed}
           </div>
         </div>
 
         {mode === "countdown" && (
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
-              <div className="text-sm font-semibold text-slate-900">时长</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.duration}</div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <label className="block">
-                  <div className="text-xs text-slate-500">分钟</div>
+                  <div className="text-xs text-slate-500">{ui.minutes}</div>
                   <input
                     inputMode="numeric"
                     type="number"
@@ -262,7 +280,7 @@ export default function TimerClient() {
                   />
                 </label>
                 <label className="block">
-                  <div className="text-xs text-slate-500">秒</div>
+                  <div className="text-xs text-slate-500">{ui.seconds}</div>
                   <input
                     inputMode="numeric"
                     type="number"
@@ -284,43 +302,45 @@ export default function TimerClient() {
                   />
                 </label>
               </div>
-              <div className="mt-3 text-xs text-slate-500">
-                运行中为保证准确性，暂不允许修改时长
-              </div>
+              <div className="mt-3 text-xs text-slate-500">{ui.durationLockedHint}</div>
             </div>
 
             <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
-              <div className="text-sm font-semibold text-slate-900">快捷预设</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.presets}</div>
               <div className="mt-3 flex flex-wrap gap-2">
-                {presets.map((preset) => (
-                  <button
-                    key={preset.label}
-                    type="button"
-                    disabled={isRunning}
-                    onClick={() => {
-                      setDurationMinutes(preset.minutes);
-                      setDurationSeconds(preset.seconds);
-                      if (!isRunning && mode === "countdown") {
-                        setCountdownRemainingAtPause(
-                          (preset.minutes * 60 + preset.seconds) * 1000,
-                        );
-                      }
-                      reset();
-                    }}
-                    className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
-                  >
-                    {preset.label}
-                  </button>
-                ))}
+                {presets.map((preset) => {
+                  const label = applyTemplate(ui.presetMinutesTemplate, {
+                    minutes: String(preset.minutes),
+                  });
+                  const key = `${preset.minutes}:${preset.seconds}`;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      disabled={isRunning}
+                      onClick={() => {
+                        setDurationMinutes(preset.minutes);
+                        setDurationSeconds(preset.seconds);
+                        if (!isRunning && mode === "countdown") {
+                          setCountdownRemainingAtPause(
+                            (preset.minutes * 60 + preset.seconds) * 1000,
+                          );
+                        }
+                        reset();
+                      }}
+                      className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
         )}
 
-        <div className="mt-6 text-xs text-slate-500">
-          提示：所有计时均在浏览器本地完成，不上传任何数据。
-        </div>
+        <div className="mt-6 text-xs text-slate-500">{ui.privacyHint}</div>
       </div>
-    </div>
+    </ToolPageLayout>
   );
 }

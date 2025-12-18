@@ -99,6 +99,14 @@ const DEFAULT_UI = {
 type Aes256Ui = typeof DEFAULT_UI;
 
 export default function Aes256Client() {
+  return (
+    <ToolPageLayout toolSlug="aes256">
+      <Aes256Inner />
+    </ToolPageLayout>
+  );
+}
+
+function Aes256Inner() {
   const config = useOptionalToolConfig("aes256");
   const ui: Aes256Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Aes256Ui>) };
 
@@ -205,8 +213,7 @@ export default function Aes256Client() {
   };
 
   return (
-    <ToolPageLayout toolSlug="aes256">
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+    <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex rounded-2xl bg-slate-100/60 p-1">
             <button
@@ -405,7 +412,6 @@ export default function Aes256Client() {
         )}
 
         <div className="mt-4 text-xs text-slate-500">{ui.hint}</div>
-      </div>
-    </ToolPageLayout>
+    </div>
   );
 }

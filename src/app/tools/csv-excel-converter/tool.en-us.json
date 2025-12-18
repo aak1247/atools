@@ -12,5 +12,36 @@
     "csv-excel-converter",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "modeCsvToXlsx": "CSV → XLSX",
+    "modeXlsxToCsv": "XLSX → CSV",
+    "csvInputTitle": "CSV Input",
+    "csvExportSettingsTitle": "Export Settings",
+    "csvDelimiterLabel": "Delimiter",
+    "delimiterAuto": "Auto",
+    "delimiterComma": "Comma ,",
+    "delimiterTab": "Tab \\\\t",
+    "delimiterSemicolon": "Semicolon ;",
+    "delimiterPipe": "Pipe |",
+    "skipEmptyLines": "Skip empty lines",
+    "sheetNameLabel": "Sheet name",
+    "chooseCsvFile": "Choose CSV file",
+    "downloadXlsx": "Download XLSX",
+    "xlsxReadSettingsTitle": "Import Settings",
+    "chooseXlsxFile": "Choose XLSX file",
+    "noFileSelected": "No file selected",
+    "sheetLabel": "Worksheet",
+    "outDelimiterLabel": "Output delimiter",
+    "copyCsv": "Copy CSV",
+    "downloadCsv": "Download CSV",
+    "csvOutputTitle": "CSV Output",
+    "csvOutputPlaceholder": "Converted CSV will appear after selecting an XLSX…",
+    "errorPrefix": "Error: ",
+    "privacyHint": "Tip: Everything runs locally in your browser. No files are uploaded.",
+    "errReadXlsxFailed": "Failed to read XLSX",
+    "errInputCsvRequired": "Please paste or type CSV content first.",
+    "errExportFailed": "Export failed",
+    "errSelectXlsxAndSheet": "Please choose an XLSX file and a worksheet first."
+  }
 }

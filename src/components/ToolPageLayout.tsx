@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { getMessages } from "../i18n/messages";
 import { useOptionalI18n } from "../i18n/I18nProvider";
 import type { ToolConfig } from "../types/tools";
+import { ToolConfigProvider } from "./ToolConfigProvider";
 
 interface ToolPageLayoutProps {
   toolSlug: string;
@@ -63,45 +64,47 @@ export default function ToolPageLayout({
   }
 
   return (
-    <div className={`mx-auto ${maxWidth} animate-fade-in-up space-y-8`}>
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-          {customTitle || config.name}
-        </h1>
-        <p className="mt-3 text-sm text-slate-600">
-          {customDescription || config.description}
-        </p>
-        
-        {/* SEO优化的隐藏描述文本 - 仅供搜索引擎索引 */}
-        {config.seoDescription && config.seoDescription !== config.description && (
-          <div className="sr-only" aria-hidden="true">
-            {config.seoDescription}
-          </div>
-        )}
-        
-        {/* 结构化数据 - 帮助搜索引擎理解页面内容 */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              "name": config.name,
-              "description": config.seoDescription || config.description,
-              "url": `/${locale}/tools/${toolSlug}`,
-              "applicationCategory": "UtilityApplication",
-              "operatingSystem": "Web Browser",
-              "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "CNY"
-              },
-              "keywords": config.keywords?.join(", ") || ""
-            })
-          }}
-        />
+    <ToolConfigProvider toolSlug={toolSlug} locale={locale} config={config}>
+      <div className={`mx-auto ${maxWidth} animate-fade-in-up space-y-8`}>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            {customTitle || config.name}
+          </h1>
+          <p className="mt-3 text-sm text-slate-600">
+            {customDescription || config.description}
+          </p>
+
+          {/* SEO优化的隐藏描述文本 - 仅供搜索引擎索引 */}
+          {config.seoDescription && config.seoDescription !== config.description && (
+            <div className="sr-only" aria-hidden="true">
+              {config.seoDescription}
+            </div>
+          )}
+
+          {/* 结构化数据 - 帮助搜索引擎理解页面内容 */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                name: config.name,
+                description: config.seoDescription || config.description,
+                url: `/${locale}/tools/${toolSlug}`,
+                applicationCategory: "UtilityApplication",
+                operatingSystem: "Web Browser",
+                offers: {
+                  "@type": "Offer",
+                  price: "0",
+                  priceCurrency: "CNY",
+                },
+                keywords: config.keywords?.join(", ") || "",
+              }),
+            }}
+          />
+        </div>
+        {isRenderProp ? children({ config, locale }) : children}
       </div>
-      {isRenderProp ? children({ config, locale }) : children}
-    </div>
+    </ToolConfigProvider>
   );
 }

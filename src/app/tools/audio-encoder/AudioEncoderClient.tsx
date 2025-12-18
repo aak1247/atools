@@ -4,6 +4,8 @@ import type { ChangeEvent } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type OutputFormat = "mp3" | "wav" | "m4a" | "ogg" | "flac";
 
@@ -26,6 +28,43 @@ type SampleRateChoice = "keep" | "custom" | SampleRatePreset;
 
 const SAMPLE_RATE_MIN = 8000;
 const SAMPLE_RATE_MAX = 384000;
+
+const DEFAULT_UI = {
+  pickTitle: "选择音频文件",
+  pickFile: "选择文件",
+  clear: "清空",
+  firstLoadHint: "提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。",
+  file: "文件",
+  ffmpegReady: "FFmpeg 已就绪",
+  ffmpegLoading: "加载中...",
+  loadFfmpeg: "加载 FFmpeg",
+  parseInfo: "解析格式信息",
+  container: "容器",
+  duration: "时长",
+  bitrate: "比特率",
+  audioCodec: "音频编码",
+  sampleRate: "采样率",
+  channels: "声道",
+  transcodeSettings: "转码设置",
+  outputFormat: "输出格式",
+  keepOriginal: "保持原始",
+  custom: "自定义…",
+  customSampleRatePlaceholder: "例如 44100",
+  channelMono: "单声道",
+  channelStereo: "双声道",
+  bitrateKbps: "码率（kbps）",
+  startTranscode: "开始转码",
+  processing: "处理中...",
+  download: "下载",
+  progress: "进度",
+  ffmpegLogs: "FFmpeg 日志",
+  logsPlaceholder: "日志会显示在这里…",
+  errFfmpegLoadFailed: "FFmpeg 加载失败。",
+  errParseFailed: "解析失败。",
+  errTranscodeFailed: "转码失败（可能是该输出编码器未内置或浏览器资源不足）。",
+} as const;
+
+type AudioEncoderUi = typeof DEFAULT_UI;
 
 const formatSeconds = (seconds: number | undefined): string => {
   if (!seconds || !Number.isFinite(seconds) || seconds <= 0) return "-";
@@ -81,6 +120,17 @@ const parseInfoFromLog = (logText: string): ParsedInfo => {
 };
 
 export default function AudioEncoderClient() {
+  return (
+    <ToolPageLayout toolSlug="audio-encoder" maxWidthClassName="max-w-6xl">
+      <AudioEncoderInner />
+    </ToolPageLayout>
+  );
+}
+
+function AudioEncoderInner() {
+  const config = useOptionalToolConfig("audio-encoder");
+  const ui: AudioEncoderUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<AudioEncoderUi>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const logRef = useRef<string[]>([]);
@@ -142,7 +192,7 @@ export default function AudioEncoderClient() {
       setFfmpegState("ready");
     } catch (e) {
       setFfmpegState("error");
-      setFfmpegError(e instanceof Error ? e.message : "FFmpeg 加载失败。");
+      setFfmpegError(e instanceof Error ? e.message : ui.errFfmpegLoadFailed);
     }
   };
 
@@ -195,7 +245,7 @@ export default function AudioEncoderClient() {
       setParsed(parseInfoFromLog(text));
     } catch (e) {
       setParsed(null);
-      setFfmpegError(e instanceof Error ? e.message : "解析失败。");
+      setFfmpegError(e instanceof Error ? e.message : ui.errParseFailed);
       setFfmpegState("error");
     } finally {
       setIsWorking(false);
@@ -254,7 +304,7 @@ export default function AudioEncoderClient() {
       setFfmpegError(
         e instanceof Error
           ? e.message
-          : "转码失败（可能是该输出编码器未内置或浏览器资源不足）。",
+          : ui.errTranscodeFailed,
       );
       setFfmpegState("error");
     } finally {
@@ -279,22 +329,16 @@ export default function AudioEncoderClient() {
   const showBitrate = outputFormat === "mp3" || outputFormat === "m4a" || outputFormat === "ogg";
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">音频编码与格式解析</h1>
-        <p className="mt-2 text-sm text-slate-500">基于 ffmpeg.wasm：解析音频信息 + 转码导出（纯本地处理）</p>
-      </div>
-
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+    <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-slate-900">选择音频文件</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.pickTitle}</div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
-              选择文件
+              {ui.pickFile}
             </button>
             <button
               type="button"
@@ -302,14 +346,14 @@ export default function AudioEncoderClient() {
               disabled={!file && ffmpegState === "idle"}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              清空
+              {ui.clear}
             </button>
             <input ref={inputRef} type="file" accept="audio/*" className="hidden" onChange={onChange} />
           </div>
         </div>
 
         <div className="mt-4 rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200 text-xs text-slate-600">
-          提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。
+          {ui.firstLoadHint}
         </div>
 
         {file && (
@@ -317,7 +361,7 @@ export default function AudioEncoderClient() {
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm font-semibold text-slate-900">文件</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.file}</div>
                   <div className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
                 </div>
                 <div className="mt-3 text-sm text-slate-800 break-all">{file.name}</div>
@@ -328,7 +372,11 @@ export default function AudioEncoderClient() {
                     disabled={ffmpegState === "ready" || ffmpegState === "loading"}
                     className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
                   >
-                    {ffmpegState === "ready" ? "FFmpeg 已就绪" : ffmpegState === "loading" ? "加载中..." : "加载 FFmpeg"}
+                    {ffmpegState === "ready"
+                      ? ui.ffmpegReady
+                      : ffmpegState === "loading"
+                        ? ui.ffmpegLoading
+                        : ui.loadFfmpeg}
                   </button>
                   <button
                     type="button"
@@ -336,38 +384,38 @@ export default function AudioEncoderClient() {
                     disabled={ffmpegState !== "ready" || isWorking}
                     className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
                   >
-                    解析格式信息
+                    {ui.parseInfo}
                   </button>
                 </div>
 
                 {parsed && (
                   <div className="mt-4 grid gap-2 text-sm text-slate-700">
                     <div className="flex justify-between rounded-2xl bg-slate-50 px-4 py-2 ring-1 ring-slate-200">
-                      <span className="text-slate-500">容器</span>
+                      <span className="text-slate-500">{ui.container}</span>
                       <span className="font-semibold text-slate-900">{parsed.container ?? "-"}</span>
                     </div>
                     <div className="flex justify-between rounded-2xl bg-slate-50 px-4 py-2 ring-1 ring-slate-200">
-                      <span className="text-slate-500">时长</span>
+                      <span className="text-slate-500">{ui.duration}</span>
                       <span className="font-semibold text-slate-900">{formatSeconds(parsed.durationSec)}</span>
                     </div>
                     <div className="flex justify-between rounded-2xl bg-slate-50 px-4 py-2 ring-1 ring-slate-200">
-                      <span className="text-slate-500">比特率</span>
+                      <span className="text-slate-500">{ui.bitrate}</span>
                       <span className="font-semibold text-slate-900">
                         {parsed.bitrateKbps ? `${Math.round(parsed.bitrateKbps)} kb/s` : "-"}
                       </span>
                     </div>
                     <div className="flex justify-between rounded-2xl bg-slate-50 px-4 py-2 ring-1 ring-slate-200">
-                      <span className="text-slate-500">音频编码</span>
+                      <span className="text-slate-500">{ui.audioCodec}</span>
                       <span className="font-semibold text-slate-900">{parsed.audioCodec ?? "-"}</span>
                     </div>
                     <div className="flex justify-between rounded-2xl bg-slate-50 px-4 py-2 ring-1 ring-slate-200">
-                      <span className="text-slate-500">采样率</span>
+                      <span className="text-slate-500">{ui.sampleRate}</span>
                       <span className="font-semibold text-slate-900">
                         {parsed.sampleRateHz ? `${parsed.sampleRateHz} Hz` : "-"}
                       </span>
                     </div>
                     <div className="flex justify-between rounded-2xl bg-slate-50 px-4 py-2 ring-1 ring-slate-200">
-                      <span className="text-slate-500">声道</span>
+                      <span className="text-slate-500">{ui.channels}</span>
                       <span className="font-semibold text-slate-900">{parsed.channels ?? "-"}</span>
                     </div>
                   </div>
@@ -377,10 +425,10 @@ export default function AudioEncoderClient() {
 
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">转码设置</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.transcodeSettings}</div>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <label className="block text-sm text-slate-700">
-                    输出格式
+                    {ui.outputFormat}
                     <select
                       value={outputFormat}
                       onChange={(e) => setOutputFormat(e.target.value as OutputFormat)}
@@ -395,7 +443,7 @@ export default function AudioEncoderClient() {
                   </label>
 
                   <label className="block text-sm text-slate-700">
-                    采样率
+                    {ui.sampleRate}
                     <select
                       value={sampleRateChoice}
                       onChange={(e) => {
@@ -408,13 +456,13 @@ export default function AudioEncoderClient() {
                       }}
                       className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      <option value="keep">保持原始</option>
+                      <option value="keep">{ui.keepOriginal}</option>
                       {SAMPLE_RATE_PRESETS.map((rate) => (
                         <option key={rate} value={rate}>
                           {rate} Hz
                         </option>
                       ))}
-                      <option value="custom">自定义…</option>
+                      <option value="custom">{ui.custom}</option>
                     </select>
                     {sampleRateChoice === "custom" && (
                       <input
@@ -425,26 +473,26 @@ export default function AudioEncoderClient() {
                         value={customSampleRate}
                         onChange={(e) => setCustomSampleRate(Number(e.target.value))}
                         className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                        placeholder="例如 44100"
+                        placeholder={ui.customSampleRatePlaceholder}
                       />
                     )}
                   </label>
 
                   <label className="block text-sm text-slate-700">
-                    声道
+                    {ui.channels}
                     <select
                       value={channels}
                       onChange={(e) => setChannels(e.target.value === "keep" ? "keep" : (Number(e.target.value) as 1 | 2))}
                       className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      <option value="keep">保持原始</option>
-                      <option value={1}>单声道</option>
-                      <option value={2}>双声道</option>
+                      <option value="keep">{ui.keepOriginal}</option>
+                      <option value={1}>{ui.channelMono}</option>
+                      <option value={2}>{ui.channelStereo}</option>
                     </select>
                   </label>
 
                   <label className={`block text-sm text-slate-700 ${showBitrate ? "" : "opacity-60"}`}>
-                    码率（kbps）
+                    {ui.bitrateKbps}
                     <input
                       type="number"
                       min={32}
@@ -465,7 +513,7 @@ export default function AudioEncoderClient() {
                     disabled={ffmpegState !== "ready" || isWorking}
                     className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
                   >
-                    {isWorking ? "处理中..." : "开始转码"}
+                    {isWorking ? ui.processing : ui.startTranscode}
                   </button>
                   {downloadUrl && (
                     <a
@@ -473,7 +521,7 @@ export default function AudioEncoderClient() {
                       download={downloadName}
                       className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                     >
-                      下载 {downloadName}
+                      {ui.download} {downloadName}
                     </a>
                   )}
                 </div>
@@ -481,7 +529,7 @@ export default function AudioEncoderClient() {
                 {progress != null && (
                   <div className="mt-4">
                     <div className="flex items-center justify-between text-xs text-slate-600">
-                      <span>进度</span>
+                      <span>{ui.progress}</span>
                       <span>{Math.round(progress * 100)}%</span>
                     </div>
                     <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
@@ -498,11 +546,11 @@ export default function AudioEncoderClient() {
               </div>
 
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">FFmpeg 日志</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.ffmpegLogs}</div>
                 <textarea
                   value={logs}
                   readOnly
-                  placeholder="日志会显示在这里…"
+                  placeholder={ui.logsPlaceholder}
                   className="mt-3 h-64 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
                 />
               </div>
@@ -510,6 +558,5 @@ export default function AudioEncoderClient() {
           </div>
         )}
       </div>
-    </div>
   );
 }

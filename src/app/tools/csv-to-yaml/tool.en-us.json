@@ -12,5 +12,24 @@
     "csv-to-yaml",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "delimiterLabel": "Delimiter",
+    "delimiterAuto": "Auto",
+    "delimiterComma": "Comma ,",
+    "delimiterTab": "Tab \\\\t",
+    "delimiterSemicolon": "Semicolon ;",
+    "delimiterPipe": "Pipe |",
+    "hasHeader": "First row as header",
+    "skipEmptyLines": "Skip empty lines",
+    "chooseCsvFile": "Choose CSV file",
+    "copyYaml": "Copy YAML",
+    "downloadYaml": "Download YAML",
+    "csvInputTitle": "CSV Input",
+    "yamlOutputTitle": "YAML Output",
+    "detectedDelimiterTemplate": "Detected delimiter: {delimiter}",
+    "autoDetectHint": "Tip: Auto mode tries to detect common delimiters.",
+    "errorPrefix": "Error: ",
+    "errConvertFailed": "Conversion failed"
+  }
 }

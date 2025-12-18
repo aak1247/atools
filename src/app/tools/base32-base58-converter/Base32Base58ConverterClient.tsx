@@ -5,20 +5,36 @@ import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type Format = "utf8" | "hex" | "base32" | "base58";
 
-const bytesToHex = (bytes: Uint8Array) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+const DEFAULT_UI = {
+  fromFormat: "输入格式",
+  toFormat: "输出格式",
+  optionUtf8: "UTF-8 文本",
+  optionHex: "Hex",
+  optionBase32: "Base32",
+  optionBase58: "Base58",
+  base32Padding: "Base32 填充",
+  copyOutput: "复制输出",
+  inputTitle: "输入",
+  outputTitle: "输出",
+  hint: "提示：Base58 使用 Bitcoin 字母表；Base32 使用 RFC4648 字母表（A-Z2-7）。",
+  bytesCountTemplate: "字节数：{count}",
+  hexLabel: "Hex：",
+  utf8Label: "UTF-8：",
+  utf8DecodeFailed: "（无法解码）",
+  errorPrefix: "错误：",
+  errHexOddLength: "Hex 长度必须为偶数（每 2 位一个字节）。",
+  errHexInvalidChar: "Hex 包含无效字符。",
+  errBase32InvalidCharTemplate: "Base32 包含无效字符：{ch}",
+  errBase58InvalidCharTemplate: "Base58 包含无效字符：{ch}",
+  errConvertFailed: "转换失败",
+} as const;
 
-const hexToBytes = (hex: string) => {
-  const normalized = hex.trim().replace(/^0x/i, "").replace(/\s+/g, "");
-  if (normalized.length === 0) return new Uint8Array();
-  if (normalized.length % 2 !== 0) throw new Error("Hex 长度必须为偶数（每 2 位一个字节）。");
-  const out = new Uint8Array(normalized.length / 2);
-  for (let i = 0; i < out.length; i += 1) {
-    const byte = Number.parseInt(normalized.slice(i * 2, i * 2 + 2), 16);
-    if (!Number.isFinite(byte)) throw new Error("Hex 包含无效字符。");
-    out[i] = byte;
-  }
-  return out;
-};
+type Base32Base58ConverterUi = typeof DEFAULT_UI;
+
+const applyTemplate = (template: string, vars: Record<string, string>) =>
+  template.replace(/\{(\w+)\}/g, (m, key: string) => vars[key] ?? m);
+
+const bytesToHex = (bytes: Uint8Array) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 
 const base32Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
@@ -39,31 +55,6 @@ const base32Encode = (bytes: Uint8Array, withPadding: boolean) => {
     while (out.length % 8 !== 0) out += "=";
   }
   return out;
-};
-
-const base32Decode = (input: string) => {
-  const normalized = input
-    .trim()
-    .toUpperCase()
-    .replace(/\s+/g, "")
-    .replace(/=+$/g, "");
-
-  let buffer = 0;
-  let bits = 0;
-  const out: number[] = [];
-
-  for (const ch of normalized) {
-    const idx = base32Alphabet.indexOf(ch);
-    if (idx < 0) throw new Error(`Base32 包含无效字符：${ch}`);
-    buffer = (buffer << 5) | idx;
-    bits += 5;
-    if (bits >= 8) {
-      out.push((buffer >> (bits - 8)) & 0xff);
-      bits -= 8;
-    }
-  }
-
-  return new Uint8Array(out);
 };
 
 const base58Alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -89,37 +80,6 @@ const base58Encode = (bytes: Uint8Array) => {
   return "1".repeat(zeros) + digits.reverse().map((d) => base58Alphabet[d] ?? "").join("");
 };
 
-const base58Decode = (input: string) => {
-  const normalized = input.trim().replace(/\s+/g, "");
-  if (!normalized) return new Uint8Array();
-
-  let zeros = 0;
-  while (zeros < normalized.length && normalized[zeros] === "1") zeros += 1;
-
-  const bytes: number[] = [0];
-  for (let i = zeros; i < normalized.length; i += 1) {
-    const ch = normalized[i] ?? "";
-    const val = base58Alphabet.indexOf(ch);
-    if (val < 0) throw new Error(`Base58 包含无效字符：${ch}`);
-
-    let carry = val;
-    for (let j = 0; j < bytes.length; j += 1) {
-      const n = (bytes[j] ?? 0) * 58 + carry;
-      bytes[j] = n & 0xff;
-      carry = n >> 8;
-    }
-    while (carry > 0) {
-      bytes.push(carry & 0xff);
-      carry >>= 8;
-    }
-  }
-
-  const out = new Uint8Array(zeros + bytes.length);
-  out.fill(0, 0, zeros);
-  out.set(bytes.reverse(), zeros);
-  return out;
-};
-
 const encodeBytes = (bytes: Uint8Array, format: Format, base32Padding: boolean) => {
   if (format === "hex") return bytesToHex(bytes);
   if (format === "base32") return base32Encode(bytes, base32Padding);
@@ -127,18 +87,102 @@ const encodeBytes = (bytes: Uint8Array, format: Format, base32Padding: boolean) 
   return new TextDecoder().decode(bytes);
 };
 
-const decodeToBytes = (text: string, format: Format) => {
-  if (format === "hex") return hexToBytes(text);
-  if (format === "base32") return base32Decode(text);
-  if (format === "base58") return base58Decode(text);
-  return new TextEncoder().encode(text);
-};
-
 export default function Base32Base58ConverterClient() {
+  return (
+    <ToolPageLayout toolSlug="base32-base58-converter">
+      {({ config }) => (
+        <Base32Base58ConverterInner
+          ui={{
+            ...DEFAULT_UI,
+            ...((config.ui as Partial<Base32Base58ConverterUi> | undefined) ?? {}),
+          }}
+        />
+      )}
+    </ToolPageLayout>
+  );
+}
+
+function Base32Base58ConverterInner({ ui }: { ui: Base32Base58ConverterUi }) {
   const [from, setFrom] = useState<Format>("utf8");
   const [to, setTo] = useState<Format>("base58");
   const [base32Padding, setBase32Padding] = useState(true);
   const [input, setInput] = useState("hello world");
+
+  const hexToBytes = (hex: string) => {
+    const normalized = hex.trim().replace(/^0x/i, "").replace(/\s+/g, "");
+    if (normalized.length === 0) return new Uint8Array();
+    if (normalized.length % 2 !== 0) throw new Error(ui.errHexOddLength);
+    const out = new Uint8Array(normalized.length / 2);
+    for (let i = 0; i < out.length; i += 1) {
+      const byte = Number.parseInt(normalized.slice(i * 2, i * 2 + 2), 16);
+      if (!Number.isFinite(byte)) throw new Error(ui.errHexInvalidChar);
+      out[i] = byte;
+    }
+    return out;
+  };
+
+  const base32Decode = (text: string) => {
+    const normalized = text
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "")
+      .replace(/=+$/g, "");
+
+    let buffer = 0;
+    let bits = 0;
+    const out: number[] = [];
+
+    for (const ch of normalized) {
+      const idx = base32Alphabet.indexOf(ch);
+      if (idx < 0) throw new Error(applyTemplate(ui.errBase32InvalidCharTemplate, { ch }));
+      buffer = (buffer << 5) | idx;
+      bits += 5;
+      if (bits >= 8) {
+        out.push((buffer >> (bits - 8)) & 0xff);
+        bits -= 8;
+      }
+    }
+
+    return new Uint8Array(out);
+  };
+
+  const base58Decode = (text: string) => {
+    const normalized = text.trim().replace(/\s+/g, "");
+    if (!normalized) return new Uint8Array();
+
+    let zeros = 0;
+    while (zeros < normalized.length && normalized[zeros] === "1") zeros += 1;
+
+    const bytes: number[] = [0];
+    for (let i = zeros; i < normalized.length; i += 1) {
+      const ch = normalized[i] ?? "";
+      const val = base58Alphabet.indexOf(ch);
+      if (val < 0) throw new Error(applyTemplate(ui.errBase58InvalidCharTemplate, { ch }));
+
+      let carry = val;
+      for (let j = 0; j < bytes.length; j += 1) {
+        const n = (bytes[j] ?? 0) * 58 + carry;
+        bytes[j] = n & 0xff;
+        carry = n >> 8;
+      }
+      while (carry > 0) {
+        bytes.push(carry & 0xff);
+        carry >>= 8;
+      }
+    }
+
+    const out = new Uint8Array(zeros + bytes.length);
+    out.fill(0, 0, zeros);
+    out.set(bytes.reverse(), zeros);
+    return out;
+  };
+
+  const decodeToBytes = (text: string, format: Format) => {
+    if (format === "hex") return hexToBytes(text);
+    if (format === "base32") return base32Decode(text);
+    if (format === "base58") return base58Decode(text);
+    return new TextEncoder().encode(text);
+  };
 
   const result = useMemo(() => {
     try {
@@ -154,109 +198,107 @@ export default function Base32Base58ConverterClient() {
       })();
       return { ok: true as const, out, bytes, hex, utf8 };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : "转换失败" };
+      return { ok: false as const, error: e instanceof Error ? e.message : ui.errConvertFailed };
     }
-  }, [base32Padding, from, input, to]);
+  }, [base32Padding, decodeToBytes, from, input, to, ui.errConvertFailed]);
 
   const copy = async (value: string) => {
     await navigator.clipboard.writeText(value);
   };
 
   return (
-    <ToolPageLayout toolSlug="base32-base58-converter">
-      <div className="w-full px-4">
-        <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                输入格式
-                <select
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value as Format)}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                >
-                  <option value="utf8">UTF-8 文本</option>
-                  <option value="hex">Hex</option>
-                  <option value="base32">Base32</option>
-                  <option value="base58">Base58</option>
-                </select>
-              </label>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                输出格式
-                <select
-                  value={to}
-                  onChange={(e) => setTo(e.target.value as Format)}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                >
-                  <option value="utf8">UTF-8 文本</option>
-                  <option value="hex">Hex</option>
-                  <option value="base32">Base32</option>
-                  <option value="base58">Base58</option>
-                </select>
-              </label>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                Base32 填充
-                <input
-                  type="checkbox"
-                  checked={base32Padding}
-                  onChange={(e) => setBase32Padding(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300"
-                />
-              </label>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => void copy(result.ok ? result.out : "")}
-              disabled={!result.ok || !result.out}
-              className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
-            >
-              复制输出
-            </button>
+    <div className="mt-8 w-full px-4">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              {ui.fromFormat}
+              <select
+                value={from}
+                onChange={(e) => setFrom(e.target.value as Format)}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+              >
+                <option value="utf8">{ui.optionUtf8}</option>
+                <option value="hex">{ui.optionHex}</option>
+                <option value="base32">{ui.optionBase32}</option>
+                <option value="base58">{ui.optionBase58}</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              {ui.toFormat}
+              <select
+                value={to}
+                onChange={(e) => setTo(e.target.value as Format)}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+              >
+                <option value="utf8">{ui.optionUtf8}</option>
+                <option value="hex">{ui.optionHex}</option>
+                <option value="base32">{ui.optionBase32}</option>
+                <option value="base58">{ui.optionBase58}</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              {ui.base32Padding}
+              <input
+                type="checkbox"
+                checked={base32Padding}
+                onChange={(e) => setBase32Padding(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+            </label>
           </div>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">输入</div>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className="mt-3 h-64 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-              />
-              <div className="mt-3 text-xs text-slate-500">
-                提示：Base58 使用 Bitcoin 字母表；Base32 使用 RFC4648 字母表（A-Z2-7）。
-              </div>
-            </div>
+          <button
+            type="button"
+            onClick={() => void copy(result.ok ? result.out : "")}
+            disabled={!result.ok || !result.out}
+            className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
+          >
+            {ui.copyOutput}
+          </button>
+        </div>
 
-            <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">输出</div>
-              </div>
-              <textarea
-                value={result.ok ? result.out : ""}
-                readOnly
-                className="h-64 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-              />
-              {result.ok ? (
-                <div className="mt-3 grid gap-2 text-xs text-slate-600 sm:grid-cols-2">
-                  <div>字节数：{result.bytes.byteLength}</div>
-                  <div className="sm:col-span-2">
-                    Hex：<span className="font-mono break-all">{result.hex}</span>
-                  </div>
-                  <div className="sm:col-span-2">
-                    UTF-8：<span className="font-mono break-all">{result.utf8 ?? "（无法解码）"}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-3 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-100">
-                  错误：{result.error}
-                </div>
-              )}
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+            <div className="text-sm font-semibold text-slate-900">{ui.inputTitle}</div>
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="mt-3 h-64 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+            />
+            <div className="mt-3 text-xs text-slate-500">{ui.hint}</div>
+          </div>
+
+          <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="text-sm font-semibold text-slate-900">{ui.outputTitle}</div>
             </div>
+            <textarea
+              value={result.ok ? result.out : ""}
+              readOnly
+              className="h-64 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
+            />
+            {result.ok ? (
+              <div className="mt-3 grid gap-2 text-xs text-slate-600 sm:grid-cols-2">
+                <div>{applyTemplate(ui.bytesCountTemplate, { count: String(result.bytes.byteLength) })}</div>
+                <div className="sm:col-span-2">
+                  {ui.hexLabel}
+                  <span className="font-mono break-all">{result.hex}</span>
+                </div>
+                <div className="sm:col-span-2">
+                  {ui.utf8Label}
+                  <span className="font-mono break-all">{result.utf8 ?? ui.utf8DecodeFailed}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-100">
+                {ui.errorPrefix}
+                {result.error}
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </ToolPageLayout>
+    </div>
   );
 }
-

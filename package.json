@@ -22,6 +22,7 @@
     "@ffmpeg/core": "0.12.6",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "cbor-x": "^1.6.0",
     "crypto-js": "^4.2.0",
     "fabric": "^6.9.0",
     "fflate": "^0.8.2",

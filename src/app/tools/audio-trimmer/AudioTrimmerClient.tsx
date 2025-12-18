@@ -2,6 +2,36 @@
 
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+
+const DEFAULT_UI = {
+  pickTitle: "选择音频文件",
+  pickFile: "选择文件",
+  previewTitle: "预览",
+  durationTemplate: "时长：{time}（{seconds}s）",
+  rangeTitle: "裁剪范围",
+  startSeconds: "开始（秒）",
+  endSeconds: "结束（秒）",
+  selectedSegmentTemplate: "选中片段：{time}（{seconds}s）",
+  exportTitle: "导出",
+  exportHint: "导出为 WAV（16-bit PCM）。长音频导出会占用较多内存。",
+  exportWav: "导出 WAV",
+  processing: "处理中...",
+  clear: "清空",
+  generated: "已生成剪辑文件：",
+  download: "下载",
+  errorPrefix: "错误：",
+  hint: "提示：不同浏览器对音频解码支持不同；如导出失败，建议先转为常见格式（MP3/WAV）后再试。",
+  errChooseFile: "请先选择一个音频文件。",
+  errEndAfterStart: "结束时间必须大于开始时间。",
+  errProcessFailed: "处理音频失败，请换一个文件试试。",
+} as const;
+
+type AudioTrimmerUi = typeof DEFAULT_UI;
+
+const applyTemplate = (template: string, vars: Record<string, string>) =>
+  template.replace(/\{(\w+)\}/g, (m, key: string) => vars[key] ?? m);
 
 const formatTime = (seconds: number): string => {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -69,6 +99,17 @@ const encodeWav = (audio: AudioBuffer): Blob => {
 };
 
 export default function AudioTrimmerClient() {
+  return (
+    <ToolPageLayout toolSlug="audio-trimmer" maxWidthClassName="max-w-6xl">
+      <AudioTrimmerInner />
+    </ToolPageLayout>
+  );
+}
+
+function AudioTrimmerInner() {
+  const config = useOptionalToolConfig("audio-trimmer");
+  const ui: AudioTrimmerUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<AudioTrimmerUi>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -129,11 +170,11 @@ export default function AudioTrimmerClient() {
 
   const exportWav = async () => {
     if (!file) {
-      setError("请先选择一个音频文件。");
+      setError(ui.errChooseFile);
       return;
     }
     if (!(end > start)) {
-      setError("结束时间必须大于开始时间。");
+      setError(ui.errEndAfterStart);
       return;
     }
     setIsProcessing(true);
@@ -167,28 +208,22 @@ export default function AudioTrimmerClient() {
         await context.close().catch(() => undefined);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "处理音频失败，请换一个文件试试。");
+      setError(e instanceof Error ? e.message : ui.errProcessFailed);
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-10 animate-fade-in-up">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">音频剪辑器</h1>
-        <p className="mt-2 text-sm text-slate-500">设置起止时间，导出 WAV（纯本地处理，不上传）</p>
-      </div>
-
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+    <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-slate-900">选择音频文件</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.pickTitle}</div>
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
             className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            选择文件
+            {ui.pickFile}
           </button>
           <input
             ref={inputRef}
@@ -203,20 +238,20 @@ export default function AudioTrimmerClient() {
           <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">预览</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.previewTitle}</div>
                 <div className="mt-3">
                   <audio ref={audioRef} src={objectUrl} controls className="w-full" onLoadedMetadata={onLoadedMeta} />
                 </div>
                 <div className="mt-2 text-xs text-slate-500">
-                  时长：{formatTime(duration)}（{duration.toFixed(2)}s）
+                  {applyTemplate(ui.durationTemplate, { time: formatTime(duration), seconds: duration.toFixed(2) })}
                 </div>
               </div>
 
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">裁剪范围</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.rangeTitle}</div>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <label className="block text-sm text-slate-700">
-                    开始（秒）
+                    {ui.startSeconds}
                     <input
                       type="number"
                       min={0}
@@ -228,7 +263,7 @@ export default function AudioTrimmerClient() {
                     />
                   </label>
                   <label className="block text-sm text-slate-700">
-                    结束（秒）
+                    {ui.endSeconds}
                     <input
                       type="number"
                       min={0}
@@ -261,7 +296,10 @@ export default function AudioTrimmerClient() {
                     className="mt-2 w-full"
                   />
                   <div className="mt-2 text-xs text-slate-500">
-                    选中片段：{formatTime(Math.max(0, end - start))}（{Math.max(0, end - start).toFixed(2)}s）
+                    {applyTemplate(ui.selectedSegmentTemplate, {
+                      time: formatTime(Math.max(0, end - start)),
+                      seconds: Math.max(0, end - start).toFixed(2),
+                    })}
                   </div>
                 </div>
               </div>
@@ -269,9 +307,9 @@ export default function AudioTrimmerClient() {
 
             <div className="space-y-4">
               <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">导出</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.exportTitle}</div>
                 <p className="mt-2 text-xs text-slate-500">
-                  导出为 WAV（16-bit PCM）。长音频导出会占用较多内存。
+                  {ui.exportHint}
                 </p>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <button
@@ -280,7 +318,7 @@ export default function AudioTrimmerClient() {
                     onClick={exportWav}
                     className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
                   >
-                    {isProcessing ? "处理中..." : "导出 WAV"}
+                    {isProcessing ? ui.processing : ui.exportWav}
                   </button>
                   <button
                     type="button"
@@ -298,33 +336,37 @@ export default function AudioTrimmerClient() {
                     }}
                     className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
                   >
-                    清空
+                    {ui.clear}
                   </button>
                 </div>
 
                 {downloadUrl && (
                   <div className="mt-4 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                    已生成剪辑文件：
+                    {ui.generated}
                     <a
                       href={downloadUrl}
                       download={downloadName}
                       className="ml-2 font-semibold underline decoration-emerald-400 underline-offset-2"
                     >
-                      下载 {downloadName}
+                      {ui.download} {downloadName}
                     </a>
                   </div>
                 )}
 
-                {error && <div className="mt-4 text-sm text-rose-600">错误：{error}</div>}
+                {error && (
+                  <div className="mt-4 text-sm text-rose-600">
+                    {ui.errorPrefix}
+                    {error}
+                  </div>
+                )}
               </div>
 
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200 text-xs text-slate-500">
-                提示：不同浏览器对音频解码支持不同；如导出失败，建议先转为常见格式（MP3/WAV）后再试。
+                {ui.hint}
               </div>
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 }

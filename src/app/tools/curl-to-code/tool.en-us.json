@@ -12,5 +12,17 @@
     "curl-to-code",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "copyCode": "Copy code",
+    "curlInputTitle": "cURL Input",
+    "generatedCodeTitle": "Generated code",
+    "generatedCodePlaceholder": "Generated code will appear here after parsing…",
+    "methodLabel": "Method: ",
+    "urlLabel": "URL: ",
+    "note": "Tip: This is a lightweight parser. Complex cURL commands (multipart uploads, certs, proxies, etc.) may need manual tweaks.",
+    "errorPrefix": "Error: ",
+    "errEmpty": "Please paste a cURL command.",
+    "errNoUrl": "No URL detected. Make sure your cURL command includes a request URL."
+  }
 }

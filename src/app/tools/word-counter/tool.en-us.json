@@ -5,6 +5,21 @@
   "seoDescription": "The ultimate free online Word Counter — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Word Counter on any device, this is the one you bookmark and share.",
   "category": "Utilities",
   "lang": "en-US",
+  "ui": {
+    "inputTitle": "Input",
+    "inputPlaceholder": "Enter text…",
+    "initialText": "Type or paste text here…\nHello world!",
+    "statsTitle": "Stats",
+    "copy": "Copy",
+    "labelValueSeparator": ": ",
+    "totalChars": "Characters (with spaces)",
+    "charsNoSpace": "Characters (no spaces)",
+    "words": "Words",
+    "lines": "Lines",
+    "chineseChars": "Chinese characters",
+    "bytes": "UTF-8 bytes",
+    "note": "Note: Words are split by whitespace; Chinese characters are counted by a rough Unicode range check."
+  },
   "keywords": [
     "free online Word Counter",
     "Word Counter tool",
