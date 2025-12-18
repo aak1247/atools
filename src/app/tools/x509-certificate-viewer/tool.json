@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 X.509 证书解析查看器 - 纯粹工具站",
+  "shortName": "证书解析",
+  "description": "免费在线 X.509 证书解析查看器：支持 PEM/DER，展示 Subject/Issuer/有效期/指纹/SAN 等信息，纯前端本地处理。",
+  "seoDescription": "免费在线 X.509 证书解析查看器，支持上传或粘贴 PEM/DER 证书（含证书链），解析并展示 Subject、Issuer、序列号、签名算法、公钥算法、有效期、SHA 指纹以及 SAN（域名/IP/URI/Email）。纯前端本地运行不上传证书内容，适合 HTTPS 证书排查与开发调试。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["X509证书解析", "PEM解析", "DER解析", "证书查看", "SAN解析"]
+}
+

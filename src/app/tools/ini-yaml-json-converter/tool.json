@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 INI YAML JSON 互转工具 - 纯粹工具站",
+  "shortName": "配置互转",
+  "description": "免费在线 INI/YAML/JSON 互转工具：格式校验、JSON 美化/压缩、互换输入输出，纯前端本地处理。",
+  "seoDescription": "免费在线 INI/YAML/JSON 互转工具，支持 INI、YAML、JSON 之间的相互转换，提供基础格式校验、JSON 美化/压缩与一键复制输出。纯前端本地运行不上传内容，适合配置文件转换、开发调试与快速验证。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["INI转JSON", "YAML转JSON", "JSON转YAML", "配置转换", "格式校验"]
+}
+

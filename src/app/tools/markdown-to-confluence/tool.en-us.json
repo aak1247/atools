@@ -1,0 +1,32 @@
+{
+  "name": "Free Online Markdown to Confluence Converter - ATools",
+  "shortName": "Markdown to Confluence",
+  "description": "Free online Markdown to Confluence format converter with real-time preview and one-click copy, all processing completed locally in browser.",
+  "seoDescription": "Professional developer's essential free Markdown to Confluence conversion tool - ATools - Supports complete Markdown syntax conversion including headers, lists, tables, code blocks, links, images and all other elements. Real-time preview of conversion effects, supports both Confluence Wiki Markup and Storage Format. One-click copy of formatted text, perfectly supports GitHub README, technical docs, API documentation and other scenario conversions. Fast processing speed, high conversion accuracy, maintains original format structure. Completely local conversion, no server dependency, 100% protects document privacy security. Clean and intuitive interface, simple and efficient operation, is a professional tool for development team document management and knowledge base construction. Completely free and open source, supports batch conversion, is the trusted document conversion tool for global technical teams!",
+  "lang": "en-US",
+  "category": "Document Tools",
+  "ui": {
+    "title": "Markdown to Confluence Converter",
+    "inputLabel": "Markdown Input",
+    "outputLabel": "Confluence Output",
+    "previewLabel": "Preview",
+    "formatLabel": "Output Format",
+    "copyButton": "Copy to Clipboard",
+    "uploadButton": "Upload .md File",
+    "clearButton": "Clear",
+    "inputPlaceholder": "Paste your Markdown content here...",
+    "outputPlaceholder": "Confluence formatted content will appear here...",
+    "uploadSuccess": "File uploaded successfully!",
+    "copySuccess": "Copied to clipboard!",
+    "conversionError": "Conversion error: {message}",
+    "enterpriseWiki": "Enterprise Wiki",
+    "wikiMarkup": "Wiki Markup",
+    "storageFormat": "Storage Format (XML)",
+    "sampleText": "Try sample Markdown",
+    "realTimePreview": "Real-time Preview",
+    "copyFailed": "Copy failed, please try again",
+    "fileError": "File error: {message}",
+    "unsupportedFormat": "Unsupported file format"
+  },
+  "keywords": ["Markdown to Confluence", "online format converter", "document converter", "GitHub to Confluence", "Wiki Markup converter", "technical docs conversion", "document formatting tool"]
+}

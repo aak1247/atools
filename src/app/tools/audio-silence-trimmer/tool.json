@@ -1,0 +1,13 @@
+{
+  "name": "免费在线音频自动剪静音工具 - 纯粹工具站",
+  "shortName": "剪静音",
+  "description": "免费在线音频自动剪静音：基于 ffmpeg.wasm 的 silenceremove，支持阈值/时长调节与导出 WAV/MP3。",
+  "seoDescription": "免费在线音频自动剪静音工具，使用 ffmpeg.wasm 的 silenceremove 过滤器在浏览器本地自动剪除音频静音段，支持仅去开头/结尾静音或移除全部静音片段，并可调节静音阈值(dB)与最小静音时长。支持导出 WAV/MP3，全程本地处理不上传音频，适合播客剪辑、录音整理与课程音频处理。",
+  "category": "音频工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["剪静音", "音频剪辑", "silenceremove", "ffmpeg wasm", "播客剪辑"]
+}
+

@@ -1,0 +1,12 @@
+{
+  "name": "免费在线Markdown转Confluence工具 - 纯粹工具站",
+  "shortName": "Markdown转Confluence",
+  "description": "免费在线Markdown转Confluence格式转换工具，支持实时预览和一键复制，所有处理均在浏览器本地完成。",
+  "seoDescription": "专业开发者必备的免费Markdown转Confluence转换神器 - ATools - 支持完整的Markdown语法转换，包括标题、列表、表格、代码块、链接、图片等所有元素。实时预览转换效果，支持Confluence Wiki Markup和存储格式。一键复制格式化文本，完美支持GitHub README、技术文档、API文档等场景转换。处理速度快，转换准确率高，保持原有格式结构。完全本地转换，不依赖服务器，100%保护文档隐私安全。界面简洁直观，操作简单高效，是开发团队文档管理、知识库建设的专业工具。完全免费开源，支持批量转换，是全球技术团队信赖的文档转换利器！",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "文档工具",
+  "keywords": ["Markdown转Confluence", "在线格式转换", "文档转换工具", "GitHub转Confluence", "Wiki Markup转换", "技术文档转换", "文档格式化工具"]
+}

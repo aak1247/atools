@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 Bcrypt Argon2 哈希生成与校验 - 纯粹工具站",
+  "shortName": "密码哈希",
+  "description": "免费在线 Bcrypt/Argon2id 哈希生成与校验工具：本地计算 encoded hash，支持校验（verify），不上传密码。",
+  "seoDescription": "免费在线 Bcrypt/Argon2id 哈希生成与校验工具，支持生成 encoded 哈希与校验密码是否匹配，提供参数设置（bcrypt costFactor、argon2id 内存/迭代/并行/长度），纯前端本地运行不上传密码与哈希，适合开发调试、参数选型与安全学习。",
+  "category": "密码学工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["bcrypt", "argon2id", "密码哈希", "hash verify", "安全工具"]
+}
+

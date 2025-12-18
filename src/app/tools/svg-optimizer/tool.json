@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 SVG 优化压缩工具 - 纯粹工具站",
+  "shortName": "SVG优化",
+  "description": "免费在线 SVG 优化压缩：移除注释/metadata/title/desc 与压缩空白，生成更小的 SVG（纯前端本地处理）。",
+  "seoDescription": "免费在线 SVG 优化压缩工具，支持粘贴或上传 SVG，并通过移除注释、metadata、可选移除 title/desc 以及简单空白压缩来减小体积，支持一键复制与下载优化后的 SVG。纯前端本地运行不上传文件，适合网页图标与插画资源优化。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["SVG优化", "SVG压缩", "SVG minify", "前端优化", "图标优化"]
+}
+

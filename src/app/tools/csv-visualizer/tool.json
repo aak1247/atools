@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 CSV 数据可视化工具 - 纯粹工具站",
+  "shortName": "CSV可视化",
+  "description": "免费在线 CSV 数据可视化：解析 CSV、表格预览、列类型推断与基础折线图展示（纯前端本地处理）。",
+  "seoDescription": "免费在线 CSV 数据可视化工具，支持粘贴或上传 CSV，自动识别分隔符，表格预览（含列类型推断与数值列统计），并提供轻量级折线图绘制用于快速查看趋势。纯前端本地运行不上传数据，适合数据检查、接口导出校验与快速分析。",
+  "category": "数据工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["CSV可视化", "CSV预览", "CSV图表", "数据分析", "本地处理"]
+}
+

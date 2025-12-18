@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 CSS 渐变生成器 - 纯粹工具站",
+  "shortName": "CSS渐变",
+  "description": "免费在线 CSS 渐变生成器：可视化编辑线性/径向渐变，生成可复制的 background CSS 代码。",
+  "seoDescription": "免费在线 CSS 渐变生成器，支持线性渐变与径向渐变，提供颜色节点（color stops）可视化编辑、角度调节、随机生成与一键复制 CSS 代码。纯前端本地运行，适合网页设计、UI 设计与前端开发快速生成渐变背景。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["CSS渐变", "渐变生成器", "linear-gradient", "radial-gradient", "background生成"]
+}
+

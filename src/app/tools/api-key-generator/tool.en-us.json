@@ -1,0 +1,32 @@
+{
+  "name": "Free Online API Key Generator - ATools",
+  "shortName": "API Key Generator",
+  "description": "Free online API key generator with multiple key formats, secure high-strength random generation, all processing completed locally in browser.",
+  "seoDescription": "Professional developer's essential free API key generation tool - ATools - Supports multiple API key format generation including JWT Token, Bearer Token, API Key, Secret Key, random strings etc. Secure high-strength random algorithms with custom length and character sets. Suitable for REST API, microservices, database keys, encryption keys and other scenarios. Real-time generation, batch generation, one-click copy. Completely local generation, no server dependency, 100% protects key security. Clean and intuitive interface, simple and efficient operation, is a professional tool for development team key management and security configuration. Completely free and open source, supports multiple common key formats, is the trusted security tool for global technical teams!",
+  "lang": "en-US",
+  "category": "Security Tools",
+  "ui": {
+    "title": "API Key Generator",
+    "keyTypeLabel": "Key Type",
+    "lengthLabel": "Key Length",
+    "prefixLabel": "Key Prefix",
+    "generateButton": "Generate Key",
+    "batchGenerateButton": "Batch Generate",
+    "copyButton": "Copy",
+    "clearButton": "Clear",
+    "selectAllButton": "Select All",
+    "exportButton": "Export",
+    "outputPlaceholder": "Generated keys will appear here...",
+    "copySuccess": "Copied to clipboard!",
+    "copyFailed": "Copy failed, please try again",
+    "batchCountLabel": "Generate Count",
+    "includePrefix": "Include Prefix",
+    "customPrefix": "Custom Prefix",
+    "hexFormat": "Hexadecimal (Hex)",
+    "base64Format": "Base64 Format",
+    "urlSafeFormat": "URL Safe Format",
+    "strongEntropy": "High Entropy Security",
+    "exportFormat": "Export Format"
+  },
+  "keywords": ["API key generation", "random string generator", "JWT Token generation", "security key", "Bearer Token", "developer tools"]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 Emoji 表情符号选择器 - 纯粹工具站",
+  "shortName": "Emoji选择器",
+  "description": "免费在线 Emoji 表情符号选择器：分类浏览、搜索、点击复制、最近使用记录，纯前端本地运行。",
+  "seoDescription": "免费在线 Emoji 表情符号选择器，支持分类浏览、搜索（支持按码点十六进制）、点击一键复制到剪贴板，并提供最近使用记录与已选内容编辑。纯前端本地运行，无需登录，无广告，适合写文案、社交媒体、UI 设计标注与开发调试。",
+  "category": "实用工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["emoji", "表情符号", "emoji picker", "复制emoji", "emoji选择器"]
+}
+

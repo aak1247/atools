@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 CSR 证书请求生成器 - 纯粹工具站",
+  "shortName": "CSR生成",
+  "description": "免费在线 CSR/证书请求生成器：本地生成 RSA 密钥对与 PKCS#10 CSR，支持 SAN/用途扩展，一键复制/下载。",
+  "seoDescription": "免费在线 CSR 证书请求生成器，使用浏览器 WebCrypto 本地生成 RSA 密钥对，并生成 PKCS#10 CSR（含 Subject 与可选 SAN、KeyUsage、ExtendedKeyUsage）。支持复制与下载 CSR/私钥/公钥。纯前端本地运行不上传私钥，适合申请 HTTPS 证书与开发测试。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["CSR生成", "证书请求", "PKCS10", "SAN", "HTTPS证书"]
+}
+

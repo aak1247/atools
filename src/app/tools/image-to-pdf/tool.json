@@ -1,0 +1,13 @@
+{
+  "name": "免费在线图片转 PDF 工具 - 纯粹工具站",
+  "shortName": "图片转PDF",
+  "description": "免费在线图片转 PDF：支持多图合并、排序、A4/Letter/按图片尺寸、DPI 与边距设置，纯前端本地生成。",
+  "seoDescription": "免费在线图片转 PDF 工具，支持上传多张图片并合并为一个 PDF，提供图片排序、A4/Letter 纸张选择、适配模式（contain/cover）、边距与背景色设置，并支持按图片尺寸结合 DPI 生成页面。纯前端本地运行不上传图片，适合扫描件合并、相册导出与文档归档。",
+  "category": "PDF工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["图片转PDF", "多图合并PDF", "扫描件PDF", "PDF生成", "本地处理"]
+}
+

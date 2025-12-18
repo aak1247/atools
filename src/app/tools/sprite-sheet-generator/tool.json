@@ -1,0 +1,13 @@
+{
+  "name": "免费在线雪碧图生成器 - 纯粹工具站",
+  "shortName": "雪碧图",
+  "description": "免费在线雪碧图生成器：多图合并生成 sprite PNG，并导出坐标 JSON 与基础 CSS（纯前端本地处理）。",
+  "seoDescription": "免费在线雪碧图生成器，支持上传多张图片并使用本地算法合并为一张 sprite PNG，支持设置最大宽度与 padding，并导出每张子图的坐标与尺寸（JSON），同时生成可直接使用的背景定位 CSS。纯前端本地运行不上传图片，适合前端性能优化与资源打包。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["雪碧图", "sprite sheet", "图片合并", "坐标导出", "CSS背景定位"]
+}
+

@@ -1,0 +1,32 @@
+{
+  "name": "Free Online Markdown to Word Content Converter - ATools",
+  "shortName": "Markdown to Word",
+  "description": "Free online Markdown to Word content format converter with rich text format preservation and one-click copy to Word documents, all processing completed locally in browser.",
+  "seoDescription": "Professional developer's essential free Markdown to Word content conversion tool - ATools - Supports complete Markdown syntax conversion including headers, lists, tables, code blocks, links, images and all other elements. Real-time preview of conversion effects, supports copying formatted content directly to Word documents. Perfectly supports GitHub README, technical docs, API documentation and other scenario conversions. Fast processing speed, high conversion accuracy, maintains original format structure. Completely local conversion, no server dependency, 100% protects document privacy security. Clean and intuitive interface, simple and efficient operation, is a professional tool for development team document management and knowledge base construction. Completely free and open source, supports batch conversion, is the trusted document conversion tool for global technical teams!",
+  "lang": "en-US",
+  "category": "Document Tools",
+  "ui": {
+    "title": "Markdown to Word Content Converter",
+    "inputLabel": "Markdown Input",
+    "outputLabel": "Word Format Content",
+    "previewLabel": "Preview",
+    "formatLabel": "Output Format",
+    "copyButton": "Copy to Clipboard",
+    "uploadButton": "Upload .md File",
+    "clearButton": "Clear",
+    "inputPlaceholder": "Paste your Markdown content here...",
+    "outputPlaceholder": "Word formatted content will appear here...",
+    "uploadSuccess": "File uploaded successfully!",
+    "copySuccess": "Copied to clipboard!",
+    "conversionError": "Conversion error: {message}",
+    "richTextFormat": "Rich Text Format",
+    "plainTextFormat": "Plain Text Format",
+    "sampleText": "Try sample Markdown",
+    "realTimePreview": "Real-time Preview",
+    "copyFailed": "Copy failed, please try again",
+    "fileError": "File error: {message}",
+    "unsupportedFormat": "Unsupported file format",
+    "pasteInstructions": "Usage: Copy the content below and paste directly into Word document to preserve formatting"
+  },
+  "keywords": ["Markdown to Word", "online format converter", "document converter", "rich text conversion", "Word formatting", "technical docs conversion"]
+}

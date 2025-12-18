@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 TOML JSON 互转工具 - 纯粹工具站",
+  "shortName": "TOML互转",
+  "description": "免费在线 TOML ↔ JSON 转换工具：支持 TOML 转 JSON、JSON 转 TOML、复制输出，纯前端本地运行。",
+  "seoDescription": "免费在线 TOML JSON 互转工具，支持 TOML 转 JSON（可选美化输出）与 JSON 转 TOML，一键复制转换结果。纯前端本地运行不上传内容，适合配置文件转换、工具链集成与开发调试。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["TOML转JSON", "JSON转TOML", "配置转换", "toml parser", "本地处理"]
+}
+

@@ -1,0 +1,13 @@
+{
+  "name": "免费在线字幕提取封装工具 - 纯粹工具站",
+  "shortName": "字幕工具",
+  "description": "免费在线字幕工具：支持 SRT/VTT/ASS 互转、时间轴偏移/变速、UTF-8/GBK 编码转换，纯前端本地处理。",
+  "seoDescription": "免费在线字幕提取封装工具，支持 SRT/VTT/ASS 字幕格式互转，提供时间轴调整（毫秒偏移与速度倍率），并支持 UTF-8 与 GBK 编码读写转换。纯前端本地运行不上传文件，适合字幕同步校正、播放器兼容与字幕格式转换。",
+  "category": "视频工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["字幕转换", "SRT转VTT", "ASS转SRT", "字幕时间轴调整", "GBK字幕"]
+}
+

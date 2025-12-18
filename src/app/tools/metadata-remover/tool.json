@@ -1,0 +1,13 @@
+{
+  "name": "免费在线文件元数据清理工具 - 纯粹工具站",
+  "shortName": "元数据清理",
+  "description": "免费在线元数据清理工具：图片通过重新编码去除 EXIF 等信息，PDF 通过重新保存清空常见文档信息字段。",
+  "seoDescription": "免费在线文件元数据清理工具，支持图片（JPEG/PNG/WebP）与 PDF 的元数据清理。图片通过 Canvas 重新编码去除 EXIF、定位信息等隐私元数据；PDF 通过重新保存并清空标题、作者、主题、关键词等常见信息字段。全程浏览器本地处理不上传文件，适合隐私保护与文件分享前清理。",
+  "category": "隐私工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["元数据清理", "EXIF移除", "图片去EXIF", "PDF元数据", "隐私保护"]
+}
+

@@ -1,0 +1,13 @@
+{
+  "name": "免费在线音频降噪工具 - 纯粹工具站",
+  "shortName": "音频降噪",
+  "description": "免费在线音频降噪工具：基于 ffmpeg.wasm 的频域降噪（afftdn），支持强度调节与导出 WAV/MP3。",
+  "seoDescription": "免费在线音频降噪工具，使用 ffmpeg.wasm 在浏览器本地对音频进行降噪处理，支持调节降噪强度并导出 WAV/MP3。适用于录音底噪、风噪、环境噪声的快速处理；全程本地运行不上传音频，保护隐私安全。",
+  "category": "音频工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["音频降噪", "录音降噪", "ffmpeg wasm", "WAV降噪", "MP3降噪"]
+}
+

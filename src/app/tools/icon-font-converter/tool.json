@@ -1,0 +1,13 @@
+{
+  "name": "免费在线图标字体转换器 - 纯粹工具站",
+  "shortName": "字体转CSS",
+  "description": "免费在线图标字体转换器：将 WOFF2/WOFF/TTF/OTF/EOT 转为 Base64 Data URL，并生成 @font-face CSS。",
+  "seoDescription": "免费在线图标字体转换器，支持上传 WOFF2、WOFF、TTF、OTF、EOT 等字体文件，自动生成 Base64 Data URL 与 @font-face CSS 代码，便于在项目中内联字体或快速验证字体是否可用。纯前端本地运行不上传文件，适合前端开发、IconFont 内联与小型字体打包。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["iconfont", "woff2转base64", "字体转css", "font-face生成", "data url"]
+}
+

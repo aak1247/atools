@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 JSON 差异可视化对比工具 - 纯粹工具站",
+  "shortName": "JSON差异",
+  "description": "免费在线 JSON 差异可视化对比：递归比较对象/数组结构，树形展示新增/删除/变化/类型变化。",
+  "seoDescription": "免费在线 JSON 差异可视化对比工具，支持粘贴两份 JSON 并进行递归结构化 diff，对对象字段与数组元素进行对比，树形可视化展示新增、删除、变化与类型变化，并支持隐藏相同项与复制差异列表。纯前端本地运行不上传数据，适合接口响应对比、配置变更检查与联调排查。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["JSON diff", "JSON差异", "结构化对比", "接口对比", "配置对比"]
+}
+

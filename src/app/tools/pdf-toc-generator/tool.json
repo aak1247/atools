@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 PDF 目录自动生成器 - 纯粹工具站",
+  "shortName": "PDF目录",
+  "description": "免费在线 PDF 目录生成器：输入页码与标题，自动生成目录页并插入到 PDF（纯前端本地处理）。",
+  "seoDescription": "免费在线 PDF 目录自动生成器，支持上传 PDF 并根据你提供的“页码 + 标题”清单生成目录页（TOC），可选择插入到 PDF 首页并自动调整页码显示。纯前端本地运行不上传文件，适合书籍/报告/标书等文档快速补充目录页。",
+  "category": "PDF工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["PDF目录", "TOC生成", "PDF目录页", "报告目录", "本地处理"]
+}
+

@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 Content-Security-Policy 生成器/校验器 - 纯粹工具站",
+  "shortName": "CSP生成器",
+  "description": "免费在线 CSP 生成器与校验器：可视化编辑 CSP 指令、解析现有 header、提示常见风险点，纯前端本地运行。",
+  "seoDescription": "免费在线 Content-Security-Policy 生成器/校验器，支持可视化编辑常用 CSP 指令（default-src/script-src/style-src 等），自动拼接为标准 header，并可粘贴现有 CSP 进行解析与基础风险提示（如 unsafe-inline/unsafe-eval/* 等）。纯前端本地运行不上传配置，适合网站安全加固与开发调试。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["CSP", "Content-Security-Policy", "安全头", "XSS防护", "CSP校验"]
+}
+

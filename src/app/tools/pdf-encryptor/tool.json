@@ -1,0 +1,13 @@
+{
+  "name": "免费在线 PDF 加密解密工具 - 纯粹工具站",
+  "shortName": "PDF加密",
+  "description": "免费在线 PDF 加密解密工具：使用 AES-256-GCM 将 PDF 文件加密为 JSON，并可解密还原原 PDF（纯前端本地处理）。",
+  "seoDescription": "免费在线 PDF 加密解密工具，使用 AES-256-GCM + PBKDF2(SHA-256) 在浏览器本地对 PDF 文件整体加密，并输出可保存的加密 JSON；也可在工具中输入密码解密还原原始 PDF。由于纯静态站点限制，此工具不生成标准 PDF 打开密码，而是提供安全的文件级加密容器，适合私密 PDF 备份与临时传输。",
+  "category": "密码学工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["PDF加密", "PDF解密", "AES-256-GCM", "本地加密", "文件加密"]
+}
+
