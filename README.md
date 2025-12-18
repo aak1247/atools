@@ -18,7 +18,7 @@
 - **95+ 工具**：覆盖文本/编码/JSON/图片/音视频/PDF/办公格式等高频需求（见 `src/app/tools`）。
 - **PWA 可安装**：每个工具都有独立 `manifest`，支持"添加到主屏幕"与离线缓存策略。
 - **完整 i18n 支持**：所有工具支持中英双语，基于 `tool.en-us.json` 的 UI 字段实现优雅的多语言架构。
-- **FFmpeg.wasm 本地资源**：音视频工具使用本地打包的 `@ffmpeg/core`（避免 CDN/CORS 问题）。
+- **FFmpeg.wasm**：音视频工具使用本地打包的 `@ffmpeg/core`。
 
 <details>
 <summary>内置工具列表（按 slug 排序）</summary>
@@ -191,7 +191,7 @@ mkdir src/app/tools/my-tool
 
 ### 2. 添加工具配置文件
 
-**`tool.json`**（SEO 和元数据）：
+**`tool.json`**（工具元数据）：
 ```json
 {
   "name": "免费在线我的工具 - 纯粹工具站",
@@ -207,7 +207,7 @@ mkdir src/app/tools/my-tool
 }
 ```
 
-**`tool.en-us.json`**（英文 UI 配置）：
+**`tool.en-us.json`**（多语言 UI 配置）：
 ```json
 {
   "name": "Free Online My Tool - ATools",
@@ -268,7 +268,7 @@ const DEFAULT_UI = {
   successMessage: "处理完成！"
 } as const;
 
-// 类型安全
+// 类型安全的文案配置
 type MyToolUi = typeof DEFAULT_UI;
 
 export default function MyToolClient() {
