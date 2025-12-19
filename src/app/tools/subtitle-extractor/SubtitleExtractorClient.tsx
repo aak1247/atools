@@ -19,8 +19,6 @@ type Cue = {
   };
 };
 
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
-
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const pad3 = (n: number) => String(n).padStart(3, "0");
 
@@ -345,7 +343,7 @@ function SubtitleExtractorInner() {
       setError(e instanceof Error ? e.message : ui.parseError);
       return { header: null, cues: [] as Cue[] };
     }
-  }, [inputFormat, inputText]);
+  }, [inputFormat, inputText, ui.parseError]);
 
   const adjusted = useMemo(() => shiftAndScale(parsed.cues, offsetMs, speed), [offsetMs, parsed.cues, speed]);
 
@@ -357,7 +355,7 @@ function SubtitleExtractorInner() {
     } catch (e) {
       return `/* ERROR: ${e instanceof Error ? e.message : ui.generateError} */\n`;
     }
-  }, [adjusted, outputFormat, parsed.header]);
+  }, [adjusted, outputFormat, parsed.header, ui.generateError]);
 
   useEffect(() => {
     const ext = outputFormat;
@@ -473,7 +471,7 @@ function SubtitleExtractorInner() {
                     {ui.encoding}
                     <select
                       value={inputEncoding}
-                      onChange={(e) => setInputEncoding(e.target.value as any)}
+                      onChange={(e) => setInputEncoding(e.target.value as "auto" | "utf-8" | "gbk")}
                       className="ml-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
                       <option value="auto">{ui.auto}</option>
@@ -546,7 +544,7 @@ function SubtitleExtractorInner() {
                     {ui.encoding}
                     <select
                       value={outputEncoding}
-                      onChange={(e) => setOutputEncoding(e.target.value as any)}
+                      onChange={(e) => setOutputEncoding(e.target.value as "utf-8" | "gbk")}
                       className="ml-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
                       <option value="utf-8">UTF-8</option>

@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type Format = "json" | "yaml" | "ini";
+type IniScalar = string | number | boolean;
 
 type Ui = {
   input: string;
@@ -46,9 +47,9 @@ const safeJsonParse = (text: string): { ok: boolean; value: unknown; error?: str
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
-const iniParse = (text: string): Record<string, any> => {
-  const out: Record<string, any> = {};
-  let section: Record<string, any> = out;
+const iniParse = (text: string): Record<string, unknown> => {
+  const out: Record<string, unknown> = {};
+  let section: Record<string, unknown> = out;
 
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   for (const raw of lines) {
@@ -59,7 +60,7 @@ const iniParse = (text: string): Record<string, any> => {
     if (sec) {
       const name = sec[1].trim();
       if (!out[name] || !isRecord(out[name])) out[name] = {};
-      section = out[name];
+      section = out[name] as Record<string, unknown>;
       continue;
     }
     const kv = line.match(/^([^=:#]+?)\s*(=|:)\s*(.*)$/);
@@ -75,23 +76,24 @@ const iniEscape = (s: string) => s.replace(/\n/g, "\\n");
 
 const iniStringify = (value: unknown, ui: Ui): string => {
   if (!isRecord(value)) throw new Error(ui.errIniObjectOnly);
+  const obj = value as Record<string, unknown>;
   const rootKeys = Object.keys(value).filter((k) => !isRecord(value[k]));
   const sectionKeys = Object.keys(value).filter((k) => isRecord(value[k]));
 
   const lines: string[] = [];
-  for (const k of rootKeys.sort()) lines.push(`${k}=${iniEscape(String((value as any)[k]))}`);
+  for (const k of rootKeys.sort()) lines.push(`${k}=${iniEscape(String(obj[k]))}`);
   if (rootKeys.length && sectionKeys.length) lines.push("");
 
   for (const secName of sectionKeys.sort()) {
     lines.push(`[${secName}]`);
-    const sec = value[secName] as Record<string, unknown>;
-    for (const k of Object.keys(sec).sort()) lines.push(`${k}=${iniEscape(String((sec as any)[k]))}`);
+    const sec = obj[secName] as Record<string, unknown>;
+    for (const k of Object.keys(sec).sort()) lines.push(`${k}=${iniEscape(String(sec[k]))}`);
     lines.push("");
   }
   return `${lines.join("\n").trimEnd()}\n`;
 };
 
-const iniCoerce = (raw: string): any => {
+const iniCoerce = (raw: string): IniScalar => {
   const s = raw.trim();
   if (!s) return "";
   if (/^(true|false)$/i.test(s)) return s.toLowerCase() === "true";

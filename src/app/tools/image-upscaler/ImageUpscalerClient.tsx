@@ -2,6 +2,7 @@
 
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type UpscaleMode = "realcugan" | "resize";
@@ -77,10 +78,17 @@ const DEFAULT_UI: Ui = {
   libCredit: "AI 引擎：RealCUGAN-ncnn-webassembly（MIT）",
 };
 
-type RealCuganEvent =
-  | { eventType: "PROC_PROGRESS"; progress_rate: number; remaining_time: number }
-  | { eventType: "PROC_END"; cost: number }
-  | { eventType: string; [k: string]: unknown };
+type RealCuganProgressEvent = { eventType: "PROC_PROGRESS"; progress_rate: number; remaining_time: number };
+type RealCuganEndEvent = { eventType: "PROC_END"; cost: number };
+type RealCuganEvent = RealCuganProgressEvent | RealCuganEndEvent | { eventType: string };
+
+const isRealCuganProgressEvent = (evt: RealCuganEvent): evt is RealCuganProgressEvent => {
+  if (evt.eventType !== "PROC_PROGRESS") return false;
+  const rec = evt as Record<string, unknown>;
+  return typeof rec.progress_rate === "number" && typeof rec.remaining_time === "number";
+};
+
+const isRealCuganEndEvent = (evt: RealCuganEvent): evt is RealCuganEndEvent => evt.eventType === "PROC_END";
 
 type RealCuganModule = {
   HEAPU8: Uint8Array;
@@ -108,7 +116,18 @@ const getGlobalRealCugan = (): GlobalRealCugan => {
   return g.__ATOOLS_REALCUGAN as GlobalRealCugan;
 };
 
-const hasThreadsSupport = () => typeof SharedArrayBuffer !== "undefined" && (globalThis as any).crossOriginIsolated === true;
+const hasThreadsSupport = () => typeof SharedArrayBuffer !== "undefined" && globalThis.crossOriginIsolated === true;
+
+const getEmscriptenModule = (): unknown => (globalThis as unknown as { Module?: unknown }).Module;
+const setEmscriptenModule = (value: unknown) => {
+  (globalThis as unknown as { Module?: unknown }).Module = value;
+};
+
+const isRealCuganModule = (value: unknown): value is RealCuganModule => {
+  if (!value || typeof value !== "object") return false;
+  const m = value as Partial<RealCuganModule>;
+  return typeof m._process_image === "function" && typeof m._malloc === "function" && typeof m._free === "function" && m.HEAPU8 instanceof Uint8Array;
+};
 
 const loadRealCugan = async (): Promise<RealCuganModule> => {
   const g = getGlobalRealCugan();
@@ -117,14 +136,14 @@ const loadRealCugan = async (): Promise<RealCuganModule> => {
 
   g.promise = new Promise<RealCuganModule>((resolve, reject) => {
     try {
-      const existing = (globalThis as any).Module as RealCuganModule | undefined;
-      if (existing && typeof existing._process_image === "function") {
+      const existing = getEmscriptenModule();
+      if (isRealCuganModule(existing)) {
         g.module = existing;
         resolve(existing);
         return;
       }
 
-      const module: Partial<RealCuganModule> = {
+      const moduleConfig: Partial<RealCuganModule> = {
         locateFile: (path: string) => `${REALCUGAN_BASE}${path}`,
         print: (text: string) => {
           if (typeof text !== "string") return;
@@ -143,20 +162,25 @@ const loadRealCugan = async (): Promise<RealCuganModule> => {
         },
       };
 
-      (globalThis as any).Module = module;
+      setEmscriptenModule(moduleConfig);
 
       const script = document.createElement("script");
       script.async = true;
       script.src = `${REALCUGAN_BASE}${REALCUGAN_JS}`;
       script.onload = () => {
-        const loaded = (globalThis as any).Module as RealCuganModule | undefined;
-        if (!loaded) {
+        const loaded = getEmscriptenModule();
+        if (!loaded || typeof loaded !== "object") {
           reject(new Error("RealCUGAN module missing"));
           return;
         }
-        loaded.onRuntimeInitialized = () => {
-          g.module = loaded;
-          resolve(loaded);
+        (loaded as Partial<RealCuganModule>).onRuntimeInitialized = () => {
+          const ready = getEmscriptenModule();
+          if (!isRealCuganModule(ready)) {
+            reject(new Error("RealCUGAN module not initialized"));
+            return;
+          }
+          g.module = ready;
+          resolve(ready);
         };
       };
       script.onerror = () => reject(new Error("Failed to load RealCUGAN script"));
@@ -246,16 +270,14 @@ function Inner({ ui }: { ui: Ui }) {
     setLoadingRuntime(true);
     const g = getGlobalRealCugan();
     g.onEvent = (evt) => {
-      if (evt.eventType === "PROC_PROGRESS") {
-        const rate = typeof (evt as any).progress_rate === "number" ? ((evt as any).progress_rate as number) : 0;
-        const pct = Math.max(0, Math.min(100, Math.round(rate * 100)));
+      if (isRealCuganProgressEvent(evt)) {
+        const pct = Math.max(0, Math.min(100, Math.round(evt.progress_rate * 100)));
         setProgressPct(pct);
-        const remaining = typeof (evt as any).remaining_time === "number" ? ((evt as any).remaining_time as number) : null;
-        const eta = typeof remaining === "number" ? Math.max(0, Math.round(remaining / 1000)) : null;
+        const eta = Math.max(0, Math.round(evt.remaining_time / 1000));
         setEtaSeconds(eta);
         return;
       }
-      if (evt.eventType === "PROC_END") {
+      if (isRealCuganEndEvent(evt)) {
         void finalizeRealCuganResult();
       }
     };
@@ -371,7 +393,7 @@ function Inner({ ui }: { ui: Ui }) {
     setEtaSeconds(null);
 
     try {
-      const module = await loadRealCugan();
+      const wasm = await loadRealCugan();
 
       const bmp = await fileToImageBitmap(file);
       const w = bmp.width;
@@ -390,13 +412,13 @@ function Inner({ ui }: { ui: Ui }) {
       const outLen = outW * outH * 4;
       setOutSize({ w: outW, h: outH });
 
-      const srcPtr = module._malloc(input.data.length);
-      module.HEAPU8.set(input.data, srcPtr);
-      const dstPtr = module._malloc(outLen);
+      const srcPtr = wasm._malloc(input.data.length);
+      wasm.HEAPU8.set(input.data, srcPtr);
+      const dstPtr = wasm._malloc(outLen);
       ptrRef.current = { srcPtr, dstPtr, outLen, w, h, scale };
 
       const denoise = denoiseToCode(scale, denoisePreset);
-      const ret = module._process_image(0, srcPtr, dstPtr, w, h, scale, denoise);
+      const ret = wasm._process_image(0, srcPtr, dstPtr, w, h, scale, denoise);
       if (ret !== 0) throw new Error("Process is busy, please retry.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Process failed");
@@ -408,7 +430,7 @@ function Inner({ ui }: { ui: Ui }) {
 
   const finalizeRealCuganResult = async () => {
     try {
-      const module = await loadRealCugan();
+      const wasm = await loadRealCugan();
       const ptr = ptrRef.current;
       if (!ptr) return;
 
@@ -421,12 +443,12 @@ function Inner({ ui }: { ui: Ui }) {
       if (!ctx) throw new Error("Canvas unavailable");
 
       const imageData = ctx.createImageData(outW, outH);
-      const view = module.HEAPU8.subarray(ptr.dstPtr, ptr.dstPtr + ptr.outLen);
+      const view = wasm.HEAPU8.subarray(ptr.dstPtr, ptr.dstPtr + ptr.outLen);
       imageData.data.set(view);
       ctx.putImageData(imageData, 0, 0);
 
-      module._free(ptr.srcPtr);
-      module._free(ptr.dstPtr);
+      wasm._free(ptr.srcPtr);
+      wasm._free(ptr.dstPtr);
       ptrRef.current = null;
 
       const blob = await new Promise<Blob>((resolve, reject) => {
@@ -589,15 +611,33 @@ function Inner({ ui }: { ui: Ui }) {
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <div className="text-sm font-semibold text-slate-900">{ui.original}</div>
-                <div className="mt-3 aspect-square overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
-                  {origUrl ? <img src={origUrl} alt="original" className="h-full w-full object-contain" /> : <div className="grid h-full place-items-center text-xs text-slate-400">-</div>}
+                <div className="relative mt-3 aspect-square overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
+                  {origUrl ? (
+                    <Image
+                      src={origUrl}
+                      alt={ui.original}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-contain"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="grid h-full place-items-center text-xs text-slate-400">-</div>
+                  )}
                 </div>
               </div>
               <div>
                 <div className="text-sm font-semibold text-slate-900">{ui.output}</div>
-                <div className="mt-3 aspect-square overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
+                <div className="relative mt-3 aspect-square overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
                   {downloadUrl ? (
-                    <img src={downloadUrl} alt="output" className="h-full w-full object-contain" />
+                    <Image
+                      src={downloadUrl}
+                      alt={ui.output}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-contain"
+                      unoptimized
+                    />
                   ) : (
                     <div className="grid h-full place-items-center text-xs text-slate-400">{ui.empty}</div>
                   )}

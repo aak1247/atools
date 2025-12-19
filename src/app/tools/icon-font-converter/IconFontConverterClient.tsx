@@ -8,20 +8,18 @@ import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 // 中文默认值
 const DEFAULT_UI = {
   title: "图标字体转换器",
-  uploadSvg: "上传 SVG 文件",
+  pickFile: "选择字体文件",
   clear: "清空",
-  convert: "转换字体",
-  download: "下载",
-  format: "格式",
-  fontFamily: "字体族名称",
-  cssPrefix: "CSS 前缀",
-  description: "将 SVG 图标转换为 Web 字体，支持多种字体格式，生成 CSS 映射文件",
-  processing: "处理中...",
-  success: "转换成功",
-  error: "转换失败",
-  cssGenerated: "CSS 映射文件",
-  fontSubset: "字体子集化",
-  preview: "预览"
+  settings: "设置",
+  familyLabel: "font-family 名称",
+  familyPlaceholder: "例如 MyIconFont",
+  hint: "说明：此工具将字体文件转为 Base64 Data URL，并生成可直接粘贴到 CSS 的 @font-face 代码（适合内联或小型字体）。较大的字体文件会显著增大 CSS 体积。",
+  cssTitle: "@font-face CSS",
+  dataUrlTitle: "Data URL",
+  copy: "复制",
+  outputPlaceholder: "选择字体文件后生成…",
+  readFailed: "读取失败",
+  fileSizeKb: "{size} KB",
 } as const;
 
 type IconFontConverterUi = typeof DEFAULT_UI;
@@ -82,34 +80,32 @@ function IconFontConverterInner() {
 
   const [file, setFile] = useState<File | null>(null);
   const [family, setFamily] = useState("IconFont");
-  const [base64, setBase64] = useState("");
   const [dataUrl, setDataUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const kind = useMemo(() => (file ? detectKind(file) : "unknown"), [file]);
 
   useEffect(() => {
-    if (!file) {
-      setBase64("");
-      setDataUrl("");
-      setError(null);
-      return;
-    }
+    if (!file) return;
 
+    let cancelled = false;
     const run = async () => {
-      setError(null);
       try {
         const bytes = new Uint8Array(await file.arrayBuffer());
+        if (cancelled) return;
         const b64 = bytesToBase64(bytes);
-        setBase64(b64);
         const mime = kindToMime(kind);
         setDataUrl(`data:${mime};base64,${b64}`);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "读取失败");
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : ui.readFailed);
       }
     };
     void run();
-  }, [file, kind]);
+    return () => {
+      cancelled = true;
+    };
+  }, [file, kind, ui.readFailed]);
 
   const css = useMemo(() => {
     if (!dataUrl) return "";
@@ -125,6 +121,8 @@ function IconFontConverterInner() {
   const pick = (selected: File) => {
     setFile(selected);
     setFamily(selected.name.replace(/\.[^.]+$/, "") || "IconFont");
+    setError(null);
+    setDataUrl("");
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -135,7 +133,6 @@ function IconFontConverterInner() {
   const clear = () => {
     setFile(null);
     setError(null);
-    setBase64("");
     setDataUrl("");
     if (inputRef.current) inputRef.current.value = "";
   };
@@ -157,19 +154,19 @@ function IconFontConverterInner() {
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              选择字体文件
+              {ui.pickFile}
             </button>
             <button
               type="button"
               onClick={clear}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              清空
+              {ui.clear}
             </button>
             {file && (
               <div className="text-sm text-slate-700">
                 <span className="font-semibold text-slate-900">{file.name}</span>{" "}
-                <span className="text-slate-500">({(file.size / 1024).toFixed(1)} KB)</span>
+                <span className="text-slate-500">({ui.fileSizeKb.replace("{size}", (file.size / 1024).toFixed(1))})</span>
               </div>
             )}
           </div>
@@ -183,19 +180,19 @@ function IconFontConverterInner() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">设置</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.settings}</div>
             <div className="mt-4 grid gap-4">
               <label className="block text-sm text-slate-700">
-                font-family 名称
+                {ui.familyLabel}
                 <input
                   value={family}
                   onChange={(e) => setFamily(e.target.value)}
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                  placeholder="例如 MyIconFont"
+                  placeholder={ui.familyPlaceholder}
                 />
               </label>
               <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-                说明：此工具将字体文件转为 Base64 Data URL，并生成可直接粘贴到 CSS 的 @font-face 代码（适合内联或小型字体）。较大的字体文件会显著增大 CSS 体积。
+                {ui.hint}
               </div>
             </div>
           </div>
@@ -203,41 +200,41 @@ function IconFontConverterInner() {
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">@font-face CSS</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.cssTitle}</div>
                 <button
                   type="button"
                   onClick={() => void copy(css)}
                   disabled={!css}
                   className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800 disabled:opacity-60"
                 >
-                  复制
+                  {ui.copy}
                 </button>
               </div>
               <textarea
                 value={css}
                 readOnly
                 className="mt-3 h-40 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-                placeholder="选择字体文件后生成…"
+                placeholder={ui.outputPlaceholder}
               />
             </div>
 
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">Data URL</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.dataUrlTitle}</div>
                 <button
                   type="button"
                   onClick={() => void copy(dataUrl)}
                   disabled={!dataUrl}
                   className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
                 >
-                  复制
+                  {ui.copy}
                 </button>
               </div>
               <textarea
                 value={dataUrl}
                 readOnly
                 className="mt-3 h-36 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-[10px] text-slate-900 outline-none"
-                placeholder="选择字体文件后生成…"
+                placeholder={ui.outputPlaceholder}
               />
             </div>
           </div>
@@ -246,4 +243,3 @@ function IconFontConverterInner() {
     </div>
   );
 }
-

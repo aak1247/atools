@@ -1,5 +1,4 @@
 declare module "gbk.js" {
-  const gbk: any;
-  export = gbk;
+  export function encode(text: string): number[];
+  export function decode(bytes: number[] | Uint8Array): string;
 }
-

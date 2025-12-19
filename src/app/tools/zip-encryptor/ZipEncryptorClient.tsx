@@ -12,15 +12,28 @@ type Mode = "encrypt" | "decrypt";
 const DEFAULT_UI = {
   encrypt: "加密 ZIP",
   decrypt: "解密 ZIP",
+  inputTitle: "输入",
+  outputJsonTitle: "加密输出 JSON",
+  outputZipTitle: "输出 ZIP",
   pickFiles: "选择多个文件（将打包为 ZIP）",
   pickEncrypted: "选择加密 JSON",
+  jsonLabel: "JSON",
   password: "密码",
   iterations: "迭代次数",
   zipLevel: "ZIP 压缩等级",
+  zipLevelRangeHint: "（0-9）",
   run: "执行",
   working: "处理中…",
   clear: "清空",
   download: "下载",
+  selectedFilesTemplate: "已选择 {count} 个文件",
+  jsonPlaceholder: "粘贴本工具生成的 JSON…",
+  encryptOutputPlaceholder: "加密后会在这里输出 JSON…",
+  decryptOutputPlaceholder: "解密后会在这里输出元信息…",
+  zipPreviewTitle: "ZIP 内容预览",
+  errPasswordRequired: "请输入密码",
+  errEncryptFailed: "加密失败",
+  errDecryptFailed: "解密失败（可能密码错误或内容损坏）",
   note:
     "说明：此工具先将文件打包为 ZIP（fflate），再使用 AES-256-GCM 将 ZIP 整体加密为 JSON；解密后可下载恢复 ZIP。纯前端本地处理不上传文件。",
 } as const;
@@ -130,7 +143,7 @@ function ZipEncryptorInner() {
       setOutputText(out);
       setDownloadUrl(URL.createObjectURL(new Blob([out], { type: "application/json" })));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "加密失败");
+      setError(e instanceof Error ? e.message : ui.errEncryptFailed);
     } finally {
       setIsWorking(false);
     }
@@ -163,7 +176,7 @@ function ZipEncryptorInner() {
 
       setOutputText(JSON.stringify({ meta, size: bytes.byteLength }, null, 2));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "解密失败（可能密码错误或内容损坏）");
+      setError(e instanceof Error ? e.message : ui.errDecryptFailed);
     } finally {
       setIsWorking(false);
     }
@@ -172,7 +185,7 @@ function ZipEncryptorInner() {
   const run = async () => {
     resetOutput();
     if (!password) {
-      setError("请输入密码");
+      setError(ui.errPasswordRequired);
       return;
     }
     if (mode === "encrypt") await runEncrypt();
@@ -202,7 +215,7 @@ function ZipEncryptorInner() {
                 mode === "encrypt" ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              {DEFAULT_UI.encrypt}
+              {ui.encrypt}
             </button>
             <button
               type="button"
@@ -214,7 +227,7 @@ function ZipEncryptorInner() {
                 mode === "decrypt" ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              {DEFAULT_UI.decrypt}
+              {ui.decrypt}
             </button>
           </div>
           <button
@@ -222,17 +235,17 @@ function ZipEncryptorInner() {
             onClick={clear}
             className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
           >
-            {DEFAULT_UI.clear}
+            {ui.clear}
           </button>
         </div>
 
         <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-          {DEFAULT_UI.note}
+          {ui.note}
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">输入</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.inputTitle}</div>
             <div className="mt-4 space-y-3">
               {mode === "encrypt" ? (
                 <>
@@ -242,11 +255,11 @@ function ZipEncryptorInner() {
                     onClick={() => filesRef.current?.click()}
                     className="w-full rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
                   >
-                    {DEFAULT_UI.pickFiles}
+                    {ui.pickFiles}
                   </button>
                   {files.length > 0 && (
                     <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700 ring-1 ring-slate-200">
-                      已选择 {files.length} 个文件
+                      {ui.selectedFilesTemplate.replace("{count}", String(files.length))}
                       <div className="mt-2 max-h-28 overflow-auto text-xs text-slate-600">
                         {files.slice(0, 50).map((f) => (
                           <div key={f.name} className="flex items-center justify-between gap-2">
@@ -266,15 +279,15 @@ function ZipEncryptorInner() {
                     onClick={() => jsonRef.current?.click()}
                     className="w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
-                    {DEFAULT_UI.pickEncrypted}
+                    {ui.pickEncrypted}
                   </button>
                   <label className="block text-sm text-slate-700">
-                    JSON
+                    {ui.jsonLabel}
                     <textarea
                       value={jsonText}
                       onChange={(e) => setJsonText(e.target.value)}
                       className="mt-2 h-44 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                      placeholder="粘贴本工具生成的 JSON…"
+                      placeholder={ui.jsonPlaceholder}
                     />
                   </label>
                 </>
@@ -282,7 +295,7 @@ function ZipEncryptorInner() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-sm text-slate-700">
-                  {DEFAULT_UI.password}
+                  {ui.password}
                   <input
                     type="password"
                     value={password}
@@ -291,7 +304,7 @@ function ZipEncryptorInner() {
                   />
                 </label>
                 <label className={`block text-sm text-slate-700 ${mode === "encrypt" ? "" : "opacity-60"}`}>
-                  {DEFAULT_UI.iterations}
+                  {ui.iterations}
                   <input
                     type="number"
                     min={10_000}
@@ -307,7 +320,8 @@ function ZipEncryptorInner() {
 
               {mode === "encrypt" && (
                 <label className="block text-sm text-slate-700">
-                  {DEFAULT_UI.zipLevel}（0-9）
+                  {ui.zipLevel}
+                  {ui.zipLevelRangeHint}
                   <input
                     type="number"
                     min={0}
@@ -326,7 +340,7 @@ function ZipEncryptorInner() {
                 disabled={!canRun || isWorking}
                 className="w-full rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
               >
-                {isWorking ? DEFAULT_UI.working : DEFAULT_UI.run}
+                {isWorking ? ui.working : ui.run}
               </button>
 
               {error && (
@@ -340,14 +354,14 @@ function ZipEncryptorInner() {
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">{mode === "encrypt" ? "加密输出 JSON" : "输出 ZIP"}</div>
+                <div className="text-sm font-semibold text-slate-900">{mode === "encrypt" ? ui.outputJsonTitle : ui.outputZipTitle}</div>
                 {downloadUrl && (
                   <a
                     href={downloadUrl}
                     download={downloadName}
                     className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
                   >
-                    {DEFAULT_UI.download} {downloadName}
+                    {ui.download} {downloadName}
                   </a>
                 )}
               </div>
@@ -355,13 +369,13 @@ function ZipEncryptorInner() {
                 value={outputText}
                 readOnly
                 className="mt-3 h-64 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-                placeholder={mode === "encrypt" ? "加密后会在这里输出 JSON…" : "解密后会在这里输出元信息…"}
+                placeholder={mode === "encrypt" ? ui.encryptOutputPlaceholder : ui.decryptOutputPlaceholder}
               />
             </div>
 
             {zipEntries && zipEntries.length > 0 && (
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">ZIP 内容预览</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.zipPreviewTitle}</div>
                 <div className="mt-3 max-h-56 overflow-auto rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
                   {zipEntries.map((e) => (
                     <div key={e.name} className="flex items-center justify-between gap-2 text-xs text-slate-700">

@@ -28,12 +28,6 @@ const DEFAULT_UI = {
 
 type Ui = typeof DEFAULT_UI;
 
-const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
-  const buffer = new ArrayBuffer(bytes.byteLength);
-  new Uint8Array(buffer).set(bytes);
-  return buffer;
-};
-
 const fileMode = (file: File | null): Mode => {
   if (!file) return "unsupported";
   if (file.type.startsWith("image/")) return "image";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 
 interface ConversionOptions {
@@ -117,7 +118,7 @@ class SvgConverter {
       }
 
       return { isValid: true };
-    } catch (error) {
+    } catch {
       return { isValid: false, error: 'SVG解析失败' };
     }
   }
@@ -137,7 +138,7 @@ class SvgConverter {
 
         return { width: svgWidth, height: svgHeight };
       }
-    } catch (error) {
+    } catch {
       // 解析失败时返回默认尺寸
     }
 
@@ -166,7 +167,7 @@ class SvgConverter {
 
         return dimensions;
       }
-    } catch (error) {
+    } catch {
       // 解析失败时返回默认尺寸
     }
 
@@ -614,9 +615,12 @@ export default function SvgConverterClient() {
             </div>
 
             <div className="border border-slate-200 rounded-lg p-4 bg-white">
-              <img
+              <Image
                 src={convertedImage}
                 alt="Converted image"
+                unoptimized
+                width={Math.max(1, options.width)}
+                height={Math.max(1, options.height)}
                 className="max-w-full h-auto mx-auto"
                 style={{ maxHeight: '400px' }}
               />

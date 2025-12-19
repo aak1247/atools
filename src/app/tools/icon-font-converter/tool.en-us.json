@@ -10,20 +10,18 @@
   "icon": "/icon.svg",
   "ui": {
     "title": "Icon Font Converter",
-    "uploadSvg": "Upload SVG Files",
+    "pickFile": "Choose font file",
     "clear": "Clear",
-    "convert": "Convert Font",
-    "download": "Download",
-    "format": "Format",
-    "fontFamily": "Font Family Name",
-    "cssPrefix": "CSS Prefix",
-    "description": "Convert SVG icons to Web fonts, support multiple font formats, generate CSS mapping files",
-    "processing": "Processing...",
-    "success": "Conversion Successful",
-    "error": "Conversion Failed",
-    "cssGenerated": "CSS Mapping File",
-    "fontSubset": "Font Subsetting",
-    "preview": "Preview"
+    "settings": "Settings",
+    "familyLabel": "font-family name",
+    "familyPlaceholder": "e.g. MyIconFont",
+    "hint": "Convert a font file into a Base64 Data URL and generate @font-face CSS you can paste directly. Large font files can significantly increase CSS size.",
+    "cssTitle": "@font-face CSS",
+    "dataUrlTitle": "Data URL",
+    "copy": "Copy",
+    "outputPlaceholder": "Generated after selecting a font file…",
+    "readFailed": "Read failed",
+    "fileSizeKb": "{size} KB"
   },
   "keywords": ["iconfont", "woff2 to base64", "font to css", "font-face generator", "data url"]
 }

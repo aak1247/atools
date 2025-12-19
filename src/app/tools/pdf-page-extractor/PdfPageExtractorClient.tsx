@@ -149,7 +149,6 @@ export default function PdfPageExtractorClient() {
         const out = await PDFDocument.create();
         const [copied] = await out.copyPages(src, [idx]);
         out.addPage(copied);
-        // eslint-disable-next-line no-await-in-loop
         const bytes = await out.save();
         files[`${base}-p${padPage(page, pdf.pageCount)}.pdf`] = new Uint8Array(bytes);
       }

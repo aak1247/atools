@@ -1,7 +1,7 @@
 "use client";
 
 import type { FC } from "react";
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
@@ -29,7 +29,7 @@ const CalculatorClient: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<string | null>(null);
 
-  const appendValue = (value: string) => {
+  const appendValue = useCallback((value: string) => {
     setError(null);
     setDisplay((prev) => {
       if (lastResult && prev === lastResult) {
@@ -39,32 +39,32 @@ const CalculatorClient: FC = () => {
       if (prev === "0" && /^[0-9]$/.test(value)) return value;
       return prev + value;
     });
-  };
+  }, [lastResult]);
 
-  const handleFunction = (fn: ScientificFn) => {
+  const handleFunction = useCallback((fn: ScientificFn) => {
     setError(null);
     const token = `${fn}(`;
     setDisplay((prev) => {
-       if (lastResult && prev === lastResult) {
-         setLastResult(null);
-         return token;
-       }
-       return prev === "0" ? token : prev + token;
+      if (lastResult && prev === lastResult) {
+        setLastResult(null);
+        return token;
+      }
+      return prev === "0" ? token : prev + token;
     });
-  };
+  }, [lastResult]);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setError(null);
     setDisplay("0");
     setLastResult(null);
-  };
+  }, []);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     setError(null);
     setDisplay((prev) => (prev.length > 1 ? prev.slice(0, -1) : "0"));
-  };
+  }, []);
 
-  const handleCalculate = () => {
+  const handleCalculate = useCallback(() => {
     setError(null);
     try {
       const expressionForEval = display
@@ -87,7 +87,7 @@ const CalculatorClient: FC = () => {
     } catch {
       setError("Error");
     }
-  };
+  }, [display]);
 
   // Handle keyboard input
   useEffect(() => {
@@ -101,16 +101,7 @@ const CalculatorClient: FC = () => {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [display, lastResult]); // Added dependencies to be safe, though functional updates in handlers might make it okay. 
-  // However, since the functions themselves are not stable (re-created every render), using them in useEffect without them being dependencies is technically a lint warning usually.
-  // But here I'm calling them inside the event listener which is added/removed.
-  // The issue is that the event listener closes over the *initial* versions of these functions if dependencies aren't right, 
-  // BUT these functions mostly use functional state updates (setDisplay(prev => ...)), so they might be fine.
-  // EXCEPT handleCalculate which reads `display` directly.
-  // So `handleCalculate` needs to be fresh.
-  // So the effect needs to re-run when `handleCalculate` changes.
-  // Since `handleCalculate` changes every render (it's not wrapped in useCallback), the effect will re-run every render.
-  // That's fine for this simple app.
+  }, [appendValue, handleCalculate, handleClear, handleDelete]);
 
   const mainButtons = [
     { label: "C", action: handleClear, type: "danger" },

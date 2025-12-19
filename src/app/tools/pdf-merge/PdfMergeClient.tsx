@@ -127,7 +127,6 @@ const PdfMergeClient: FC = () => {
         mergeOrder === "A-B" ? [pdfA, pdfB] : [pdfB, pdfA];
 
       for (const src of sources) {
-        // eslint-disable-next-line no-await-in-loop
         await appendFrom(src);
       }
 

@@ -62,7 +62,6 @@ function Inner({ ui }: { ui: Ui }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [file, setFile] = useState<File | null>(null);
   const [bitmap, setBitmap] = useState<ImageBitmap | null>(null);
   const [bg, setBg] = useState("#FFFFFF");
 
@@ -95,7 +94,6 @@ function Inner({ ui }: { ui: Ui }) {
   const target = useMemo(() => presets.find((p) => p.key === presetKey) ?? presets[1]!, [presetKey, presets]);
 
   const resetAll = () => {
-    setFile(null);
     bitmap?.close();
     setBitmap(null);
     setBg("#FFFFFF");
@@ -115,7 +113,6 @@ function Inner({ ui }: { ui: Ui }) {
       alert(ui.errPickImage);
       return;
     }
-    setFile(selected);
     if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     setDownloadUrl(null);
     bitmap?.close();
@@ -337,4 +334,3 @@ function Inner({ ui }: { ui: Ui }) {
     </div>
   );
 }
-

@@ -61,6 +61,7 @@ type DirectiveName =
   | "report-uri";
 
 type Directive = { name: DirectiveName; value: string };
+type DirectiveLike = { name: string; value: string };
 
 const DEFAULT_DIRECTIVES: Directive[] = [
   { name: "default-src", value: "'self'" },
@@ -103,7 +104,7 @@ const splitTokens = (value: string) =>
     .map((t) => t.trim())
     .filter(Boolean);
 
-const normalizeHeader = (directives: Directive[]) => {
+const normalizeHeader = (directives: DirectiveLike[]) => {
   const parts: string[] = [];
   for (const d of directives) {
     const tokens = splitTokens(d.value);
@@ -116,9 +117,9 @@ const normalizeHeader = (directives: Directive[]) => {
   return parts.join("; ");
 };
 
-const parseHeader = (raw: string): { directives: Directive[]; unknown: string[] } => {
+const parseHeader = (raw: string): { directives: DirectiveLike[]; unknown: string[] } => {
   const unknown: string[] = [];
-  const out: Directive[] = [];
+  const out: DirectiveLike[] = [];
   const pieces = raw
     .split(";")
     .map((p) => p.trim())
@@ -129,11 +130,11 @@ const parseHeader = (raw: string): { directives: Directive[]; unknown: string[] 
     const value = rest.join(" ").trim();
     if (!name) continue;
     if ((KNOWN_DIRECTIVES as string[]).includes(name)) {
-      out.push({ name: name as DirectiveName, value });
+      out.push({ name, value });
     } else {
       unknown.push(name);
       // still include as-is in output to avoid data loss
-      out.push({ name: name as any, value } as Directive);
+      out.push({ name, value });
     }
   }
   return { directives: out, unknown };
@@ -152,7 +153,7 @@ function CspGeneratorInner() {
   const config = useOptionalToolConfig("csp-generator");
   const ui: CspGeneratorUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<CspGeneratorUi>) };
 
-  const buildWarnings = (directives: Directive[]) => {
+  const buildWarnings = (directives: DirectiveLike[]) => {
     const map = new Map<string, string[]>(directives.map((d) => [d.name, splitTokens(d.value)]));
     const warnings: string[] = [];
 
@@ -186,10 +187,7 @@ function CspGeneratorInner() {
   const built = useMemo(() => normalizeHeader(directives), [directives]);
   const parsed = useMemo(() => parseHeader(rawHeader), [rawHeader]);
 
-  const warnings = useMemo(
-    () => buildWarnings(mode === "builder" ? directives : parsed.directives),
-    [directives, mode, parsed.directives],
-  );
+  const warnings = buildWarnings(mode === "builder" ? directives : parsed.directives);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -347,10 +345,11 @@ function CspGeneratorInner() {
               </div>
 
               <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200 text-xs text-slate-600">
-                {ui.commonSources}<span className="font-mono">'self'</span> / <span className="font-mono">https:</span> /{" "}
+                {ui.commonSources}
+                <span className="font-mono">{"'self'"}</span> / <span className="font-mono">https:</span> /{" "}
                 <span className="font-mono">data:</span> / <span className="font-mono">blob:</span> /{" "}
-                <span className="font-mono">'none'</span> / <span className="font-mono">'unsafe-inline'</span> /{" "}
-                <span className="font-mono">'nonce-...'</span> / <span className="font-mono">'sha256-...'</span>
+                <span className="font-mono">{"'none'"}</span> / <span className="font-mono">{"'unsafe-inline'"}</span> /{" "}
+                <span className="font-mono">{"'nonce-...'"}</span> / <span className="font-mono">{"'sha256-...'"}</span>
               </div>
             </div>
           </div>
@@ -406,4 +405,3 @@ function CspGeneratorInner() {
     </div>
   );
 }
-

@@ -26,6 +26,7 @@
     "@peculiar/x509": "1.14.2",
     "cbor-x": "^1.6.0",
     "crypto-js": "^4.2.0",
+    "docx-preview": "^0.3.7",
     "fabric": "^6.9.0",
     "fflate": "^0.8.2",
     "gbk.js": "0.3.0",

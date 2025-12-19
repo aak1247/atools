@@ -93,7 +93,7 @@ export default function SvgOptimizerClient() {
 
 function SvgOptimizerInner() {
   const config = useOptionalToolConfig("svg-optimizer");
-  const ui: SvgOptimizerUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<SvgOptimizerUi>) };
+  const ui: SvgOptimizerUi = useMemo(() => ({ ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<SvgOptimizerUi>) }), [config?.ui]);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -128,7 +128,7 @@ function SvgOptimizerInner() {
       setError(e instanceof Error ? e.message : ui.optimizeError);
       return "";
     }
-  }, [options, raw]);
+  }, [options, raw, ui]);
 
   const stats = useMemo(() => {
     const before = byteLengthUtf8(raw);
@@ -290,4 +290,3 @@ function SvgOptimizerInner() {
     </div>
   );
 }
-

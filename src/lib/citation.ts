@@ -569,7 +569,6 @@ const toCleanText = (raw: string) =>
 const lastMatch = (re: RegExp, text: string) => {
   let m: RegExpExecArray | null = null;
   let cur: RegExpExecArray | null = null;
-  // eslint-disable-next-line no-cond-assign
   while ((cur = re.exec(text))) m = cur;
   return m;
 };
@@ -696,7 +695,6 @@ const authorsFromApaSegment = (segment: string) => {
   const out: string[] = [];
   const re = /([A-Za-zÀ-ÖØ-öø-ÿ' -]+),\s*([A-Z](?:\.[A-Z]\.)*(?:\s*[A-Z]\.)?)/gu;
   let m: RegExpExecArray | null;
-  // eslint-disable-next-line no-cond-assign
   while ((m = re.exec(segment))) {
     const family = compact(m[1] ?? "");
     const given = compact(m[2] ?? "");
@@ -714,7 +712,6 @@ const authorsFromIeeeSegment = (segment: string) => {
   const out: string[] = [];
   const re = /((?:[A-Z]\.\s*){1,3})([A-Za-zÀ-ÖØ-öø-ÿ' -]{2,80})/gu;
   let m: RegExpExecArray | null;
-  // eslint-disable-next-line no-cond-assign
   while ((m = re.exec(cleaned))) {
     const initialsText = compact(m[1] ?? "");
     const family = compact(m[2] ?? "");

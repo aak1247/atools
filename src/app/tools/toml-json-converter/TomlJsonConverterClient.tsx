@@ -6,6 +6,7 @@ import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Mode = "toml-to-json" | "json-to-toml";
+type TomlStringifyInput = Parameters<typeof TOML.stringify>[0];
 
 const DEFAULT_UI = {
   tomlToJson: "TOML → JSON",
@@ -57,11 +58,14 @@ function TomlJsonConverterInner() {
       const parsed = safeJsonParse(input);
       if (!parsed.ok) throw new Error(parsed.error || "Invalid JSON");
       // @iarna/toml expects a plain object/array; stringify will throw on unsupported types.
-      return `${TOML.stringify(parsed.value as any)}`;
+      if (!parsed.value || typeof parsed.value !== "object" || Array.isArray(parsed.value)) {
+        throw new Error("JSON root must be an object");
+      }
+      return `${TOML.stringify(parsed.value as TomlStringifyInput)}`;
     } catch (e) {
       return `/* ERROR: ${e instanceof Error ? e.message : ui.conversionError} */\n`;
     }
-  }, [input, mode, prettyJson]);
+  }, [input, mode, prettyJson, ui.conversionError]);
 
   const copy = async () => {
     await navigator.clipboard.writeText(output);
@@ -152,4 +156,3 @@ function TomlJsonConverterInner() {
     </div>
   );
 }
-

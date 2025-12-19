@@ -5,7 +5,6 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type ParsedInfo = {
   container?: string;
@@ -89,37 +88,6 @@ const parseInfoFromLog = (logText: string): ParsedInfo => {
   return out;
 };
 
-const DEFAULT_UI = {
-  pickTitle: "选择媒体文件",
-  pickFile: "选择文件",
-  clear: "清空",
-  firstLoadHint: "提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。",
-  ffmpegReady: "FFmpeg 已就绪",
-  ffmpegLoading: "加载中...",
-  loadFfmpeg: "加载 FFmpeg",
-  file: "文件",
-  fileSize: "文件大小",
-  duration: "时长",
-  bitrate: "总码率",
-  container: "容器格式",
-  video: "视频流",
-  audio: "音频流",
-  noVideo: "无视频流",
-  noAudio: "无音频流",
-  codec: "编码",
-  profile: "档次",
-  resolution: "分辨率",
-  fps: "帧率",
-  pixelFormat: "像素格式",
-  sampleRate: "采样率",
-  channels: "声道",
-  metadata: "元数据",
-  ffmpegLogs: "FFmpeg 日志",
-  logsPlaceholder: "日志会显示在这里…"
-} as const;
-
-type Ui = typeof DEFAULT_UI;
-
 export default function MediaMetadataViewerClient() {
   return (
     <ToolPageLayout toolSlug="media-metadata-viewer" maxWidthClassName="max-w-6xl">
@@ -129,9 +97,6 @@ export default function MediaMetadataViewerClient() {
 }
 
 function MediaMetadataViewerInner() {
-  const config = useOptionalToolConfig("media-metadata-viewer");
-  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
-
   const inputRef = useRef<HTMLInputElement>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const logRef = useRef<string[]>([]);
@@ -402,4 +367,3 @@ function MediaMetadataViewerInner() {
     </div>
   );
 }
-

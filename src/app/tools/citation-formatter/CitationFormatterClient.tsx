@@ -238,9 +238,14 @@ function Inner({ ui }: { ui: Ui }) {
     sourceType,
     style,
     title,
+    ui.accessedLabel,
+    ui.availableLabel,
     ui.monthNamesLong,
     ui.monthNamesShort,
+    ui.onlineLabel,
+    ui.retrievedFromLabel,
     url,
+    volume,
   ]);
 
   const citation = computed.citation || "-";

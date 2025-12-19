@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChangeEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { degrees, PDFDocument } from "pdf-lib";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 

@@ -173,7 +173,7 @@ class XmlJsonConverter {
       }
 
       return { isValid: true };
-    } catch (error) {
+    } catch {
       return { isValid: false, error: 'XML解析失败' };
     }
   }
@@ -191,7 +191,7 @@ class XmlJsonConverter {
         .replace(/(\s+)([a-zA-Z].*?>)/g, '\n$1$2')
         .replace(/(\/>)\n/g, '$1\n')
         .replace(/^\n+|\n+$/g, '');
-    } catch (error) {
+    } catch {
       return xmlString; // 格式化失败时返回原始字符串
     }
   }

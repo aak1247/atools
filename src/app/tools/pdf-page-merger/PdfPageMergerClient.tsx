@@ -101,7 +101,6 @@ export default function PdfPageMergerClient() {
     for (const file of files) {
       try {
         const bytes = new Uint8Array(await file.arrayBuffer());
-        // eslint-disable-next-line no-await-in-loop
         const doc = await PDFDocument.load(bytes);
         next.push({
           id: newId(),
@@ -153,7 +152,6 @@ export default function PdfPageMergerClient() {
       const out = await PDFDocument.create();
 
       for (const item of items) {
-        // eslint-disable-next-line no-await-in-loop
         const src = await PDFDocument.load(item.bytes);
         const pageCount = src.getPageCount();
         const pages =
@@ -162,7 +160,6 @@ export default function PdfPageMergerClient() {
             : parsePagesInput(item.pagesInput, pageCount);
         if (!pages.length) continue;
         const indices = pages.map((p) => p - 1).filter((idx) => idx >= 0 && idx < pageCount);
-        // eslint-disable-next-line no-await-in-loop
         const copied = await out.copyPages(src, indices);
         copied.forEach((p) => out.addPage(p));
       }

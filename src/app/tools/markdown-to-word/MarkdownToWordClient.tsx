@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useMemo, useState, useRef } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
@@ -62,7 +62,13 @@ const DEFAULT_UI = {
     separators: "分割线 (保持 --- 格式)"
   },
   advantagesTitle: "优势说明：",
-  advantagesDescription: "富文本格式直接在Word中显示最终效果，无需额外处理；纯文本格式保留Markdown语法，便于在Word中进一步编辑和样式调整。"
+  advantagesDescription: "富文本格式直接在Word中显示最终效果，无需额外处理；纯文本格式保留Markdown语法，便于在Word中进一步编辑和样式调整。",
+  unknownError: "未知错误",
+  fileReadFailed: "文件读取失败",
+  pasteStepsCommon: ["点击“复制到剪贴板”按钮", "打开 Word 文档", "直接粘贴 (Ctrl+V)"],
+  pasteStep4Richtext: "格式和样式将自动保留",
+  pasteStep4Plaintext: "可以在 Word 中继续编辑/应用样式",
+  sampleMarkdown: "",
 } as const;
 
 type MarkdownToWordUi = typeof DEFAULT_UI;
@@ -355,10 +361,9 @@ class MarkdownToWordConverter {
 
 export default function MarkdownToWordClient() {
   const [markdown, setMarkdown] = useState<string>("");
-  const [wordOutput, setWordOutput] = useState<string>("");
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("richtext");
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [manualError, setManualError] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const config = useOptionalToolConfig("markdown-to-word");
@@ -369,17 +374,17 @@ export default function MarkdownToWordClient() {
     ...((config?.ui ?? {}) as Partial<MarkdownToWordUi>)
   };
 
-  // 实时转换
-  useEffect(() => {
+  const conversion = useMemo(() => {
     const converter = new MarkdownToWordConverter(outputFormat);
     try {
       const result = converter.convert(markdown);
-      setWordOutput(result);
-      setError("");
+      return { output: result, error: "" };
     } catch (err) {
-      setError(ui.conversionError.replace("{message}", err instanceof Error ? err.message : "未知错误"));
+      return { output: "", error: ui.conversionError.replace("{message}", err instanceof Error ? err.message : ui.unknownError) };
     }
-  }, [markdown, outputFormat, ui.conversionError]);
+  }, [markdown, outputFormat, ui.conversionError, ui.unknownError]);
+
+  const error = manualError || conversion.error;
 
   // 处理文件上传
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -387,7 +392,7 @@ export default function MarkdownToWordClient() {
     if (!file) return;
 
     if (!file.name.endsWith('.md')) {
-      setError(ui.unsupportedFormat);
+      setManualError(ui.unsupportedFormat);
       return;
     }
 
@@ -395,10 +400,10 @@ export default function MarkdownToWordClient() {
     reader.onload = (e) => {
       const content = e.target?.result as string;
       setMarkdown(content);
-      setError("");
+      setManualError("");
     };
     reader.onerror = () => {
-      setError(ui.fileError.replace("{message}", "文件读取失败"));
+      setManualError(ui.fileError.replace("{message}", ui.fileReadFailed));
     };
     reader.readAsText(file);
   };
@@ -406,24 +411,24 @@ export default function MarkdownToWordClient() {
   // 复制到剪贴板
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(wordOutput);
+      await navigator.clipboard.writeText(conversion.output);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch {
-      setError(ui.copyFailed);
+      setManualError(ui.copyFailed);
     }
   };
 
   // 加载示例
   const loadSample = () => {
-    setMarkdown(SAMPLE_MARKDOWN);
+    setMarkdown(ui.sampleMarkdown || SAMPLE_MARKDOWN);
+    setManualError("");
   };
 
   // 清空内容
   const clearContent = () => {
     setMarkdown("");
-    setWordOutput("");
-    setError("");
+    setManualError("");
     setCopySuccess(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -475,7 +480,10 @@ export default function MarkdownToWordClient() {
             <label className="text-slate-700 font-medium">{ui.formatLabel}:</label>
             <select
               value={outputFormat}
-              onChange={(e) => setOutputFormat(e.target.value as OutputFormat)}
+              onChange={(e) => {
+                setOutputFormat(e.target.value as OutputFormat);
+                setManualError("");
+              }}
               className="px-3 py-1 border border-slate-300 rounded-xl focus:border-blue-500 focus:outline-none"
             >
               <option value="richtext">{ui.richTextFormat}</option>
@@ -517,7 +525,10 @@ export default function MarkdownToWordClient() {
             <div className="relative">
               <textarea
                 value={markdown}
-                onChange={(e) => setMarkdown(e.target.value)}
+                onChange={(e) => {
+                  setMarkdown(e.target.value);
+                  setManualError("");
+                }}
                 placeholder={ui.inputPlaceholder}
                 className="w-full h-96 p-4 border border-slate-300 rounded-2xl font-mono text-sm focus:border-blue-500 focus:outline-none resize-none"
                 spellCheck={false}
@@ -531,11 +542,11 @@ export default function MarkdownToWordClient() {
               <label className="text-slate-700 font-semibold">{ui.outputLabel}</label>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-slate-500">
-                  {wordOutput.length} {ui.charactersCount}
+                  {conversion.output.length} {ui.charactersCount}
                 </span>
                 <button
                   onClick={copyToClipboard}
-                  disabled={!wordOutput}
+                  disabled={!conversion.output}
                   className="px-3 py-1 bg-blue-600 text-white text-sm rounded-xl hover:bg-blue-700 transition disabled:bg-slate-300 disabled:cursor-not-allowed"
                 >
                   {ui.copyButton}
@@ -544,7 +555,7 @@ export default function MarkdownToWordClient() {
             </div>
             <div className="relative">
               <textarea
-                value={wordOutput}
+                value={conversion.output}
                 readOnly
                 placeholder={ui.outputPlaceholder}
                 className="w-full h-96 p-4 border border-slate-300 rounded-2xl font-mono text-sm bg-slate-50 resize-none"
@@ -557,12 +568,12 @@ export default function MarkdownToWordClient() {
         <div className="bg-slate-50 rounded-2xl p-6 text-sm text-slate-600">
           <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="font-semibold text-blue-800 mb-2">📋 {ui.pasteInstructions}</div>
-            <div className="text-blue-700">
-              1. 点击"复制到剪贴板"按钮<br/>
-              2. 打开Word文档<br/>
-              3. 直接粘贴 (Ctrl+V)<br/>
-              {outputFormat === 'richtext' ? '4. 格式和样式将自动保留' : '4. 可以在Word中应用样式'}
-            </div>
+            <ol className="list-decimal space-y-1 pl-5 text-blue-700">
+              {ui.pasteStepsCommon.map((s, idx) => (
+                <li key={idx}>{s}</li>
+              ))}
+              <li>{outputFormat === "richtext" ? ui.pasteStep4Richtext : ui.pasteStep4Plaintext}</li>
+            </ol>
           </div>
 
           <h3 className="font-semibold text-slate-800 mb-3">{ui.featuresTitle}</h3>

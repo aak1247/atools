@@ -132,27 +132,27 @@ function CsvVisualizerInner() {
   const [delimiterMode, setDelimiterMode] = useState<"auto" | Delimiter>("auto");
   const [selectedX, setSelectedX] = useState<string>("__index__");
   const [selectedY, setSelectedY] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
 
   const delimiter = useMemo(
     () => (delimiterMode === "auto" ? detectDelimiter(raw) : delimiterMode),
     [delimiterMode, raw],
   );
 
-  const parsed = useMemo(() => {
-    setError(null);
-    if (!raw.trim()) return null as null | { rows: string[][]; header: string[]; body: string[][] };
+  const parseResult = useMemo(() => {
+    if (!raw.trim()) return { parsed: null as null | { rows: string[][]; header: string[]; body: string[][] }, error: null as string | null };
     try {
       const rows = parseCsv(raw, delimiter);
-      if (rows.length === 0) return { rows, header: [], body: [] };
+      if (rows.length === 0) return { parsed: { rows, header: [], body: [] }, error: null };
       const header = hasHeader ? rows[0].map((h, i) => (h.trim() ? h.trim() : `col_${i + 1}`)) : rows[0].map((_, i) => `col_${i + 1}`);
       const body = hasHeader ? rows.slice(1) : rows;
-      return { rows, header, body };
+      return { parsed: { rows, header, body }, error: null };
     } catch {
-      setError(ui.parseError);
-      return null;
+      return { parsed: null, error: ui.parseError };
     }
   }, [delimiter, hasHeader, raw, ui.parseError]);
+
+  const parsed = parseResult.parsed;
+  const error = parseResult.error;
 
   const columns = useMemo(() => {
     if (!parsed) return [];
@@ -186,9 +186,7 @@ function CsvVisualizerInner() {
 
   const numericColumns = useMemo(() => columns.filter((c) => c.kind === "number"), [columns]);
 
-  useEffect(() => {
-    if (!selectedY && numericColumns.length > 0) setSelectedY(String(numericColumns[0].idx));
-  }, [numericColumns, selectedY]);
+  const effectiveSelectedY = selectedY || (numericColumns.length > 0 ? String(numericColumns[0]!.idx) : "");
 
   const previewRows = useMemo(() => parsed?.body.slice(0, 500) ?? [], [parsed]);
 
@@ -214,9 +212,9 @@ function CsvVisualizerInner() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !parsed || !selectedY) return;
+    if (!canvas || !parsed || !effectiveSelectedY) return;
 
-    const yIdx = Number(selectedY);
+    const yIdx = Number(effectiveSelectedY);
     if (!Number.isFinite(yIdx)) return;
 
     const xIdx = selectedX === "__index__" ? null : Number(selectedX);
@@ -278,11 +276,10 @@ function CsvVisualizerInner() {
     ctx.moveTo(sx(points[0].x), sy(points[0].y));
     for (let i = 1; i < points.length; i += 1) ctx.lineTo(sx(points[i].x), sy(points[i].y));
     ctx.stroke();
-  }, [parsed, selectedX, selectedY]);
+  }, [effectiveSelectedY, parsed, selectedX]);
 
   const clearAll = () => {
     setRaw("");
-    setError(null);
     setSelectedX("__index__");
     setSelectedY("");
     if (fileRef.current) fileRef.current.value = "";
@@ -456,7 +453,7 @@ function CsvVisualizerInner() {
                 <label className={`block text-sm text-slate-700 ${numericColumns.length ? "" : "opacity-60"}`}>
                   {ui.yAxis}
                   <select
-                    value={selectedY}
+                    value={effectiveSelectedY}
                     onChange={(e) => setSelectedY(e.target.value)}
                     disabled={numericColumns.length === 0}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 disabled:opacity-60"
@@ -483,4 +480,3 @@ function CsvVisualizerInner() {
     </div>
   );
 }
-

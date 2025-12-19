@@ -1,0 +1,26 @@
+.root {
+}
+
+.root :global(.docx-wrapper) {
+  background: transparent;
+  padding: 0;
+}
+
+.root :global(.docx-wrapper > section) {
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 8px 24px rgb(15 23 42 / 0.08);
+  margin-bottom: 18px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+@media print {
+  .root :global(.no-print) {
+    display: none !important;
+  }
+
+  .root :global(.docx-wrapper > section) {
+    box-shadow: none;
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+}

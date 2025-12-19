@@ -11,6 +11,8 @@ type Mode = "encrypt" | "decrypt";
 const DEFAULT_UI = {
   encrypt: "加密 PDF",
   decrypt: "解密 PDF",
+  inputTitle: "输入",
+  outputTitle: "输出",
   pickPdf: "选择 PDF",
   pickEncrypted: "选择加密 JSON",
   password: "密码",
@@ -21,6 +23,12 @@ const DEFAULT_UI = {
   download: "下载",
   outputJson: "加密输出 JSON",
   inputJson: "待解密 JSON",
+  jsonPlaceholder: "粘贴本工具生成的 JSON…",
+  encryptOutputPlaceholder: "加密后会在这里输出 JSON…",
+  decryptOutputPlaceholder: "解密后会在这里输出元信息…",
+  errPasswordRequired: "请输入密码",
+  errEncryptFailed: "加密失败",
+  errDecryptFailed: "解密失败（可能密码错误或内容损坏）",
   note:
     "说明：由于纯静态站点无法对 PDF 做标准“打开密码”加密/解密，本工具使用 AES-256-GCM 将整个 PDF 文件加密为 JSON，可在本工具中解密还原原 PDF。",
 } as const;
@@ -109,7 +117,7 @@ function PdfEncryptorInner() {
       const url = URL.createObjectURL(new Blob([out], { type: "application/json" }));
       setDownloadUrl(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "加密失败");
+      setError(e instanceof Error ? e.message : ui.errEncryptFailed);
     } finally {
       setIsWorking(false);
     }
@@ -128,7 +136,7 @@ function PdfEncryptorInner() {
       setDownloadName(name);
       setOutputText(JSON.stringify({ meta, size: bytes.byteLength }, null, 2));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "解密失败（可能密码错误或内容损坏）");
+      setError(e instanceof Error ? e.message : ui.errDecryptFailed);
     } finally {
       setIsWorking(false);
     }
@@ -137,7 +145,7 @@ function PdfEncryptorInner() {
   const run = async () => {
     resetOutput();
     if (!password) {
-      setError("请输入密码");
+      setError(ui.errPasswordRequired);
       return;
     }
     if (mode === "encrypt") await runEncrypt();
@@ -167,7 +175,7 @@ function PdfEncryptorInner() {
                 mode === "encrypt" ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              {DEFAULT_UI.encrypt}
+              {ui.encrypt}
             </button>
             <button
               type="button"
@@ -179,7 +187,7 @@ function PdfEncryptorInner() {
                 mode === "decrypt" ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              {DEFAULT_UI.decrypt}
+              {ui.decrypt}
             </button>
           </div>
           <button
@@ -187,17 +195,17 @@ function PdfEncryptorInner() {
             onClick={clear}
             className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
           >
-            {DEFAULT_UI.clear}
+            {ui.clear}
           </button>
         </div>
 
         <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-          {DEFAULT_UI.note}
+          {ui.note}
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">输入</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.inputTitle}</div>
 
             <div className="mt-4 space-y-3">
               {mode === "encrypt" ? (
@@ -208,7 +216,7 @@ function PdfEncryptorInner() {
                     onClick={() => pdfRef.current?.click()}
                     className="w-full rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
                   >
-                    {DEFAULT_UI.pickPdf}
+                    {ui.pickPdf}
                   </button>
                   {pdfFile && (
                     <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700 ring-1 ring-slate-200">
@@ -225,15 +233,15 @@ function PdfEncryptorInner() {
                     onClick={() => jsonRef.current?.click()}
                     className="w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
-                    {DEFAULT_UI.pickEncrypted}
+                    {ui.pickEncrypted}
                   </button>
                   <label className="block text-sm text-slate-700">
-                    {DEFAULT_UI.inputJson}
+                    {ui.inputJson}
                     <textarea
                       value={jsonText}
                       onChange={(e) => setJsonText(e.target.value)}
                       className="mt-2 h-44 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                      placeholder="粘贴本工具生成的 JSON…"
+                      placeholder={ui.jsonPlaceholder}
                     />
                   </label>
                 </>
@@ -241,7 +249,7 @@ function PdfEncryptorInner() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block text-sm text-slate-700">
-                  {DEFAULT_UI.password}
+                  {ui.password}
                   <input
                     type="password"
                     value={password}
@@ -250,7 +258,7 @@ function PdfEncryptorInner() {
                   />
                 </label>
                 <label className={`block text-sm text-slate-700 ${mode === "encrypt" ? "" : "opacity-60"}`}>
-                  {DEFAULT_UI.iterations}
+                  {ui.iterations}
                   <input
                     type="number"
                     min={10_000}
@@ -270,7 +278,7 @@ function PdfEncryptorInner() {
                 disabled={!canRun || isWorking}
                 className="w-full rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
               >
-                {isWorking ? DEFAULT_UI.working : DEFAULT_UI.run}
+                {isWorking ? ui.working : ui.run}
               </button>
 
               {error && (
@@ -283,14 +291,14 @@ function PdfEncryptorInner() {
 
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-slate-900">{mode === "encrypt" ? DEFAULT_UI.outputJson : "输出"}</div>
+              <div className="text-sm font-semibold text-slate-900">{mode === "encrypt" ? ui.outputJson : ui.outputTitle}</div>
               {downloadUrl && (
                 <a
                   href={downloadUrl}
                   download={downloadName}
                   className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
                 >
-                  {DEFAULT_UI.download} {downloadName}
+                  {ui.download} {downloadName}
                 </a>
               )}
             </div>
@@ -298,7 +306,7 @@ function PdfEncryptorInner() {
               value={outputText}
               readOnly
               className="mt-3 h-72 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-              placeholder={mode === "encrypt" ? "加密后会在这里输出 JSON…" : "解密后会在这里输出元信息…"}
+              placeholder={mode === "encrypt" ? ui.encryptOutputPlaceholder : ui.decryptOutputPlaceholder}
             />
           </div>
         </div>

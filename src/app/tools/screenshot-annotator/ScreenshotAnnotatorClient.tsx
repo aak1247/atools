@@ -51,11 +51,6 @@ const DEFAULT_UI: Ui = {
   copied: "已复制",
 };
 
-const toBlob = (canvas: HTMLCanvasElement): Promise<Blob> =>
-  new Promise((resolve, reject) => {
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/png", 1);
-  });
-
 const dataUrlToBlob = async (dataUrl: string) => {
   const res = await fetch(dataUrl);
   return res.blob();
@@ -217,9 +212,9 @@ function Inner({ ui }: { ui: Ui }) {
     if (!canvas) return;
 
     let start: { x: number; y: number } | null = null;
-    let temp: any | null = null;
+    let temp: Rect | Line | null = null;
 
-    const onDown = (opt: any) => {
+    const onDown = (opt: { e: MouseEvent | TouchEvent }) => {
       if (mode === "rect" || mode === "arrow") {
         const p = canvas.getPointer(opt.e);
         start = { x: p.x, y: p.y };
@@ -236,12 +231,11 @@ function Inner({ ui }: { ui: Ui }) {
         });
         canvas.add(textbox);
         canvas.setActiveObject(textbox);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (textbox as any).enterEditing?.();
+        (textbox as unknown as { enterEditing?: () => void }).enterEditing?.();
       }
     };
 
-    const onMove = (opt: any) => {
+    const onMove = (opt: { e: MouseEvent | TouchEvent }) => {
       if (!start) return;
       const p = canvas.getPointer(opt.e);
 
@@ -336,13 +330,10 @@ function Inner({ ui }: { ui: Ui }) {
     if (!dataUrl) return;
     const blob = await dataUrlToBlob(dataUrl);
     // Clipboard API requires secure context
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ClipboardItemCtor = (window as any).ClipboardItem;
+    const ClipboardItemCtor = window.ClipboardItem;
     if (!ClipboardItemCtor) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const item = new ClipboardItemCtor({ "image/png": blob });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (navigator.clipboard as any).write([item]);
+    await navigator.clipboard.write([item]);
     setCopyState("copied");
     window.setTimeout(() => setCopyState("idle"), 900);
   };

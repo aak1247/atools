@@ -90,7 +90,6 @@ export default function QrCodeBulkGeneratorClient() {
 
             for (let idx = 0; idx < rows.length; idx += 1) {
               const row = rows[idx]!;
-              // eslint-disable-next-line no-await-in-loop
               const dataUrl = await QRCode.toDataURL(row.text, {
                 width,
                 margin: safeMargin,

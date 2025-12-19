@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
@@ -137,12 +137,8 @@ function EmojiPickerInner() {
   const [categoryKey, setCategoryKey] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState("");
-  const [recent, setRecent] = useState<string[]>([]);
+  const [recent, setRecent] = useState<string[]>(() => loadRecent());
   const [copied, setCopied] = useState<string | null>(null);
-
-  useEffect(() => {
-    setRecent(loadRecent());
-  }, []);
 
   const allEmojis = useMemo(() => {
     const ranges: Array<[number, number]> = [

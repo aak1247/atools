@@ -45,54 +45,24 @@ const fetchStatus = async (url: string): Promise<AllOriginsResponse["status"]> =
 };
 
 const DEFAULT_UI = {
-  title: "SSL/TLS 证书检查器",
-  inputPlaceholder: "输入域名或网址，如 example.com 或 https://example.com/path",
-  check: "检查证书",
-  checking: "检查中...",
+  title: "SSL / HTTPS 检查",
+  description:
+    "说明：由于纯静态站点无法直接读取 TLS 证书细节，本工具通过公共代理获取 HTTP/HTTPS 可达性与响应状态，用于快速判断 HTTPS 是否可用/是否存在异常跳转。",
+  inputPlaceholder: "example.com 或 https://example.com/path",
+  check: "开始检查",
+  checking: "检查中…",
   clear: "清空",
   invalidInput: "请输入有效的域名或网址",
   error: "检查失败",
-  noSslCertificate: "未找到有效的 SSL/TLS 证书",
-  certificateDetails: "证书详情",
-  subject: "主体",
-  issuer: "颁发者",
-  serialNumber: "序列号",
-  version: "版本",
-  validFrom: "生效时间",
-  validUntil: "过期时间",
-  fingerprintSha1: "SHA1 指纹",
-  fingerprintSha256: "SHA256 指纹",
-  publicKeyAlgorithm: "公钥算法",
-  publicKeySize: "密钥长度",
-  signatureAlgorithm: "签名算法",
-  subjectAlternativeNames: "主体备用名称",
-  dnsNames: "DNS 名称",
-  ipAddresses: "IP 地址",
-  keyUsage: "密钥用途",
-  extendedKeyUsage: "扩展密钥用途",
-  basicConstraints: "基本约束",
-  certificatePolicies: "证书策略",
-  crlDistributionPoints: "CRL 分发点",
-  authorityInfoAccess: "颁发机构信息访问",
-  connections: "连接测试",
-  httpsConnection: "HTTPS 连接",
-  httpConnection: "HTTP 连接",
-  responseTime: "响应时间",
-  statusCode: "状态码",
-  contentType: "内容类型",
-  contentLength: "内容长度",
-  redirect: "重定向",
-  redirectTarget: "重定向目标",
-  securityHeaders: "安全响应头",
-  strictTransportSecurity: "HSTS",
-  contentSecurityPolicy: "CSP",
-  xContentTypeOptions: "X-Content-Type-Options",
-  xFrameOptions: "X-Frame-Options",
-  valid: "有效",
-  invalid: "无效",
-  weak: "弱",
-  strong: "强",
-  na: "不适用"
+  resultsTitle: "结果",
+  verdictOk: "HTTPS 可用",
+  verdictBad: "HTTPS 可能不可用",
+  tableProtocol: "协议",
+  tableFinalUrl: "最终 URL",
+  tableStatusCode: "状态码",
+  tableResponseTimeMs: "耗时 (ms)",
+  tableContentType: "Content-Type",
+  footerNote: "注：这里只能检查“HTTPS 是否可访问/是否自动跳转”等现象，无法在浏览器端直接读取证书颁发机构、过期时间等字段。"
 } as const;
 
 type Ui = typeof DEFAULT_UI;
@@ -122,7 +92,7 @@ function SslCheckerInner() {
     setHttpStatus(null);
     setHttpsStatus(null);
     if (!normalized.httpsUrl || !normalized.httpUrl) {
-      setError("请输入合法域名或 URL。");
+      setError(ui.invalidInput);
       return;
     }
     setIsWorking(true);
@@ -131,7 +101,7 @@ function SslCheckerInner() {
       setHttpsStatus(https);
       setHttpStatus(http);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "检查失败");
+      setError(e instanceof Error ? e.message : ui.error);
     } finally {
       setIsWorking(false);
     }
@@ -140,23 +110,21 @@ function SslCheckerInner() {
   const verdict = useMemo(() => {
     if (!httpsStatus) return null;
     const ok = httpsStatus.http_code >= 200 && httpsStatus.http_code < 400;
-    return ok ? "HTTPS 可用" : "HTTPS 可能不可用";
-  }, [httpsStatus]);
+    return { ok, text: ok ? ui.verdictOk : ui.verdictBad };
+  }, [httpsStatus, ui.verdictBad, ui.verdictOk]);
 
   return (
     <div className="w-full px-4">
       <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-        <div className="text-sm font-semibold text-slate-900">SSL / HTTPS 检查</div>
-        <div className="mt-2 text-xs text-slate-600">
-          说明：由于纯静态站点无法直接读取 TLS 证书细节，本工具通过公共代理获取 HTTP/HTTPS 可达性与响应状态（不上传你的输入文件）。
-        </div>
+        <div className="text-sm font-semibold text-slate-900">{ui.title}</div>
+        <div className="mt-2 text-xs text-slate-600">{ui.description}</div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="min-w-[240px] flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-            placeholder="example.com 或 https://example.com/path"
+            placeholder={ui.inputPlaceholder}
           />
           <button
             type="button"
@@ -164,7 +132,7 @@ function SslCheckerInner() {
             disabled={isWorking}
             className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
           >
-            {isWorking ? "检查中…" : "开始检查"}
+            {isWorking ? ui.checking : ui.check}
           </button>
         </div>
 
@@ -177,14 +145,14 @@ function SslCheckerInner() {
         {(httpsStatus || httpStatus) && (
           <div className="mt-6 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-slate-900">结果</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.resultsTitle}</div>
               {verdict && (
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    verdict.includes("可用") ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"
+                    verdict.ok ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800"
                   }`}
                 >
-                  {verdict}
+                  {verdict.text}
                 </span>
               )}
             </div>
@@ -193,11 +161,11 @@ function SslCheckerInner() {
               <table className="w-full table-fixed border-collapse text-left text-xs">
                 <thead className="bg-slate-50 text-slate-700">
                   <tr>
-                    <th className="w-20 border-b border-slate-200 px-3 py-2">协议</th>
-                    <th className="border-b border-slate-200 px-3 py-2">最终 URL</th>
-                    <th className="w-24 border-b border-slate-200 px-3 py-2">状态码</th>
-                    <th className="w-28 border-b border-slate-200 px-3 py-2">耗时 (ms)</th>
-                    <th className="w-40 border-b border-slate-200 px-3 py-2">Content-Type</th>
+                    <th className="w-20 border-b border-slate-200 px-3 py-2">{ui.tableProtocol}</th>
+                    <th className="border-b border-slate-200 px-3 py-2">{ui.tableFinalUrl}</th>
+                    <th className="w-24 border-b border-slate-200 px-3 py-2">{ui.tableStatusCode}</th>
+                    <th className="w-28 border-b border-slate-200 px-3 py-2">{ui.tableResponseTimeMs}</th>
+                    <th className="w-40 border-b border-slate-200 px-3 py-2">{ui.tableContentType}</th>
                   </tr>
                 </thead>
                 <tbody className="text-slate-800">
@@ -218,7 +186,7 @@ function SslCheckerInner() {
             </div>
 
             <div className="mt-4 text-xs text-slate-500">
-              注：这里只能检查“HTTPS 是否可访问/是否自动跳转”等现象，无法在浏览器端直接读取证书颁发机构、过期时间等字段。
+              {ui.footerNote}
             </div>
           </div>
         )}
@@ -226,4 +194,3 @@ function SslCheckerInner() {
     </div>
   );
 }
-

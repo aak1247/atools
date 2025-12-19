@@ -1,8 +1,8 @@
 "use client";
 
 import type { ChangeEvent } from "react";
-import { PDFDocument, rgb } from "pdf-lib";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { PDFDocument, rgb, type PDFPage } from "pdf-lib";
+import { useEffect, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
@@ -219,7 +219,7 @@ function ImageToPdfInner() {
         const isJpeg = mime === "image/jpeg" || mime === "image/jpg" || ext === "jpg" || ext === "jpeg";
         const isPng = mime === "image/png" || ext === "png";
 
-        let embedded: { width: number; height: number; draw: (page: any, rect: { x: number; y: number; w: number; h: number }) => void };
+        let embedded: { width: number; height: number; draw: (page: PDFPage, rect: { x: number; y: number; w: number; h: number }) => void };
 
         if (isJpeg) {
           const bytes = new Uint8Array(await it.file.arrayBuffer());

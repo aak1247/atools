@@ -8,6 +8,20 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
+  "ui": {
+    "title": "图标字体转换器",
+    "pickFile": "选择字体文件",
+    "clear": "清空",
+    "settings": "设置",
+    "familyLabel": "font-family 名称",
+    "familyPlaceholder": "例如 MyIconFont",
+    "hint": "说明：此工具将字体文件转为 Base64 Data URL，并生成可直接粘贴到 CSS 的 @font-face 代码（适合内联或小型字体）。较大的字体文件会显著增大 CSS 体积。",
+    "cssTitle": "@font-face CSS",
+    "dataUrlTitle": "Data URL",
+    "copy": "复制",
+    "outputPlaceholder": "选择字体文件后生成…",
+    "readFailed": "读取失败",
+    "fileSizeKb": "{size} KB"
+  },
   "keywords": ["iconfont", "woff2转base64", "字体转css", "font-face生成", "data url"]
 }
-

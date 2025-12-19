@@ -2,7 +2,7 @@
 
 import type { ChangeEvent } from "react";
 import { X509Certificate } from "@peculiar/x509";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
@@ -14,7 +14,7 @@ type ParsedCert = {
   notAfter: string;
   signatureAlgorithm: string;
   publicKeyAlgorithm: string;
-  publicKeySize?: number;
+  publicKeySize?: string;
   thumbprintSha1?: string;
   thumbprintSha256?: string;
   dnsNames?: string[];
@@ -55,6 +55,7 @@ const parseOne = (cert: X509Certificate): ParsedCert => {
   const ipAddresses = san?.ip ?? [];
   const uris = san?.uri ?? [];
   const emailAddresses = san?.email ?? [];
+  const algorithm = cert.publicKey.algorithm as unknown as { modulusLength?: number; namedCurve?: string };
   return {
     subject: cert.subject,
     issuer: cert.issuer,
@@ -63,7 +64,7 @@ const parseOne = (cert: X509Certificate): ParsedCert => {
     notAfter: cert.notAfter.toISOString(),
     signatureAlgorithm: cert.signatureAlgorithm.name,
     publicKeyAlgorithm: cert.publicKey.algorithm.name,
-    publicKeySize: (cert.publicKey.algorithm as any).modulusLength ?? (cert.publicKey.algorithm as any).namedCurve ?? undefined,
+    publicKeySize: typeof algorithm.modulusLength === "number" ? String(algorithm.modulusLength) : algorithm.namedCurve ?? undefined,
     thumbprintSha1: extended.thumbprint,
     thumbprintSha256: extended.thumbprint256,
     dnsNames: dnsNames.length ? dnsNames : undefined,
@@ -143,7 +144,7 @@ function X509CertificateViewerInner() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [input, setInput] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [manualError, setManualError] = useState<string | null>(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -173,23 +174,17 @@ function X509CertificateViewerInner() {
     }
   }, [input, ui.detectionError, ui.parseError]);
 
-  // Handle errors separately using useEffect
-  useEffect(() => {
-    setError(parsed.error);
-  }, [parsed.error]);
-
   const active = parsed.certs[activeIndex] ?? null;
   const activeRaw = parsed.raw[activeIndex] ?? null;
 
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [fileName]);
+  const error = manualError ?? parsed.error;
 
   const onUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
-    setError(null);
+    setManualError(null);
+    setActiveIndex(0);
     if (file.type.startsWith("text/") || file.name.toLowerCase().endsWith(".pem")) {
       setInput(await file.text());
       return;
@@ -200,7 +195,7 @@ function X509CertificateViewerInner() {
       // keep PEM-like view for display/copy
       setInput(cert.toString("pem"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : ui.derParseError);
+      setManualError(err instanceof Error ? err.message : ui.derParseError);
       setInput("");
     }
   };
@@ -212,7 +207,7 @@ function X509CertificateViewerInner() {
   const clear = () => {
     setInput("");
     setFileName(null);
-    setError(null);
+    setManualError(null);
     setActiveIndex(0);
     if (fileRef.current) fileRef.current.value = "";
   };

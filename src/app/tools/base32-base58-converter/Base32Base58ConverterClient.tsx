@@ -108,83 +108,83 @@ function Base32Base58ConverterInner({ ui }: { ui: Base32Base58ConverterUi }) {
   const [base32Padding, setBase32Padding] = useState(true);
   const [input, setInput] = useState("hello world");
 
-  const hexToBytes = (hex: string) => {
-    const normalized = hex.trim().replace(/^0x/i, "").replace(/\s+/g, "");
-    if (normalized.length === 0) return new Uint8Array();
-    if (normalized.length % 2 !== 0) throw new Error(ui.errHexOddLength);
-    const out = new Uint8Array(normalized.length / 2);
-    for (let i = 0; i < out.length; i += 1) {
-      const byte = Number.parseInt(normalized.slice(i * 2, i * 2 + 2), 16);
-      if (!Number.isFinite(byte)) throw new Error(ui.errHexInvalidChar);
-      out[i] = byte;
-    }
-    return out;
-  };
-
-  const base32Decode = (text: string) => {
-    const normalized = text
-      .trim()
-      .toUpperCase()
-      .replace(/\s+/g, "")
-      .replace(/=+$/g, "");
-
-    let buffer = 0;
-    let bits = 0;
-    const out: number[] = [];
-
-    for (const ch of normalized) {
-      const idx = base32Alphabet.indexOf(ch);
-      if (idx < 0) throw new Error(applyTemplate(ui.errBase32InvalidCharTemplate, { ch }));
-      buffer = (buffer << 5) | idx;
-      bits += 5;
-      if (bits >= 8) {
-        out.push((buffer >> (bits - 8)) & 0xff);
-        bits -= 8;
-      }
-    }
-
-    return new Uint8Array(out);
-  };
-
-  const base58Decode = (text: string) => {
-    const normalized = text.trim().replace(/\s+/g, "");
-    if (!normalized) return new Uint8Array();
-
-    let zeros = 0;
-    while (zeros < normalized.length && normalized[zeros] === "1") zeros += 1;
-
-    const bytes: number[] = [0];
-    for (let i = zeros; i < normalized.length; i += 1) {
-      const ch = normalized[i] ?? "";
-      const val = base58Alphabet.indexOf(ch);
-      if (val < 0) throw new Error(applyTemplate(ui.errBase58InvalidCharTemplate, { ch }));
-
-      let carry = val;
-      for (let j = 0; j < bytes.length; j += 1) {
-        const n = (bytes[j] ?? 0) * 58 + carry;
-        bytes[j] = n & 0xff;
-        carry = n >> 8;
-      }
-      while (carry > 0) {
-        bytes.push(carry & 0xff);
-        carry >>= 8;
-      }
-    }
-
-    const out = new Uint8Array(zeros + bytes.length);
-    out.fill(0, 0, zeros);
-    out.set(bytes.reverse(), zeros);
-    return out;
-  };
-
-  const decodeToBytes = (text: string, format: Format) => {
-    if (format === "hex") return hexToBytes(text);
-    if (format === "base32") return base32Decode(text);
-    if (format === "base58") return base58Decode(text);
-    return new TextEncoder().encode(text);
-  };
-
   const result = useMemo(() => {
+    const hexToBytes = (hex: string) => {
+      const normalized = hex.trim().replace(/^0x/i, "").replace(/\s+/g, "");
+      if (normalized.length === 0) return new Uint8Array();
+      if (normalized.length % 2 !== 0) throw new Error(ui.errHexOddLength);
+      const out = new Uint8Array(normalized.length / 2);
+      for (let i = 0; i < out.length; i += 1) {
+        const byte = Number.parseInt(normalized.slice(i * 2, i * 2 + 2), 16);
+        if (!Number.isFinite(byte)) throw new Error(ui.errHexInvalidChar);
+        out[i] = byte;
+      }
+      return out;
+    };
+
+    const base32Decode = (text: string) => {
+      const normalized = text
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, "")
+        .replace(/=+$/g, "");
+
+      let buffer = 0;
+      let bits = 0;
+      const out: number[] = [];
+
+      for (const ch of normalized) {
+        const idx = base32Alphabet.indexOf(ch);
+        if (idx < 0) throw new Error(applyTemplate(ui.errBase32InvalidCharTemplate, { ch }));
+        buffer = (buffer << 5) | idx;
+        bits += 5;
+        if (bits >= 8) {
+          out.push((buffer >> (bits - 8)) & 0xff);
+          bits -= 8;
+        }
+      }
+
+      return new Uint8Array(out);
+    };
+
+    const base58Decode = (text: string) => {
+      const normalized = text.trim().replace(/\s+/g, "");
+      if (!normalized) return new Uint8Array();
+
+      let zeros = 0;
+      while (zeros < normalized.length && normalized[zeros] === "1") zeros += 1;
+
+      const bytes: number[] = [0];
+      for (let i = zeros; i < normalized.length; i += 1) {
+        const ch = normalized[i] ?? "";
+        const val = base58Alphabet.indexOf(ch);
+        if (val < 0) throw new Error(applyTemplate(ui.errBase58InvalidCharTemplate, { ch }));
+
+        let carry = val;
+        for (let j = 0; j < bytes.length; j += 1) {
+          const n = (bytes[j] ?? 0) * 58 + carry;
+          bytes[j] = n & 0xff;
+          carry = n >> 8;
+        }
+        while (carry > 0) {
+          bytes.push(carry & 0xff);
+          carry >>= 8;
+        }
+      }
+
+      const out = new Uint8Array(zeros + bytes.length);
+      out.fill(0, 0, zeros);
+      out.set(bytes.reverse(), zeros);
+      return out;
+    };
+
+    const decodeToBytes = (text: string, format: Format) => {
+      if (format === "hex") return hexToBytes(text);
+      if (format === "base32") return base32Decode(text);
+      if (format === "base58") return base58Decode(text);
+      return new TextEncoder().encode(text);
+    };
+
     try {
       const bytes = decodeToBytes(input, from);
       const out = encodeBytes(bytes, to, base32Padding);
@@ -200,7 +200,17 @@ function Base32Base58ConverterInner({ ui }: { ui: Base32Base58ConverterUi }) {
     } catch (e) {
       return { ok: false as const, error: e instanceof Error ? e.message : ui.errConvertFailed };
     }
-  }, [base32Padding, decodeToBytes, from, input, to, ui.errConvertFailed]);
+  }, [
+    base32Padding,
+    from,
+    input,
+    to,
+    ui.errBase32InvalidCharTemplate,
+    ui.errBase58InvalidCharTemplate,
+    ui.errConvertFailed,
+    ui.errHexInvalidChar,
+    ui.errHexOddLength,
+  ]);
 
   const copy = async (value: string) => {
     await navigator.clipboard.writeText(value);
