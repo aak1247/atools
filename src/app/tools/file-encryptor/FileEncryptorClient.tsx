@@ -150,7 +150,7 @@ function FileEncryptorInner() {
       const { bytes, meta } = await decryptBytes({ payload, password });
       const name = meta?.name || "decrypted.bin";
       const type = meta?.type || "application/octet-stream";
-      const blob = new Blob([bytes], { type });
+      const blob = new Blob([new Uint8Array(bytes)], { type });
       const url = URL.createObjectURL(blob);
       if (downloadUrl) URL.revokeObjectURL(downloadUrl);
       setDownloadUrl(url);
@@ -376,4 +376,3 @@ function FileEncryptorInner() {
     </div>
   );
 }
-

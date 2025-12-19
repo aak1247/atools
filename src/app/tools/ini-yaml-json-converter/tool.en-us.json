@@ -1,0 +1,23 @@
+{
+  "name": "Free Online INI YAML JSON Converter - ATools",
+  "shortName": "Config Converter",
+  "description": "Free online INI/YAML/JSON converter with basic validation and copy output. Runs locally in your browser.",
+  "seoDescription": "Free online INI/YAML/JSON converter that converts between INI, YAML, and JSON, with basic format validation and one-click copy output. Everything runs locally in your browser with zero uploads, ideal for config migrations and quick debugging.",
+  "category": "Developer Tools",
+  "lang": "en-US",
+  "keywords": ["INI to JSON", "YAML to JSON", "JSON to YAML", "config converter", "format validation"],
+  "ui": {
+    "input": "Input",
+    "output": "Output",
+    "swap": "Swap",
+    "jsonPretty": "Pretty JSON",
+    "copyOutput": "Copy output",
+    "description": "Notes: Convert between INI/YAML/JSON with basic validation. INI supports “root keys + sections”; for deep nesting use YAML/JSON.",
+    "inputTitle": "Input",
+    "outputTitle": "Output",
+    "outputPlaceholder": "Converted output…",
+    "errConvertFailed": "Conversion failed",
+    "errIniObjectOnly": "INI only supports objects (key=value). Arrays or scalar values are not supported."
+  }
+}
+

@@ -4,6 +4,7 @@ import type { ChangeEvent } from "react";
 import { PDFDocument } from "pdf-lib";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Mode = "image" | "pdf" | "unsupported";
 type ImageOut = "png" | "jpeg" | "webp";
@@ -24,6 +25,8 @@ const DEFAULT_UI = {
   unsupported:
     "暂仅支持：图片（JPEG/PNG/WebP）与 PDF。其他格式的“元数据清理”在纯前端环境难以可靠实现。",
 } as const;
+
+type Ui = typeof DEFAULT_UI;
 
 const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
   const buffer = new ArrayBuffer(bytes.byteLength);
@@ -49,6 +52,9 @@ export default function MetadataRemoverClient() {
 }
 
 function MetadataRemoverInner() {
+  const config = useOptionalToolConfig("metadata-remover");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -136,7 +142,7 @@ function MetadataRemoverInner() {
     doc.setCreationDate(new Date(0));
     doc.setModificationDate(new Date(0));
     const out = await doc.save();
-    return new Blob([out], { type: "application/pdf" });
+    return new Blob([new Uint8Array(out)], { type: "application/pdf" });
   };
 
   const run = async () => {
@@ -148,7 +154,7 @@ function MetadataRemoverInner() {
       let blob: Blob | null = null;
       if (mode === "image") blob = await cleanImage(file);
       else if (mode === "pdf") blob = await cleanPdf(file);
-      else throw new Error(DEFAULT_UI.unsupported);
+      else throw new Error(ui.unsupported);
 
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
@@ -173,13 +179,13 @@ function MetadataRemoverInner() {
     <div className="w-full px-4">
       <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-slate-900">{DEFAULT_UI.pick}</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.pick}</div>
           <button
             type="button"
             onClick={clear}
             className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
           >
-            {DEFAULT_UI.clear}
+            {ui.clear}
           </button>
         </div>
 
@@ -190,7 +196,7 @@ function MetadataRemoverInner() {
             onClick={() => inputRef.current?.click()}
             className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
-            {DEFAULT_UI.pick}
+            {ui.pick}
           </button>
           {file && (
             <div className="text-sm text-slate-700">
@@ -202,20 +208,20 @@ function MetadataRemoverInner() {
 
         {!file ? (
           <div className="mt-6 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700 ring-1 ring-slate-200">
-            {DEFAULT_UI.unsupported}
+            {ui.unsupported}
           </div>
         ) : (
           <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
                 <div className="text-sm font-semibold text-slate-900">
-                  {mode === "image" ? DEFAULT_UI.imageSettings : mode === "pdf" ? DEFAULT_UI.pdfSettings : "设置"}
+                  {mode === "image" ? ui.imageSettings : mode === "pdf" ? ui.pdfSettings : "设置"}
                 </div>
 
                 {mode === "image" ? (
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <label className="block text-sm text-slate-700">
-                      {DEFAULT_UI.format}
+                      {ui.format}
                       <select
                         value={outFormat}
                         onChange={(e) => setOutFormat(e.target.value as ImageOut)}
@@ -227,7 +233,7 @@ function MetadataRemoverInner() {
                       </select>
                     </label>
                     <label className={`block text-sm text-slate-700 ${outFormat === "png" ? "opacity-60" : ""}`}>
-                      {DEFAULT_UI.quality}
+                      {ui.quality}
                       <input
                         type="number"
                         min={0.1}
@@ -242,11 +248,11 @@ function MetadataRemoverInner() {
                   </div>
                 ) : mode === "pdf" ? (
                   <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-                    {DEFAULT_UI.pdfExplain}
+                    {ui.pdfExplain}
                   </div>
                 ) : (
                   <div className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-100">
-                    {DEFAULT_UI.unsupported}
+                    {ui.unsupported}
                   </div>
                 )}
 
@@ -257,7 +263,7 @@ function MetadataRemoverInner() {
                     disabled={isWorking || mode === "unsupported"}
                     className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
                   >
-                    {isWorking ? DEFAULT_UI.working : DEFAULT_UI.run}
+                    {isWorking ? ui.working : ui.run}
                   </button>
                   {downloadUrl && (
                     <a
@@ -265,7 +271,7 @@ function MetadataRemoverInner() {
                       download={downloadName}
                       className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                     >
-                      {DEFAULT_UI.download} {downloadName}
+                      {ui.download} {downloadName}
                     </a>
                   )}
                 </div>
@@ -280,7 +286,7 @@ function MetadataRemoverInner() {
 
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">{DEFAULT_UI.original}</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.original}</div>
                 <div className="mt-3 overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
                   {mode === "image" && originalUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -294,7 +300,7 @@ function MetadataRemoverInner() {
               </div>
 
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">{DEFAULT_UI.result}</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.result}</div>
                 <div className="mt-3 overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
                   {mode === "image" && downloadUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -321,4 +327,3 @@ function MetadataRemoverInner() {
     </div>
   );
 }
-

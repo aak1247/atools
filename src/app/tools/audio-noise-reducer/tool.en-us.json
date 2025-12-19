@@ -1,0 +1,28 @@
+{
+  "name": "Free Online Audio Noise Reducer - ATools",
+  "shortName": "Audio Noise Reducer",
+  "description": "Free online audio noise reduction tool with FFmpeg-based processing, support for WAV/MP3 formats, real-time preview.",
+  "seoDescription": "Professional free online audio noise reduction tool - ATools - Uses FFmpeg afftdn filter for noise reduction, supports WAV and MP3 audio formats, real-time processing progress, audio preview before download, adjustable noise reduction strength (0-100). Completely browser-based processing, no server upload required, 100% protects audio file privacy. Clean and intuitive interface, simple and efficient operation, is a professional tool for audio post-production and noise removal. Completely free and open source, supports multiple audio formats, is the trusted audio processing tool for global content creators.",
+  "category": "Audio Tools",
+  "lang": "en-US",
+  "ui": {
+    "pickTitle": "Select Audio File",
+    "pickFile": "Select File",
+    "clear": "Clear",
+    "firstLoadHint": "Tip: First time loading ffmpeg.wasm requires downloading core files (large), may take time; all processing is done locally in browser, no server upload.",
+    "ffmpegReady": "FFmpeg Ready",
+    "ffmpegLoading": "Loading...",
+    "loadFfmpeg": "Load FFmpeg",
+    "settings": "Noise Reduction Settings",
+    "outputFormat": "Output Format",
+    "strength": "Noise Reduction Strength",
+    "start": "Start Noise Reduction",
+    "working": "Processing...",
+    "download": "Download",
+    "progress": "Progress",
+    "preview": "Preview Audio",
+    "ffmpegLogs": "FFmpeg Logs",
+    "logsPlaceholder": "Logs will appear here..."
+  },
+  "keywords": ["audio noise reduction", "noise removal", "audio processing", "FFmpeg", "WAV", "MP3", "audio cleanup"]
+}

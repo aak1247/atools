@@ -3,6 +3,58 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+
+// 中文默认值
+const DEFAULT_UI = {
+  title: "印章伪造疑点检测器",
+  upload: "上传印章图片",
+  clear: "清空",
+  analyze: "分析检测",
+  analyzing: "分析中...",
+  results: "检测结果",
+  metrics: "检测指标",
+  width: "宽度",
+  height: "高度",
+  sealPixels: "印章像素数",
+  areaRatio: "面积比例",
+  components: "连通组件数",
+  perimeter: "周长",
+  perimeterAreaRatio: "周长面积比",
+  hueStd: "色调标准差",
+  score: "综合评分",
+  hint: "检测提示",
+  noFileSelected: "请选择印章图片",
+  processingError: "处理失败",
+  downloadReport: "下载报告",
+  highRisk: "高风险",
+  mediumRisk: "中风险",
+  lowRisk: "低风险",
+  explanation: "说明：本工具通过分析印章的几何特征、颜色分布等指标来检测可能的伪造痕迹。",
+  noSealDetected: "未检测到明显印章区域（可能不是红章/背景复杂/清晰度不足）。",
+  referenceHint: "参考：分量数/边界复杂度/色相离散度越高，越可能存在抠图拼接或二次处理痕迹。",
+  highRiskHint: "疑点较高：建议结合原始扫描件、不同分辨率版本与专业取证工具进一步核验。",
+  mediumRiskHint: "疑点中等：可能存在二次处理、压缩或背景干扰；建议对比同源文件与原件。",
+  lowRiskHint: "疑点较低：未发现明显异常特征（仅供参考）。",
+  analysisFailed: "分析失败",
+  selectImage: "选择图片",
+  originalImage: "原图",
+  detectionResults: "检测结果",
+  riskScore: "疑点评分 {score}/100",
+  clickToDetect: "点击\"开始检测\"后显示结果。",
+  pixelRatio: "像素占比：{ratio}%",
+  connectedComponents: "连通分量：{components}",
+  boundaryLength: "边界长度：{perimeter}",
+  boundaryAreaRatio: "边界/面积：{ratio}",
+  hueStandardDeviation: "色相标准差：{hueStd}",
+  sampleSize: "采样尺寸：{width}×{height}",
+  sealPixelMask: "印章像素掩膜（预览）",
+  notGenerated: "未生成",
+  detailedExplanation: "说明：这是基于像素特征的启发式\"疑点\"检测，不等同于司法鉴定结果。强烈建议将结果作为线索参考，并结合原件、扫描流程与签章系统日志综合判断。",
+  sensitivity: "灵敏度"
+} as const;
+
+type SealForgeryDetectorUi = typeof DEFAULT_UI;
 
 type Metrics = {
   width: number;
@@ -149,9 +201,9 @@ const renderMaskPreview = (mask: Uint8Array, width: number, height: number) => {
   return canvas;
 };
 
-const scoreFrom = (m: Omit<Metrics, "score" | "hint">): { score: number; hint: string } => {
+const scoreFrom = (m: Omit<Metrics, "score" | "hint">, ui: SealForgeryDetectorUi): { score: number; hint: string } => {
   if (m.sealPixels <= 50) {
-    return { score: 0, hint: "未检测到明显印章区域（可能不是红章/背景复杂/清晰度不足）。" };
+    return { score: 0, hint: ui.noSealDetected };
   }
 
   let score = 0;
@@ -161,10 +213,10 @@ const scoreFrom = (m: Omit<Metrics, "score" | "hint">): { score: number; hint: s
   score += clamp((0.02 - m.areaRatio) * 1500, 0, 15);
   score = clamp(Math.round(score), 0, 100);
 
-  let hint = "参考：分量数/边界复杂度/色相离散度越高，越可能存在抠图拼接或二次处理痕迹。";
-  if (score >= 75) hint = "疑点较高：建议结合原始扫描件、不同分辨率版本与专业取证工具进一步核验。";
-  else if (score >= 45) hint = "疑点中等：可能存在二次处理、压缩或背景干扰；建议对比同源文件与原件。";
-  else hint = "疑点较低：未发现明显异常特征（仅供参考）。";
+  let hint: string = ui.referenceHint;
+  if (score >= 75) hint = ui.highRiskHint;
+  else if (score >= 45) hint = ui.mediumRiskHint;
+  else hint = ui.lowRiskHint;
 
   return { score, hint };
 };
@@ -178,6 +230,9 @@ export default function SealForgeryDetectorClient() {
 }
 
 function SealForgeryDetectorInner() {
+  const config = useOptionalToolConfig("seal-forgery-detector");
+  const ui: SealForgeryDetectorUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<SealForgeryDetectorUi>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -237,7 +292,7 @@ function SealForgeryDetectorInner() {
       const perimeterAreaRatio = perimeter / (sealPixels || 1);
 
       const base = { width: w, height: h, sealPixels, areaRatio, components, perimeter, perimeterAreaRatio, hueStd };
-      const { score, hint } = scoreFrom(base);
+      const { score, hint } = scoreFrom(base, ui);
       setMetrics({ ...base, score, hint });
 
       const maskCanvas = renderMaskPreview(mask, w, h);
@@ -248,7 +303,7 @@ function SealForgeryDetectorInner() {
       if (maskUrl) URL.revokeObjectURL(maskUrl);
       setMaskUrl(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "分析失败");
+      setError(e instanceof Error ? e.message : ui.analysisFailed);
     } finally {
       setIsWorking(false);
     }
@@ -283,14 +338,14 @@ function SealForgeryDetectorInner() {
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              选择图片
+              {ui.selectImage}
             </button>
             <button
               type="button"
               onClick={clear}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              清空
+              {ui.clear}
             </button>
             {file && (
               <div className="text-sm text-slate-700">
@@ -306,17 +361,17 @@ function SealForgeryDetectorInner() {
             disabled={!file || isWorking}
             className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
           >
-            {isWorking ? "分析中…" : "开始检测"}
+            {isWorking ? ui.analyzing : ui.analyze}
           </button>
         </div>
 
         <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-          说明：这是基于像素特征的启发式“疑点”检测，不等同于司法鉴定结果。强烈建议将结果作为线索参考，并结合原件、扫描流程与签章系统日志综合判断。
+          {ui.detailedExplanation}
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <label className="flex items-center gap-3 text-sm text-slate-700">
-            灵敏度
+            {ui.sensitivity}
             <input
               type="range"
               min={20}
@@ -339,7 +394,7 @@ function SealForgeryDetectorInner() {
         {file && (
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">原图</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.originalImage}</div>
               <div className="mt-3 overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
                 {originalUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -350,10 +405,10 @@ function SealForgeryDetectorInner() {
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-sm font-semibold text-slate-900">检测结果</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.detectionResults}</div>
                   {metrics && scoreBadge && (
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${scoreBadge}`}>
-                      疑点评分 {metrics.score}/100
+                      {ui.riskScore.replace('{score}', metrics.score.toString())}
                     </span>
                   )}
                 </div>
@@ -366,25 +421,25 @@ function SealForgeryDetectorInner() {
                   <div className="mt-4 space-y-3 text-sm text-slate-700">
                     <div className="rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-slate-200">{metrics.hint}</div>
                     <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">像素占比：{(metrics.areaRatio * 100).toFixed(2)}%</div>
-                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">连通分量：{metrics.components}</div>
-                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">边界长度：{metrics.perimeter}</div>
-                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">边界/面积：{metrics.perimeterAreaRatio.toFixed(4)}</div>
-                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">色相标准差：{metrics.hueStd.toFixed(2)}</div>
-                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">采样尺寸：{metrics.width}×{metrics.height}</div>
+                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">{ui.pixelRatio.replace('{ratio}', (metrics.areaRatio * 100).toFixed(2))}</div>
+                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">{ui.connectedComponents.replace('{components}', metrics.components.toString())}</div>
+                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">{ui.boundaryLength.replace('{perimeter}', metrics.perimeter.toString())}</div>
+                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">{ui.boundaryAreaRatio.replace('{ratio}', metrics.perimeterAreaRatio.toFixed(4))}</div>
+                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">{ui.hueStandardDeviation.replace('{hueStd}', metrics.hueStd.toFixed(2))}</div>
+                      <div className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">{ui.sampleSize.replace('{width}', metrics.width.toString()).replace('{height}', metrics.height.toString())}</div>
                     </div>
                   </div>
                 )}
               </div>
 
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">印章像素掩膜（预览）</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.sealPixelMask}</div>
                 <div className="mt-3 overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
                   {maskUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={maskUrl} alt="mask" className="h-64 w-full object-contain p-4" />
                   ) : (
-                    <div className="flex h-64 items-center justify-center text-xs text-slate-500">未生成</div>
+                    <div className="flex h-64 items-center justify-center text-xs text-slate-500">{ui.notGenerated}</div>
                   )}
                 </div>
               </div>
@@ -395,4 +450,3 @@ function SealForgeryDetectorInner() {
     </div>
   );
 }
-

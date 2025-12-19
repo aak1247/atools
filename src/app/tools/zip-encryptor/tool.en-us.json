@@ -1,0 +1,26 @@
+{
+  "name": "Free Online ZIP Encrypt Decrypt Tool - ATools",
+  "shortName": "ZIP Encryption",
+  "description": "Free online ZIP encrypt decrypt tool: Locally package ZIP and encrypt to JSON with AES-256-GCM, supports decrypting to restore ZIP.",
+  "seoDescription": "Free online ZIP encrypt decrypt tool that supports selecting multiple files to package locally into ZIP (fflate) in the browser, then uses AES-256-GCM + PBKDF2(SHA-256) to encrypt the entire ZIP into a savable JSON. Also supports password input to decrypt and restore ZIP for download. Pure frontend local processing without file uploads, suitable for temporary packaging encryption and private file transfer.",
+  "category": "Cryptography Tools",
+  "lang": "en-US",
+  "ui": {
+    "encrypt": "Encrypt ZIP",
+    "decrypt": "Decrypt ZIP",
+    "pickFiles": "Select multiple files (will be packaged as ZIP)",
+    "pickEncrypted": "Select Encrypted JSON",
+    "password": "Password",
+    "iterations": "Iterations",
+    "zipLevel": "ZIP Compression Level",
+    "run": "Execute",
+    "working": "Processing...",
+    "clear": "Clear",
+    "download": "Download",
+    "note": "Note: This tool first packages files into ZIP (fflate), then uses AES-256-GCM to encrypt the entire ZIP into JSON. After decryption, the ZIP can be downloaded and restored. Pure frontend local processing without file uploads."
+  },
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["ZIP encryption", "ZIP decryption", "file packaging", "AES-256-GCM", "local processing"]
+}

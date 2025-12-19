@@ -1,0 +1,35 @@
+{
+  "name": "免费在线 色彩对比度检查器 - 纯粹工具站",
+  "shortName": "对比度检查",
+  "description": "免费在线色彩对比度检查器：计算 WCAG 2.1 AA/AAA 对比度，通过情况与建议前景色，支持简单色盲模拟，纯前端本地运行。",
+  "seoDescription": "免费在线色彩对比度检查器，输入前景色与背景色即可计算对比度（Contrast Ratio），并给出 WCAG 2.1 AA/AAA（普通/大号文本）通过情况与建议前景色（黑/白）。支持简单色盲模拟预览，纯前端本地运行不上传，适合 UI 设计、产品规范与无障碍验收。",
+  "category": "设计工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["WCAG对比度", "色彩对比度", "无障碍", "AA AAA", "色盲模拟"],
+  "ui": {
+    "hint": "色彩对比度检查器：输入前景/背景颜色，计算 WCAG 对比度并给出 AA/AAA 通过情况（本地运行不上传）。",
+    "foreground": "前景色",
+    "background": "背景色",
+    "sample": "示例文本",
+    "ratio": "对比度",
+    "result": "检查结果",
+    "aaNormal": "AA（普通文本）≥ 4.5",
+    "aaLarge": "AA（大号文本）≥ 3.0",
+    "aaaNormal": "AAA（普通文本）≥ 7.0",
+    "aaaLarge": "AAA（大号文本）≥ 4.5",
+    "pass": "通过",
+    "fail": "不通过",
+    "suggest": "建议前景色",
+    "useBlack": "使用黑色",
+    "useWhite": "使用白色",
+    "simulate": "色盲模拟",
+    "none": "无",
+    "protanopia": "红色盲",
+    "deuteranopia": "绿色盲",
+    "tritanopia": "蓝色盲"
+  }
+}
+

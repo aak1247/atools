@@ -1,0 +1,37 @@
+{
+  "name": "免费在线 视频压缩器 - 纯粹工具站",
+  "shortName": "视频压缩",
+  "description": "免费在线视频压缩器：输出 MP4(H.264)，支持 720p/1080p 缩放、CRF 质量与编码速度设置，纯前端本地处理不上传。",
+  "seoDescription": "免费在线视频压缩器，支持将视频压缩导出为 MP4(H.264)，提供 720p/1080p 缩放、CRF 质量控制、编码速度与音频码率设置，帮助在画质与体积之间快速取舍。基于 ffmpeg.wasm 在浏览器本地运行，不上传文件，适合发送、分享与存储前压缩。",
+  "category": "视频工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["视频压缩", "MP4压缩", "H.264压缩", "CRF", "ffmpeg.wasm"],
+  "ui": {
+    "hint": "视频压缩器：输出 MP4(H.264) 并用 CRF 控制体积/质量，可选 720p/1080p 缩放（纯前端本地处理不上传）。首次需加载 ffmpeg.wasm。",
+    "pick": "选择视频文件",
+    "clear": "清空",
+    "loadFfmpeg": "加载 FFmpeg",
+    "ffmpegLoading": "加载中…",
+    "ffmpegReady": "FFmpeg 已就绪",
+    "file": "文件",
+    "scale": "分辨率",
+    "keep": "保持原始",
+    "crf": "质量(CRF)",
+    "preset": "编码速度",
+    "audioBitrate": "音频码率(kbps)",
+    "start": "开始压缩",
+    "working": "处理中…",
+    "download": "下载",
+    "progress": "进度",
+    "logs": "FFmpeg 日志",
+    "logsPlaceholder": "日志会显示在这里…",
+    "errPickVideo": "请先选择一个视频文件。",
+    "errFfmpegLoadFailed": "FFmpeg 加载失败。",
+    "errCompressFailed": "压缩失败（可能输出编码器未内置或浏览器资源不足）。",
+    "note": "说明：CRF 越大体积越小、画质越差（常用 20-28）。"
+  }
+}
+

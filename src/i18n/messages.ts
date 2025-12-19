@@ -5,6 +5,7 @@ export type Messages = {
   navTools: string;
   navSitemap: string;
   navGithub: string;
+  navReportIssue: string;
   footerTagline: string;
   homeBadge: string;
   homeTitlePrefix: string;
@@ -21,6 +22,7 @@ export type Messages = {
   clearFilters: string;
   toolLoadingTitle: string;
   toolLoadingDescription: string;
+  editToolOnGithub: string;
   shareCurrentPage: string;
   sharing: string;
   installAsApp: string;
@@ -31,6 +33,7 @@ const zhCN: Messages = {
   siteName: "纯粹工具站",
   navTools: "工具导航",
   navSitemap: "站点地图",
+  navReportIssue: "提交缺陷",
   navGithub: "GitHub",
   footerTagline: "Crafted with precision.",
   homeBadge: "纯前端 · 零上传 · 极致体验",
@@ -49,6 +52,7 @@ const zhCN: Messages = {
   clearFilters: "清除筛选",
   toolLoadingTitle: "工具加载中...",
   toolLoadingDescription: "正在加载工具信息...",
+  editToolOnGithub: "编辑此工具",
   shareCurrentPage: "分享当前页面",
   sharing: "分享中...",
   installAsApp: "安装此页面为应用",
@@ -59,6 +63,7 @@ const enUS: Messages = {
   siteName: "Pure Tools",
   navTools: "Tools",
   navSitemap: "Sitemap",
+  navReportIssue: "Report Issue",
   navGithub: "GitHub",
   footerTagline: "Crafted with precision.",
   homeBadge: "Pure frontend · No upload · Fast & private",
@@ -77,6 +82,7 @@ const enUS: Messages = {
   clearFilters: "Clear filters",
   toolLoadingTitle: "Loading tool...",
   toolLoadingDescription: "Loading tool info...",
+  editToolOnGithub: "Edit this tool",
   shareCurrentPage: "Share this page",
   sharing: "Sharing...",
   installAsApp: "Install as app",

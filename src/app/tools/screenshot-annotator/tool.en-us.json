@@ -1,0 +1,31 @@
+{
+  "name": "Free Online Screenshot Annotator - ATools",
+  "shortName": "Annotator",
+  "description": "Free online screenshot annotator: draw pen, rectangles, arrows, and text, with undo/redo and PNG export. Runs locally.",
+  "seoDescription": "Free online screenshot annotator for fast markup: upload an image, add pen strokes, rectangles, arrows, and text labels, then export as PNG. Supports undo/redo and runs locally in your browser with zero uploads for privacy.",
+  "category": "Image Tools",
+  "lang": "en-US",
+  "keywords": ["screenshot annotator", "image annotation", "arrow markup", "draw on image", "export PNG"],
+  "ui": {
+    "hint": "Annotate screenshots locally: pen, rectangles, arrows, text, then export PNG (no uploads).",
+    "pick": "Select image",
+    "clear": "Clear",
+    "mode": "Tool",
+    "select": "Select/Move",
+    "pen": "Pen",
+    "rect": "Rectangle",
+    "arrow": "Arrow",
+    "text": "Text",
+    "stroke": "Stroke",
+    "fill": "Fill",
+    "width": "Line width",
+    "fontSize": "Font size",
+    "undo": "Undo",
+    "redo": "Redo",
+    "downloadPng": "Download PNG",
+    "copyPng": "Copy PNG",
+    "errPickImage": "Please select an image (PNG/JPG/WebP).",
+    "copied": "Copied"
+  }
+}
+

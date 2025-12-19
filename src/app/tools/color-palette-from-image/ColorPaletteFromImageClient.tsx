@@ -27,7 +27,7 @@ const kmeans = (points: Rgb[], k: number, iterations: number) => {
   for (let i = 0; i < kk; i += 1) centers.push(points[randomInt(points.length)]);
 
   const counts = new Array<number>(kk).fill(0);
-  const sums = new Array<Rgb>(kk).fill(0).map(() => ({ r: 0, g: 0, b: 0 }));
+  const sums: Rgb[] = Array.from({ length: kk }, () => ({ r: 0, g: 0, b: 0 }));
   const assignment = new Array<number>(points.length).fill(0);
 
   for (let iter = 0; iter < iterations; iter += 1) {
@@ -336,4 +336,3 @@ function ColorPaletteFromImageInner() {
     </div>
   );
 }
-

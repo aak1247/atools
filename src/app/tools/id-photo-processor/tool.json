@@ -1,0 +1,32 @@
+{
+  "name": "免费在线 证件照处理器 - 纯粹工具站",
+  "shortName": "证件照",
+  "description": "免费在线证件照处理器：一寸/二寸/自定义尺寸，背景色设置，缩放与位移调整，导出 PNG/JPG，纯前端本地处理不上传。",
+  "seoDescription": "免费在线证件照处理器，支持一寸/二寸等常用证件照尺寸与自定义像素尺寸，可设置背景色并通过缩放与位移快速对齐人像位置，导出 PNG/JPG。全程浏览器本地运行，不上传照片，适合制作报名照、工作证、简历头像等。",
+  "category": "图片工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["证件照", "一寸照", "二寸照", "换背景色", "证件照裁剪"],
+  "ui": {
+    "hint": "证件照处理器：选择尺寸与背景色，调整缩放与位置，一键导出证件照（全程本地处理不上传）。",
+    "pick": "选择照片",
+    "clear": "清空",
+    "preset": "尺寸预设",
+    "presets": { "one-inch": "一寸（295×413）", "two-inch": "二寸（413×579）", "custom": "自定义" },
+    "size": "尺寸",
+    "width": "宽度(px)",
+    "height": "高度(px)",
+    "bg": "背景色",
+    "zoom": "缩放",
+    "offsetX": "水平位移",
+    "offsetY": "垂直位移",
+    "export": "导出",
+    "exportPng": "导出 PNG",
+    "exportJpg": "导出 JPG",
+    "download": "下载",
+    "errPickImage": "请选择图片文件（PNG/JPG/WebP）。"
+  }
+}
+

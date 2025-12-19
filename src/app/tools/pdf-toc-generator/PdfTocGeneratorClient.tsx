@@ -4,8 +4,34 @@ import type { ChangeEvent } from "react";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type TocItem = { title: string; page: number };
+
+const DEFAULT_UI = {
+  selectPdf: "选择 PDF",
+  clear: "清空",
+  pageCount: "页数：",
+  generating: "生成中…",
+  generateTocPage: "生成目录页",
+  tocContent: "目录内容",
+  tocFormatHint: "每行格式：页码 TAB 标题（或 \"页码: 标题\"）。",
+  parsedItems: "已解析 {count} 条。",
+  settings: "设置",
+  tocTitle: "目录标题",
+  insertAtBeginning: "插入到 PDF 首页",
+  shiftPageNumbers: "目录页码按插入后自动 +1（仅在插入首页时生效）",
+  output: "输出",
+  download: "下载 {filename}",
+  tip: "提示：此工具不会自动识别 PDF 标题层级（纯前端限制）。推荐先用目录大纲/书签信息手动整理页码与标题，再生成目录页插入。",
+  parseError: "PDF 解析失败（可能是加密 PDF 或文件损坏）。",
+  buildError: "生成失败",
+  defaultOutline: "1\t封面\n2\t前言\n5\t第一章 标题\n",
+  defaultTitle: "目录",
+  defaultTocText: "目录"
+} as const;
+
+type PdfTocGeneratorUi = typeof DEFAULT_UI;
 
 const parseOutline = (text: string): TocItem[] => {
   const lines = text
@@ -42,12 +68,15 @@ export default function PdfTocGeneratorClient() {
 }
 
 function PdfTocGeneratorInner() {
+  const config = useOptionalToolConfig("pdf-toc-generator");
+  const ui: PdfTocGeneratorUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<PdfTocGeneratorUi>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
   const [pageCount, setPageCount] = useState<number | null>(null);
-  const [outline, setOutline] = useState("1\t封面\n2\t前言\n5\t第一章 标题\n");
-  const [title, setTitle] = useState("目录");
+  const [outline, setOutline] = useState<string>(ui.defaultOutline);
+  const [title, setTitle] = useState<string>(ui.defaultTitle);
   const [insertAtBeginning, setInsertAtBeginning] = useState(true);
   const [shiftPageNumbers, setShiftPageNumbers] = useState(true);
 
@@ -81,7 +110,7 @@ function PdfTocGeneratorInner() {
       setPageCount(doc.getPageCount());
     } catch (e) {
       setPageCount(null);
-      setError(e instanceof Error ? e.message : "PDF 解析失败（可能是加密 PDF 或文件损坏）。");
+      setError(e instanceof Error ? e.message : ui.parseError);
     }
   };
 
@@ -139,7 +168,7 @@ function PdfTocGeneratorInner() {
         const page = tocPages[i];
         const yTitle = titleY;
         if (i === 0) {
-          page.drawText(title || "目录", {
+          page.drawText(title || ui.defaultTocText, {
             x: marginX,
             y: yTitle,
             size: 20,
@@ -147,7 +176,7 @@ function PdfTocGeneratorInner() {
             color: rgb(0.06, 0.09, 0.16),
           });
         } else {
-          page.drawText(title || "目录", {
+          page.drawText(title || ui.defaultTocText, {
             x: marginX,
             y: yTitle,
             size: 14,
@@ -194,10 +223,10 @@ function PdfTocGeneratorInner() {
       }
 
       const out = await doc.save();
-      const url = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
+      const url = URL.createObjectURL(new Blob([new Uint8Array(out)], { type: "application/pdf" }));
       setDownloadUrl(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "生成失败");
+      setError(e instanceof Error ? e.message : ui.buildError);
     } finally {
       setIsWorking(false);
     }
@@ -223,19 +252,19 @@ function PdfTocGeneratorInner() {
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              选择 PDF
+              {ui.selectPdf}
             </button>
             <button
               type="button"
               onClick={clear}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              清空
+              {ui.clear}
             </button>
             {file && (
               <div className="text-sm text-slate-700">
                 <span className="font-semibold text-slate-900">{file.name}</span>
-                {pageCount != null && <span className="ml-2 text-slate-500">页数：{pageCount}</span>}
+                {pageCount != null && <span className="ml-2 text-slate-500">{ui.pageCount}{pageCount}</span>}
               </div>
             )}
           </div>
@@ -245,7 +274,7 @@ function PdfTocGeneratorInner() {
             disabled={!file || isWorking || items.length === 0}
             className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
           >
-            {isWorking ? "生成中…" : "生成目录页"}
+            {isWorking ? ui.generating : ui.generateTocPage}
           </button>
         </div>
 
@@ -257,22 +286,22 @@ function PdfTocGeneratorInner() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">目录内容</div>
-            <div className="mt-3 text-xs text-slate-500">每行格式：页码 TAB 标题（或 “页码: 标题”）。</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.tocContent}</div>
+            <div className="mt-3 text-xs text-slate-500">{ui.tocFormatHint}</div>
             <textarea
               value={outline}
               onChange={(e) => setOutline(e.target.value)}
               className="mt-3 h-64 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
             />
-            <div className="mt-3 text-xs text-slate-500">已解析 {items.length} 条。</div>
+            <div className="mt-3 text-xs text-slate-500">{ui.parsedItems.replace('{count}', items.length.toString())}</div>
           </div>
 
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">设置</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.settings}</div>
               <div className="mt-4 grid gap-4">
                 <label className="block text-sm text-slate-700">
-                  目录标题
+                  {ui.tocTitle}
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
@@ -286,7 +315,7 @@ function PdfTocGeneratorInner() {
                     onChange={(e) => setInsertAtBeginning(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  插入到 PDF 首页
+                  {ui.insertAtBeginning}
                 </label>
                 <label className={`flex items-center gap-2 text-sm text-slate-700 ${insertAtBeginning ? "" : "opacity-60"}`}>
                   <input
@@ -296,26 +325,26 @@ function PdfTocGeneratorInner() {
                     disabled={!insertAtBeginning}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  目录页码按插入后自动 +1（仅在插入首页时生效）
+                  {ui.shiftPageNumbers}
                 </label>
               </div>
             </div>
 
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">输出</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.output}</div>
                 {downloadUrl && (
                   <a
                     href={downloadUrl}
                     download={downloadName}
                     className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
-                    下载 {downloadName}
+                    {ui.download.replace('{filename}', downloadName)}
                   </a>
                 )}
               </div>
               <div className="mt-3 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-                提示：此工具不会自动识别 PDF 标题层级（纯前端限制）。推荐先用目录大纲/书签信息手动整理页码与标题，再生成目录页插入。
+                {ui.tip}
               </div>
             </div>
           </div>

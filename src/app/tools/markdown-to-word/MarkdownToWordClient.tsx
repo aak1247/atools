@@ -26,7 +26,43 @@ const DEFAULT_UI = {
   copyFailed: "复制失败，请重试",
   fileError: "文件错误：{message}",
   unsupportedFormat: "不支持的文件格式",
-  pasteInstructions: "使用说明：复制下方内容，直接粘贴到Word文档中即可保留格式"
+  pasteInstructions: "使用说明：复制下方内容，直接粘贴到Word文档中即可保留格式",
+  description: "将Markdown格式转换为Word兼容格式，保留富文本样式",
+  richTextDescription: "富文本格式：生成HTML格式，复制到Word中可保留完整的格式样式",
+  plainTextDescription: "纯文本格式：保持原始Markdown格式，适合在Word中进行进一步编辑",
+  charactersCount: "字符",
+  featuresTitle: "支持的转换功能：",
+  formatFeatures: {
+    richtext: "富文本格式",
+    plaintext: "纯文本格式"
+  },
+  richtextFeatures: {
+    headers: "标题转换 (H1-H4 带样式)",
+    textStyles: "文本样式 (粗体、斜体、下划线、删除线)",
+    codeBlocks: "代码块 (带背景色和边框)",
+    inlineCode: "行内代码 (背景色突出显示)",
+    lists: "列表 (有序和无序列表)",
+    tables: "表格 (带边框和表头样式)",
+    quotes: "引用块 (左边框和背景色)",
+    links: "链接 (可点击的蓝色链接)",
+    images: "图片 (保持 ![alt](url) 格式)",
+    separators: "水平分割线 (标准分割线)",
+    paragraphSpacing: "段落间距 (标准行间距)"
+  },
+  plaintextFeatures: {
+    headers: "标题格式 (保持 # ## ### ####)",
+    textStyles: "文本样式 (保持 **粗体**、*斜体* 格式)",
+    codeBlocks: "代码块 (保持 \`\`\` 格式)",
+    inlineCode: "行内代码 (保持 \`code\` 格式)",
+    lists: "列表 (保持 * 和 1. 格式)",
+    tables: "表格 (保持 |列|列| 格式)",
+    quotes: "引用块 (保持 &gt; 格式)",
+    links: "链接 (保持 [text](url) 格式)",
+    images: "图片 (保持 ![alt](url) 格式)",
+    separators: "分割线 (保持 --- 格式)"
+  },
+  advantagesTitle: "优势说明：",
+  advantagesDescription: "富文本格式直接在Word中显示最终效果，无需额外处理；纯文本格式保留Markdown语法，便于在Word中进一步编辑和样式调整。"
 } as const;
 
 type MarkdownToWordUi = typeof DEFAULT_UI;
@@ -34,9 +70,9 @@ type MarkdownToWordUi = typeof DEFAULT_UI;
 type OutputFormat = "richtext" | "plaintext";
 
 // 示例Markdown内容
-const SAMPLE_MARKDOWN = # 主要标题
+const SAMPLE_MARKDOWN = `# 主要标题
 
-这是一个**粗体**和*斜体*的示例，还有`行内代码`。
+这是一个**粗体**和*斜体*的示例，还有\`行内代码\`。
 
 ## 二级标题
 
@@ -60,7 +96,7 @@ const SAMPLE_MARKDOWN = # 主要标题
 ## 代码示例
 
 ### JavaScript 代码
-```javascript
+\`\`\`javascript
 function hello() {
   console.log("Hello, Word!");
 
@@ -70,10 +106,10 @@ function hello() {
     value: 123
   };
 }
-```
+\`\`\`
 
 ### Python 代码（包含注释）
-```python
+\`\`\`python
 # 这是一个Python函数
 def calculate_distance(x1, y1, x2, y2):
     """
@@ -93,7 +129,7 @@ def calculate_distance(x1, y1, x2, y2):
 # 测试函数
 result = calculate_distance(0, 0, 3, 4)  # 应该返回 5.0
 print(f"距离: {result}")
-```
+\`\`\`
 
 ## 表格示例
 
@@ -117,7 +153,7 @@ print(f"距离: {result}")
 ## 特殊格式
 
 ### 混合格式
-这里有**粗体**和*斜体*，还有`行内代码`和[链接](https://example.com)的混合。
+这里有**粗体**和*斜体*，还有\`行内代码\`和[链接](https://example.com)的混合。
 
 ### 水平分割线
 上面是水平分割线
@@ -400,7 +436,7 @@ export default function MarkdownToWordClient() {
         {/* 工具标题和说明 */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">{ui.title}</h1>
-          <p className="text-slate-600">将Markdown格式转换为Word兼容格式，保留富文本样式</p>
+          <p className="text-slate-600">{ui.description}</p>
         </div>
 
         {/* 控制按钮 */}
@@ -448,8 +484,8 @@ export default function MarkdownToWordClient() {
           </div>
           <div className="text-xs text-slate-500 text-center max-w-md">
             {outputFormat === 'richtext' ?
-              '富文本格式：生成HTML格式，复制到Word中可保留完整的格式样式' :
-              '纯文本格式：保持原始Markdown格式，适合在Word中进行进一步编辑'
+              ui.richTextDescription :
+              ui.plainTextDescription
             }
           </div>
         </div>
@@ -475,7 +511,7 @@ export default function MarkdownToWordClient() {
             <div className="flex items-center justify-between">
               <label className="text-slate-700 font-semibold">{ui.inputLabel}</label>
               <span className="text-sm text-slate-500">
-                {markdown.length} 字符
+                {markdown.length} {ui.charactersCount}
               </span>
             </div>
             <div className="relative">
@@ -495,7 +531,7 @@ export default function MarkdownToWordClient() {
               <label className="text-slate-700 font-semibold">{ui.outputLabel}</label>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-slate-500">
-                  {wordOutput.length} 字符
+                  {wordOutput.length} {ui.charactersCount}
                 </span>
                 <button
                   onClick={copyToClipboard}
@@ -529,44 +565,44 @@ export default function MarkdownToWordClient() {
             </div>
           </div>
 
-          <h3 className="font-semibold text-slate-800 mb-3">支持的转换功能：</h3>
+          <h3 className="font-semibold text-slate-800 mb-3">{ui.featuresTitle}</h3>
           <div className="mb-4">
             <div className="font-medium text-slate-700 mb-2">
-              {outputFormat === 'richtext' ? '富文本格式' : '纯文本格式'}：
+              {outputFormat === 'richtext' ? ui.formatFeatures.richtext : ui.formatFeatures.plaintext}：
             </div>
             <ul className="space-y-2 grid md:grid-cols-2 gap-2">
               {outputFormat === 'richtext' ? (
                 <>
-                  <li>✅ 标题转换 (H1-H4 带样式)</li>
-                  <li>✅ 文本样式 (粗体、斜体、下划线、删除线)</li>
-                  <li>✅ 代码块 (带背景色和边框)</li>
-                  <li>✅ 行内代码 (背景色突出显示)</li>
-                  <li>✅ 列表 (有序和无序列表)</li>
-                  <li>✅ 表格 (带边框和表头样式)</li>
-                  <li>✅ 引用块 (左边框和背景色)</li>
-                  <li>✅ 链接 (可点击的蓝色链接)</li>
-                  <li>✅ 水平分割线 (标准分割线)</li>
-                  <li>✅ 段落间距 (标准行间距)</li>
+                  <li>✅ {ui.richtextFeatures.headers}</li>
+                  <li>✅ {ui.richtextFeatures.textStyles}</li>
+                  <li>✅ {ui.richtextFeatures.codeBlocks}</li>
+                  <li>✅ {ui.richtextFeatures.inlineCode}</li>
+                  <li>✅ {ui.richtextFeatures.lists}</li>
+                  <li>✅ {ui.richtextFeatures.tables}</li>
+                  <li>✅ {ui.richtextFeatures.quotes}</li>
+                  <li>✅ {ui.richtextFeatures.links}</li>
+                  <li>✅ {ui.richtextFeatures.separators}</li>
+                  <li>✅ {ui.richtextFeatures.paragraphSpacing}</li>
                 </>
               ) : (
                 <>
-                  <li>✅ 标题格式 (保持 # ## ### ####)</li>
-                  <li>✅ 文本样式 (保持 **粗体**、*斜体* 格式)</li>
-                  <li>✅ 代码块 (保持 ``` 格式)</li>
-                  <li>✅ 行内代码 (保持 `code` 格式)</li>
-                  <li>✅ 列表 (保持 * 和 1. 格式)</li>
-                  <li>✅ 表格 (保持 |列|列| 格式)</li>
-                  <li>✅ 引用块 (保持 > 格式)</li>
-                  <li>✅ 链接 (保持 [text](url) 格式)</li>
-                  <li>✅ 图片 (保持 ![alt](url) 格式)</li>
-                  <li>✅ 分割线 (保持 --- 格式)</li>
+                  <li>✅ {ui.plaintextFeatures.headers}</li>
+                  <li>✅ {ui.plaintextFeatures.textStyles}</li>
+                  <li>✅ {ui.plaintextFeatures.codeBlocks}</li>
+                  <li>✅ {ui.plaintextFeatures.inlineCode}</li>
+                  <li>✅ {ui.plaintextFeatures.lists}</li>
+                  <li>✅ {ui.plaintextFeatures.tables}</li>
+                  <li>✅ {ui.plaintextFeatures.quotes}</li>
+                  <li>✅ {ui.plaintextFeatures.links}</li>
+                  <li>✅ {ui.plaintextFeatures.images}</li>
+                  <li>✅ {ui.plaintextFeatures.separators}</li>
                 </>
               )}
             </ul>
           </div>
           <div className="text-xs text-slate-500 bg-green-50 rounded-lg p-3">
-            <strong>优势说明：</strong>
-            富文本格式直接在Word中显示最终效果，无需额外处理；纯文本格式保留Markdown语法，便于在Word中进一步编辑和样式调整。
+            <strong>{ui.advantagesTitle}</strong>
+            {ui.advantagesDescription}
           </div>
         </div>
       </div>

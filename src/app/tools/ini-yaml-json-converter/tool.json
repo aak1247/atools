@@ -8,6 +8,19 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["INI转JSON", "YAML转JSON", "JSON转YAML", "配置转换", "格式校验"]
+  "keywords": ["INI转JSON", "YAML转JSON", "JSON转YAML", "配置转换", "格式校验"],
+  "ui": {
+    "input": "输入",
+    "output": "输出",
+    "swap": "互换",
+    "jsonPretty": "JSON 美化",
+    "copyOutput": "复制输出",
+    "description": "说明：支持 INI/YAML/JSON 互转与基础格式校验。INI 仅支持“根键 + section”结构；复杂嵌套建议使用 YAML/JSON。",
+    "inputTitle": "输入",
+    "outputTitle": "输出",
+    "outputPlaceholder": "转换结果…",
+    "errConvertFailed": "转换失败",
+    "errIniObjectOnly": "INI 仅支持对象（key=value），不支持数组/纯值。"
+  }
 }
 

@@ -51,6 +51,14 @@ export default async function LocaleLayout({
               >
                 {messages.navGithub}
               </a>
+              <a
+                href="https://github.com/aak1247/atools/issues/new?template=bug_report.yml"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-slate-900"
+              >
+                {messages.navReportIssue}
+              </a>
               <LocaleSwitcher />
             </nav>
           </div>

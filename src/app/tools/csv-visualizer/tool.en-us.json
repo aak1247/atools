@@ -1,0 +1,27 @@
+{
+  "name": "Free Online CSV Visualizer - ATools",
+  "shortName": "CSV Visualizer",
+  "description": "Free online CSV data visualization tool with table preview, statistics, and simple charts.",
+  "seoDescription": "Professional free CSV data visualization tool - ATools - Paste or upload CSV files for table preview, automatic delimiter detection, data statistics analysis, simple chart visualization. Support various delimiters (comma, semicolon, tab), header row detection, large file processing (first 500 rows preview). Completely browser-based processing, no server upload required, 100% protects data privacy. Clean and intuitive interface, simple and efficient operation, is a professional tool for data analysis and visualization. Completely free and open source, supports multiple CSV formats, is the trusted data processing tool for global analysts.",
+  "category": "Data Tools",
+  "ui": {
+    "pasteOrUpload": "Paste CSV or Upload File",
+    "upload": "Select CSV File",
+    "clear": "Clear",
+    "hasHeader": "First Row is Header",
+    "delimiter": "Delimiter",
+    "auto": "Auto",
+    "comma": "Comma ,",
+    "semicolon": "Semicolon ;",
+    "tab": "Tab \\t",
+    "stats": "Statistics",
+    "preview": "Table Preview",
+    "chart": "Simple Chart",
+    "xAxis": "X Axis",
+    "yAxis": "Y Axis (Numeric Column)",
+    "maxRowsHint": "Preview shows maximum first 500 rows (to avoid browser lag).",
+    "empty": "Please input or upload CSV.",
+    "parseError": "Parse failed: Please check delimiter/quotes/line breaks."
+  },
+  "keywords": ["CSV visualizer", "data visualization", "CSV parser", "table preview", "chart generator", "data analysis"]
+}

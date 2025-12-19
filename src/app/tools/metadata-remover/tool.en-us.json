@@ -1,0 +1,27 @@
+{
+  "name": "Free Online File Metadata Remover - ATools",
+  "shortName": "Metadata Remover",
+  "description": "Free online metadata removal tool: Clean EXIF and other metadata from images through re-encoding, clear common document information fields from PDF through resaving.",
+  "seoDescription": "Free online file metadata removal tool supporting metadata cleaning for images (JPEG/PNG/WebP) and PDFs. Images remove privacy metadata such as EXIF and location information through Canvas re-encoding; PDFs clear common information fields like title, author, subject, keywords through resaving. All processing is done locally in browser without file uploads, suitable for privacy protection and file cleaning before sharing.",
+  "category": "Privacy Tools",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "ui": {
+    "pick": "Select File",
+    "clear": "Clear",
+    "run": "Start Cleaning",
+    "working": "Processing...",
+    "download": "Download",
+    "original": "Original",
+    "result": "Cleaned",
+    "imageSettings": "Image Output",
+    "format": "Format",
+    "quality": "Quality (JPEG/WebP)",
+    "pdfSettings": "PDF Cleaning Options",
+    "pdfExplain": "Note: Resaves PDF and clears common document information fields (title/author/subject/keywords, etc.).",
+    "unsupported": "Currently supports: Images (JPEG/PNG/WebP) and PDF only. Reliable metadata removal for other formats is difficult to implement in pure frontend environment."
+  },
+  "keywords": ["metadata remover", "EXIF removal", "image EXIF cleaner", "PDF metadata", "privacy protection"]
+}

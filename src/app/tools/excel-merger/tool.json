@@ -1,0 +1,29 @@
+{
+  "name": "免费在线 Excel 表格合并工具 - 纯粹工具站",
+  "shortName": "Excel合并",
+  "description": "免费在线 Excel 合并工具：支持导入多个 .xlsx/.xls，将所有工作表合并导出，可保留工作表或合并到单表，纯前端本地处理不上传。",
+  "seoDescription": "免费在线 Excel 表格合并工具，支持导入多个 Excel（.xlsx/.xls）并将所有工作表合并导出。提供“保留各自工作表（追加并重命名）”与“合并到一个工作表（按行追加并记录来源）”两种模式。全程浏览器本地运行不上传，适合整理报表、汇总数据与跨文件整合。",
+  "category": "办公工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["Excel合并", "合并工作表", "xlsx合并", "xls合并", "表格汇总"],
+  "ui": {
+    "hint": "Excel 合并工具：导入多个 Excel，将所有工作表合并导出（本地处理不上传）。",
+    "pick": "选择 Excel 文件",
+    "clear": "清空",
+    "files": "文件",
+    "sheets": "工作表",
+    "mode": "合并模式",
+    "modeKeepSheets": "保留各自工作表（重命名后追加到新文件）",
+    "modeSingleSheet": "合并到一个工作表（按行追加，前两列写入来源）",
+    "output": "输出",
+    "download": "下载合并后的 Excel",
+    "working": "处理中…",
+    "start": "开始合并",
+    "errPickExcel": "请选择 .xlsx/.xls 文件。",
+    "note": "提示：复杂格式与跨表公式可能无法完整保持；建议合并后自检。"
+  }
+}
+

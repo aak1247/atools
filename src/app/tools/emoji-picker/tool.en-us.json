@@ -1,0 +1,18 @@
+{
+  "name": "Free Online Emoji Picker - ATools",
+  "shortName": "Emoji Picker",
+  "description": "Free online emoji picker with category browsing, search, one-click copy, and recent usage history, all processing completed locally in browser.",
+  "seoDescription": "Professional free emoji picker tool - ATools - Browse emojis by category, search by emoji or hexadecimal codepoint, copy with one click to clipboard. Includes recent usage history and editable selected content. Runs entirely locally in browser, no login required, no ads, perfect for social media, document editing, UI design annotations and development debugging.",
+  "category": "Utility Tools",
+  "ui": {
+    "searchPlaceholder": "Search (support by emoji / hexadecimal codepoint, e.g., 1F600)",
+    "picked": "Selected Content",
+    "clear": "Clear",
+    "copy": "Copy",
+    "recent": "Recently Used",
+    "all": "All",
+    "empty": "No matching emoji found.",
+    "tip": "Tip: Click emoji to copy; recent usage saved in local browser."
+  },
+  "keywords": ["emoji", "emoji picker", "copy emoji", "emoticon", "text tool"]
+}

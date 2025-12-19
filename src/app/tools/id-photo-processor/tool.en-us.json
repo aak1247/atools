@@ -1,0 +1,29 @@
+{
+  "name": "Free Online ID Photo Processor - ATools",
+  "shortName": "ID Photo",
+  "description": "Free online ID photo processor: presets, custom size, background color, zoom/position, export PNG/JPG. Runs locally.",
+  "seoDescription": "Free online ID photo processor with common presets and custom pixel sizes. Adjust background color, zoom and position to align your photo, then export PNG/JPG. Everything runs locally in your browser with zero uploads for privacy.",
+  "category": "Image Tools",
+  "lang": "en-US",
+  "keywords": ["ID photo", "passport photo", "photo crop", "background color", "export PNG"],
+  "ui": {
+    "hint": "ID photo processor: choose size and background, adjust zoom/position, export locally (no uploads).",
+    "pick": "Select photo",
+    "clear": "Clear",
+    "preset": "Preset",
+    "presets": { "one-inch": "1-inch (295×413)", "two-inch": "2-inch (413×579)", "custom": "Custom" },
+    "size": "Size",
+    "width": "Width (px)",
+    "height": "Height (px)",
+    "bg": "Background",
+    "zoom": "Zoom",
+    "offsetX": "Offset X",
+    "offsetY": "Offset Y",
+    "export": "Export",
+    "exportPng": "Export PNG",
+    "exportJpg": "Export JPG",
+    "download": "Download",
+    "errPickImage": "Please select an image (PNG/JPG/WebP)."
+  }
+}
+

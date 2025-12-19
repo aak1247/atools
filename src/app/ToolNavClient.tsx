@@ -7,6 +7,7 @@ import toolsMetaZh from "./tools/tools-meta.zh-cn.json";
 import toolsMetaEn from "./tools/tools-meta.en-us.json";
 import { getMessages } from "../i18n/messages";
 import { useOptionalI18n } from "../i18n/I18nProvider";
+import { GITHUB_ADD_TOOL_URL } from "../lib/github";
 
 type ToolNavItem = {
   slug: string;
@@ -343,13 +344,18 @@ export default function ToolNavClient() {
         ))}
 
         {/* More Tools Placeholder */}
-        <div className="group relative flex h-full min-h-[240px] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 text-center transition-all duration-300 hover:border-slate-300 hover:bg-slate-50">
+        <a
+          href={GITHUB_ADD_TOOL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative flex h-full min-h-[240px] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-6 text-center transition-all duration-300 hover:border-slate-300 hover:bg-slate-50"
+        >
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-100 transition-transform duration-300 group-hover:scale-110 group-hover:shadow-md">
             <Sparkles className="h-6 w-6 text-slate-400 transition-colors group-hover:text-indigo-500" />
           </div>
           <h3 className="text-base font-semibold text-slate-900">{messages.moreToolsTitle}</h3>
           <p className="mt-2 text-sm text-slate-500">{messages.moreToolsDescription}</p>
-        </div>
+        </a>
       </div>
 
       {/* Empty State */}

@@ -26,7 +26,37 @@ const DEFAULT_UI = {
   realTimePreview: "实时预览",
   copyFailed: "复制失败，请重试",
   fileError: "文件错误：{message}",
-  unsupportedFormat: "不支持的文件格式"
+  unsupportedFormat: "不支持的文件格式",
+  description: "将Markdown格式转换为Confluence Wiki Markup格式",
+  enterpriseWikiDescription: "企业维基格式：适用于企业版 Confluence，提供更丰富的格式支持",
+  wikiMarkupDescription: "Wiki Markup 标准格式：适用于所有 Confluence 版本，兼容性最好",
+  featuresTitle: "支持的转换功能：",
+  wikiFormatFeatures: "Wiki Markup 格式",
+  enterpriseFormatFeatures: "企业维基格式",
+  features: {
+    wikiHeaders: "标题转换 (保持 #/##/###/#### 格式)",
+    wikiTextStyles: "文本样式 (保持 **粗体**、*斜体* 格式)",
+    wikiCodeBlocks: "代码块 (保持 ``` 格式)",
+    wikiInlineCode: "行内代码 (保持 `code` 格式)",
+    wikiLists: "列表 (保持 * 和 1. 格式)",
+    wikiQuotes: "引用块 (保持 > 格式)",
+    enterpriseHeaders: "标题转换 (#/##/###/#### → h1./h2./h3./h4.)",
+    enterpriseTextStyles: "文本样式 (**粗体** → *粗体*, *斜体* → _斜体_)",
+    enterpriseCodeBlocks: "代码块 (``` → {code:language=...})",
+    enterpriseInlineCode: "行内代码 (`code` → {{code}})",
+    enterpriseLists: "列表转换 (* → #, 支持嵌套)",
+    enterpriseQuotes: "引用块 (> → bq.)",
+    tables: "表格格式 (|列1|列2| → Confluence表格)",
+    links: "链接转换 ([text](url) → [text|url])",
+    images: "图片转换 (![alt](url) → !url!)",
+    separator: "分割线 (--- → ----)"
+  },
+  formatDescription: {
+    wiki: " Wiki Markup 更接近原生 Markdown 语法，适用于所有 Confluence 版本，直接粘贴即可使用。",
+    enterprise: " 企业维基使用 Confluence 特有语法，如 h1. 标题、{{代码}} 等，需要配合相应插件使用。"
+  },
+  charactersCount: "字符",
+  formatNote: "格式说明："
 } as const;
 
 type MarkdownToConfluenceUi = typeof DEFAULT_UI;
@@ -198,18 +228,20 @@ class MarkdownToConfluenceConverter {
       // 处理水平分割线
       result = result.replace(/^---+$/gim, "----");
 
-      // 恢复代码块内容
+      // 处理标题（企业维基格式）- 在恢复代码块之前处理
+      result = result.replace(/^###### (.*$)/gim, "h6. $1");
+      result = result.replace(/^##### (.*$)/gim, "h5. $1");
+      result = result.replace(/^#### (.*$)/gim, "h4. $1");
+      result = result.replace(/^### (.*$)/gim, "h3. $1");
+      result = result.replace(/^## (.*$)/gim, "h2. $1");
+      result = result.replace(/^# (.*$)/gim, "h1. $1");
+
+      // 最后恢复代码块内容
       result = result.replace(/__CODE_BLOCK_(\d+)__/g, (match, index) => {
         const blockIndex = parseInt(index);
         const originalCode = codeBlocks[blockIndex];
         return `{code:borderStyle=solid}\n${originalCode.trim()}\n{code}`;
       });
-
-      // 最后处理标题（企业维基格式）
-      result = result.replace(/^#### (.*$)/gim, "h4. $1");
-      result = result.replace(/^### (.*$)/gim, "h3. $1");
-      result = result.replace(/^## (.*$)/gim, "h2. $1");
-      result = result.replace(/^# (.*$)/gim, "h1. $1");
     }
 
     // 两种格式都需要处理的元素
@@ -237,56 +269,87 @@ class MarkdownToConfluenceConverter {
     let inTable = false;
     let tableRows: string[] = [];
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-
-      // 检查是否为表格行（以|开头和结尾，且包含多个|）
-      const trimmedLine = line.trim();
-      if (trimmedLine.startsWith('|') && trimmedLine.endsWith('|') && trimmedLine.split('|').length > 3) {
-        if (!inTable) {
-          inTable = true;
-          tableRows = [];
-        }
-        tableRows.push(trimmedLine);
-      } else if (inTable) {
-        // 表格结束
-        const tableConfluence = this.convertTableToConfluence(tableRows);
+    const flushTable = () => {
+      if (!tableRows.length) return;
+      const tableConfluence = this.convertTableToConfluence(tableRows);
+      if (tableConfluence) {
         result.push(tableConfluence);
-        inTable = false;
-        tableRows = [];
-        result.push(line);
-      } else {
-        result.push(line);
       }
+      tableRows = [];
+    };
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+
+      if (this.isTableRow(trimmedLine)) {
+        inTable = true;
+        tableRows.push(trimmedLine);
+        continue;
+      }
+
+      if (inTable) {
+        flushTable();
+        inTable = false;
+      }
+
+      result.push(line);
     }
 
-    // 处理文档末尾的表格
-    if (inTable && tableRows.length > 0) {
-      const tableConfluence = this.convertTableToConfluence(tableRows);
-      result.push(tableConfluence);
+    if (inTable) {
+      flushTable();
     }
 
     return result.join('\n');
   }
 
   private convertTableToConfluence(rows: string[]): string {
-    if (rows.length === 0) return '';
+    if (!rows.length) return '';
 
-    // 过滤掉分隔行 (|---|---|)
-    const dataRows = rows.filter(row => {
-      const cells = row.split('|').slice(1, -1); // 去掉首尾空元素
-      return cells.some(cell => !cell.match(/^-+$/)); // 不是纯分隔符行
+    const parsedRows = rows
+      .map(row => this.splitTableRow(row))
+      .filter(cells => cells.length > 0);
+
+    const dataRows = parsedRows.filter(cells => !this.isSeparatorRow(cells));
+    if (!dataRows.length) return '';
+
+    const formattedRows = dataRows.map((cells, index) => {
+      const delimiter = index === 0 ? '||' : '|';
+      return `${delimiter}${cells.join(delimiter)}${delimiter}`;
     });
 
-    if (dataRows.length === 0) return '';
+    return formattedRows.join('\n');
+  }
 
-    const confluenceRows = dataRows.map(row => {
-      const cells = row.split('|').slice(1, -1); // 去掉首尾空元素
-      const cleanedCells = cells.map(cell => cell.trim());
-      return '|' + cleanedCells.join('|') + '|';
+  private isTableRow(line: string): boolean {
+    if (!line) return false;
+    if (!line.startsWith('|')) return false;
+    const pipeMatches = line.match(/\|/g);
+    return !!pipeMatches && pipeMatches.length >= 2;
+  }
+
+  private splitTableRow(row: string): string[] {
+    if (!row) return [];
+    let normalized = row.trim();
+
+    if (!normalized.startsWith('|')) {
+      normalized = '|' + normalized;
+    }
+    if (!normalized.endsWith('|')) {
+      normalized = normalized + '|';
+    }
+
+    return normalized
+      .split('|')
+      .slice(1, -1)
+      .map(cell => cell.trim());
+  }
+
+  private isSeparatorRow(cells: string[]): boolean {
+    if (!cells.length) return false;
+    return cells.every(cell => {
+      const trimmed = cell.trim();
+      return trimmed.length > 0 && /^:?-{3,}:?$/.test(trimmed);
     });
-
-    return confluenceRows.join('\n');
   }
 }
 
@@ -373,7 +436,7 @@ export default function MarkdownToConfluenceClient() {
         {/* 工具标题和说明 */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">{ui.title}</h1>
-          <p className="text-slate-600">将Markdown格式转换为Confluence Wiki Markup格式</p>
+          <p className="text-slate-600">{ui.description}</p>
         </div>
 
         {/* 控制按钮 */}
@@ -422,8 +485,8 @@ export default function MarkdownToConfluenceClient() {
           </div>
           <div className="text-xs text-slate-500 text-center max-w-md">
             {outputFormat === 'enterprise' ?
-              '企业维基格式：适用于企业版 Confluence，提供更丰富的格式支持' :
-              'Wiki Markup 标准格式：适用于所有 Confluence 版本，兼容性最好'
+              ui.enterpriseWikiDescription :
+              ui.wikiMarkupDescription
             }
           </div>
         </div>
@@ -449,7 +512,7 @@ export default function MarkdownToConfluenceClient() {
             <div className="flex items-center justify-between">
               <label className="text-slate-700 font-semibold">{ui.inputLabel}</label>
               <span className="text-sm text-slate-500">
-                {markdown.length} 字符
+                {markdown.length} {ui.charactersCount}
               </span>
             </div>
             <div className="relative">
@@ -469,7 +532,7 @@ export default function MarkdownToConfluenceClient() {
               <label className="text-slate-700 font-semibold">{ui.outputLabel}</label>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-slate-500">
-                  {confluenceOutput.length} 字符
+                  {confluenceOutput.length} {ui.charactersCount}
                 </span>
                 <button
                   onClick={copyToClipboard}
@@ -493,43 +556,42 @@ export default function MarkdownToConfluenceClient() {
 
         {/* 使用说明 */}
         <div className="bg-slate-50 rounded-2xl p-6 text-sm text-slate-600">
-          <h3 className="font-semibold text-slate-800 mb-3">支持的转换功能：</h3>
+          <h3 className="font-semibold text-slate-800 mb-3">{ui.featuresTitle}</h3>
           <div className="mb-4">
             <div className="font-medium text-slate-700 mb-2">
-              {outputFormat === 'wiki' ? 'Wiki Markup 格式' : '企业维基格式'}：
+              {outputFormat === 'wiki' ? ui.wikiFormatFeatures : ui.enterpriseFormatFeatures}：
             </div>
             <ul className="space-y-2 grid md:grid-cols-2 gap-2">
               {outputFormat === 'wiki' ? (
                 <>
-                  <li>✅ 标题转换 (保持 #/##/###/#### 格式)</li>
-                  <li>✅ 文本样式 (保持 **粗体**、*斜体* 格式)</li>
-                  <li>✅ 代码块 (保持 ``` 格式)</li>
-                  <li>✅ 行内代码 (保持 {'`code`'} 格式)</li>
-                  <li>✅ 列表 (保持 * 和 1. 格式)</li>
-                  <li>✅ 引用块 (保持 {'>'} 格式)</li>
+                  <li>✅ {ui.features.wikiHeaders}</li>
+                  <li>✅ {ui.features.wikiTextStyles}</li>
+                  <li>✅ {ui.features.wikiCodeBlocks}</li>
+                  <li>✅ {ui.features.wikiInlineCode}</li>
+                  <li>✅ {ui.features.wikiLists}</li>
+                  <li>✅ {ui.features.wikiQuotes}</li>
                 </>
               ) : (
                 <>
-                  <li>✅ 标题转换 (#/##/###/#### → h1./h2./h3./h4.)</li>
-                  <li>✅ 文本样式 (**粗体** → *粗体*, *斜体* → _斜体_)</li>
-                  <li>✅ 列表转换 (* → #, 支持嵌套)</li>
-                  <li>✅ 代码块 (``` → {'{code:language=...}'})</li>
-                  <li>✅ 行内代码 ({'`code`'} → {`{{code}}`})</li>
-                  <li>✅ 列表转换 (* → #)</li>
-                  <li>✅ 引用块 ({'>'} → bq.)</li>
+                  <li>✅ {ui.features.enterpriseHeaders}</li>
+                  <li>✅ {ui.features.enterpriseTextStyles}</li>
+                  <li>✅ {ui.features.enterpriseLists}</li>
+                  <li>✅ {ui.features.enterpriseCodeBlocks}</li>
+                  <li>✅ {ui.features.enterpriseInlineCode}</li>
+                  <li>✅ {ui.features.enterpriseQuotes}</li>
                 </>
               )}
-              <li>✅ 表格格式 (|列1|列2| → Confluence表格)</li>
-              <li>✅ 链接转换 ([text](url) → [text|url])</li>
-              <li>✅ 图片转换 (![alt](url) → !url!)</li>
-              <li>✅ 分割线 (--- → ----)</li>
+              <li>✅ {ui.features.tables}</li>
+              <li>✅ {ui.features.links}</li>
+              <li>✅ {ui.features.images}</li>
+              <li>✅ {ui.features.separator}</li>
             </ul>
           </div>
           <div className="text-xs text-slate-500 bg-blue-50 rounded-lg p-3">
-            <strong>格式说明：</strong>
+            <strong>{ui.formatNote}</strong>
             {outputFormat === 'wiki'
-              ? ' Wiki Markup 更接近原生 Markdown 语法，适用于所有 Confluence 版本，直接粘贴即可使用。'
-              : ' 企业维基使用 Confluence 特有语法，如 h1. 标题、{{代码}} 等，需要配合相应插件使用。'
+              ? ui.formatDescription.wiki
+              : ui.formatDescription.enterprise
             }
           </div>
         </div>

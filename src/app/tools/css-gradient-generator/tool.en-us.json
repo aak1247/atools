@@ -1,0 +1,25 @@
+{
+  "name": "Free Online CSS Gradient Generator - ATools",
+  "shortName": "CSS Gradient",
+  "description": "Free online CSS gradient generator: Create linear and radial gradients, add color stops, preview results, copy CSS code.",
+  "seoDescription": "Professional free CSS gradient generator tool - ATools - Create beautiful linear and radial gradients with intuitive interface. Add multiple color stops, adjust gradient angle, preview results in real-time, copy CSS code with one click. Supports custom colors, positions, and random gradient generation. Perfect for web designers and developers to quickly generate gradient backgrounds and effects. All processing is done locally in browser.",
+  "category": "Design Tools",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "ui": {
+    "type": "Type",
+    "linear": "Linear Gradient",
+    "radial": "Radial Gradient",
+    "angle": "Angle (deg)",
+    "stops": "Color Stops",
+    "add": "Add Stop",
+    "remove": "Remove",
+    "random": "Random",
+    "preview": "Preview",
+    "css": "CSS",
+    "copy": "Copy"
+  },
+  "keywords": ["CSS gradient", "gradient generator", "linear gradient", "radial gradient", "CSS background", "web design"]
+}

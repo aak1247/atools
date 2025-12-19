@@ -1,0 +1,33 @@
+{
+  "name": "Free Online SVG Optimization Compression Tool - ATools",
+  "shortName": "SVG Optimize",
+  "description": "Free online SVG optimization compression: Remove comments/metadata/title/desc and compress whitespace to generate smaller SVG (pure frontend local processing).",
+  "seoDescription": "Free online SVG optimization compression tool that supports pasting or uploading SVG and reduces file size by removing comments, metadata, optionally removing title/desc, and simple whitespace compression, with one-click copy and download of optimized SVG. Pure frontend local operation without file uploads, suitable for web icons and illustration resource optimization.",
+  "category": "Development Tools",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["SVG optimization", "SVG compression", "SVG minify", "frontend optimization", "icon optimization"],
+  "ui": {
+    "uploadSvg": "Upload SVG",
+    "copyOptimizedResult": "Copy Optimized Result",
+    "download": "Download {filename}",
+    "inputSvg": "Input SVG",
+    "optimizedResult": "Optimized Result",
+    "optimizedPlaceholder": "Optimized output...",
+    "options": "Options",
+    "removeComments": "Remove comments (<!-- -->)",
+    "removeMetadata": "Remove <metadata>",
+    "removeTitleDesc": "Remove <title>/<desc> (may affect accessibility)",
+    "minifyWhitespace": "Minify whitespace (simple minify)",
+    "lightWeightDescription": "Description: This tool provides lightweight optimization, not equivalent to SVGO's complete rule set; will not change path data and geometric structure.",
+    "preview": "Preview",
+    "noPreview": "No Preview",
+    "invalidSvgError": "Not a valid SVG (missing <svg> root node).",
+    "parseError": "SVG parsing failed: Please check if XML is complete.",
+    "optimizeError": "Optimization failed",
+    "defaultSvgExample": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\" viewBox=\"0 0 120 120\">\\n  <!-- comment -->\\n  <metadata>example</metadata>\\n  <rect x=\"10\" y=\"10\" width=\"100\" height=\"100\" fill=\"#3B82F6\"/>\\n</svg>\\n",
+    "downloadFilename": "optimized.svg"
+  }
+}

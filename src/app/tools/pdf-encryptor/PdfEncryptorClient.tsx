@@ -3,6 +3,7 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import { decryptBytes, encryptBytes, parseEncryptedPayload } from "../../../lib/crypto/aes256gcm-pbkdf2";
 
 type Mode = "encrypt" | "decrypt";
@@ -35,6 +36,9 @@ export default function PdfEncryptorClient() {
 }
 
 function PdfEncryptorInner() {
+  const config = useOptionalToolConfig("pdf-encryptor");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const pdfRef = useRef<HTMLInputElement>(null);
   const jsonRef = useRef<HTMLInputElement>(null);
 
@@ -119,7 +123,7 @@ function PdfEncryptorInner() {
       const payload = parseEncryptedPayload(jsonText);
       const { bytes, meta } = await decryptBytes({ payload, password });
       const name = meta?.name?.toLowerCase().endsWith(".pdf") ? meta.name : "decrypted.pdf";
-      const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+      const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }));
       setDownloadUrl(url);
       setDownloadName(name);
       setOutputText(JSON.stringify({ meta, size: bytes.byteLength }, null, 2));
@@ -302,4 +306,3 @@ function PdfEncryptorInner() {
     </div>
   );
 }
-

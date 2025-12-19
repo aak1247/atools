@@ -1,0 +1,26 @@
+{
+  "name": "Free Online Excel Merger - ATools",
+  "shortName": "Excel Merger",
+  "description": "Free online Excel merger: merge multiple .xlsx/.xls into one workbook, keep sheets or merge into a single sheet. Runs locally.",
+  "seoDescription": "Free online Excel merger to combine multiple Excel files (.xlsx/.xls). Choose to keep each sheet (appended and renamed) or merge all data into a single sheet with source columns. Everything runs locally in your browser with zero uploads for privacy.",
+  "category": "Office Tools",
+  "lang": "en-US",
+  "keywords": ["Excel merger", "merge worksheets", "merge xlsx", "merge xls", "data consolidation"],
+  "ui": {
+    "hint": "Merge multiple Excel files and export a combined workbook (local only, no uploads).",
+    "pick": "Select Excel files",
+    "clear": "Clear",
+    "files": "Files",
+    "sheets": "Sheets",
+    "mode": "Merge mode",
+    "modeKeepSheets": "Keep sheets (append into a new workbook with renamed sheets)",
+    "modeSingleSheet": "Merge into one sheet (append rows and add source columns)",
+    "output": "Output",
+    "download": "Download merged Excel",
+    "working": "Working…",
+    "start": "Merge",
+    "errPickExcel": "Please select .xlsx/.xls files.",
+    "note": "Note: complex formatting and cross-sheet formulas may not be fully preserved."
+  }
+}
+

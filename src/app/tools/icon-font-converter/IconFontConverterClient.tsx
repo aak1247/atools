@@ -3,6 +3,28 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+
+// 中文默认值
+const DEFAULT_UI = {
+  title: "图标字体转换器",
+  uploadSvg: "上传 SVG 文件",
+  clear: "清空",
+  convert: "转换字体",
+  download: "下载",
+  format: "格式",
+  fontFamily: "字体族名称",
+  cssPrefix: "CSS 前缀",
+  description: "将 SVG 图标转换为 Web 字体，支持多种字体格式，生成 CSS 映射文件",
+  processing: "处理中...",
+  success: "转换成功",
+  error: "转换失败",
+  cssGenerated: "CSS 映射文件",
+  fontSubset: "字体子集化",
+  preview: "预览"
+} as const;
+
+type IconFontConverterUi = typeof DEFAULT_UI;
 
 const bytesToBase64 = (bytes: Uint8Array) => {
   let binary = "";
@@ -53,6 +75,9 @@ export default function IconFontConverterClient() {
 }
 
 function IconFontConverterInner() {
+  const config = useOptionalToolConfig("icon-font-converter");
+  const ui: IconFontConverterUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<IconFontConverterUi>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);

@@ -4,6 +4,7 @@ import type { ChangeEvent } from "react";
 import * as GBK from "gbk.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type SubtitleFormat = "srt" | "vtt" | "ass";
 
@@ -268,6 +269,31 @@ const encodeText = (text: string, encoding: "utf-8" | "gbk"): Uint8Array => {
   return new TextEncoder().encode(text);
 };
 
+const DEFAULT_UI = {
+  upload: "上传字幕文件",
+  clear: "清空",
+  parsedCount: "已解析",
+  copyOutput: "复制输出",
+  download: "下载",
+  input: "输入",
+  format: "格式",
+  encoding: "编码",
+  auto: "自动",
+  contentPlaceholder: "粘贴字幕内容或上传文件…",
+  timelineAdjustment: "时间轴调整",
+  offsetMs: "偏移（毫秒，可为负）",
+  offsetPlaceholder: "例如 500 或 -250",
+  speedRate: "速度倍率（>0）",
+  explanation: "说明：输出时间 = 输入时间 × 速度倍率 + 偏移；最终会裁剪到 ≥0。",
+  output: "输出",
+  outputPlaceholder: "输出结果…",
+  hint: "提示：本工具纯前端运行，支持 UTF-8/GBK 编码读写与 SRT/VTT/ASS 格式互转（ASS 样式保留仅在 ASS→ASS 时完整）。",
+  parseError: "解析失败",
+  generateError: "生成失败"
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 export default function SubtitleExtractorClient() {
   return (
     <ToolPageLayout toolSlug="subtitle-extractor" maxWidthClassName="max-w-6xl">
@@ -277,6 +303,9 @@ export default function SubtitleExtractorClient() {
 }
 
 function SubtitleExtractorInner() {
+  const config = useOptionalToolConfig("subtitle-extractor");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [inputText, setInputText] = useState("");
@@ -313,7 +342,7 @@ function SubtitleExtractorInner() {
       if (inputFormat === "vtt") return { header: null, cues: parseVtt(inputText) };
       return { header: null, cues: parseSrt(inputText) };
     } catch (e) {
-      setError(e instanceof Error ? e.message : "解析失败");
+      setError(e instanceof Error ? e.message : ui.parseError);
       return { header: null, cues: [] as Cue[] };
     }
   }, [inputFormat, inputText]);
@@ -326,7 +355,7 @@ function SubtitleExtractorInner() {
       if (outputFormat === "vtt") return toVtt(adjusted);
       return toSrt(adjusted);
     } catch (e) {
-      return `/* ERROR: ${e instanceof Error ? e.message : "生成失败"} */\n`;
+      return `/* ERROR: ${e instanceof Error ? e.message : ui.generateError} */\n`;
     }
   }, [adjusted, outputFormat, parsed.header]);
 
@@ -348,7 +377,7 @@ function SubtitleExtractorInner() {
         : outputFormat === "ass"
           ? "text/plain"
           : "application/x-subrip";
-    const blob = new Blob([bytes], { type: `${mime};charset=${outputEncoding}` });
+    const blob = new Blob([new Uint8Array(bytes)], { type: `${mime};charset=${outputEncoding}` });
     setDownloadUrl(URL.createObjectURL(blob));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [outputText, outputEncoding, outputFormat]);
@@ -389,17 +418,17 @@ function SubtitleExtractorInner() {
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              上传字幕文件
+              {ui.upload}
             </button>
             <button
               type="button"
               onClick={clear}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              清空
+              {ui.clear}
             </button>
             <div className="text-xs text-slate-500">
-              已解析 {parsed.cues.length} 条
+              {ui.parsedCount} {parsed.cues.length} 条
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -408,7 +437,7 @@ function SubtitleExtractorInner() {
               onClick={() => void copyOutput()}
               className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
-              复制输出
+              {ui.copyOutput}
             </button>
             {downloadUrl && (
               <a
@@ -416,7 +445,7 @@ function SubtitleExtractorInner() {
                 download={downloadName}
                 className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
               >
-                下载 {downloadName}
+                {ui.download} {downloadName}
               </a>
             )}
           </div>
@@ -426,10 +455,10 @@ function SubtitleExtractorInner() {
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">输入</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.input}</div>
                 <div className="flex flex-wrap items-center gap-2">
                   <label className="text-xs text-slate-600">
-                    格式
+                    {ui.format}
                     <select
                       value={inputFormat}
                       onChange={(e) => setInputFormat(e.target.value as SubtitleFormat)}
@@ -441,13 +470,13 @@ function SubtitleExtractorInner() {
                     </select>
                   </label>
                   <label className="text-xs text-slate-600">
-                    编码
+                    {ui.encoding}
                     <select
                       value={inputEncoding}
                       onChange={(e) => setInputEncoding(e.target.value as any)}
                       className="ml-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      <option value="auto">自动</option>
+                      <option value="auto">{ui.auto}</option>
                       <option value="utf-8">UTF-8</option>
                       <option value="gbk">GBK</option>
                     </select>
@@ -458,7 +487,7 @@ function SubtitleExtractorInner() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="mt-3 h-[520px] w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                placeholder="粘贴字幕内容或上传文件…"
+                placeholder={ui.contentPlaceholder}
               />
               {error && <div className="mt-3 text-sm text-rose-600">{error}</div>}
             </div>
@@ -466,21 +495,21 @@ function SubtitleExtractorInner() {
 
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">时间轴调整</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.timelineAdjustment}</div>
               <div className="mt-4 grid gap-4">
                 <label className="block text-sm text-slate-700">
-                  偏移（毫秒，可为负）
+                  {ui.offsetMs}
                   <input
                     type="number"
                     step={10}
                     value={offsetMs}
                     onChange={(e) => setOffsetMs(Number(e.target.value))}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                    placeholder="例如 500 或 -250"
+                    placeholder={ui.offsetPlaceholder}
                   />
                 </label>
                 <label className="block text-sm text-slate-700">
-                  速度倍率（&gt;0）
+                  {ui.speedRate}
                   <input
                     type="number"
                     step={0.01}
@@ -492,7 +521,7 @@ function SubtitleExtractorInner() {
                   />
                 </label>
                 <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-                  说明：输出时间 = 输入时间 × 速度倍率 + 偏移；最终会裁剪到 ≥0。
+                  {ui.explanation}
                 </div>
               </div>
             </div>
@@ -502,7 +531,7 @@ function SubtitleExtractorInner() {
                 <div className="text-sm font-semibold text-slate-900">输出</div>
                 <div className="flex flex-wrap items-center gap-2">
                   <label className="text-xs text-slate-600">
-                    格式
+                    {ui.format}
                     <select
                       value={outputFormat}
                       onChange={(e) => setOutputFormat(e.target.value as SubtitleFormat)}
@@ -514,7 +543,7 @@ function SubtitleExtractorInner() {
                     </select>
                   </label>
                   <label className="text-xs text-slate-600">
-                    编码
+                    {ui.encoding}
                     <select
                       value={outputEncoding}
                       onChange={(e) => setOutputEncoding(e.target.value as any)}
@@ -530,10 +559,10 @@ function SubtitleExtractorInner() {
                 value={outputText}
                 readOnly
                 className="mt-3 h-[360px] w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-                placeholder="输出结果…"
+                placeholder={ui.outputPlaceholder}
               />
               <div className="mt-3 text-xs text-slate-500">
-                提示：本工具纯前端运行，支持 UTF-8/GBK 编码读写与 SRT/VTT/ASS 格式互转（ASS 样式保留仅在 ASS→ASS 时完整）。
+                {ui.hint}
               </div>
             </div>
           </div>
@@ -542,4 +571,3 @@ function SubtitleExtractorInner() {
     </div>
   );
 }
-

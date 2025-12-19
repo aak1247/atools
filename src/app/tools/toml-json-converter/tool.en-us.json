@@ -1,0 +1,26 @@
+{
+  "name": "Free Online TOML JSON Converter Tool - ATools",
+  "shortName": "TOML Convert",
+  "description": "Free online TOML ↔ JSON converter tool: Supports TOML to JSON, JSON to TOML, copy output, pure frontend local operation.",
+  "seoDescription": "Free online TOML JSON converter tool that supports TOML to JSON (with optional pretty formatting) and JSON to TOML conversion, with one-click copy of conversion results. Pure frontend local operation without content uploads, suitable for configuration file conversion, toolchain integration, and development debugging.",
+  "category": "Development Tools",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["TOML to JSON", "JSON to TOML", "configuration conversion", "toml parser", "local processing"],
+  "ui": {
+    "tomlToJson": "TOML → JSON",
+    "jsonToToml": "JSON → TOML",
+    "jsonPrettyPrint": "JSON Pretty Print",
+    "swap": "Swap",
+    "copyOutput": "Copy Output",
+    "input": "Input",
+    "output": "Output",
+    "tomlPlaceholder": "Paste TOML...",
+    "jsonPlaceholder": "Paste JSON...",
+    "resultPlaceholder": "Conversion result...",
+    "description": "Description: This tool uses `@iarna/toml` for TOML parsing/serialization, runs purely frontend local without uploading content.",
+    "conversionError": "Conversion failed"
+  }
+}

@@ -3,6 +3,45 @@
 import { argon2id, argon2Verify, bcrypt, bcryptVerify } from "hash-wasm";
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+
+// 中文默认值
+const DEFAULT_UI = {
+  generateHash: "生成哈希",
+  verifyHash: "校验",
+  description: "说明：bcrypt/argon2id 为密码哈希算法（不可逆）。本工具使用 `hash-wasm` 在浏览器本地计算与校验，不上传密码与哈希。",
+  input: "输入",
+  passwordLabel: "Password",
+  passwordPlaceholder: "输入要哈希/校验的密码",
+  hashForVerify: "Hash（用于校验）",
+  hashPlaceholder: "粘贴 bcrypt/argon2id 哈希…",
+  generating: "处理中…",
+  generateButton: "生成",
+  verifyButton: "校验",
+  result: "结果",
+  copyButton: "复制",
+  bcryptParams: "bcrypt 参数",
+  cost: "cost",
+  costFactor: "costFactor（4-31）",
+  salt: "salt（Base64，解码后需 16 字节）",
+  randomButton: "随机",
+  argon2idParams: "argon2id 参数",
+  memory: "memory (KiB)",
+  memorySize: "memorySize（KiB）",
+  iterations: "iterations",
+  parallelism: "parallelism",
+  hashLength: "hash length (bytes)",
+  saltArgon: "salt（Base64，解码后至少 8 字节）",
+  securityTip: "提示：生产环境建议让服务端生成随机 salt 并存储哈希（包含参数），客户端不要自行实现登录加密协议。",
+  verifySuccess: "校验通过 ✅",
+  verifyFailed: "校验失败 ❌",
+  calculationError: "计算失败",
+  verifyError: "校验失败",
+  bcryptSaltError: "bcrypt salt 必须为 16 字节（Base64 解码后）。",
+  autoFillPlaceholder: "生成后会自动填充…"
+} as const;
+
+type BcryptArgon2HasherUi = typeof DEFAULT_UI;
 
 type Algo = "bcrypt" | "argon2id";
 type Mode = "hash" | "verify";
@@ -34,6 +73,9 @@ export default function BcryptArgon2HasherClient() {
 }
 
 function BcryptArgon2HasherInner() {
+  const config = useOptionalToolConfig("bcrypt-argon2-hasher");
+  const ui: BcryptArgon2HasherUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<BcryptArgon2HasherUi>) };
+
   const [algo, setAlgo] = useState<Algo>("bcrypt");
   const [mode, setMode] = useState<Mode>("hash");
   const [password, setPassword] = useState("password");
@@ -67,7 +109,7 @@ function BcryptArgon2HasherInner() {
       if (algo === "bcrypt") {
         const costFactor = Math.min(31, Math.max(4, Math.round(bcryptCost)));
         const salt = b64ToBytes(bcryptSaltB64);
-        if (salt.byteLength !== 16) throw new Error("bcrypt salt 必须为 16 字节（Base64 解码后）。");
+        if (salt.byteLength !== 16) throw new Error(ui.bcryptSaltError);
         const out = await bcrypt({ password, salt, costFactor, outputType: "encoded" });
         setResult(out);
         setHashText(out);
@@ -90,7 +132,7 @@ function BcryptArgon2HasherInner() {
         setHashText(out);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "计算失败");
+      setError(e instanceof Error ? e.message : ui.calculationError);
     } finally {
       setIsWorking(false);
     }
@@ -104,13 +146,13 @@ function BcryptArgon2HasherInner() {
       const hash = hashText.trim();
       if (algo === "bcrypt") {
         const ok = await bcryptVerify({ password, hash });
-        setResult(ok ? "校验通过 ✅" : "校验失败 ❌");
+        setResult(ok ? ui.verifySuccess : ui.verifyFailed);
       } else {
         const ok = await argon2Verify({ password, hash });
-        setResult(ok ? "校验通过 ✅" : "校验失败 ❌");
+        setResult(ok ? ui.verifySuccess : ui.verifyFailed);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "校验失败");
+      setError(e instanceof Error ? e.message : ui.verifyError);
     } finally {
       setIsWorking(false);
     }
@@ -159,7 +201,7 @@ function BcryptArgon2HasherInner() {
                 mode === "hash" ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              生成哈希
+              {ui.generateHash}
             </button>
             <button
               type="button"
@@ -168,37 +210,37 @@ function BcryptArgon2HasherInner() {
                 mode === "verify" ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              校验
+              {ui.verifyHash}
             </button>
           </div>
         </div>
 
         <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-          说明：bcrypt/argon2id 为密码哈希算法（不可逆）。本工具使用 `hash-wasm` 在浏览器本地计算与校验，不上传密码与哈希。
+          {ui.description}
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">输入</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.input}</div>
               <div className="mt-4 grid gap-4">
                 <label className="block text-sm text-slate-700">
-                  Password
+                  {ui.passwordLabel}
                   <input
                     type="text"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                    placeholder="输入要哈希/校验的密码"
+                    placeholder={ui.passwordPlaceholder}
                   />
                 </label>
                 <label className="block text-sm text-slate-700">
-                  Hash（用于校验）
+                  {ui.hashForVerify}
                   <textarea
                     value={hashText}
                     onChange={(e) => setHashText(e.target.value)}
                     className="mt-2 h-28 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                    placeholder={mode === "verify" ? "粘贴 bcrypt/argon2id 哈希…" : "生成后会自动填充…"}
+                    placeholder={mode === "verify" ? ui.hashPlaceholder : ui.autoFillPlaceholder}
                   />
                 </label>
 
@@ -208,7 +250,7 @@ function BcryptArgon2HasherInner() {
                   disabled={!canRun || isWorking}
                   className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
                 >
-                  {isWorking ? "处理中…" : mode === "hash" ? "生成" : "校验"}
+                  {isWorking ? ui.generating : mode === "hash" ? ui.generateButton : ui.verifyButton}
                 </button>
 
                 {error && (
@@ -219,13 +261,13 @@ function BcryptArgon2HasherInner() {
                 {result && (
                   <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-800 ring-1 ring-slate-200">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="font-semibold">结果</div>
+                      <div className="font-semibold">{ui.result}</div>
                       <button
                         type="button"
                         onClick={() => void copy(result)}
                         className="rounded-xl bg-white px-3 py-2 text-xs font-medium text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100"
                       >
-                        复制
+                        {ui.copyButton}
                       </button>
                     </div>
                     <div className="mt-2 break-words font-mono text-xs">{result}</div>
@@ -238,10 +280,10 @@ function BcryptArgon2HasherInner() {
           <div className="space-y-4">
             {algo === "bcrypt" ? (
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">bcrypt 参数</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.bcryptParams}</div>
                 <div className="mt-4 grid gap-4">
                   <label className="block text-sm text-slate-700">
-                    costFactor（4-31）
+                    {ui.costFactor}
                     <input
                       type="number"
                       min={4}
@@ -253,7 +295,7 @@ function BcryptArgon2HasherInner() {
                     />
                   </label>
                   <label className="block text-sm text-slate-700">
-                    salt（Base64，解码后需 16 字节）
+                    {ui.salt}
                     <div className="mt-2 flex items-center gap-2">
                       <input
                         value={bcryptSaltB64}
@@ -265,7 +307,7 @@ function BcryptArgon2HasherInner() {
                         onClick={() => setBcryptSaltB64(randomSaltB64(16))}
                         className="rounded-2xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-200"
                       >
-                        随机
+                        {ui.randomButton}
                       </button>
                     </div>
                   </label>
@@ -273,10 +315,10 @@ function BcryptArgon2HasherInner() {
               </div>
             ) : (
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">argon2id 参数</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.argon2idParams}</div>
                 <div className="mt-4 grid gap-4">
                   <label className="block text-sm text-slate-700">
-                    memorySize（KiB）
+                    {ui.memorySize}
                     <input
                       type="number"
                       min={8}
@@ -288,7 +330,7 @@ function BcryptArgon2HasherInner() {
                   </label>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <label className="block text-sm text-slate-700">
-                      iterations
+                      {ui.iterations}
                       <input
                         type="number"
                         min={1}
@@ -299,7 +341,7 @@ function BcryptArgon2HasherInner() {
                       />
                     </label>
                     <label className="block text-sm text-slate-700">
-                      parallelism
+                      {ui.parallelism}
                       <input
                         type="number"
                         min={1}
@@ -310,7 +352,7 @@ function BcryptArgon2HasherInner() {
                       />
                     </label>
                     <label className="block text-sm text-slate-700 sm:col-span-2">
-                      hashLength（bytes）
+                      {ui.hashLength}
                       <input
                         type="number"
                         min={4}
@@ -322,7 +364,7 @@ function BcryptArgon2HasherInner() {
                     </label>
                   </div>
                   <label className="block text-sm text-slate-700">
-                    salt（Base64，解码后至少 8 字节）
+                    {ui.saltArgon}
                     <div className="mt-2 flex items-center gap-2">
                       <input
                         value={argonSaltB64}
@@ -334,7 +376,7 @@ function BcryptArgon2HasherInner() {
                         onClick={() => setArgonSaltB64(randomSaltB64(16))}
                         className="rounded-2xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-200"
                       >
-                        随机
+                        {ui.randomButton}
                       </button>
                     </div>
                   </label>
@@ -343,7 +385,7 @@ function BcryptArgon2HasherInner() {
             )}
 
             <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200 text-xs text-slate-600">
-              提示：生产环境建议让服务端生成随机 salt 并存储哈希（包含参数），客户端不要自行实现登录加密协议。
+              {ui.securityTip}
             </div>
           </div>
         </div>

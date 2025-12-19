@@ -1,0 +1,34 @@
+{
+  "name": "免费在线 截图标注工具 - 纯粹工具站",
+  "shortName": "截图标注",
+  "description": "免费在线截图标注工具：上传图片后可画笔、矩形、箭头、文字标注，支持撤销重做与导出 PNG，纯前端本地处理不上传。",
+  "seoDescription": "免费在线截图标注工具，支持上传截图/图片后进行画笔涂鸦、矩形框选、箭头指示与文字说明等常用标注操作，并支持撤销/重做与导出 PNG。全程浏览器本地运行，不上传图片，适合产品反馈、Bug 报告、文档说明与办公协作。",
+  "category": "图片工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["截图标注", "图片标注", "箭头标注", "画笔涂鸦", "导出PNG"],
+  "ui": {
+    "hint": "截图标注工具：上传截图后可画笔、矩形、箭头、文字标注，导出 PNG（全程本地处理不上传）。",
+    "pick": "选择图片",
+    "clear": "清空",
+    "mode": "工具",
+    "select": "选择/移动",
+    "pen": "画笔",
+    "rect": "矩形",
+    "arrow": "箭头",
+    "text": "文字",
+    "stroke": "描边",
+    "fill": "填充",
+    "width": "线宽",
+    "fontSize": "字号",
+    "undo": "撤销",
+    "redo": "重做",
+    "downloadPng": "下载 PNG",
+    "copyPng": "复制 PNG",
+    "errPickImage": "请选择图片文件（PNG/JPG/WebP）。",
+    "copied": "已复制"
+  }
+}
+

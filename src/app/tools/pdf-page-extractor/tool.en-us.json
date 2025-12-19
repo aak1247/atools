@@ -1,0 +1,29 @@
+{
+  "name": "Free Online PDF Page Extractor - ATools",
+  "shortName": "PDF Extractor",
+  "description": "Free online PDF page extractor. Extract selected page ranges to a new PDF or export per-page PDFs as a ZIP.",
+  "seoDescription": "Free online PDF page extractor to extract selected page ranges from a PDF. Export as a single new PDF or as per-page PDFs zipped together. Everything runs locally in your browser with zero uploads for privacy.",
+  "category": "PDF Tools",
+  "lang": "en-US",
+  "keywords": ["PDF page extractor", "extract PDF pages", "PDF range extract", "split PDF pages", "PDF tool"],
+  "ui": {
+    "hint": "Extract selected pages from a PDF locally (no uploads).",
+    "pick": "Select PDF",
+    "clear": "Clear",
+    "pageUnit": "pages",
+    "mode": "Mode",
+    "single": "Extract to one PDF",
+    "perPage": "Extract each page (ZIP)",
+    "pages": "Pages",
+    "pagesPlaceholder": "e.g. 1-3,5,10-",
+    "start": "Extract",
+    "working": "Working…",
+    "result": "Result",
+    "downloadPdf": "Download PDF",
+    "downloadZip": "Download ZIP",
+    "noOutput": "No output yet.",
+    "errParseFailed": "Failed to parse PDF.",
+    "errNoValidPages": "No valid pages selected.",
+    "errExtractFailed": "Extract failed."
+  }
+}

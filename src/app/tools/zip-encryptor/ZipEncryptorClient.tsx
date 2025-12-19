@@ -4,6 +4,7 @@ import type { ChangeEvent } from "react";
 import { unzipSync, zipSync } from "fflate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import { decryptBytes, encryptBytes, parseEncryptedPayload } from "../../../lib/crypto/aes256gcm-pbkdf2";
 
 type Mode = "encrypt" | "decrypt";
@@ -26,6 +27,20 @@ const DEFAULT_UI = {
 
 const readAsBytes = async (file: File): Promise<Uint8Array> => new Uint8Array(await file.arrayBuffer());
 
+const clampZipLevel = (value: number): 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 =>
+  Math.max(0, Math.min(9, Math.round(value))) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
+const bytesToArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
+  const { byteOffset, byteLength } = bytes;
+  const buffer = bytes.buffer;
+  if (buffer instanceof ArrayBuffer) {
+    return buffer.slice(byteOffset, byteOffset + byteLength);
+  }
+  const copy = new Uint8Array(byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+};
+
 export default function ZipEncryptorClient() {
   return (
     <ToolPageLayout toolSlug="zip-encryptor" maxWidthClassName="max-w-6xl">
@@ -35,6 +50,9 @@ export default function ZipEncryptorClient() {
 }
 
 function ZipEncryptorInner() {
+  const config = useOptionalToolConfig("zip-encryptor");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const filesRef = useRef<HTMLInputElement>(null);
   const jsonRef = useRef<HTMLInputElement>(null);
 
@@ -92,7 +110,7 @@ function ZipEncryptorInner() {
   const packZip = async (picked: File[]): Promise<Uint8Array> => {
     const record: Record<string, Uint8Array> = {};
     for (const f of picked) record[f.name || `file-${Math.random().toString(16).slice(2)}`] = await readAsBytes(f);
-    return zipSync(record, { level: Math.max(0, Math.min(9, Math.round(zipLevel))) });
+    return zipSync(record, { level: clampZipLevel(zipLevel) });
   };
 
   const runEncrypt = async () => {
@@ -127,7 +145,8 @@ function ZipEncryptorInner() {
       const payload = parseEncryptedPayload(jsonText);
       const { bytes, meta } = await decryptBytes({ payload, password });
       const name = meta?.name?.toLowerCase().endsWith(".zip") ? meta.name : "decrypted.zip";
-      const url = URL.createObjectURL(new Blob([bytes], { type: "application/zip" }));
+      const bufferForBlob = bytesToArrayBuffer(bytes);
+      const url = URL.createObjectURL(new Blob([bufferForBlob], { type: "application/zip" }));
       setDownloadUrl(url);
       setDownloadName(name);
 
@@ -359,4 +378,3 @@ function ZipEncryptorInner() {
     </div>
   );
 }
-

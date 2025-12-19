@@ -1,0 +1,27 @@
+{
+  "name": "免费在线 批量二维码生成器 - 纯粹工具站",
+  "shortName": "批量二维码",
+  "description": "免费在线批量二维码生成器：支持多行输入批量生成 PNG 二维码并打包下载 ZIP，纯前端本地运行不上传。",
+  "seoDescription": "免费在线批量二维码生成器，支持按行批量生成二维码图片（PNG），可使用“label<TAB>内容”或“label,内容”自定义文件名，一键打包下载 ZIP。全程浏览器本地处理，不上传数据，适合活动报名、批量链接、库存标签与办公场景。",
+  "category": "图片工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["批量二维码", "二维码生成器", "QR批量生成", "二维码ZIP", "QR Code"],
+  "ui": {
+    "hint": "批量生成二维码并打包下载 ZIP（纯前端本地运行，不上传）。",
+    "input": "输入（每行一个）",
+    "inputHint": "格式：纯文本；或 label<TAB>文本；或 label,文本",
+    "placeholder": "https://example.com\n你好\n名称\thttps://example.com?a=1",
+    "optionsTitle": "选项",
+    "sizeLabel": "尺寸（px）",
+    "marginLabel": "留白",
+    "start": "生成 ZIP",
+    "working": "处理中…",
+    "download": "下载 ZIP",
+    "rows": "条目数",
+    "errEmpty": "请至少输入一行。",
+    "errFailed": "生成失败。"
+  }
+}

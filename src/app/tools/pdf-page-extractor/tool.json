@@ -1,0 +1,32 @@
+{
+  "name": "免费在线 PDF 页面提取器 - 纯粹工具站",
+  "shortName": "PDF提取",
+  "description": "免费在线 PDF 页面提取器：输入页码范围提取指定页面，可导出为一个新 PDF 或按页导出 ZIP，纯前端本地处理不上传。",
+  "seoDescription": "免费在线 PDF 页面提取器，支持从 PDF 中按页码范围提取指定页面，输出为一个新的 PDF 文件或每页单独导出并打包为 ZIP。全程浏览器本地运行，不上传文件，适用于拆分资料、提取关键页、共享指定页面等场景。",
+  "category": "PDF 工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["PDF页面提取", "PDF提取器", "提取PDF页面", "PDF页码范围", "PDF拆分"],
+  "ui": {
+    "hint": "提取 PDF 指定页面，全程本地处理，不上传文件。",
+    "pick": "选择 PDF",
+    "clear": "清空",
+    "pageUnit": "页",
+    "mode": "模式",
+    "single": "提取为一个新 PDF",
+    "perPage": "每页单独导出（ZIP）",
+    "pages": "页码",
+    "pagesPlaceholder": "例如：1-3,5,10-",
+    "start": "开始提取",
+    "working": "处理中…",
+    "result": "输出结果",
+    "downloadPdf": "下载 PDF",
+    "downloadZip": "下载 ZIP",
+    "noOutput": "暂无输出。",
+    "errParseFailed": "PDF 解析失败。",
+    "errNoValidPages": "未选择有效页码。",
+    "errExtractFailed": "提取失败。"
+  }
+}

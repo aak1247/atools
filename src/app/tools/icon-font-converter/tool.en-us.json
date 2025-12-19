@@ -1,0 +1,29 @@
+{
+  "name": "Free Online Icon Font Converter - ATools",
+  "shortName": "Font to CSS",
+  "description": "Free online icon font converter: Convert WOFF2/WOFF/TTF/OTF/EOT to Base64 Data URL and generate @font-face CSS.",
+  "seoDescription": "Free online icon font converter that supports uploading WOFF2, WOFF, TTF, OTF, EOT font files and automatically generates Base64 Data URL and @font-face CSS code for easy font inlining in projects or quick font availability verification. Pure frontend local operation without file uploads, suitable for frontend development, IconFont inlining, and small font packaging.",
+  "category": "Development Tools",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "ui": {
+    "title": "Icon Font Converter",
+    "uploadSvg": "Upload SVG Files",
+    "clear": "Clear",
+    "convert": "Convert Font",
+    "download": "Download",
+    "format": "Format",
+    "fontFamily": "Font Family Name",
+    "cssPrefix": "CSS Prefix",
+    "description": "Convert SVG icons to Web fonts, support multiple font formats, generate CSS mapping files",
+    "processing": "Processing...",
+    "success": "Conversion Successful",
+    "error": "Conversion Failed",
+    "cssGenerated": "CSS Mapping File",
+    "fontSubset": "Font Subsetting",
+    "preview": "Preview"
+  },
+  "keywords": ["iconfont", "woff2 to base64", "font to css", "font-face generator", "data url"]
+}

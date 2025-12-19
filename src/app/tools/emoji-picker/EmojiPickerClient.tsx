@@ -200,7 +200,7 @@ function EmojiPickerInner() {
       <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         {!EMOJI_RE && (
           <div className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-100">
-            当前浏览器不支持 Unicode 属性正则（\\p{{Extended_Pictographic}}），建议升级浏览器以获得完整 emoji 列表。
+            当前浏览器不支持 Unicode 属性正则（{"\\p{Extended_Pictographic}"}），建议升级浏览器以获得完整 emoji 列表。
           </div>
         )}
 
@@ -327,4 +327,3 @@ function EmojiPickerInner() {
     </div>
   );
 }
-

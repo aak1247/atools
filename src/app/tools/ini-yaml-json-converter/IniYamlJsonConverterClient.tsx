@@ -6,6 +6,35 @@ import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type Format = "json" | "yaml" | "ini";
 
+type Ui = {
+  input: string;
+  output: string;
+  swap: string;
+  jsonPretty: string;
+  copyOutput: string;
+  description: string;
+  inputTitle: string;
+  outputTitle: string;
+  outputPlaceholder: string;
+  errConvertFailed: string;
+  errIniObjectOnly: string;
+};
+
+const DEFAULT_UI: Ui = {
+  input: "输入",
+  output: "输出",
+  swap: "互换",
+  jsonPretty: "JSON 美化",
+  copyOutput: "复制输出",
+  description:
+    "说明：支持 INI/YAML/JSON 互转与基础格式校验。INI 仅支持“根键 + section”结构；复杂嵌套建议使用 YAML/JSON。",
+  inputTitle: "输入",
+  outputTitle: "输出",
+  outputPlaceholder: "转换结果…",
+  errConvertFailed: "转换失败",
+  errIniObjectOnly: "INI 仅支持对象（key=value），不支持数组/纯值。",
+};
+
 const safeJsonParse = (text: string): { ok: boolean; value: unknown; error?: string } => {
   try {
     return { ok: true, value: JSON.parse(text) };
@@ -44,8 +73,8 @@ const iniParse = (text: string): Record<string, any> => {
 
 const iniEscape = (s: string) => s.replace(/\n/g, "\\n");
 
-const iniStringify = (value: unknown): string => {
-  if (!isRecord(value)) throw new Error("INI 仅支持对象（key=value），不支持数组/纯值。");
+const iniStringify = (value: unknown, ui: Ui): string => {
+  if (!isRecord(value)) throw new Error(ui.errIniObjectOnly);
   const rootKeys = Object.keys(value).filter((k) => !isRecord(value[k]));
   const sectionKeys = Object.keys(value).filter((k) => isRecord(value[k]));
 
@@ -84,21 +113,23 @@ const parseByFormat = (fmt: Format, text: string): unknown => {
   return iniParse(text);
 };
 
-const stringifyByFormat = (fmt: Format, value: unknown, pretty: boolean): string => {
+const stringifyByFormat = (fmt: Format, value: unknown, pretty: boolean, ui: Ui): string => {
   if (fmt === "json") return pretty ? `${JSON.stringify(value, null, 2)}\n` : `${JSON.stringify(value)}\n`;
   if (fmt === "yaml") return `${YAML.stringify(value)}\n`;
-  return iniStringify(value);
+  return iniStringify(value, ui);
 };
 
 export default function IniYamlJsonConverterClient() {
   return (
     <ToolPageLayout toolSlug="ini-yaml-json-converter" maxWidthClassName="max-w-6xl">
-      <IniYamlJsonConverterInner />
+      {({ config }) => (
+        <IniYamlJsonConverterInner ui={{ ...DEFAULT_UI, ...((config.ui ?? {}) as Partial<Ui>) }} />
+      )}
     </ToolPageLayout>
   );
 }
 
-function IniYamlJsonConverterInner() {
+function IniYamlJsonConverterInner({ ui }: { ui: Ui }) {
   const [inputFormat, setInputFormat] = useState<Format>("json");
   const [outputFormat, setOutputFormat] = useState<Format>("yaml");
   const [prettyJson, setPrettyJson] = useState(true);
@@ -107,12 +138,12 @@ function IniYamlJsonConverterInner() {
   const computed = useMemo(() => {
     try {
       const value = parseByFormat(inputFormat, input);
-      const out = stringifyByFormat(outputFormat, value, prettyJson);
+      const out = stringifyByFormat(outputFormat, value, prettyJson, ui);
       return { ok: true, out, error: null as string | null, value };
     } catch (e) {
-      return { ok: false, out: "", error: e instanceof Error ? e.message : "转换失败", value: null as unknown };
+      return { ok: false, out: "", error: e instanceof Error ? e.message : ui.errConvertFailed, value: null as unknown };
     }
-  }, [input, inputFormat, outputFormat, prettyJson]);
+  }, [input, inputFormat, outputFormat, prettyJson, ui]);
 
   const copy = async () => {
     if (!computed.ok) return;
@@ -131,7 +162,7 @@ function IniYamlJsonConverterInner() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-2 text-sm text-slate-700">
-              输入
+              {ui.input}
               <select
                 value={inputFormat}
                 onChange={(e) => setInputFormat(e.target.value as Format)}
@@ -147,10 +178,10 @@ function IniYamlJsonConverterInner() {
               onClick={swap}
               className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              互换
+              {ui.swap}
             </button>
             <div className="flex items-center gap-2 text-sm text-slate-700">
-              输出
+              {ui.output}
               <select
                 value={outputFormat}
                 onChange={(e) => setOutputFormat(e.target.value as Format)}
@@ -172,7 +203,7 @@ function IniYamlJsonConverterInner() {
                   onChange={(e) => setPrettyJson(e.target.checked)}
                   className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                JSON 美化
+                {ui.jsonPretty}
               </label>
             )}
             <button
@@ -181,13 +212,13 @@ function IniYamlJsonConverterInner() {
               disabled={!computed.ok}
               className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
             >
-              复制输出
+              {ui.copyOutput}
             </button>
           </div>
         </div>
 
         <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-          说明：支持 INI/YAML/JSON 互转与基础格式校验。INI 仅支持“根键 + section”结构；复杂嵌套建议使用 YAML/JSON。
+          {ui.description}
         </div>
 
         {!computed.ok && computed.error && (
@@ -198,7 +229,7 @@ function IniYamlJsonConverterInner() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">输入</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.inputTitle}</div>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -207,12 +238,12 @@ function IniYamlJsonConverterInner() {
           </div>
 
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">输出</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.outputTitle}</div>
             <textarea
               value={computed.ok ? computed.out : ""}
               readOnly
               className="mt-3 h-[520px] w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-              placeholder="转换结果…"
+              placeholder={ui.outputPlaceholder}
             />
           </div>
         </div>
@@ -220,4 +251,3 @@ function IniYamlJsonConverterInner() {
     </div>
   );
 }
-

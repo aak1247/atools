@@ -26,7 +26,43 @@
     "copyFailed": "Copy failed, please try again",
     "fileError": "File error: {message}",
     "unsupportedFormat": "Unsupported file format",
-    "pasteInstructions": "Usage: Copy the content below and paste directly into Word document to preserve formatting"
+    "pasteInstructions": "Usage: Copy the content below and paste directly into Word document to preserve formatting",
+    "description": "Convert Markdown format to Word-compatible format while preserving rich text styles",
+    "richTextDescription": "Rich Text Format: Generates HTML format that retains complete formatting when pasted into Word",
+    "plainTextDescription": "Plain Text Format: Maintains original Markdown format, suitable for further editing in Word",
+    "charactersCount": "characters",
+    "featuresTitle": "Supported conversion features:",
+    "formatFeatures": {
+      "richtext": "Rich Text Format",
+      "plaintext": "Plain Text Format"
+    },
+    "richtextFeatures": {
+      "headers": "Headers conversion (H1-H4 with styles)",
+      "textStyles": "Text styles (bold, italic, underline, strikethrough)",
+      "codeBlocks": "Code blocks (with background color and borders)",
+      "inlineCode": "Inline code (highlighted with background color)",
+      "lists": "Lists (ordered and unordered lists)",
+      "tables": "Tables (with borders and header styles)",
+      "quotes": "Quotes (left border and background color)",
+      "links": "Links (clickable blue links)",
+      "images": "Images (maintain ![alt](url) format)",
+      "separators": "Horizontal separators (standard separators)",
+      "paragraphSpacing": "Paragraph spacing (standard line spacing)"
+    },
+    "plaintextFeatures": {
+      "headers": "Headers format (maintain # ## ### ####)",
+      "textStyles": "Text styles (maintain **bold**, *italic* format)",
+      "codeBlocks": "Code blocks (maintain ``` format)",
+      "inlineCode": "Inline code (maintain `code` format)",
+      "lists": "Lists (maintain * and 1. format)",
+      "tables": "Tables (maintain |col|col| format)",
+      "quotes": "Quotes (maintain &gt; format)",
+      "links": "Links (maintain [text](url) format)",
+      "images": "Images (maintain ![alt](url) format)",
+      "separators": "Separators (maintain --- format)"
+    },
+    "advantagesTitle": "Advantages:",
+    "advantagesDescription": "Rich Text Format displays final effects directly in Word without additional processing; Plain Text Format preserves Markdown syntax for further editing and style adjustment in Word."
   },
   "keywords": ["Markdown to Word", "online format converter", "document converter", "rich text conversion", "Word formatting", "technical docs conversion"]
 }

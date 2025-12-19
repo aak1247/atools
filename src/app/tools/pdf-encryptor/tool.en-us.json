@@ -1,0 +1,27 @@
+{
+  "name": "Free Online PDF Encrypt Decrypt Tool - ATools",
+  "shortName": "PDF Encryption",
+  "description": "Free online PDF encrypt decrypt tool: Use AES-256-GCM to encrypt PDF files to JSON, and decrypt to restore original PDF (pure frontend local processing).",
+  "seoDescription": "Free online PDF encrypt decrypt tool that uses AES-256-GCM + PBKDF2(SHA-256) to locally encrypt entire PDF files in the browser and outputs savable encrypted JSON. Can also decrypt in the tool by entering a password to restore the original PDF. Due to pure static site limitations, this tool doesn't generate standard PDF open passwords but provides secure file-level encryption containers, suitable for private PDF backup and temporary transfer.",
+  "category": "Cryptography Tools",
+  "lang": "en-US",
+  "ui": {
+    "encrypt": "Encrypt PDF",
+    "decrypt": "Decrypt PDF",
+    "pickPdf": "Select PDF",
+    "pickEncrypted": "Select Encrypted JSON",
+    "password": "Password",
+    "iterations": "Iterations",
+    "run": "Execute",
+    "working": "Processing...",
+    "clear": "Clear",
+    "download": "Download",
+    "outputJson": "Encrypted Output JSON",
+    "inputJson": "Encrypted JSON to Decrypt",
+    "note": "Note: Due to pure static site limitations, this tool cannot perform standard PDF 'open password' encryption/decryption. Instead, it uses AES-256-GCM to encrypt the entire PDF file to JSON, which can be decrypted in this tool to restore the original PDF."
+  },
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["PDF encryption", "PDF decryption", "AES-256-GCM", "local encryption", "file encryption"]
+}

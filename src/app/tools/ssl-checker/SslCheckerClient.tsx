@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type AllOriginsResponse = {
   contents: string;
@@ -43,6 +44,59 @@ const fetchStatus = async (url: string): Promise<AllOriginsResponse["status"]> =
   return data.status;
 };
 
+const DEFAULT_UI = {
+  title: "SSL/TLS 证书检查器",
+  inputPlaceholder: "输入域名或网址，如 example.com 或 https://example.com/path",
+  check: "检查证书",
+  checking: "检查中...",
+  clear: "清空",
+  invalidInput: "请输入有效的域名或网址",
+  error: "检查失败",
+  noSslCertificate: "未找到有效的 SSL/TLS 证书",
+  certificateDetails: "证书详情",
+  subject: "主体",
+  issuer: "颁发者",
+  serialNumber: "序列号",
+  version: "版本",
+  validFrom: "生效时间",
+  validUntil: "过期时间",
+  fingerprintSha1: "SHA1 指纹",
+  fingerprintSha256: "SHA256 指纹",
+  publicKeyAlgorithm: "公钥算法",
+  publicKeySize: "密钥长度",
+  signatureAlgorithm: "签名算法",
+  subjectAlternativeNames: "主体备用名称",
+  dnsNames: "DNS 名称",
+  ipAddresses: "IP 地址",
+  keyUsage: "密钥用途",
+  extendedKeyUsage: "扩展密钥用途",
+  basicConstraints: "基本约束",
+  certificatePolicies: "证书策略",
+  crlDistributionPoints: "CRL 分发点",
+  authorityInfoAccess: "颁发机构信息访问",
+  connections: "连接测试",
+  httpsConnection: "HTTPS 连接",
+  httpConnection: "HTTP 连接",
+  responseTime: "响应时间",
+  statusCode: "状态码",
+  contentType: "内容类型",
+  contentLength: "内容长度",
+  redirect: "重定向",
+  redirectTarget: "重定向目标",
+  securityHeaders: "安全响应头",
+  strictTransportSecurity: "HSTS",
+  contentSecurityPolicy: "CSP",
+  xContentTypeOptions: "X-Content-Type-Options",
+  xFrameOptions: "X-Frame-Options",
+  valid: "有效",
+  invalid: "无效",
+  weak: "弱",
+  strong: "强",
+  na: "不适用"
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 export default function SslCheckerClient() {
   return (
     <ToolPageLayout toolSlug="ssl-checker" maxWidthClassName="max-w-5xl">
@@ -52,6 +106,9 @@ export default function SslCheckerClient() {
 }
 
 function SslCheckerInner() {
+  const config = useOptionalToolConfig("ssl-checker");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const [input, setInput] = useState("example.com");
   const [isWorking, setIsWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);

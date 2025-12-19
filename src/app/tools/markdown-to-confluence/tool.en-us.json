@@ -26,7 +26,37 @@
     "realTimePreview": "Real-time Preview",
     "copyFailed": "Copy failed, please try again",
     "fileError": "File error: {message}",
-    "unsupportedFormat": "Unsupported file format"
+    "unsupportedFormat": "Unsupported file format",
+    "description": "Convert Markdown format to Confluence Wiki Markup format",
+    "enterpriseWikiDescription": "Enterprise Wiki format: Suitable for enterprise Confluence, provides richer formatting support",
+    "wikiMarkupDescription": "Wiki Markup standard format: Suitable for all Confluence versions with best compatibility",
+    "featuresTitle": "Supported conversion features:",
+    "wikiFormatFeatures": "Wiki Markup format",
+    "enterpriseFormatFeatures": "Enterprise Wiki format",
+    "features": {
+      "wikiHeaders": "Headers conversion (maintain #/##/###/#### format)",
+      "wikiTextStyles": "Text styles (maintain **bold**, *italic* format)",
+      "wikiCodeBlocks": "Code blocks (maintain ``` format)",
+      "wikiInlineCode": "Inline code (maintain `code` format)",
+      "wikiLists": "Lists (maintain * and 1. format)",
+      "wikiQuotes": "Quotes (maintain > format)",
+      "enterpriseHeaders": "Headers conversion (#/##/###/#### → h1./h2./h3./h4.)",
+      "enterpriseTextStyles": "Text styles (**bold** → *bold*, *italic* → _italic_)",
+      "enterpriseCodeBlocks": "Code blocks (``` → {code:language=...})",
+      "enterpriseInlineCode": "Inline code (`code` → {{code}})",
+      "enterpriseLists": "Lists conversion (* → #, support nesting)",
+      "enterpriseQuotes": "Quotes (> → bq.)",
+      "tables": "Table format (|col1|col2| → Confluence table)",
+      "links": "Links conversion ([text](url) → [text|url])",
+      "images": "Images conversion (![alt](url) → !url!)",
+      "separator": "Separator (--- → ----)"
+    },
+    "formatDescription": {
+      "wiki": " Wiki Markup is closer to native Markdown syntax, suitable for all Confluence versions, can be used directly after pasting.",
+      "enterprise": " Enterprise Wiki uses Confluence-specific syntax, such as h1. headers, {{code}} etc., requires corresponding plugins to use."
+    },
+    "charactersCount": "characters",
+    "formatNote": "Format description:"
   },
   "keywords": ["Markdown to Confluence", "online format converter", "document converter", "GitHub to Confluence", "Wiki Markup converter", "technical docs conversion", "document formatting tool"]
 }

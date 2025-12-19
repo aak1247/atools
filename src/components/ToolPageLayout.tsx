@@ -6,6 +6,7 @@ import { getMessages } from "../i18n/messages";
 import { useOptionalI18n } from "../i18n/I18nProvider";
 import type { ToolConfig } from "../types/tools";
 import { ToolConfigProvider } from "./ToolConfigProvider";
+import { githubToolDirUrl } from "../lib/github";
 
 interface ToolPageLayoutProps {
   toolSlug: string;
@@ -73,6 +74,16 @@ export default function ToolPageLayout({
           <p className="mt-3 text-sm text-slate-600">
             {customDescription || config.description}
           </p>
+          <div className="mt-4 flex justify-center">
+            <a
+              href={githubToolDirUrl(toolSlug)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900"
+            >
+              {messages.editToolOnGithub}
+            </a>
+          </div>
 
           {/* SEO优化的隐藏描述文本 - 仅供搜索引擎索引 */}
           {config.seoDescription && config.seoDescription !== config.description && (

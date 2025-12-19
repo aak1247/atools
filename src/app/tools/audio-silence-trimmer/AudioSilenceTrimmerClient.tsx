@@ -5,6 +5,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type OutputFormat = "wav" | "mp3";
 type TrimMode = "start-end" | "all";
@@ -33,6 +34,49 @@ const buildSilenceFilter = (mode: TrimMode, thresholdDb: number, minSilenceSec: 
   return `${base},areverse,${base},areverse`;
 };
 
+const DEFAULT_UI = {
+  pickTitle: "选择音频文件",
+  pickFile: "选择文件",
+  clear: "清空",
+  firstLoadHint: "提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。",
+  ffmpegReady: "FFmpeg 已就绪",
+  ffmpegLoading: "加载中...",
+  loadFfmpeg: "加载 FFmpeg",
+  settings: "静音检测设置",
+  mode: "修剪模式",
+  trimStartEnd: "仅头尾",
+  trimAll: "所有静音段",
+  threshold: "静音阈值（分贝）",
+  minDuration: "最短静音时长（秒）",
+  outputFormat: "输出格式",
+  startTrim: "开始修剪",
+  working: "处理中...",
+  download: "下载",
+  progress: "进度",
+  preview: "试听预览",
+  ffmpegLogs: "FFmpeg 日志",
+  logsPlaceholder: "日志会显示在这里…",
+  pageTitle: "音频自动剪静音",
+  descriptionHint: "提示：此工具基于 ffmpeg.wasm 的 `silenceremove` 过滤器自动剪除静音。全程本地处理，不上传音频。",
+  modeLabel: "模式",
+  trimStartEndOption: "仅去开头/结尾静音",
+  trimAllOption: "移除全部静音片段（可能影响停顿）",
+  outputFormatLabel: "输出格式",
+  wavOption: "WAV（推荐）",
+  mp3Option: "MP3",
+  thresholdLabel: "静音阈值（dB）",
+  minDurationLabel: "最小静音时长（秒）",
+  startProcessing: "开始处理",
+  processingInProgress: "处理中…",
+  downloadWithFilename: "下载 {filename}",
+  progressLabel: "进度",
+  settingsLabel: "设置",
+  ffmpegLoadError: "FFmpeg 加载失败。",
+  processingError: "处理失败（可能浏览器资源不足或编码器不支持）。"
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 export default function AudioSilenceTrimmerClient() {
   return (
     <ToolPageLayout toolSlug="audio-silence-trimmer" maxWidthClassName="max-w-6xl">
@@ -42,6 +86,9 @@ export default function AudioSilenceTrimmerClient() {
 }
 
 function AudioSilenceTrimmerInner() {
+  const config = useOptionalToolConfig("audio-silence-trimmer");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const logRef = useRef<string[]>([]);
@@ -98,7 +145,7 @@ function AudioSilenceTrimmerInner() {
       setFfmpegState("ready");
     } catch (e) {
       setFfmpegState("error");
-      setError(e instanceof Error ? e.message : "FFmpeg 加载失败。");
+      setError(e instanceof Error ? e.message : ui.ffmpegLoadError);
     }
   };
 
@@ -158,7 +205,7 @@ function AudioSilenceTrimmerInner() {
       setDownloadUrl(url);
       setProgress(1);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "处理失败（可能浏览器资源不足或编码器不支持）。");
+      setError(e instanceof Error ? e.message : ui.processingError);
       setFfmpegState("error");
     } finally {
       setIsWorking(false);
@@ -182,7 +229,7 @@ function AudioSilenceTrimmerInner() {
     <div className="w-full px-4">
       <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-slate-900">音频自动剪静音</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.pageTitle}</div>
           <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
             <span
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -193,20 +240,20 @@ function AudioSilenceTrimmerInner() {
                     : "bg-slate-100 text-slate-700"
               }`}
             >
-              {ffmpegState === "ready" ? "FFmpeg 已就绪" : ffmpegState === "loading" ? "加载中…" : "FFmpeg"}
+              {ffmpegState === "ready" ? ui.ffmpegReady : ffmpegState === "loading" ? ui.ffmpegLoading : "FFmpeg"}
             </span>
             <button
               type="button"
               onClick={() => void ensureLoaded()}
               className="rounded-2xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
             >
-              加载 FFmpeg
+              {ui.loadFfmpeg}
             </button>
           </div>
         </div>
 
         <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-          提示：此工具基于 ffmpeg.wasm 的 `silenceremove` 过滤器自动剪除静音。全程本地处理，不上传音频。
+          {ui.descriptionHint}
         </div>
 
         <div className="mt-6">
@@ -217,14 +264,14 @@ function AudioSilenceTrimmerInner() {
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              选择文件
+              {ui.pickFile}
             </button>
             <button
               type="button"
               onClick={clear}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              清空
+              {ui.clear}
             </button>
             {file && (
               <div className="text-sm text-slate-700">
@@ -239,32 +286,32 @@ function AudioSilenceTrimmerInner() {
           <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">设置</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.settingsLabel}</div>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <label className="block text-sm text-slate-700">
-                    模式
+                    {ui.modeLabel}
                     <select
                       value={mode}
                       onChange={(e) => setMode(e.target.value as TrimMode)}
                       className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      <option value="start-end">仅去开头/结尾静音</option>
-                      <option value="all">移除全部静音片段（可能影响停顿）</option>
+                      <option value="start-end">{ui.trimStartEndOption}</option>
+                      <option value="all">{ui.trimAllOption}</option>
                     </select>
                   </label>
                   <label className="block text-sm text-slate-700">
-                    输出格式
+                    {ui.outputFormatLabel}
                     <select
                       value={outputFormat}
                       onChange={(e) => setOutputFormat(e.target.value as OutputFormat)}
                       className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      <option value="wav">WAV（推荐）</option>
-                      <option value="mp3">MP3</option>
+                      <option value="wav">{ui.wavOption}</option>
+                      <option value="mp3">{ui.mp3Option}</option>
                     </select>
                   </label>
                   <label className="block text-sm text-slate-700 sm:col-span-2">
-                    静音阈值（dB）：{thresholdDb}dB
+                    {ui.thresholdLabel}：{thresholdDb}dB
                     <input
                       type="range"
                       min={-80}
@@ -276,7 +323,7 @@ function AudioSilenceTrimmerInner() {
                     />
                   </label>
                   <label className="block text-sm text-slate-700 sm:col-span-2">
-                    最小静音时长（秒）
+                    {ui.minDurationLabel}
                     <input
                       type="number"
                       min={0.05}
@@ -297,7 +344,7 @@ function AudioSilenceTrimmerInner() {
                     disabled={ffmpegState !== "ready" || isWorking}
                     className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
                   >
-                    {isWorking ? "处理中…" : "开始处理"}
+                    {isWorking ? ui.processingInProgress : ui.startProcessing}
                   </button>
                   {downloadUrl && (
                     <a
@@ -305,7 +352,7 @@ function AudioSilenceTrimmerInner() {
                       download={downloadName}
                       className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                     >
-                      下载 {downloadName}
+                      {ui.downloadWithFilename.replace("{filename}", downloadName)}
                     </a>
                   )}
                 </div>
@@ -313,7 +360,7 @@ function AudioSilenceTrimmerInner() {
                 {progress != null && (
                   <div className="mt-4">
                     <div className="flex items-center justify-between text-xs text-slate-600">
-                      <span>进度</span>
+                      <span>{ui.progressLabel}</span>
                       <span>{Math.round(progress * 100)}%</span>
                     </div>
                     <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
@@ -330,7 +377,7 @@ function AudioSilenceTrimmerInner() {
 
                 {downloadUrl && (
                   <div className="mt-4 rounded-3xl bg-slate-50 p-4 ring-1 ring-slate-200">
-                    <div className="text-sm font-semibold text-slate-900">试听预览</div>
+                    <div className="text-sm font-semibold text-slate-900">{ui.preview}</div>
                     <audio controls className="mt-3 w-full" src={downloadUrl} />
                   </div>
                 )}
@@ -339,11 +386,11 @@ function AudioSilenceTrimmerInner() {
 
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">FFmpeg 日志</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.ffmpegLogs}</div>
                 <textarea
                   value={logs}
                   readOnly
-                  placeholder="日志会显示在这里…"
+                  placeholder={ui.logsPlaceholder}
                   className="mt-3 h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
                 />
               </div>

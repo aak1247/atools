@@ -1,0 +1,24 @@
+{
+  "name": "Free Online Bulk QR Code Generator - ATools",
+  "shortName": "Bulk QR",
+  "description": "Free online bulk QR code generator. Generate many QR PNGs and download as a ZIP. Runs locally.",
+  "seoDescription": "Free online bulk QR code generator. Paste multiple lines (optionally with labels) to generate QR code PNG images and download them as a ZIP. Everything runs locally in your browser with zero uploads for privacy.",
+  "category": "Image Tools",
+  "lang": "en-US",
+  "keywords": ["bulk QR code generator", "QR code ZIP", "batch QR code", "QR PNG", "QR generator"],
+  "ui": {
+    "hint": "Generate many QR codes at once and download as a ZIP (local only).",
+    "input": "Input (one per line)",
+    "inputHint": "Format: text, or label<TAB>text, or label,text",
+    "placeholder": "https://example.com\nhello world\nlabel\thttps://example.com?a=1",
+    "optionsTitle": "Options",
+    "sizeLabel": "Size (px)",
+    "marginLabel": "Margin",
+    "start": "Generate ZIP",
+    "working": "Working…",
+    "download": "Download ZIP",
+    "rows": "Rows",
+    "errEmpty": "Add at least one line.",
+    "errFailed": "Failed to generate."
+  }
+}

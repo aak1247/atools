@@ -1,0 +1,41 @@
+{
+  "name": "Free Online Cron Expression Generator - ATools",
+  "shortName": "Cron Generator",
+  "description": "Free online Cron expression generator with presets, validation, and next-run preview. Runs locally in your browser.",
+  "seoDescription": "Free online Cron expression generator with a visual builder for common schedules (every minute, hourly, daily, weekly, monthly) plus custom fields. Includes validation and next-run previews. Everything runs locally in your browser with zero uploads, ideal for DevOps, backend jobs, and crontab scheduling.",
+  "category": "Developer Tools",
+  "lang": "en-US",
+  "keywords": ["Cron generator", "Cron expression", "crontab", "schedule builder", "next run preview"],
+  "ui": {
+    "hint": "Generate Cron expressions with a visual builder (local only).",
+    "tip": "Tip: time inputs use your local timezone; output format is “minute hour day month weekday”.",
+    "noPreview": "No preview.",
+    "preset": "Preset",
+    "presets": {
+      "every-minute": "Every minute",
+      "hourly": "Hourly",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "custom": "Custom"
+    },
+    "time": "Time",
+    "hour": "Hour",
+    "minute": "Minute",
+    "day": "Day",
+    "month": "Month",
+    "weekday": "Weekday",
+    "monthday": "Day of month",
+    "custom": "Custom fields",
+    "fieldsHint": "Format: minute hour day month weekday",
+    "output": "Cron expression",
+    "copy": "Copy",
+    "copied": "Copied",
+    "nextRuns": "Next runs",
+    "errorPrefix": "Error: ",
+    "errPartsCountTemplate": "Cron needs 5 or 6 parts, got {count}.",
+    "errInvalidValueTemplate": "Invalid value: {value} (range {min}-{max}).",
+    "errParseError": "Parse error",
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  }
+}

@@ -3,6 +3,7 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type OptimizeOptions = {
   removeComments: boolean;
@@ -17,6 +18,35 @@ const DEFAULT_OPTIONS: OptimizeOptions = {
   removeTitleDesc: false,
   minifyWhitespace: true,
 };
+
+const DEFAULT_UI = {
+  uploadSvg: "上传 SVG",
+  copyOptimizedResult: "复制优化结果",
+  download: "下载 {filename}",
+  inputSvg: "输入 SVG",
+  optimizedResult: "优化结果",
+  optimizedPlaceholder: "优化后输出…",
+  options: "选项",
+  removeComments: "移除注释（<!-- -->）",
+  removeMetadata: "移除 <metadata>",
+  removeTitleDesc: "移除 <title>/<desc>（可能影响可访问性）",
+  minifyWhitespace: "压缩空白（简单 minify）",
+  lightWeightDescription: "说明：此工具为轻量优化，不等同于 SVGO 的完整规则集；不会改变路径数据和几何结构。",
+  preview: "预览",
+  noPreview: "无预览",
+  invalidSvgError: "不是有效的 SVG（缺少 <svg> 根节点）。",
+  parseError: "SVG 解析失败：请检查 XML 是否完整。",
+  optimizeError: "优化失败",
+  defaultSvgExample: `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <!-- comment -->
+  <metadata>example</metadata>
+  <rect x="10" y="10" width="100" height="100" fill="#3B82F6"/>
+</svg>
+`,
+  downloadFilename: "optimized.svg"
+} as const;
+
+type SvgOptimizerUi = typeof DEFAULT_UI;
 
 const stripComments = (svg: string) => svg.replace(/<!--[\s\S]*?-->/g, "");
 
@@ -34,15 +64,15 @@ const removeTags = (doc: Document, tagName: string) => {
   for (const n of nodes) n.parentNode?.removeChild(n);
 };
 
-const parseSvg = (text: string): Document => {
+const parseSvg = (text: string, ui: SvgOptimizerUi): Document => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(text, "image/svg+xml");
   const root = doc.documentElement;
   if (root.nodeName.toLowerCase() !== "svg") {
-    throw new Error("不是有效的 SVG（缺少 <svg> 根节点）。");
+    throw new Error(ui.invalidSvgError);
   }
   const errorNode = doc.getElementsByTagName("parsererror")[0];
-  if (errorNode) throw new Error("SVG 解析失败：请检查 XML 是否完整。");
+  if (errorNode) throw new Error(ui.parseError);
   return doc;
 };
 
@@ -62,15 +92,16 @@ export default function SvgOptimizerClient() {
 }
 
 function SvgOptimizerInner() {
+  const config = useOptionalToolConfig("svg-optimizer");
+  const ui: SvgOptimizerUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<SvgOptimizerUi>) };
+
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [raw, setRaw] = useState<string>(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">\n  <!-- comment -->\n  <metadata>example</metadata>\n  <rect x="10" y="10" width="100" height="100" fill="#3B82F6"/>\n</svg>\n`,
-  );
+  const [raw, setRaw] = useState<string>(ui.defaultSvgExample);
   const [options, setOptions] = useState<OptimizeOptions>(DEFAULT_OPTIONS);
   const [error, setError] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [downloadName, setDownloadName] = useState<string>("optimized.svg");
+  const [downloadName, setDownloadName] = useState<string>(ui.downloadFilename);
 
   useEffect(() => {
     return () => {
@@ -83,7 +114,7 @@ function SvgOptimizerInner() {
     try {
       let text = raw;
       if (options.removeComments) text = stripComments(text);
-      const doc = parseSvg(text);
+      const doc = parseSvg(text, ui);
       if (options.removeMetadata) removeTags(doc, "metadata");
       if (options.removeTitleDesc) {
         removeTags(doc, "title");
@@ -94,7 +125,7 @@ function SvgOptimizerInner() {
       if (!out.endsWith("\n")) out += "\n";
       return out;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "优化失败");
+      setError(e instanceof Error ? e.message : ui.optimizeError);
       return "";
     }
   }, [options, raw]);
@@ -142,7 +173,7 @@ function SvgOptimizerInner() {
               onClick={() => fileRef.current?.click()}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              上传 SVG
+              {ui.uploadSvg}
             </button>
             <div className="rounded-2xl bg-slate-50 px-4 py-2 text-xs text-slate-600 ring-1 ring-slate-200">
               {stats.before}B → {stats.after}B ({stats.before > 0 ? `${Math.round(stats.ratio * 100)}%` : "-"})
@@ -156,7 +187,7 @@ function SvgOptimizerInner() {
               disabled={!optimized}
               className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
             >
-              复制优化结果
+              {ui.copyOptimizedResult}
             </button>
             {downloadUrl && (
               <a
@@ -164,7 +195,7 @@ function SvgOptimizerInner() {
                 download={downloadName}
                 className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
               >
-                下载 {downloadName}
+                {ui.download.replace("{filename}", downloadName)}
               </a>
             )}
           </div>
@@ -173,7 +204,7 @@ function SvgOptimizerInner() {
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">输入 SVG</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.inputSvg}</div>
               <textarea
                 value={raw}
                 onChange={(e) => setRaw(e.target.value)}
@@ -182,12 +213,12 @@ function SvgOptimizerInner() {
             </div>
 
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">优化结果</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.optimizedResult}</div>
               <textarea
                 value={optimized}
                 readOnly
                 className="mt-3 h-64 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-                placeholder="优化后输出…"
+                placeholder={ui.optimizedPlaceholder}
               />
               {error && <div className="mt-3 text-sm text-rose-600">{error}</div>}
             </div>
@@ -195,7 +226,7 @@ function SvgOptimizerInner() {
 
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">选项</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.options}</div>
               <div className="mt-4 space-y-3 text-sm text-slate-700">
                 <label className="flex items-center gap-2">
                   <input
@@ -204,7 +235,7 @@ function SvgOptimizerInner() {
                     onChange={(e) => setOptions((p) => ({ ...p, removeComments: e.target.checked }))}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  移除注释（&lt;!-- --&gt;）
+                  {ui.removeComments}
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -213,7 +244,7 @@ function SvgOptimizerInner() {
                     onChange={(e) => setOptions((p) => ({ ...p, removeMetadata: e.target.checked }))}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  移除 &lt;metadata&gt;
+                  {ui.removeMetadata}
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -222,7 +253,7 @@ function SvgOptimizerInner() {
                     onChange={(e) => setOptions((p) => ({ ...p, removeTitleDesc: e.target.checked }))}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  移除 &lt;title&gt;/&lt;desc&gt;（可能影响可访问性）
+                  {ui.removeTitleDesc}
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -231,16 +262,16 @@ function SvgOptimizerInner() {
                     onChange={(e) => setOptions((p) => ({ ...p, minifyWhitespace: e.target.checked }))}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  压缩空白（简单 minify）
+                  {ui.minifyWhitespace}
                 </label>
               </div>
               <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-                说明：此工具为轻量优化，不等同于 SVGO 的完整规则集；不会改变路径数据和几何结构。
+                {ui.lightWeightDescription}
               </div>
             </div>
 
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">预览</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.preview}</div>
               <div className="mt-4 overflow-hidden rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
                 {optimized ? (
                   <div
@@ -249,7 +280,7 @@ function SvgOptimizerInner() {
                     dangerouslySetInnerHTML={{ __html: optimized }}
                   />
                 ) : (
-                  <div className="text-xs text-slate-500">无预览</div>
+                  <div className="text-xs text-slate-500">{ui.noPreview}</div>
                 )}
               </div>
             </div>

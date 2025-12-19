@@ -1,0 +1,12 @@
+{
+  "name": "Free Online Audio Video Metadata Viewer - ATools",
+  "shortName": "Media Info",
+  "description": "Free online audio video metadata viewer: Parse container, duration, bitrate, resolution, audio sample rate and other information, supports copying JSON, pure frontend local processing.",
+  "seoDescription": "Free online audio video metadata viewer that supports uploading audio/video files and parsing media information locally in the browser, including container format, duration, total bitrate, video encoding and resolution, audio encoding and sample rate/channels, etc. Optionally loads ffmpeg.wasm to output logs for assistance. Pure frontend local operation without file uploads, suitable for development debugging and media file inspection.",
+  "category": "Video Tools",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": ["media information", "video metadata", "audio metadata", "bitrate", "resolution"]
+}

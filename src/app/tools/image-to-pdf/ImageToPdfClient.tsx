@@ -4,6 +4,7 @@ import type { ChangeEvent } from "react";
 import { PDFDocument, rgb } from "pdf-lib";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type PageSizePreset = "auto" | "a4" | "letter";
 type FitMode = "contain" | "cover";
@@ -17,6 +18,40 @@ type Item = {
 };
 
 const makeId = () => Math.random().toString(16).slice(2);
+
+const DEFAULT_UI = {
+  selectImages: "选择图片",
+  sortByName: "按文件名排序",
+  clear: "清空",
+  selectedCount: "已选 {count} 张",
+  download: "下载 {filename}",
+  generating: "生成中…",
+  generatePdf: "生成 PDF",
+  imageList: "图片列表",
+  dragSortHint: "支持拖拽排序可后续增强；目前可用上下按钮调整。",
+  selectImagesHint: "请选择图片（JPG/PNG/WebP/GIF 等，具体取决于浏览器解码能力）。",
+  delete: "删除",
+  pageSettings: "页面设置",
+  paperSize: "纸张",
+  a4: "A4",
+  letter: "Letter",
+  autoByImageSize: "按图片尺寸（DPI）",
+  orientation: "方向",
+  portrait: "竖版",
+  landscape: "横版",
+  fitMode: "适配",
+  contain: "Contain（完整显示）",
+  cover: "Cover（铺满裁切）",
+  dpi: "DPI（仅按图片尺寸时生效）",
+  margins: "页边距（pt）",
+  backgroundColor: "背景色",
+  backgroundColorLabel: "背景色",
+  tip: "提示：本工具使用浏览器本地生成 PDF，不上传图片。若要保留原始 JPEG 体积优势，建议上传 JPG/JPEG（会直接嵌入）；其他格式会转为 PNG 再嵌入。",
+  readImageError: "读取图片失败",
+  buildError: "生成失败"
+} as const;
+
+type ImageToPdfUi = typeof DEFAULT_UI;
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
@@ -73,6 +108,9 @@ export default function ImageToPdfClient() {
 }
 
 function ImageToPdfInner() {
+  const config = useOptionalToolConfig("image-to-pdf");
+  const ui: ImageToPdfUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<ImageToPdfUi>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [items, setItems] = useState<Item[]>([]);
@@ -107,7 +145,7 @@ function ImageToPdfInner() {
         next.push({ id: makeId(), file: f, url, width, height });
       } catch (e) {
         URL.revokeObjectURL(url);
-        setError(e instanceof Error ? e.message : "读取图片失败");
+        setError(e instanceof Error ? e.message : ui.readImageError);
       }
     }
     setItems((prev) => [...prev, ...next]);
@@ -238,10 +276,10 @@ function ImageToPdfInner() {
       }
 
       const bytes = await doc.save();
-      const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+      const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }));
       setDownloadUrl(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "生成失败");
+      setError(e instanceof Error ? e.message : ui.buildError);
     } finally {
       setIsWorking(false);
     }
@@ -258,7 +296,7 @@ function ImageToPdfInner() {
               onClick={() => inputRef.current?.click()}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              选择图片
+              {ui.selectImages}
             </button>
             <button
               type="button"
@@ -266,16 +304,16 @@ function ImageToPdfInner() {
               disabled={items.length < 2}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              按文件名排序
+              {ui.sortByName}
             </button>
             <button
               type="button"
               onClick={clear}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              清空
+              {ui.clear}
             </button>
-            <div className="text-sm text-slate-600">已选 {totalCount} 张</div>
+            <div className="text-sm text-slate-600">{ui.selectedCount.replace('{count}', totalCount.toString())}</div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -285,7 +323,7 @@ function ImageToPdfInner() {
                 download={downloadName}
                 className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
               >
-                下载 {downloadName}
+                {ui.download.replace('{filename}', downloadName)}
               </a>
             )}
             <button
@@ -294,7 +332,7 @@ function ImageToPdfInner() {
               disabled={items.length === 0 || isWorking}
               className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
             >
-              {isWorking ? "生成中…" : "生成 PDF"}
+              {isWorking ? ui.generating : ui.generatePdf}
             </button>
           </div>
         </div>
@@ -308,12 +346,12 @@ function ImageToPdfInner() {
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-slate-900">图片列表</div>
-              <div className="text-xs text-slate-500">支持拖拽排序可后续增强；目前可用上下按钮调整。</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.imageList}</div>
+              <div className="text-xs text-slate-500">{ui.dragSortHint}</div>
             </div>
             {items.length === 0 ? (
               <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
-                请选择图片（JPG/PNG/WebP/GIF 等，具体取决于浏览器解码能力）。
+                {ui.selectImagesHint}
               </div>
             ) : (
               <div className="mt-4 grid gap-3">
@@ -353,7 +391,7 @@ function ImageToPdfInner() {
                         onClick={() => remove(it.id)}
                         className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 ring-1 ring-rose-100 transition hover:bg-rose-100"
                       >
-                        删除
+                        {ui.delete}
                       </button>
                     </div>
                   </div>
@@ -364,10 +402,10 @@ function ImageToPdfInner() {
 
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">页面设置</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.pageSettings}</div>
               <div className="mt-4 grid gap-4">
                 <label className="block text-sm text-slate-700">
-                  纸张
+                  {ui.paperSize}
                   <select
                     value={pageSize}
                     onChange={(e) => setPageSize(e.target.value as PageSizePreset)}
@@ -375,36 +413,36 @@ function ImageToPdfInner() {
                   >
                     <option value="a4">A4</option>
                     <option value="letter">Letter</option>
-                    <option value="auto">按图片尺寸（DPI）</option>
+                    <option value="auto">{ui.autoByImageSize}</option>
                   </select>
                 </label>
 
                 <label className="block text-sm text-slate-700">
-                  方向
+                  {ui.orientation}
                   <select
                     value={orientation}
                     onChange={(e) => setOrientation(e.target.value as "portrait" | "landscape")}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                   >
-                    <option value="portrait">竖版</option>
-                    <option value="landscape">横版</option>
+                    <option value="portrait">{ui.portrait}</option>
+                    <option value="landscape">{ui.landscape}</option>
                   </select>
                 </label>
 
                 <label className="block text-sm text-slate-700">
-                  适配
+                  {ui.fitMode}
                   <select
                     value={fit}
                     onChange={(e) => setFit(e.target.value as FitMode)}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                   >
-                    <option value="contain">Contain（完整显示）</option>
-                    <option value="cover">Cover（铺满裁切）</option>
+                    <option value="contain">{ui.contain}</option>
+                    <option value="cover">{ui.cover}</option>
                   </select>
                 </label>
 
                 <label className={`block text-sm text-slate-700 ${pageSize === "auto" ? "" : "opacity-60"}`}>
-                  DPI（仅按图片尺寸时生效）
+                  {ui.dpi}
                   <input
                     type="number"
                     min={36}
@@ -418,7 +456,7 @@ function ImageToPdfInner() {
                 </label>
 
                 <label className="block text-sm text-slate-700">
-                  页边距（pt）
+                  {ui.margins}
                   <input
                     type="number"
                     min={0}
@@ -431,14 +469,14 @@ function ImageToPdfInner() {
                 </label>
 
                 <label className="block text-sm text-slate-700">
-                  背景色
+                  {ui.backgroundColorLabel}
                   <div className="mt-2 flex items-center gap-2">
                     <input
                       type="color"
                       value={bg}
                       onChange={(e) => setBg(e.target.value.toUpperCase())}
                       className="h-10 w-14 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
-                      aria-label="背景色"
+                      aria-label={ui.backgroundColorLabel}
                     />
                     <input
                       value={bg}
@@ -451,7 +489,7 @@ function ImageToPdfInner() {
             </div>
 
             <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200 text-xs text-slate-600">
-              提示：本工具使用浏览器本地生成 PDF，不上传图片。若要保留原始 JPEG 体积优势，建议上传 JPG/JPEG（会直接嵌入）；其他格式会转为 PNG 再嵌入。
+              {ui.tip}
             </div>
           </div>
         </div>
@@ -466,4 +504,3 @@ const hexToRgb = (hex: string) => {
   const v = m[1];
   return { r: parseInt(v.slice(0, 2), 16), g: parseInt(v.slice(2, 4), 16), b: parseInt(v.slice(4, 6), 16) };
 };
-

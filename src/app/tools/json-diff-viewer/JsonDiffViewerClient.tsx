@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type DiffKind = "equal" | "added" | "removed" | "changed" | "type-changed";
 
@@ -99,6 +100,42 @@ const countKinds = (node: DiffNode) => {
   return counts;
 };
 
+const DEFAULT_UI = {
+  title: "JSON 差异对比工具",
+  leftJson: "左侧 JSON",
+  rightJson: "右侧 JSON",
+  clear: "清空",
+  format: "格式化",
+  swap: "交换左右",
+  diff: "对比差异",
+  added: "新增",
+  removed: "删除",
+  changed: "修改",
+  unchanged: "无变化",
+  expandAll: "展开全部",
+  collapseAll: "收起全部",
+  copyPath: "复制路径",
+  showPath: "显示路径",
+  lineNumbers: "显示行号",
+  statistics: "统计信息",
+  totalChanges: "总差异",
+  loading: "处理中...",
+  invalidJson: "无效 JSON 格式",
+  noDifferences: "没有差异",
+  leftError: "错误：左侧不是合法 JSON。",
+  rightError: "错误：右侧不是合法 JSON。",
+  visualDiff: "可视化差异",
+  hideEqual: "隐藏相同项",
+  copyDiffList: "复制差异列表 JSON",
+  diffSummary: "新增 {added} · 删除 {removed} · 变化 {changed} · 类型变化 {type}",
+  fixJsonFirst: "请先修正两侧 JSON 解析错误。",
+  pathHeader: "Path",
+  leftHeader: "左侧",
+  rightHeader: "右侧"
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 export default function JsonDiffViewerClient() {
   return (
     <ToolPageLayout toolSlug="json-diff-viewer" maxWidthClassName="max-w-6xl">
@@ -108,6 +145,9 @@ export default function JsonDiffViewerClient() {
 }
 
 function JsonDiffViewerInner() {
+  const config = useOptionalToolConfig("json-diff-viewer");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const [leftText, setLeftText] = useState('{\n  "a": 1,\n  "b": { "c": true }\n}\n');
   const [rightText, setRightText] = useState('{\n  "a": 2,\n  "b": { "c": true, "d": "new" }\n}\n');
   const [hideEqual, setHideEqual] = useState(true);
@@ -193,28 +233,28 @@ function JsonDiffViewerInner() {
       <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">左侧 JSON</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.leftJson}</div>
             <textarea
               value={leftText}
               onChange={(e) => setLeftText(e.target.value)}
               className="mt-3 h-72 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
             />
-            {!parsed.left.ok && <div className="mt-2 text-sm text-rose-600">错误：左侧不是合法 JSON。</div>}
+            {!parsed.left.ok && <div className="mt-2 text-sm text-rose-600">{ui.leftError}</div>}
           </div>
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">右侧 JSON</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.rightJson}</div>
             <textarea
               value={rightText}
               onChange={(e) => setRightText(e.target.value)}
               className="mt-3 h-72 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
             />
-            {!parsed.right.ok && <div className="mt-2 text-sm text-rose-600">错误：右侧不是合法 JSON。</div>}
+            {!parsed.right.ok && <div className="mt-2 text-sm text-rose-600">{ui.rightError}</div>}
           </div>
         </div>
 
         <div className="mt-6 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="text-sm font-semibold text-slate-900">可视化差异</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.visualDiff}</div>
             <div className="flex flex-wrap items-center gap-2">
               <label className="flex items-center gap-2 text-sm text-slate-700">
                 <input
@@ -223,7 +263,7 @@ function JsonDiffViewerInner() {
                   onChange={(e) => setHideEqual(e.target.checked)}
                   className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                隐藏相同项
+                {ui.hideEqual}
               </label>
               <button
                 type="button"
@@ -231,11 +271,11 @@ function JsonDiffViewerInner() {
                 disabled={!tree}
                 className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
               >
-                复制差异列表 JSON
+                {ui.copyDiffList}
               </button>
               {counts && (
                 <div className="text-xs text-slate-600">
-                  新增 {counts.added} · 删除 {counts.removed} · 变化 {counts.changed} · 类型变化 {counts.type}
+                  {ui.diffSummary.replace('{added}', counts.added.toString()).replace('{removed}', counts.removed.toString()).replace('{changed}', counts.changed.toString()).replace('{type}', counts.type.toString())}
                 </div>
               )}
             </div>
@@ -243,14 +283,14 @@ function JsonDiffViewerInner() {
 
           {!tree ? (
             <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700 ring-1 ring-slate-200">
-              请先修正两侧 JSON 解析错误。
+              {ui.fixJsonFirst}
             </div>
           ) : (
             <div className="mt-4 overflow-hidden rounded-2xl ring-1 ring-slate-200">
               <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700">
-                <div>Path</div>
-                <div>左侧</div>
-                <div>右侧</div>
+                <div>{ui.pathHeader}</div>
+                <div>{ui.leftHeader}</div>
+                <div>{ui.rightHeader}</div>
               </div>
               <div className="max-h-[520px] overflow-auto bg-white">{renderNode(tree, 0)}</div>
             </div>

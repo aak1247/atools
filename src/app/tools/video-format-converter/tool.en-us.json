@@ -1,0 +1,36 @@
+{
+  "name": "Free Online Video Format Converter - ATools",
+  "shortName": "Video Convert",
+  "description": "Free online video format converter (MP4/WebM/MKV/MOV/AVI) with basic scaling/FPS/CRF settings. Runs locally.",
+  "seoDescription": "Free online video format converter to convert videos between MP4, WebM, MKV, MOV, and AVI with basic options like scaling (720p/1080p), FPS, CRF quality, encoder preset, and audio bitrate. Powered by ffmpeg.wasm and runs locally in your browser with zero uploads for privacy.",
+  "category": "Video Tools",
+  "lang": "en-US",
+  "keywords": ["video format converter", "mp4 converter", "webm converter", "mkv converter", "ffmpeg wasm"],
+  "ui": {
+    "hint": "Convert video formats (MP4/WebM/MKV/MOV/AVI) with basic options. Loads ffmpeg.wasm locally (no uploads).",
+    "pick": "Select video file",
+    "clear": "Clear",
+    "loadFfmpeg": "Load FFmpeg",
+    "ffmpegLoading": "Loading…",
+    "ffmpegReady": "FFmpeg ready",
+    "file": "File",
+    "outputFormat": "Output format",
+    "scale": "Resolution",
+    "keep": "Keep",
+    "fps": "FPS",
+    "crf": "Quality (CRF)",
+    "preset": "Preset",
+    "audioBitrate": "Audio bitrate (kbps)",
+    "start": "Convert",
+    "working": "Working…",
+    "download": "Download",
+    "progress": "Progress",
+    "logs": "FFmpeg logs",
+    "logsPlaceholder": "Logs will appear here…",
+    "errPickVideo": "Please select a video file first.",
+    "errFfmpegLoadFailed": "Failed to load FFmpeg.",
+    "errTranscodeFailed": "Conversion failed (codec may be unavailable or resources are insufficient).",
+    "note": "Tip: codec support varies by browser/ffmpeg.wasm build. If it fails, try another format or lower settings."
+  }
+}
+

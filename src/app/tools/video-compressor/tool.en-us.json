@@ -1,0 +1,34 @@
+{
+  "name": "Free Online Video Compressor - ATools",
+  "shortName": "Video Compress",
+  "description": "Free online video compressor to MP4 (H.264) with scaling and CRF quality control. Runs locally.",
+  "seoDescription": "Free online video compressor that exports MP4 (H.264) with optional 720p/1080p scaling, CRF quality control, encoder preset, and audio bitrate. Powered by ffmpeg.wasm and runs locally in your browser with zero uploads for privacy.",
+  "category": "Video Tools",
+  "lang": "en-US",
+  "keywords": ["video compressor", "mp4 compression", "h264", "crf", "ffmpeg wasm"],
+  "ui": {
+    "hint": "Video compressor to MP4 (H.264) with CRF quality control and optional scaling. Loads ffmpeg.wasm locally (no uploads).",
+    "pick": "Select video file",
+    "clear": "Clear",
+    "loadFfmpeg": "Load FFmpeg",
+    "ffmpegLoading": "Loading…",
+    "ffmpegReady": "FFmpeg ready",
+    "file": "File",
+    "scale": "Resolution",
+    "keep": "Keep",
+    "crf": "Quality (CRF)",
+    "preset": "Preset",
+    "audioBitrate": "Audio bitrate (kbps)",
+    "start": "Compress",
+    "working": "Working…",
+    "download": "Download",
+    "progress": "Progress",
+    "logs": "FFmpeg logs",
+    "logsPlaceholder": "Logs will appear here…",
+    "errPickVideo": "Please select a video file first.",
+    "errFfmpegLoadFailed": "Failed to load FFmpeg.",
+    "errCompressFailed": "Compression failed (codec may be unavailable or resources are insufficient).",
+    "note": "Note: higher CRF means smaller size and lower quality (common range: 20–28)."
+  }
+}
+

@@ -3,6 +3,8 @@
 import type { ChangeEvent } from "react";
 import { useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+import { loadPdfJs, type PdfJsTextItem } from "../../../lib/pdfjs-loader";
 
 type DiffOp =
   | { type: "equal"; value: string }
@@ -99,7 +101,71 @@ const buildUnifiedDiff = (ops: DiffOp[], name: string): string => {
 };
 
 type Version = { id: string; name: string; text: string };
+type UploadNotice = { tone: "info" | "error"; text: string };
+
+const DEFAULT_UI = {
+  ignoreTrailingWhitespace: "忽略行尾空白",
+  uploadBaseText: "上传基准文本",
+  batchUploadVersions: "批量上传版本",
+  addVersion: "添加版本",
+  baseContract: "基准合同（Base）",
+  versionList: "版本列表",
+  clickVersionToViewDiff: "点击版本查看差异",
+  deleteCurrentVersion: "删除当前版本",
+  currentVersionContent: "当前版本内容：",
+  diffPreview: "差异预览（按行）",
+  copyUnifiedDiff: "复制 unified diff",
+  version: "版本",
+  versionPrefix: "版本",
+  defaultBaseText: "第一条 甲方...\n第二条 乙方...\n",
+  defaultVersionName: "版本",
+  defaultVersionText: "第一条 甲方...\n第二条 乙方（修订）...\n第三条 新增条款...\n",
+  tip: "提示：此工具适合「对版/条款变更」快速检查；复杂合同建议先做文本化（如复制正文或 OCR），再进行对比。",
+  pdfSupportHint: "支持上传 PDF 文件，会自动提取文本后再进行对比（扫描件需先 OCR）。",
+  parsingPdf: "正在解析 PDF：{file}",
+  parsingPdfDone: "PDF 文本提取完成：{file}",
+  parsingPdfFailed: "PDF 解析失败：{file}（请确认不是纯图片扫描件）"
+} as const;
+
+type ContractVersionDiffUi = typeof DEFAULT_UI;
+
 const makeId = () => Math.random().toString(16).slice(2);
+
+const pdfItemsToText = (items: PdfJsTextItem[]) =>
+  items
+    .map((it) => (typeof it.str === "string" ? it.str : ""))
+    .join(" ")
+    .replace(/\s{2,}/gu, " ")
+    .replace(/[ \t]+\n/gu, "\n")
+    .replace(/\n{3,}/gu, "\n\n")
+    .trim();
+
+const isPdfFile = (file: File) => file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+
+const extractPdfText = async (file: File): Promise<string> => {
+  const pdfjs = await loadPdfJs();
+  const arrayBuffer = await file.arrayBuffer();
+  const doc = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+  const parts: string[] = [];
+  for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber += 1) {
+    const page = await doc.getPage(pageNumber);
+    if (!page.getTextContent) continue;
+    const content = await page.getTextContent();
+    const text = pdfItemsToText(content.items ?? []);
+    if (text) parts.push(text);
+  }
+  return parts.join("\n\n").trim();
+};
+
+const readFileAsText = async (file: File): Promise<string> => {
+  if (isPdfFile(file)) {
+    const text = await extractPdfText(file);
+    return text || "";
+  }
+  return file.text();
+};
+
+const formatTemplate = (template: string, fileName: string) => template.replaceAll("{file}", fileName);
 
 export default function ContractVersionDiffClient() {
   return (
@@ -110,15 +176,19 @@ export default function ContractVersionDiffClient() {
 }
 
 function ContractVersionDiffInner() {
+  const config = useOptionalToolConfig("contract-version-diff");
+  const ui: ContractVersionDiffUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<ContractVersionDiffUi>) };
+
   const baseFileRef = useRef<HTMLInputElement>(null);
   const versionsFileRef = useRef<HTMLInputElement>(null);
 
-  const [base, setBase] = useState("第一条 甲方...\n第二条 乙方...\n");
+  const [base, setBase] = useState<string>(ui.defaultBaseText);
   const [versions, setVersions] = useState<Version[]>([
-    { id: makeId(), name: "版本A", text: "第一条 甲方...\n第二条 乙方（修订）...\n第三条 新增条款...\n" },
+    { id: makeId(), name: `${ui.defaultVersionName}A`, text: ui.defaultVersionText },
   ]);
   const [activeId, setActiveId] = useState<string>(versions[0]?.id ?? "");
   const [ignoreTrailingWhitespace, setIgnoreTrailingWhitespace] = useState(true);
+  const [notice, setNotice] = useState<UploadNotice | null>(null);
 
   const active = useMemo(() => versions.find((v) => v.id === activeId) ?? versions[0] ?? null, [activeId, versions]);
 
@@ -146,14 +216,14 @@ function ContractVersionDiffInner() {
 
   const addVersion = () => {
     const id = makeId();
-    const next: Version = { id, name: `版本${versions.length + 1}`, text: "" };
+    const next: Version = { id, name: `${ui.versionPrefix}${versions.length + 1}`, text: "" };
     setVersions((prev) => [...prev, next]);
     setActiveId(id);
   };
 
   const removeVersion = (id: string) => {
     setVersions((prev) => prev.filter((v) => v.id !== id));
-    if (activeId === id) setActiveId((prev) => versions.find((v) => v.id !== id)?.id ?? "");
+    if (activeId === id) setActiveId(versions.find((v) => v.id !== id)?.id ?? "");
   };
 
   const copyUnified = async () => {
@@ -164,8 +234,18 @@ function ContractVersionDiffInner() {
   const onBaseUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    const text = await f.text();
-    setBase(text);
+    const pdf = isPdfFile(f);
+    try {
+      if (pdf) setNotice({ tone: "info", text: formatTemplate(ui.parsingPdf, f.name) });
+      const text = await readFileAsText(f);
+      setBase(text);
+      if (pdf) setNotice({ tone: "info", text: formatTemplate(ui.parsingPdfDone, f.name) });
+    } catch (err) {
+      console.error(err);
+      if (pdf) setNotice({ tone: "error", text: formatTemplate(ui.parsingPdfFailed, f.name) });
+    } finally {
+      e.target.value = "";
+    }
   };
 
   const onVersionsUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -173,10 +253,22 @@ function ContractVersionDiffInner() {
     if (picked.length === 0) return;
     const loaded: Version[] = [];
     for (const f of picked) {
-      loaded.push({ id: makeId(), name: f.name, text: await f.text() });
+      const pdf = isPdfFile(f);
+      try {
+        if (pdf) setNotice({ tone: "info", text: formatTemplate(ui.parsingPdf, f.name) });
+        const text = await readFileAsText(f);
+        if (pdf) setNotice({ tone: "info", text: formatTemplate(ui.parsingPdfDone, f.name) });
+        loaded.push({ id: makeId(), name: f.name, text });
+      } catch (err) {
+        console.error(err);
+        if (pdf) setNotice({ tone: "error", text: formatTemplate(ui.parsingPdfFailed, f.name) });
+      }
     }
-    setVersions((prev) => [...prev, ...loaded]);
-    if (!activeId && loaded[0]) setActiveId(loaded[0].id);
+    if (loaded.length > 0) {
+      setVersions((prev) => [...prev, ...loaded]);
+      if (!activeId && loaded[0]) setActiveId(loaded[0].id);
+    }
+    e.target.value = "";
   };
 
   return (
@@ -190,38 +282,61 @@ function ContractVersionDiffInner() {
               onChange={(e) => setIgnoreTrailingWhitespace(e.target.checked)}
               className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
-            忽略行尾空白
+            {ui.ignoreTrailingWhitespace}
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            <input ref={baseFileRef} type="file" accept=".txt,.md,text/*" className="hidden" onChange={(e) => void onBaseUpload(e)} />
-            <input ref={versionsFileRef} type="file" multiple accept=".txt,.md,text/*" className="hidden" onChange={(e) => void onVersionsUpload(e)} />
+            <input
+              ref={baseFileRef}
+              type="file"
+              accept=".txt,.md,text/*,.pdf,application/pdf"
+              className="hidden"
+              onChange={(e) => void onBaseUpload(e)}
+            />
+            <input
+              ref={versionsFileRef}
+              type="file"
+              multiple
+              accept=".txt,.md,text/*,.pdf,application/pdf"
+              className="hidden"
+              onChange={(e) => void onVersionsUpload(e)}
+            />
             <button
               type="button"
               onClick={() => baseFileRef.current?.click()}
               className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              上传基准文本
+              {ui.uploadBaseText}
             </button>
             <button
               type="button"
               onClick={() => versionsFileRef.current?.click()}
               className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              批量上传版本
+              {ui.batchUploadVersions}
             </button>
             <button
               type="button"
               onClick={addVersion}
               className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
             >
-              添加版本
+              {ui.addVersion}
             </button>
           </div>
         </div>
+        <div className="mt-3 text-xs text-slate-500">{ui.pdfSupportHint}</div>
+        {notice && (
+          <div
+            className={`mt-4 rounded-2xl px-4 py-3 text-xs ring-1 ${
+              notice.tone === "error" ? "bg-rose-50 text-rose-800 ring-rose-100" : "bg-slate-50 text-slate-700 ring-slate-200"
+            }`}
+          >
+            {notice.text}
+          </div>
+        )}
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">基准合同（Base）</div>
+            <div className="text-sm font-semibold text-slate-900">{ui.baseContract}</div>
             <textarea
               value={base}
               onChange={(e) => setBase(e.target.value)}
@@ -231,8 +346,8 @@ function ContractVersionDiffInner() {
 
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-slate-900">版本列表</div>
-              <div className="text-xs text-slate-500">点击版本查看差异</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.versionList}</div>
+              <div className="text-xs text-slate-500">{ui.clickVersionToViewDiff}</div>
             </div>
             <div className="mt-4 space-y-2">
               {diffs.map((d) => (
@@ -262,7 +377,7 @@ function ContractVersionDiffInner() {
                   disabled={versions.length <= 1}
                   className="rounded-2xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 ring-1 ring-rose-100 transition hover:bg-rose-100 disabled:opacity-60"
                 >
-                  删除当前版本
+                  {ui.deleteCurrentVersion}
                 </button>
               </div>
             )}
@@ -272,7 +387,7 @@ function ContractVersionDiffInner() {
         {active && (
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">当前版本内容：{active.name}</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.currentVersionContent}{active.name}</div>
               <textarea
                 value={active.text}
                 onChange={(e) =>
@@ -284,14 +399,14 @@ function ContractVersionDiffInner() {
 
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">差异预览（按行）</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.diffPreview}</div>
                 <button
                   type="button"
                   onClick={() => void copyUnified()}
                   disabled={!activeDiff}
                   className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
                 >
-                  复制 unified diff
+                  {ui.copyUnifiedDiff}
                 </button>
               </div>
               <div className="mt-4 max-h-[420px] overflow-auto rounded-2xl bg-slate-50 p-4 font-mono text-xs ring-1 ring-slate-200">
@@ -322,7 +437,7 @@ function ContractVersionDiffInner() {
                 })}
               </div>
               <div className="mt-3 text-xs text-slate-500">
-                提示：此工具适合“对版/条款变更”快速检查；复杂合同建议先做文本化（如复制正文或 OCR），再进行对比。
+                {ui.tip}
               </div>
             </div>
           </div>
@@ -331,4 +446,3 @@ function ContractVersionDiffInner() {
     </div>
   );
 }
-

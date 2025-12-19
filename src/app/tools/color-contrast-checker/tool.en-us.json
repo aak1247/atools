@@ -1,0 +1,32 @@
+{
+  "name": "Free Online Color Contrast Checker (WCAG) - ATools",
+  "shortName": "Contrast",
+  "description": "Free online color contrast checker for WCAG 2.1 AA/AAA with pass/fail results, suggestions, and simple color-blind simulation. Runs locally.",
+  "seoDescription": "Free online color contrast checker that calculates the WCAG contrast ratio for foreground/background colors and shows AA/AAA pass/fail for normal and large text. Includes simple color-blind simulation preview and black/white foreground suggestions. Runs locally with zero uploads.",
+  "category": "Design Tools",
+  "lang": "en-US",
+  "keywords": ["WCAG contrast checker", "color contrast", "accessibility", "AA AAA", "color blindness simulation"],
+  "ui": {
+    "hint": "Check WCAG contrast ratio for foreground/background colors (local only, no uploads).",
+    "foreground": "Foreground",
+    "background": "Background",
+    "sample": "Sample text",
+    "ratio": "Contrast ratio",
+    "result": "Results",
+    "aaNormal": "AA (normal text) ≥ 4.5",
+    "aaLarge": "AA (large text) ≥ 3.0",
+    "aaaNormal": "AAA (normal text) ≥ 7.0",
+    "aaaLarge": "AAA (large text) ≥ 4.5",
+    "pass": "PASS",
+    "fail": "FAIL",
+    "suggest": "Suggested foreground",
+    "useBlack": "Use black",
+    "useWhite": "Use white",
+    "simulate": "Color-blind simulation",
+    "none": "None",
+    "protanopia": "Protanopia",
+    "deuteranopia": "Deuteranopia",
+    "tritanopia": "Tritanopia"
+  }
+}
+
