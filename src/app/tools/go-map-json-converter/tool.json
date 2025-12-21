@@ -1,0 +1,19 @@
+{
+  "name": "免费在线 Golang Map 格式化转 JSON 工具 - 纯粹工具站",
+  "shortName": "Go Map→JSON",
+  "description": "免费在线 Golang Map 打印结果转 JSON 工具，支持将 Go map 的打印格式转换为标准 JSON，纯前端本地运行。",
+  "seoDescription": "免费在线Golang Map格式化转JSON工具，支持将Go语言map的打印输出格式（如map[string]interface {}格式）转换为标准JSON格式。支持解析嵌套map、数组切片、基本数据类型等常见Go数据结构。纯前端本地处理，不上传数据，适合Go开发者调试接口、数据格式转换、日志分析等场景使用。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "Go Map转JSON",
+    "Golang Map格式化",
+    "Go map打印格式",
+    "接口调试",
+    "数据转换",
+    "本地处理"
+  ]
+}

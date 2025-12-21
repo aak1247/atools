@@ -1,0 +1,39 @@
+{
+  "name": "Free Online Signature Generator - ATools",
+  "shortName": "Signature Generator",
+  "description": "Free online signature generator. Draw a handwritten signature and export a transparent PNG locally in your browser.",
+  "seoDescription": "A fast, privacy-first free online signature generator — ATools (Pure Tools). Draw a handwritten signature with mouse, touch, or stylus and export a clean transparent PNG for documents and PDFs. Adjustable stroke width and color, optional auto-trim with padding, and everything runs locally in your browser with zero uploads. No watermarks, no limits, and works great as a companion to PDF stamping and signing workflows.",
+  "category": "Office Tools",
+  "lang": "en-US",
+  "ui": {
+    "strokeSettings": "Signature settings",
+    "strokeColor": "Stroke color",
+    "strokeWidth": "Stroke width",
+    "usePressure": "Use pen pressure (stylus)",
+    "clear": "Clear",
+    "undo": "Undo",
+    "export": "Export",
+    "background": "Background",
+    "transparent": "Transparent",
+    "white": "White",
+    "autoTrim": "Auto-trim whitespace",
+    "padding": "Padding",
+    "exportWidth": "Export width",
+    "downloadPng": "Download PNG",
+    "copyPng": "Copy PNG",
+    "preview": "Preview",
+    "initCanvasError": "Failed to initialize canvas.",
+    "exportFailed": "Export failed. Please try again.",
+    "emptyError": "Please sign on the canvas first.",
+    "clipboardNotSupported": "Clipboard image copy is not supported in this browser.",
+    "hint": "Tip: Export a transparent PNG and use it in the PDF Stamp tool for a natural-looking signature."
+  },
+  "keywords": [
+    "free online signature generator",
+    "handwritten signature generator",
+    "transparent signature PNG",
+    "e-signature image",
+    "ATools",
+    "Pure Tools"
+  ]
+}

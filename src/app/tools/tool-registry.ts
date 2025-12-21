@@ -115,6 +115,7 @@ export const toolLoaders = {
   "screenshot-annotator": () => import("./screenshot-annotator/ScreenshotAnnotatorClient"),
   "seal-extractor": () => import("./seal-extractor/SealExtractorClient"),
   "seal-forgery-detector": () => import("./seal-forgery-detector/SealForgeryDetectorClient"),
+  "signature-generator": () => import("./signature-generator/SignatureGeneratorClient"),
   "sprite-sheet-generator": () => import("./sprite-sheet-generator/SpriteSheetGeneratorClient"),
   "sql-formatter": () => import("./sql-formatter/SqlFormatterClient"),
   "ssl-checker": () => import("./ssl-checker/SslCheckerClient"),
