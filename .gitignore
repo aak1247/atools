@@ -21,6 +21,9 @@
 /public/tools/*/tool.*.json
 /public/vendor/ffmpeg/**
 
+# generated tool nav data
+/src/app/tools/tools-meta*.json
+
 # production
 /build
 

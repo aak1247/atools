@@ -1,0 +1,34 @@
+{
+  "name": "Free Online Go Map <-> JSON Converter - ATools",
+  "shortName": "Go Map <-> JSON",
+  "description": "Free online Go map <-> JSON converter. Convert Go map fmt output to JSON and convert JSON back to Go map. Runs locally in your browser.",
+  "seoDescription": "Free online Go map <-> JSON converter. Convert Go map fmt output (e.g. map[string]interface {}{...}) into pretty JSON for debugging, and convert JSON back to a Go map-style representation for quick copy/paste. Supports nested maps, slices/arrays, strings, numbers, booleans, and null. Everything runs locally in your browser with zero uploads for privacy and speed.",
+  "category": "Developer Tools",
+  "lang": "en-US",
+  "ui": {
+    "jsonIndent": "JSON indent",
+    "copyResult": "Copy result",
+    "inputMap": "Go map input",
+    "inputJson": "JSON input",
+    "outputJson": "JSON output",
+    "outputMap": "Go map output",
+    "pasteMap": "Paste Go map output…",
+    "pasteJson": "Paste JSON…",
+    "resultPlaceholder": "Result will appear here…",
+    "errorPrefix": "Error: ",
+    "convertFailed": "Conversion failed",
+    "examplesLabel": "Examples:",
+    "exampleSimple": "Simple map",
+    "exampleNested": "Nested struct",
+    "exampleSliceKey": "Mixed keys",
+    "hint": "Tip: Accepts common Go map print formats such as map[string]interface {}{\"key\":\"value\"} or map[1:\"one\",2:\"two\"}. For nested structures, make sure the format is valid."
+  },
+  "keywords": [
+    "Go map to JSON",
+    "JSON to Go map",
+    "Golang map converter",
+    "fmt output to JSON",
+    "developer tools",
+    "local processing"
+  ]
+}

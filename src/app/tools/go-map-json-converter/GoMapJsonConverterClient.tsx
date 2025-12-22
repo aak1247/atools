@@ -20,6 +20,10 @@ const DEFAULT_UI = {
   resultPlaceholder: "结果会显示在这里…",
   errorPrefix: "错误：",
   convertFailed: "转换失败",
+  examplesLabel: "示例：",
+  exampleSimple: "简单 Map",
+  exampleNested: "嵌套结构",
+  exampleSliceKey: "包含切片",
   hint: "提示：支持解析 Go map 的标准打印格式，如 map[string]interface {}{\"key\":\"value\"}、map[1:\"one\",2:\"two\"] 等。对于复杂嵌套结构，请确保格式正确。",
   examples: {
     simple: 'map[string]interface {}{"name":"张三","age":25}',
@@ -345,6 +349,12 @@ const formatAsGoMap = (obj: unknown, indent = 0): string => {
 };
 
 export default function GoMapJsonConverterClient() {
+  const config = useOptionalToolConfig("go-map-json-converter");
+  const ui: GoMapJsonUi = useMemo(
+    () => ({ ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<GoMapJsonUi>) }),
+    [config?.ui],
+  );
+
   const [direction, setDirection] = useState<Direction>("mapToJson");
   const [indent, setIndent] = useState(2);
   const [input, setInput] = useState('map[string]interface {}{"name":"张三","age":25,"tags":[]interface {}{"dev","go"},"profile":map[string]interface {}{"email":"zhang@example.com","active":true}}');
@@ -365,10 +375,10 @@ export default function GoMapJsonConverterClient() {
       return {
         ok: false as const,
         text: "",
-        error: e instanceof Error ? e.message : "转换失败",
+        error: e instanceof Error ? e.message : ui.convertFailed,
       };
     }
-  }, [direction, indent, input]);
+  }, [direction, indent, input, ui.convertFailed]);
 
   const copy = async () => {
     if (!result.ok) return;
@@ -378,9 +388,6 @@ export default function GoMapJsonConverterClient() {
   const loadExample = (example: string) => {
     setInput(example);
   };
-
-  const config = useOptionalToolConfig("go-map-json-converter");
-  const ui: GoMapJsonUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<GoMapJsonUi>) };
 
   return (
     <ToolPageLayout toolSlug="go-map-json-converter" maxWidthClassName="max-w-6xl">
@@ -407,17 +414,16 @@ export default function GoMapJsonConverterClient() {
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              {config.jsonToMap}
+              {ui.jsonToMap}
             </button>
           </div>
 
           <div className="flex items-center gap-2">
-            {direction === "jsonToMap" && (
+            {direction === "mapToJson" && (
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                {config.jsonIndent}
+                {ui.jsonIndent}
                 <select
                   value={indent}
-                  disabled={direction !== "jsonToMap"}
                   onChange={(e) => setIndent(Number(e.target.value))}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                 >
@@ -433,34 +439,34 @@ export default function GoMapJsonConverterClient() {
               onClick={copy}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-700 disabled:opacity-60 active:scale-[0.99]"
             >
-              {config.copyResult}
+              {ui.copyResult}
             </button>
           </div>
         </div>
 
         {direction === "mapToJson" && (
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="text-xs text-slate-600">示例：</span>
+            <span className="text-xs text-slate-600">{ui.examplesLabel}</span>
             <button
               type="button"
-              onClick={() => loadExample(config.examples.simple)}
+              onClick={() => loadExample(ui.examples.simple)}
               className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200"
             >
-              简单 Map
+              {ui.exampleSimple}
             </button>
             <button
               type="button"
-              onClick={() => loadExample(config.examples.nested)}
+              onClick={() => loadExample(ui.examples.nested)}
               className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200"
             >
-              嵌套结构
+              {ui.exampleNested}
             </button>
             <button
               type="button"
-              onClick={() => loadExample(config.examples.sliceKey)}
+              onClick={() => loadExample(ui.examples.sliceKey)}
               className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200"
             >
-              包含切片
+              {ui.exampleSliceKey}
             </button>
           </div>
         )}
@@ -468,35 +474,35 @@ export default function GoMapJsonConverterClient() {
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <div>
             <div className="mb-2 text-sm font-semibold text-slate-900">
-              {direction === "mapToJson" ? config.inputMap : config.inputJson}
+              {direction === "mapToJson" ? ui.inputMap : ui.inputJson}
             </div>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={direction === "mapToJson" ? config.pasteMap : config.pasteJson}
+              placeholder={direction === "mapToJson" ? ui.pasteMap : ui.pasteJson}
               className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
             />
           </div>
           <div>
             <div className="mb-2 text-sm font-semibold text-slate-900">
-              {direction === "mapToJson" ? config.outputJson : config.outputMap}
+              {direction === "mapToJson" ? ui.outputJson : ui.outputMap}
             </div>
             <textarea
               value={result.ok ? result.text : ""}
               readOnly
-              placeholder={config.resultPlaceholder}
+              placeholder={ui.resultPlaceholder}
               className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
             />
             {!result.ok && (
               <div className="mt-2 text-sm text-rose-600">
-                {config.errorPrefix}
+                {ui.errorPrefix}
                 {result.error}
               </div>
             )}
           </div>
         </div>
 
-        <div className="mt-4 text-xs text-slate-500">{config.hint}</div>
+        <div className="mt-4 text-xs text-slate-500">{ui.hint}</div>
       </div>
     </ToolPageLayout>
   );

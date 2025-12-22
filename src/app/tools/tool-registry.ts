@@ -44,6 +44,7 @@ export const toolLoaders = {
   "file-encryptor": () => import("./file-encryptor/FileEncryptorClient"),
   "gif-optimizer": () => import("./gif-optimizer/GifOptimizerClient"),
   "gif-to-video": () => import("./gif-to-video/GifToVideoClient"),
+  "go-map-json-converter": () => import("./go-map-json-converter/GoMapJsonConverterClient"),
   "gzip-deflate-tool": () => import("./gzip-deflate-tool/GzipDeflateToolClient"),
   "hash-tools": () => import("./hash-tools/HashToolsClient"),
   "hmac-generator": () => import("./hmac-generator/HmacGeneratorClient"),
@@ -147,3 +148,4 @@ export const toolLoaders = {
 
 export type ToolSlug = keyof typeof toolLoaders;
 export const toolSlugs = Object.keys(toolLoaders) as ToolSlug[];
+
