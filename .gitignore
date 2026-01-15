@@ -16,10 +16,12 @@
 # next.js
 /.next/
 /out/
+.wrangler/
 /public/tools/*/manifest.webmanifest
 /public/tools/*/tool.json
 /public/tools/*/tool.*.json
 /public/vendor/ffmpeg/**
+/public/vendor/realcugan/**
 
 # generated tool nav data
 /src/app/tools/tools-meta*.json

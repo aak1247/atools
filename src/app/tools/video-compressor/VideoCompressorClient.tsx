@@ -5,6 +5,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { getFFmpegBaseURL } from "../../../lib/r2-assets";
 
 type ScalePreset = "keep" | "720p" | "1080p";
 
@@ -58,7 +59,8 @@ const DEFAULT_UI: Ui = {
   note: "说明：CRF 越大体积越小、画质越差（常用 20-28）。",
 };
 
-const CORE_BASE = "/vendor/ffmpeg/core/";
+// 动态获取 FFmpeg 基础 URL（支持本地和 R2）
+const CORE_BASE = getFFmpegBaseURL();
 
 const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
   const copy = new Uint8Array(bytes.byteLength);

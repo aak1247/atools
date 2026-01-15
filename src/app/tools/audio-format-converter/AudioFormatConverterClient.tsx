@@ -5,6 +5,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { getFFmpegBaseURL } from "../../../lib/r2-assets";
 
 type OutputFormat = "mp3" | "wav" | "m4a" | "ogg" | "flac" | "opus";
 
@@ -68,7 +69,8 @@ const DEFAULT_UI: Ui = {
   errTranscodeFailed: "转换失败（可能输出编码器未内置或浏览器资源不足）。",
 };
 
-const CORE_BASE = "/vendor/ffmpeg/core/";
+// 动态获取 FFmpeg 基础 URL（支持本地和 R2）
+const CORE_BASE = getFFmpegBaseURL();
 
 const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
   const copy = new Uint8Array(bytes.byteLength);

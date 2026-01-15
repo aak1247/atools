@@ -6,11 +6,13 @@ import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+import { getFFmpegBaseURL } from "../../../lib/r2-assets";
 
 type OutputFormat = "wav" | "mp3";
 type TrimMode = "start-end" | "all";
 
-const CORE_BASE = "/vendor/ffmpeg/core/";
+// 动态获取 FFmpeg 基础 URL（支持本地和 R2）
+const CORE_BASE = getFFmpegBaseURL();
 
 const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
   const copy = new Uint8Array(bytes.byteLength);

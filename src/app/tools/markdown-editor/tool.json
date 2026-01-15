@@ -1,0 +1,9 @@
+{
+  "name": "免费在线Markdown编辑器 - 纯粹工具站",
+  "shortName": "Markdown编辑器",
+  "description": "实时预览的Markdown编辑器，支持语法高亮、导出HTML和本地存储",
+  "seoDescription": "免费在线Markdown编辑器，实时预览渲染结果，支持完整的Markdown语法高亮，支持导出为HTML格式，本地自动保存草稿，完全免费无需注册，纯浏览器实现，保护隐私安全。",
+  "category": "文本处理",
+  "keywords": ["Markdown编辑器", "实时预览", "MD编辑器", "Markdown写作"],
+  "themeColor": "#0f172a"
+}

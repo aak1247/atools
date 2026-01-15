@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import NextImage from "next/image";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 
 interface ConversionOptions {
@@ -26,7 +26,7 @@ class SvgConverter {
         const svgUrl = URL.createObjectURL(svgBlob);
 
         // 创建图片元素
-        const img = new Image();
+        const img = new window.Image();
         img.onload = () => {
           try {
             // 创建canvas
@@ -615,7 +615,7 @@ export default function SvgConverterClient() {
             </div>
 
             <div className="border border-slate-200 rounded-lg p-4 bg-white">
-              <Image
+              <NextImage
                 src={convertedImage}
                 alt="Converted image"
                 unoptimized

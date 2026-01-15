@@ -1,0 +1,13 @@
+name = "atools-site"
+main = "cf/worker.ts"
+compatibility_date = "2026-01-09"
+
+[assets]
+directory = "./out"
+binding = "ASSETS"
+
+# R2 存储桶配置（用于 FFmpeg 等大文件）
+[[r2_buckets]]
+binding = "R2_ASSETS"
+bucket_name = "atools-assets"
+

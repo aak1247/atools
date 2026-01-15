@@ -1,8 +1,10 @@
-const CACHE_NAME = "tools-pwa-v1";
+const CACHE_NAME = "tools-pwa-v0.1.0";
 const OFFLINE_URLS = [
   "/",
-  "/tools/calculator",
-  "/tools/image-compressor",
+  "/zh-cn",
+  "/en-us",
+  "/zh-cn/tools/calculator",
+  "/zh-cn/tools/image-compressor"
 ];
 
 self.addEventListener("install", (event) => {
@@ -24,23 +26,31 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const request = event.request;
+
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+
+  // 只处理 http/https，同步跳过 chrome-extension 等不支持的协议
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
-        .then((networkResponse) => {
-          const responseClone = networkResponse.clone();
-          caches
-            .open(CACHE_NAME)
-            .then((cache) => cache.put(event.request, responseClone));
-          return networkResponse;
-        })
-        .catch(() => cachedResponse);
-    }),
+    fetch(request)
+      .then((networkResponse) => {
+        const responseClone = networkResponse.clone();
+        caches
+          .open(CACHE_NAME)
+          .then((cache) => cache.put(request, responseClone));
+        return networkResponse;
+      })
+      .catch(() =>
+        caches
+          .match(request)
+          .then((cachedResponse) => cachedResponse || caches.match("/zh-cn")),
+      ),
   );
 });
+

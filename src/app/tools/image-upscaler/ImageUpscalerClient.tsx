@@ -2,8 +2,9 @@
 
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
+import NextImage from "next/image";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { getRealCUGANBaseURL } from "../../../lib/r2-assets";
 
 type UpscaleMode = "realcugan" | "resize";
 type DenoisePreset = "no-denoise" | "denoise3x" | "conservative";
@@ -107,7 +108,8 @@ type GlobalRealCugan = {
   onEvent?: (evt: RealCuganEvent) => void;
 };
 
-const REALCUGAN_BASE = "/vendor/realcugan/";
+// 动态获取 RealCUGAN 基础 URL（支持本地和 R2）
+const REALCUGAN_BASE = getRealCUGANBaseURL();
 const REALCUGAN_JS = "realcugan-ncnn-webassembly-simd-threads.js";
 
 const getGlobalRealCugan = (): GlobalRealCugan => {
@@ -204,7 +206,7 @@ async function fileToImageBitmap(file: File): Promise<ImageBitmap> {
   const blobUrl = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
+      const el = new window.Image();
       el.onload = () => resolve(el);
       el.onerror = () => reject(new Error("Image load failed"));
       el.src = blobUrl;
@@ -613,7 +615,7 @@ function Inner({ ui }: { ui: Ui }) {
                 <div className="text-sm font-semibold text-slate-900">{ui.original}</div>
                 <div className="relative mt-3 aspect-square overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
                   {origUrl ? (
-                    <Image
+                    <NextImage
                       src={origUrl}
                       alt={ui.original}
                       fill
@@ -630,7 +632,7 @@ function Inner({ ui }: { ui: Ui }) {
                 <div className="text-sm font-semibold text-slate-900">{ui.output}</div>
                 <div className="relative mt-3 aspect-square overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
                   {downloadUrl ? (
-                    <Image
+                    <NextImage
                       src={downloadUrl}
                       alt={ui.output}
                       fill

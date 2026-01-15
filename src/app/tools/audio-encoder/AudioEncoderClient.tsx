@@ -6,6 +6,7 @@ import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+import { getFFmpegBaseURL } from "../../../lib/r2-assets";
 
 type OutputFormat = "mp3" | "wav" | "m4a" | "ogg" | "flac";
 
@@ -18,7 +19,8 @@ type ParsedInfo = {
   channels?: string;
 };
 
-const CORE_BASE = "/vendor/ffmpeg/core/";
+// 动态获取 FFmpeg 基础 URL（支持本地和 R2）
+const CORE_BASE = getFFmpegBaseURL();
 
 const SAMPLE_RATE_PRESETS = [
   8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 88200, 96000, 176400, 192000, 352800, 384000,

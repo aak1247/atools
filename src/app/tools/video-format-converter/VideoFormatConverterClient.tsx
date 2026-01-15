@@ -5,6 +5,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { getFFmpegBaseURL } from "../../../lib/r2-assets";
 
 type OutputFormat = "mp4" | "webm" | "mkv" | "mov" | "avi";
 type ScalePreset = "keep" | "720p" | "1080p";
@@ -64,7 +65,8 @@ const DEFAULT_UI: Ui = {
   note: "提示：不同浏览器/ffmpeg.wasm 构建的编码器支持不同，若失败可换输出格式或降低参数。",
 };
 
-const CORE_BASE = "/vendor/ffmpeg/core/";
+// 动态获取 FFmpeg 基础 URL（支持本地和 R2）
+const CORE_BASE = getFFmpegBaseURL();
 
 const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
   const copy = new Uint8Array(bytes.byteLength);
