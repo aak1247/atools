@@ -1,0 +1,23 @@
+{
+  "name": "免费在线 AASA / iOS Universal Links 验证工具 - 纯粹工具站",
+  "shortName": "AASA验证",
+  "description": "免费在线验证 Apple App Site Association（AASA）文件：检测可访问性、Content-Type、JSON 结构与 appID/paths 规则，并提供 Universal Links 匹配测试与排错教程。",
+  "seoDescription": "免费在线 AASA / iOS Universal Links 验证工具：输入域名即可检查 .well-known/apple-app-site-association 或根路径文件的 HTTPS 可访问性、状态码与 Content-Type（application/json / application/pkcs7-mime），解析并校验 AASA JSON 结构（applinks.apps、details.appID、paths/components），并提供 Universal Links 链接匹配测试与常见问题排查教程，帮助快速定位配置与跳转失败原因。",
+  "category": "开发工具",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "keywords": [
+    "AASA",
+    "apple-app-site-association",
+    "Universal Links",
+    "iOS关联域名",
+    "applinks",
+    "appID",
+    "paths",
+    "components",
+    "跳转验证"
+  ]
+}
+
