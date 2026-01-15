@@ -27,66 +27,64 @@ export default function SpeechToTextClient() {
   const config = useOptionalToolConfig("speech-to-text");
   const ui: SpeechToTextUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<SpeechToTextUi>) };
 
+  const [isSupported] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+  });
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("zh-CN");
   const [status, setStatus] = useState<"ready" | "listening" | "stopped">("ready");
-  const [isSupported, setIsSupported] = useState(true);
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-
-  // 检查浏览器支持
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (!SpeechRecognitionAPI) {
-        setIsSupported(false);
-      }
-    }
-  }, []);
 
   // 初始化语音识别
   useEffect(() => {
     if (!isSupported) return;
 
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) return;
 
     const recognition = new SpeechRecognitionAPI();
+    let isActive = true;
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = selectedLanguage;
 
     recognition.onstart = () => {
+      if (!isActive) return;
       setIsListening(true);
       setStatus("listening");
     };
 
     recognition.onend = () => {
+      if (!isActive) return;
       setIsListening(false);
       setStatus("stopped");
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimText = "";
-      let finalText = transcript;
+      let finalChunk = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalText += result[0].transcript;
+          finalChunk += result[0].transcript;
         } else {
           interimText += result[0].transcript;
         }
       }
 
-      setTranscript(finalText);
+      if (!isActive) return;
+      if (finalChunk) setTranscript((prev) => prev + finalChunk);
       setInterimTranscript(interimText);
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error("Speech recognition error:", event.error);
+      if (!isActive) return;
       setIsListening(false);
       setStatus("stopped");
     };
@@ -94,11 +92,12 @@ export default function SpeechToTextClient() {
     recognitionRef.current = recognition;
 
     return () => {
+      isActive = false;
       if (recognition) {
         recognition.stop();
       }
     };
-  }, [selectedLanguage, transcript, isSupported]);
+  }, [selectedLanguage, isSupported]);
 
   // 开始录音
   const handleStart = useCallback(() => {
@@ -257,9 +256,11 @@ export default function SpeechToTextClient() {
 
 // Type definitions for Web Speech API
 declare global {
+  type SpeechRecognitionConstructor = new () => SpeechRecognition;
+
   interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
   }
 }
 

@@ -1,13 +1,34 @@
 {
-  "name": "免费在线XMind思维导图查看器 - 纯粹工具站",
-  "shortName": "XMind查看器",
-  "description": "免费在线 XMind 思维导图查看器，打开并预览 .xmind 文件内容，生成清晰大纲结构，纯前端本地解析。",
-  "seoDescription": "思维导图必备的免费在线XMind查看神器 - ATools - 无需安装XMind软件，直接在浏览器中打开和预览.xmind文件！智能解析思维导图结构，生成清晰的树状大纲，支持节点展开折叠和内容搜索。完全本地解析，绝不上传思维导图文件，100%保护知识产权和商业机密。是学习笔记、项目规划、会议记录、知识管理的便捷工具。支持多种视图模式、导出功能、打印预览等实用功能。完全免费开源，无任何限制，比XMind官方软件更轻便的思维导图查看利器！",
+  "name": "免费在线 XMind 查看器（本地解析/大纲导出）- 纯粹工具站",
+  "shortName": "XMind 查看器",
+  "description": "在线打开并预览 .xmind（支持 XMind 2020/8），本地解析生成大纲与 Canvas 预览，可复制/下载 Markdown，不上传文件。",
+  "seoDescription": "免费在线 XMind 查看器：直接在浏览器打开 .xmind（支持 content.json 与 content.xml），本地解析不上传文件，快速预览思维导图；支持 Canvas 大图查看（拖拽/缩放/自适应）以及导出/复制 Markdown 大纲，适用于学习笔记、项目规划、会议记录与知识管理。",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "文档工具",
-  "keywords": ["免费XMind查看器", "在线思维导图", "XMind文件打开", "思维导图预览", "XMind阅读器"]
+  "keywords": [
+    "XMind查看器",
+    "XMind在线查看",
+    "在线打开xmind",
+    "xmind文件预览",
+    "xmind阅读器",
+    "xmind打开器",
+    "xmind转大纲",
+    "xmind导出markdown",
+    "xmind转markdown",
+    "xmind转文本",
+    "思维导图查看",
+    "思维导图预览",
+    "思维导图转大纲",
+    "XMind 8",
+    "XMind 2020",
+    "XMind Zen",
+    "content.json",
+    "content.xml",
+    "本地解析",
+    "隐私不上传",
+    "浏览器查看xmind"
+  ]
 }
-

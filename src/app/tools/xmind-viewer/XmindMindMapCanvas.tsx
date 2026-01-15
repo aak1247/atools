@@ -16,6 +16,7 @@ type TopicNode = {
   labels?: string[];
   children?: {
     attached?: TopicNode[];
+    detached?: TopicNode[];
     [key: string]: unknown;
   };
   [key: string]: unknown;
@@ -55,7 +56,10 @@ const getTitle = (topic: TopicNode): string => (topic.title ?? "").trim() || "(æ
 
 const getChildren = (topic: TopicNode): TopicNode[] => {
   const children = topic.children?.attached;
-  return Array.isArray(children) ? children : [];
+  const detached = topic.children?.detached;
+  const attachedList = Array.isArray(children) ? children : [];
+  const detachedList = Array.isArray(detached) ? detached : [];
+  return [...attachedList, ...detachedList];
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -288,14 +292,13 @@ const XmindMindMapCanvas = forwardRef<XmindMindMapCanvasHandle, Props>(function 
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
       requestDraw();
-      fitToView();
     };
 
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(container);
     return () => observer.disconnect();
-  }, [fitToView, requestDraw]);
+  }, [requestDraw]);
 
   const zoomAround = useCallback((nextScale: number, screenX: number, screenY: number) => {
     const view = viewRef.current;
@@ -442,6 +445,11 @@ const XmindMindMapCanvas = forwardRef<XmindMindMapCanvasHandle, Props>(function 
   useEffect(() => {
     requestDraw();
   }, [layout, hoveredNodeId, requestDraw]);
+
+  useEffect(() => {
+    if (!layout) return;
+    fitToView();
+  }, [fitToView, layout]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -1,16 +1,22 @@
 {
   "name": "Free Online XMind Viewer - ATools",
   "shortName": "XMind Viewer",
-  "description": "Free online XMind Viewer. Runs locally in your browser with zero uploads for privacy and speed.",
-  "seoDescription": "The ultimate free online XMind Viewer — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" XMind Viewer on any device, this is the one you bookmark and share.",
+  "description": "Open and preview .xmind files online. Runs locally in your browser (no uploads) with Canvas preview and Markdown outline export.",
+  "seoDescription": "A fast, privacy-first XMind Viewer that opens .xmind files directly in your browser with zero uploads. Supports both modern content.json and classic content.xml formats, provides a large Canvas mind map preview (pan/zoom/fit), and lets you copy or download a Markdown outline for notes, planning, and knowledge management.",
   "category": "Document Tools",
   "lang": "en-US",
   "keywords": [
     "free online XMind Viewer",
-    "XMind Viewer tool",
-    "XMind Viewer web app",
+    "open xmind file online",
+    "XMind file viewer",
+    "XMind outline exporter",
+    "xmind to markdown",
+    "XMind 8 content.xml",
+    "XMind 2020 content.json",
+    "local XMind parser",
+    "offline XMind viewer",
+    "no upload XMind viewer",
     "xmind-viewer",
-    "ATools",
-    "Pure Tools"
+    "ATools"
   ]
 }
