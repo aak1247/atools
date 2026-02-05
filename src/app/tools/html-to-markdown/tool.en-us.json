@@ -1,0 +1,35 @@
+{
+  "name": "Free Online HTML to Markdown Converter - ATools",
+  "shortName": "HTML → Markdown",
+  "description": "Free online HTML to Markdown converter: paste HTML and convert to Markdown locally in your browser. Supports GFM tables/task lists.",
+  "seoDescription": "Free online HTML to Markdown converter by ATools: quickly turn HTML snippets into clean Markdown for docs, notes, and knowledge bases. Supports GitHub Flavored Markdown (tables, task lists, strikethrough), optional keep links/images, and removes script/style tags. Runs fully in-browser; no content is uploaded.",
+  "category": "Text Tools",
+  "lang": "en-US",
+  "ui": {
+    "options": "Options",
+    "gfm": "GFM (tables / task lists / strikethrough)",
+    "keepLinks": "Keep links",
+    "keepImages": "Keep images",
+    "stripUnsafe": "Remove script/style/iframe",
+    "headingStyle": "Heading style",
+    "headingAtx": "ATX (#)",
+    "headingSetext": "Setext (=== / ---)",
+    "codeBlockStyle": "Code blocks",
+    "codeFenced": "Fenced (```)",
+    "codeIndented": "Indented",
+    "bulletMarker": "Bullet marker",
+    "bulletDash": "-",
+    "bulletAsterisk": "*",
+    "copyResult": "Copy result",
+    "download": "Download .md",
+    "copied": "Copied",
+    "input": "Input (HTML)",
+    "output": "Output (Markdown)",
+    "inputPlaceholder": "Paste HTML here...",
+    "outputPlaceholder": "Markdown will appear here...",
+    "errorPrefix": "Error:",
+    "invalidHtml": "Failed to convert HTML."
+  },
+  "keywords": ["html to markdown", "html2md", "markdown converter", "gfm", "ATools"]
+}
+

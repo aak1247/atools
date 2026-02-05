@@ -1,0 +1,13 @@
+{
+  "name": "免费在线HTML转Markdown工具 - 纯粹工具站",
+  "shortName": "HTML转Markdown",
+  "description": "免费在线 HTML 转 Markdown 工具：粘贴 HTML 一键转换为 Markdown，支持 GFM 表格/任务列表/删除线，完全本地运行不上传内容。",
+  "seoDescription": "免费在线 HTML 转 Markdown 转换器 - ATools：把网页 HTML 片段快速转换为 Markdown，适用于写作、笔记、知识库与开发文档。支持 GitHub Flavored Markdown（表格、任务列表、删除线）、可选保留链接/图片、自动移除 script/style 等无关标签。工具完全在浏览器本地运行，不上传任何内容，复制即可用。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "文本处理",
+  "keywords": ["HTML转Markdown", "HTML to Markdown", "Markdown转换", "GFM表格", "在线转换器"]
+}
+

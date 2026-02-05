@@ -1,0 +1,13 @@
+{
+  "name": "免费在线CORS跨域问题检查工具 - 纯粹工具站",
+  "shortName": "CORS跨域检查",
+  "description": "免费在线 CORS 跨域问题检查工具：输入接口地址、方法、请求头与请求体，判断是否会触发预检，并给出常见跨域报错原因与服务端修复建议。",
+  "seoDescription": "免费在线 CORS 跨域问题检查工具 - ATools：输入 API 地址、HTTP 方法、请求头与请求体，自动判断是否触发 OPTIONS 预检（Preflight），并给出常见跨域失败原因（缺少 Access-Control-Allow-Origin、Allow-Methods/Allow-Headers 不匹配、携带 Cookie/凭证时禁止 * 等）和可直接复制的服务端修复建议（Nginx、Express、Spring 等）。工具完全在浏览器本地运行，不上传接口数据，适合前后端联调、接口调试与排查跨域配置。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "开发工具",
+  "keywords": ["CORS检查", "跨域问题排查", "预检请求", "Access-Control-Allow-Origin", "前后端联调"]
+}
+

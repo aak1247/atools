@@ -1,0 +1,13 @@
+{
+  "name": "Free Online CORS Checker - ATools",
+  "shortName": "CORS Checker",
+  "description": "Free online CORS checker: enter URL, method, headers and body to predict preflight and get common fixes for CORS errors.",
+  "seoDescription": "Free online CORS checker by ATools: enter an API URL, HTTP method, request headers and body to predict whether the browser will trigger an OPTIONS preflight request, and get actionable fix suggestions for common CORS failures (missing Access-Control-Allow-Origin, methods/headers mismatch, credentials with wildcard origin, and more). Runs fully in-browser; no data is uploaded.",
+  "lang": "en-US",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "Developer Tools",
+  "keywords": ["CORS checker", "cross-origin", "preflight", "Access-Control-Allow-Origin", "OPTIONS"]
+}
+

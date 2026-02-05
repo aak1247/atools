@@ -173,8 +173,8 @@ const DEFAULT_UI = {
 type Ui = typeof DEFAULT_UI;
 
 type TutorialBlock =
-  | { kind: "ol" | "ul"; title: string; items: string[] }
-  | { kind: "code"; title: string; commands: string[]; note?: string };
+  | { kind: "ol" | "ul"; title: string; items: readonly string[] }
+  | { kind: "code"; title: string; commands: readonly string[]; note?: string };
 
 const WELL_KNOWN_PATH = "/.well-known/apple-app-site-association";
 const ROOT_PATH = "/apple-app-site-association";
@@ -981,7 +981,7 @@ function AasaUniversalLinksInner() {
         <div className="mt-8 rounded-3xl bg-white p-6 ring-1 ring-slate-200">
           <div className="text-sm font-semibold text-slate-900">{ui.tutorialTitle}</div>
           <div className="mt-4 grid gap-6 lg:grid-cols-2">
-            {(ui.tutorialBlocks as TutorialBlock[]).map((block) => (
+            {(ui.tutorialBlocks as readonly TutorialBlock[]).map((block) => (
               <div key={block.title} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
                 <div className="text-xs font-semibold text-slate-900">{block.title}</div>
                 {block.kind === "code" ? (
