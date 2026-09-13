@@ -1,4 +1,6 @@
-# ATools · 纯粹工具站
+# ATools · A Pure Tool Site
+
+**English** | [简体中文](README.zh-CN.md)
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Next.js](https://img.shields.io/badge/Next.js-16+-black?logo=next.js)](https://nextjs.org/)
@@ -7,270 +9,269 @@
 [![100% Client-Side](https://img.shields.io/badge/100%25-Client--Side-orange)](https://github.com/your-repo)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green?logo=node.js)](https://nodejs.org/)
 
-> 一个「100% 纯前端本地运行」的工具集合站：PWA 可安装、支持 Next.js 静态导出、内置统一 SEO 系统。
-
+> A collection of online tools that run **100% locally in your browser**: installable as a PWA, supports Next.js static export, and ships with a unified SEO system.
 
 ---
 
-## 特性
+## Features
 
-- **纯前端**：所有文件处理默认在浏览器本地完成（不上传服务器），适合隐私敏感场景。
-- **95+ 工具**：覆盖文本/编码/JSON/图片/音视频/PDF/办公格式等高频需求（见 `src/app/tools`）。
-- **PWA 可安装**：每个工具都有独立 `manifest`，支持"添加到主屏幕"与离线缓存策略。
-- **Chrome 扩展（可选）**：提供 Web 站点无法稳定实现的能力（如对任意网页整页长截图），并在侧边栏内搜索/打开工具（见 `docs/browser-extension.md`）。
-- **完整 i18n 支持**：所有工具支持中英双语，基于 `tool.en-us.json` 的 UI 字段实现优雅的多语言架构。
-- **FFmpeg.wasm**：音视频工具使用本地打包的 `@ffmpeg/core`。
+- **Pure frontend**: All file processing runs locally in the browser by default (no server uploads), ideal for privacy-sensitive scenarios.
+- **95+ tools**: Covers text/encoding/JSON/images/audio & video/PDF/office formats and other high-frequency needs (see `src/app/tools`).
+- **Installable PWA**: Every tool has its own `manifest`, supporting "Add to Home Screen" and offline caching strategies.
+- **Chrome extension (optional)**: Provides capabilities that a website alone cannot reliably implement (e.g., full-page screenshots of any web page), plus tool search/opening in a side panel (see `docs/browser-extension.md`).
+- **Full i18n support**: All tools support both Chinese and English, built on the `tool.en-us.json` UI fields for an elegant multi-language architecture.
+- **FFmpeg.wasm**: Audio/video tools use a locally bundled `@ffmpeg/core`.
 
 <details>
-<summary>内置工具列表（按 slug 排序）</summary>
+<summary>Built-in tools (sorted by slug)</summary>
 
-- `aes256` — AES256加解密
-- `api-tester` — API接口测试
-- `audio-encoder` — 音频编码转换
-- `audio-merger` — 音频拼接合并
-- `audio-trimmer` — 音频剪辑器
-- `av-transcoder` — 音视频转码器
-- `base-converter` — 进制转换器
+- `aes256` — AES256 encryption/decryption
+- `api-tester` — API tester
+- `audio-encoder` — Audio encoding converter
+- `audio-merger` — Audio merger
+- `audio-trimmer` — Audio trimmer
+- `av-transcoder` — Audio/video transcoder
+- `base-converter` — Base converter
 - `base32-base58-converter` — Base32/Base58
-- `base64` — Base64编解码
-- `calculator` — 科学计算器
-- `camera` — 网页相机
-- `case-converter` — 大小写转换
-- `color-converter` — 颜色格式转换
-- `color-picker` — 图片取色器
-- `compass` — 数字指南针
-- `cron-expression-parser` — Cron解析器
-- `csv-excel-converter` — CSV-Excel转换
-- `csv-to-json` — CSV转JSON
-- `csv-to-yaml` — CSV转YAML
-- `curl-to-code` — cURL转码
-- `des` — DES加解密
-- `escape-tool` — 字符转义工具
-- `excel-to-json` — Excel→JSON
-- `gif-optimizer` — GIF优化
-- `gif-to-video` — GIF转视频
-- `gzip-deflate-tool` — Gzip解压
-- `hash-tools` — 哈希校验工具
-- `hmac-generator` — HMAC生成器
-- `html-stripper` — HTML标签清理
-- `http-header-parser` — Header解析
-- `icns-generator` — ICNS图标生成器
-- `ico-generator` — ICO 图标生成
-- `image-compressor` — 图片压缩
-- `image-converter` — 图片格式转换
-- `image-cropper` — 图片裁剪器
-- `image-resizer` — 图片尺寸调整
-- `json-compare` — JSON对比
-- `json-formatter` — JSON格式化
-- `json-schema-validator` — Schema校验
-- `json-to-csharp-class` — JSON→C#
-- `json-to-csv` — JSON→CSV
-- `json-to-excel` — JSON→Excel
-- `json-to-go-struct` — JSON→Go
-- `json-to-java-pojo` — JSON→Java
-- `json-to-json-schema` — JSON→Schema
-- `json-to-kotlin-data-class` — JSON→Kotlin
-- `json-to-python-model` — JSON→Python
-- `json-to-rust-serde` — JSON→Rust
-- `json-to-typescript` — JSON→TS
-- `json-yaml-converter` — JSON-YAML转换
-- `jwt-generator` — JWT生成器
-- `jwt-token-decoder` — JWT解码器
-- `markdown-pdf-converter` — MD→PDF
-- `music-player` — 网页音乐播放器
-- `noise-meter` — 数字噪音计
-- `p2p-file-transfer` — P2P文件传输
-- `palette-generator` — 智能配色生成器
-- `password-strength-checker` — 密码强度检测
-- `pdf-compressor` — PDF压缩
-- `pdf-merge` — PDF拼接合并
-- `pdf-split` — PDF拆分
-- `pdf-stamp` — PDF电子盖章
-- `pdf-to-images` — PDF转图片
-- `pdf-to-text` — PDF转文本
-- `pdf-trim` — PDF页面剪切
-- `pem-jwk-toolkit` — PEM/JWK工具包
-- `ppt-compressor` — PPT压缩
-- `protractor` — 数字量角器
-- `qr-decoder` — 二维码解析器
-- `qr-generator` — 二维码生成
-- `qr-scanner` — 二维码扫描器
-- `random-number-generator` — 随机数生成器
-- `random-password-generator` — 随机密码生成器
-- `regex-tester` — 正则表达式测试
-- `rsa-key-generator` — RSA密钥生成器
-- `salt-generator` — 随机盐值生成器
-- `screen-ruler` — 屏幕标尺
-- `seal-extractor` — 智能印章提取
-- `sql-formatter` — SQL美化
-- `svg-converter` — SVG转图片
-- `text-diff` — 文本差异对比
-- `timer` — 多功能计时器
-- `timestamp-converter` — 时间戳转换
-- `timezone-converter` — 时区转换
-- `unit-converter` — 单位换算
-- `url-encoder` — URL编解码
-- `url-parser` — URL解析
-- `uuid-generator` — UUID生成器
-- `video-player` — 网页视频播放器
-- `video-to-gif` — 视频转GIF
-- `video-trimmer` — 视频剪辑器
-- `websocket-tester` — WebSocket调试器
-- `word-compressor` — Word压缩
-- `word-counter` — 字数统计
-- `xmind-viewer` — XMind查看器
-- `xml-json-converter` — XML转JSON
+- `base64` — Base64 encoder/decoder
+- `calculator` — Scientific calculator
+- `camera` — Web camera
+- `case-converter` — Case converter
+- `color-converter` — Color format converter
+- `color-picker` — Image color picker
+- `compass` — Digital compass
+- `cron-expression-parser` — Cron expression parser
+- `csv-excel-converter` — CSV-Excel converter
+- `csv-to-json` — CSV to JSON
+- `csv-to-yaml` — CSV to YAML
+- `curl-to-code` — cURL to code
+- `des` — DES encryption/decryption
+- `escape-tool` — Character escape tool
+- `excel-to-json` — Excel to JSON
+- `gif-optimizer` — GIF optimizer
+- `gif-to-video` — GIF to video
+- `gzip-deflate-tool` — Gzip/deflate tool
+- `hash-tools` — Hash tools
+- `hmac-generator` — HMAC generator
+- `html-stripper` — HTML tag stripper
+- `http-header-parser` — HTTP header parser
+- `icns-generator` — ICNS icon generator
+- `ico-generator` — ICO icon generator
+- `image-compressor` — Image compressor
+- `image-converter` — Image format converter
+- `image-cropper` — Image cropper
+- `image-resizer` — Image resizer
+- `json-compare` — JSON compare
+- `json-formatter` — JSON formatter
+- `json-schema-validator` — JSON Schema validator
+- `json-to-csharp-class` — JSON to C#
+- `json-to-csv` — JSON to CSV
+- `json-to-excel` — JSON to Excel
+- `json-to-go-struct` — JSON to Go
+- `json-to-java-pojo` — JSON to Java
+- `json-to-json-schema` — JSON to Schema
+- `json-to-kotlin-data-class` — JSON to Kotlin
+- `json-to-python-model` — JSON to Python
+- `json-to-rust-serde` — JSON to Rust
+- `json-to-typescript` — JSON to TypeScript
+- `json-yaml-converter` — JSON-YAML converter
+- `jwt-generator` — JWT generator
+- `jwt-token-decoder` — JWT decoder
+- `markdown-pdf-converter` — Markdown to PDF
+- `music-player` — Web music player
+- `noise-meter` — Digital noise meter
+- `p2p-file-transfer` — P2P file transfer
+- `palette-generator` — Smart palette generator
+- `password-strength-checker` — Password strength checker
+- `pdf-compressor` — PDF compressor
+- `pdf-merge` — PDF merger
+- `pdf-split` — PDF splitter
+- `pdf-stamp` — PDF stamping
+- `pdf-to-images` — PDF to images
+- `pdf-to-text` — PDF to text
+- `pdf-trim` — PDF page trimmer
+- `pem-jwk-toolkit` — PEM/JWK toolkit
+- `ppt-compressor` — PPT compressor
+- `protractor` — Digital protractor
+- `qr-decoder` — QR code decoder
+- `qr-generator` — QR code generator
+- `qr-scanner` — QR code scanner
+- `random-number-generator` — Random number generator
+- `random-password-generator` — Random password generator
+- `regex-tester` — Regex tester
+- `rsa-key-generator` — RSA key generator
+- `salt-generator` — Random salt generator
+- `screen-ruler` — Screen ruler
+- `seal-extractor` — Smart seal extractor
+- `sql-formatter` — SQL formatter
+- `svg-converter` — SVG to image
+- `text-diff` — Text diff
+- `timer` — Multi-purpose timer
+- `timestamp-converter` — Timestamp converter
+- `timezone-converter` — Timezone converter
+- `unit-converter` — Unit converter
+- `url-encoder` — URL encoder/decoder
+- `url-parser` — URL parser
+- `uuid-generator` — UUID generator
+- `video-player` — Web video player
+- `video-to-gif` — Video to GIF
+- `video-trimmer` — Video trimmer
+- `websocket-tester` — WebSocket tester
+- `word-compressor` — Word compressor
+- `word-counter` — Word counter
+- `xmind-viewer` — XMind viewer
+- `xml-json-converter` — XML to JSON
 
 </details>
 
 ---
 
-## 快速开始
+## Getting Started
 
-### 环境要求
+### Requirements
 
-- Node.js **20+**（CI 使用 Node 22）
-- 推荐使用 **Yarn 1.x**（仓库提供 `yarn.lock`）
+- Node.js **20+** (CI uses Node 22)
+- **Yarn 1.x** recommended (the repo ships a `yarn.lock`)
 
-### 本地开发
+### Local development
 
 ```bash
 yarn install --frozen-lockfile
 yarn dev
 ```
 
-打开 `http://localhost:3000`。
+Open `http://localhost:3000`.
 
-> 首次 `dev/build` 会自动生成工具导航数据与 PWA 资源（见 `scripts/`）。
+> The first `dev/build` automatically generates tool navigation data and PWA assets (see `scripts/`).
 
 ---
 
-## 开发与构建
+## Development & Build
 
-### 常用命令
+### Common commands
 
-- `yarn dev`：本地开发（Next Dev）
-- `yarn build`：生产构建（CI 使用 `next build --webpack`）
-- `yarn build:turbo`：生产构建（`next build`，用于对比/调试）
-- `yarn lint`：ESLint
-- `yarn generate:manifests`：生成 `public/tools/<slug>/manifest.webmanifest` 与导航数据
-- `yarn generate:sw`：生成 `public/sw.js`
-- `yarn scaffold:tool <slug>`：交互式创建新工具骨架（`tool.json` / `tool.en-us.json` / `page.tsx` / `*Client.tsx`）
-- `yarn check:tools`：检查所有工具目录配置完整性（缺失文件、必填字段、SEO 元数据调用等）
+- `yarn dev`: local development (Next Dev)
+- `yarn build`: production build (CI uses `next build --webpack`)
+- `yarn build:turbo`: production build (`next build`, for comparison/debugging)
+- `yarn lint`: ESLint
+- `yarn generate:manifests`: generate `public/tools/<slug>/manifest.webmanifest` and navigation data
+- `yarn generate:sw`: generate `public/sw.js`
+- `yarn scaffold:tool <slug>`: interactively scaffold a new tool (`tool.json` / `tool.en-us.json` / `page.tsx` / `*Client.tsx`)
+- `yarn check:tools`: verify tool directory config completeness (missing files, required fields, SEO metadata calls, etc.)
 
-### 可选：启用 Microsoft Clarity
+### Optional: enable Microsoft Clarity
 
-如果需要启用站点行为分析，在构建前设置环境变量：
+To enable site behavior analytics, set the environment variable before building:
 
 ```bash
 NEXT_PUBLIC_CLARITY_ID=your-clarity-project-id
 ```
 
-当前接入策略为默认 no-consent mode：站点会预加载 Clarity，但在用户未授权前始终以 `analytics_Storage=denied`、`ad_Storage=denied` 运行，仅采集无 Cookie 的匿名页面级使用数据。用户在页脚“统计设置”中同意后，才升级为可跨页关联的完整分析模式；工具页主交互区默认额外遮罩，避免会话回放直接暴露用户在工具中的原始内容。
+The current integration strategy is consent-mode by default: the site preloads Clarity but always runs with `analytics_Storage=denied` and `ad_Storage=denied` until the user consents, collecting only cookieless, anonymous page-level usage data. Once the user opts in via the "Analytics settings" in the footer, it upgrades to the full analysis mode with cross-page correlation. The main interaction area of tool pages is additionally masked by default to prevent session replays from exposing users' raw content in the tools.
 
-### 开发调试
+### Development tips
 
-1. **渐进式开发**：先实现基础功能，再添加高级特性
-2. **频繁测试**：每次修改后及时测试功能是否正常
-3. **代码审查**：提交前检查代码质量和类型安全
-4. **性能监控**：定期检查页面加载速度和资源使用
-5. **多语言测试**：确保中英双语环境下功能正常
-
----
-
-## 项目结构（核心约定）
-
-- `src/app/tools/<slug>/`：每个工具一个目录（路由：`/<locale>/tools/<slug>`）
-  - `tool.json`：工具配置（名称/描述/关键词/SEO 文本等）
-  - `tool.en-us.json`：英文 UI 配置文件（含 `ui` 字段）
-  - `page.tsx`：App Router 页面，导出 `dynamic = "force-static"` 与 `metadata`
-  - `*Client.tsx`：客户端组件，使用统一布局 `ToolPageLayout`
-- `src/lib/`：工具配置、SEO 生成等通用逻辑
-- `src/components/ToolPageLayout.tsx`：统一工具页布局（含 SEO/结构化数据/隐藏 SEO 文本）
-- `src/components/ToolConfigProvider.tsx`：工具配置上下文，支持多语言
-- `scripts/`：
-  - `generate-tool-manifests.mjs`：扫描 `tool.json`，生成工具 manifests、导航数据、tool registry
-  - `generate-sw.mjs`：生成 `public/sw.js`
+1. **Progressive development**: implement the basic feature first, then add advanced capabilities.
+2. **Test frequently**: verify functionality after every change.
+3. **Code review**: check code quality and type safety before committing.
+4. **Performance monitoring**: regularly check page load speed and resource usage.
+5. **Multi-language testing**: make sure everything works in both Chinese and English.
 
 ---
 
-## 新增工具
+## Project Structure (core conventions)
 
-### 推荐流程（脚手架 + 校验）
+- `src/app/tools/<slug>/`: one directory per tool (route: `/<locale>/tools/<slug>`)
+  - `tool.json`: tool config (name/description/keywords/SEO text, etc.)
+  - `tool.en-us.json`: English UI config file (with `ui` fields)
+  - `page.tsx`: App Router page exporting `dynamic = "force-static"` and `metadata`
+  - `*Client.tsx`: client component using the shared `ToolPageLayout`
+- `src/lib/`: shared logic for tool config, SEO generation, etc.
+- `src/components/ToolPageLayout.tsx`: unified tool page layout (SEO/structured data/hidden SEO text)
+- `src/components/ToolConfigProvider.tsx`: tool config context with i18n support
+- `scripts/`:
+  - `generate-tool-manifests.mjs`: scans `tool.json` to generate tool manifests, navigation data, and the tool registry
+  - `generate-sw.mjs`: generates `public/sw.js`
 
-1. 运行脚手架创建基础文件（推荐）：
+---
+
+## Adding a New Tool
+
+### Recommended workflow (scaffold + check)
+
+1. Scaffold the base files (recommended):
 
 ```bash
 yarn scaffold:tool my-tool
 ```
 
-也可以不带参数启动后再输入 slug：
+You can also run it without arguments and enter the slug interactively:
 
 ```bash
 yarn scaffold:tool
 ```
 
-脚本会交互询问以下信息（回车可使用默认值）：
+The script interactively asks for the following (press Enter to accept defaults):
 
-- `slug`：工具目录名，必须是 kebab-case（如 `text-to-speech`）
-- 中文/英文 `shortName`
-- 中文分类 `category`
-- 中文/英文 `name`（用于 SEO 标题）
-- 中文/英文 `description`（用于描述与默认 SEO 文案）
+- `slug`: tool directory name, must be kebab-case (e.g. `text-to-speech`)
+- Chinese/English `shortName`
+- Chinese `category`
+- Chinese/English `name` (used for the SEO title)
+- Chinese/English `description` (used for the description and default SEO copy)
 
-脚本会自动生成：
+The script automatically generates:
 
 - `src/app/tools/<slug>/tool.json`
 - `src/app/tools/<slug>/tool.en-us.json`
 - `src/app/tools/<slug>/page.tsx`
 - `src/app/tools/<slug>/<PascalCase>Client.tsx`
 
-2. 完善业务逻辑与 SEO 文案（尤其 `seoDescription`、`keywords`）。
+2. Fill in the business logic and SEO copy (especially `seoDescription` and `keywords`).
 
-3. 运行配置检查：
+3. Run the config check:
 
 ```bash
 yarn check:tools
 ```
 
-检查结果说明：
+How to read the results:
 
-- 出现 `ERROR`：命令会以非 0 退出码结束（CI 会失败），必须修复。
-- 仅有 `WARN`：命令可通过，但建议尽快处理（如缺少 `tool.en-us.json`、`page.tsx` 未声明 `dynamic = "force-static"` 等）。
-- 全部通过会输出类似：
+- `ERROR`: the command exits non-zero (CI fails); these must be fixed.
+- `WARN` only: the command passes, but issues should be addressed soon (e.g. missing `tool.en-us.json`, `page.tsx` missing `dynamic = "force-static"`, etc.).
+- If everything passes, the output looks like:
 
 ```text
-[check-tools] 检查完成。
-工具数量: <N>
-错误总数: 0
-警告总数: 0
+[check-tools] Check completed.
+Tool count: <N>
+Total errors: 0
+Total warnings: 0
 ```
 
-### 1. 创建工具目录和基础文件
+### 1. Create the tool directory and base files
 
 ```bash
 mkdir src/app/tools/my-tool
 ```
 
-### 2. 添加工具配置文件
+### 2. Add the tool config files
 
-**`tool.json`**（工具元数据）：
+**`tool.json`** (tool metadata):
 ```json
 {
-  "name": "免费在线我的工具 - 纯粹工具站",
-  "shortName": "我的工具",
-  "description": "一句话描述这个工具做什么。",
-  "seoDescription": "详细的SEO优化描述，包含关键词、工具优势、使用场景等，200-300字，针对搜索引擎和LLM优化...",
-  "category": "工具分类",
-  "lang": "zh-CN",
+  "name": "Free Online My Tool - ATools",
+  "shortName": "My Tool",
+  "description": "One-sentence description of what this tool does.",
+  "seoDescription": "Detailed SEO-optimized description including keywords, tool benefits, and use cases, 200-300 characters, optimized for search engines and LLMs...",
+  "category": "Tool Category",
+  "lang": "en-US",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["免费工具", "在线工具", "关键词"]
+  "keywords": ["free tool", "online tool", "keyword"]
 }
 ```
 
-**`tool.en-us.json`**（多语言 UI 配置）：
+**`tool.en-us.json`** (English UI config):
 ```json
 {
   "name": "Free Online My Tool - ATools",
@@ -294,9 +295,9 @@ mkdir src/app/tools/my-tool
 }
 ```
 
-### 3. 添加页面组件
+### 3. Add the page component
 
-**`page.tsx`**：
+**`page.tsx`**:
 ```tsx
 import { generateToolMetadata } from "../../../lib/generate-tool-page";
 import MyToolClient from "./MyToolClient";
@@ -309,34 +310,34 @@ export default function Page() {
 }
 ```
 
-### 4. 添加客户端组件
+### 4. Add the client component
 
-**`MyToolClient.tsx`**：
+**`MyToolClient.tsx`**:
 ```tsx
 "use client";
 
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 
-// 中文默认值
+// English defaults
 const DEFAULT_UI = {
-  title: "我的工具",
-  inputLabel: "输入",
-  outputLabel: "输出",
-  processButton: "处理",
-  clearButton: "清空",
-  inputPlaceholder: "请输入内容...",
-  outputPlaceholder: "处理结果会显示在这里...",
-  errorMessage: "错误：{message}",
-  successMessage: "处理完成！"
+  title: "My Tool",
+  inputLabel: "Input",
+  outputLabel: "Output",
+  processButton: "Process",
+  clearButton: "Clear",
+  inputPlaceholder: "Enter your input here...",
+  outputPlaceholder: "Results will appear here...",
+  errorMessage: "Error: {message}",
+  successMessage: "Processing completed successfully!"
 } as const;
 
-// 类型安全的文案配置
+// Type-safe UI copy config
 type MyToolUi = typeof DEFAULT_UI;
 
 export default function MyToolClient() {
   const config = useOptionalToolConfig("my-tool");
-  // 配置合并，英文优先，中文回退
+  // Config merge: English takes priority, falls back to defaults
   const ui: MyToolUi = {
     ...DEFAULT_UI,
     ...((config?.ui ?? {}) as Partial<MyToolUi>)
@@ -384,26 +385,24 @@ export default function MyToolClient() {
 }
 ```
 
-
 ---
 
-## 贡献指南
+## Contributing
 
-### 核心原则
+### Core principles
 
-- **PR 规范**：PR 尽量小而专注，每个 PR 专注一个功能或修复
-- **纯前端**：保持工具纯前端运行（不引入后端依赖）；不上传用户文件。
-- **多语言支持**：所有工具必须实现完整的多语言支持（基于 `tool.en-us.json` 的 `ui` 字段）。
-- **UI/UX 一致性**：优先保持一致的布局与可访问性
+- **PR guidelines**: keep PRs small and focused; one feature or fix per PR.
+- **Pure frontend**: keep tools running purely in the browser (no backend dependencies); never upload user files.
+- **Multi-language support**: all tools must provide complete i18n support (via the `ui` fields in `tool.en-us.json`).
+- **UI/UX consistency**: prioritize consistent layout and accessibility.
 
+### Code standards
 
-### 代码规范
+- **Type safety**: all TypeScript code must pass strict type checking.
+- **Test verification**: make sure everything works in both languages.
+- **Conventions**: follow the `src/app/tools/<slug>/` directory conventions and unified code patterns.
 
-- **类型安全**：所有 TypeScript 代码必须严格类型检查通过
-- **测试验证**：确保多语言环境下功能正常工作
-- **统一规范**：遵循 `src/app/tools/<slug>/` 目录约定和统一的代码模式。
-
-更多细节见：
+See also:
 
 - `CONTRIBUTING.md`
 - `CODE_OF_CONDUCT.md`
