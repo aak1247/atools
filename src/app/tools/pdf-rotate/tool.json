@@ -18,7 +18,9 @@
   "ui": {
     "hint": "旋转 PDF 页面，全程本地处理，不上传文件。",
     "pick": "选择 PDF",
+    "replace": "点击替换 PDF",
     "clear": "清空",
+    "dropReplaceHint": "支持拖拽新 PDF 到此区域直接替换。",
     "pageUnit": "页",
     "scope": "页面范围",
     "all": "全部页面",

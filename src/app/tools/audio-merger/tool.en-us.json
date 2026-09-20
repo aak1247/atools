@@ -8,6 +8,8 @@
   "ui": {
     "pickTitle": "Select multiple audio files",
     "addFiles": "Add files",
+    "replaceFiles": "Replace all files",
+    "dropReplaceHint": "Supports click and drag-and-drop upload; dragging files here will replace the existing list.",
     "probeDurations": "Read durations",
     "orderTitle": "Merge order",
     "totalDurationUnknown": "Durations not loaded",

@@ -212,7 +212,7 @@ export default function PdfRotateClient() {
                 onClick={openFilePicker}
                 className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
               >
-                {pdf ? "点击替换 PDF" : ui.pick}
+                {pdf ? ui.replace : ui.pick}
               </button>
               <button
                 type="button"
@@ -228,7 +228,7 @@ export default function PdfRotateClient() {
                 className="hidden"
                 onChange={handleFileChange}
               />
-              <div className="w-full text-[11px] text-slate-500">支持拖拽新 PDF 到此区域直接替换。</div>
+              <div className="w-full text-[11px] text-slate-500">{ui.dropReplaceHint}</div>
             </div>
 
             {pdf ? (
@@ -341,7 +341,9 @@ export default function PdfRotateClient() {
 type Ui = {
   hint: string;
   pick: string;
+  replace: string;
   clear: string;
+  dropReplaceHint: string;
   pageUnit: string;
   scope: string;
   all: string;
@@ -365,7 +367,9 @@ type Ui = {
 const DEFAULT_UI: Ui = {
   hint: "旋转 PDF 页面，全程本地处理，不上传文件。",
   pick: "选择 PDF",
+  replace: "点击替换 PDF",
   clear: "清空",
+  dropReplaceHint: "支持拖拽新 PDF 到此区域直接替换。",
   pageUnit: "页",
   scope: "页面范围",
   all: "全部页面",

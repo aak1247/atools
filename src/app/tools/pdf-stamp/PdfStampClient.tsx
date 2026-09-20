@@ -1,6 +1,7 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import type { ChangeEvent, DragEvent, FC } from "react";
 import { useEffect, useRef, useState } from "react";
 import { PDFDocument, degrees } from "pdf-lib";
@@ -87,9 +88,9 @@ type PdfViewportInfo = {
 
 let pdfjsPromise: Promise<PdfJsLib> | null = null;
 
-async function loadPdfJs(): Promise<PdfJsLib> {
+async function loadPdfJs(errMsgs?: { browserOnly?: string; loadFailed?: string; scriptFailed?: string }): Promise<PdfJsLib> {
   if (typeof window === "undefined") {
-    throw new Error("PDF 预览仅在浏览器环境中可用");
+    throw new Error(errMsgs?.browserOnly ?? "PDF 预览仅在浏览器环境中可用");
   }
 
   const existingLib = getPdfJsLibFromWindow();
@@ -99,7 +100,6 @@ async function loadPdfJs(): Promise<PdfJsLib> {
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_URL;
     }
     if (typeof pdfjsLib.disableWorker !== "undefined") {
-      // 在部分环境下跨域加载 worker 可能失败，这里强制使用 fake worker（主线程执行）
       pdfjsLib.disableWorker = true;
     }
     return pdfjsLib;
@@ -138,10 +138,10 @@ async function loadPdfJs(): Promise<PdfJsLib> {
           }
           resolve(pdfjsLib);
         } else {
-          reject(new Error("pdf.js 加载失败"));
+          reject(new Error(errMsgs?.loadFailed ?? "pdf.js 加载失败"));
         }
       };
-      script.onerror = () => reject(new Error("pdf.js 脚本加载失败"));
+      script.onerror = () => reject(new Error(errMsgs?.scriptFailed ?? "pdf.js 脚本加载失败"));
       document.body.appendChild(script);
     });
   }
@@ -149,7 +149,59 @@ async function loadPdfJs(): Promise<PdfJsLib> {
   return pdfjsPromise;
 }
 
-const PdfStampClient: FC = () => {
+const DEFAULT_UI = {
+  title: "PDF 盖章工具",
+  descriptionPrefix: "纯前端安全处理，拖拽式盖章体验。",
+  descriptionSuffix: "支持透明印章、自由缩放旋转，所见即所得。",
+  step1: "步骤 1",
+  step2: "步骤 2",
+  step3: "步骤 3",
+  step4: "步骤 4",
+  uploadPdf: "上传 PDF 文件",
+  replacePdf: "更换 PDF 文件",
+  pdfDropHint: "支持拖拽上传/替换 PDF",
+  pageCountSuffix: "页",
+  selectStamp: "选择印章图片",
+  replaceStamp: "更换印章",
+  stampDropHint: "建议使用透明 PNG，支持拖拽上传/替换",
+  addStamp: "添加印章",
+  clearStamps: "清除本页印章",
+  downloadFile: "下载文件",
+  exportPdf: "导出 PDF",
+  exporting: "处理中...",
+  rendering: "正在渲染页面...",
+  uploadPrompt: "请先上传 PDF 文件开始操作",
+  stampGuide: "可拖拽、缩放、旋转印章",
+  waitingUpload: "等待文件上传",
+  errBrowserOnly: "PDF 预览仅在浏览器环境中可用",
+  errPdfJsLoad: "pdf.js 加载失败",
+  errPdfJsScript: "pdf.js 脚本加载失败",
+  errCanvasContext: "无法创建 PDF 预览画布上下文",
+  errRenderFailed: "PDF 页面渲染失败，请稍后重试",
+  errSelectPdf: "请选择 PDF 文件",
+  errParsePdf: "PDF 文件解析失败，请确认文件是否正常",
+  errStampImageOnly: "印章文件需为图片格式，推荐使用透明 PNG",
+  errUploadPdfFirst: "请先上传并加载 PDF 文件",
+  errSelectStampFirst: "请先选择印章图片（建议透明 PNG）",
+  errStampLoadFailed: "印章图片加载失败，请重试或更换图片文件",
+  errPreviewFirst: "请先上传 PDF 并完成预览渲染",
+  errAddStampToPageFirst: "请先选择印章图片并添加到页面",
+  errNoStampOnCurrentPage: "当前页尚未添加印章，请先拖拽盖章后再导出",
+  errExportFailed: "导出带章 PDF 失败，请稍后重试",
+} as const;
+
+export default function PdfStampClient() {
+  return (
+    <ToolPageLayout toolSlug="pdf-stamp" maxWidthClassName="max-w-[1400px]">
+      <PdfStampInner />
+    </ToolPageLayout>
+  );
+}
+
+const PdfStampInner: FC = () => {
+  const config = useOptionalToolConfig("pdf-stamp");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const [pdfFileName, setPdfFileName] = useState<string | null>(null);
   const [pdfSize, setPdfSize] = useState<number | null>(null);
   const [pageCount, setPageCount] = useState<number>(0);
@@ -206,7 +258,11 @@ const PdfStampClient: FC = () => {
     setError(null);
 
     try {
-      const pdfjsLib = await loadPdfJs();
+      const pdfjsLib = await loadPdfJs({
+        browserOnly: ui.errBrowserOnly,
+        loadFailed: ui.errPdfJsLoad,
+        scriptFailed: ui.errPdfJsScript,
+      });
 
       let pdf = pdfJsDocRef.current;
       if (!pdf) {
@@ -234,7 +290,7 @@ const PdfStampClient: FC = () => {
       offscreenCanvas.height = viewport.height;
       const context = offscreenCanvas.getContext("2d");
       if (!context) {
-        throw new Error("无法创建 PDF 预览画布上下文");
+        throw new Error(ui.errCanvasContext);
       }
 
       const renderTask = page.render({
@@ -275,7 +331,7 @@ const PdfStampClient: FC = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "PDF 页面渲染失败，请稍后重试",
+          : ui.errRenderFailed,
       );
     } finally {
       setIsRendering(false);
@@ -286,7 +342,7 @@ const PdfStampClient: FC = () => {
     if (!file) return;
 
     if (file.type !== "application/pdf") {
-      setError("请选择 PDF 文件");
+      setError(ui.errSelectPdf);
       return;
     }
 
@@ -301,7 +357,11 @@ const PdfStampClient: FC = () => {
       const buffer = await file.arrayBuffer();
       const bytes = new Uint8Array(buffer);
 
-      const pdfjsLib = await loadPdfJs();
+      const pdfjsLib = await loadPdfJs({
+        browserOnly: ui.errBrowserOnly,
+        loadFailed: ui.errPdfJsLoad,
+        scriptFailed: ui.errPdfJsScript,
+      });
       const loadingTask = pdfjsLib.getDocument({ data: bytes });
       const pdf = await loadingTask.promise;
 
@@ -321,7 +381,7 @@ const PdfStampClient: FC = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "PDF 文件解析失败，请确认文件是否正常",
+          : ui.errParsePdf,
       );
     }
   };
@@ -355,7 +415,7 @@ const PdfStampClient: FC = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("印章文件需为图片格式，推荐使用透明 PNG");
+      setError(ui.errStampImageOnly);
       return;
     }
 
@@ -401,12 +461,12 @@ const PdfStampClient: FC = () => {
   const handleAddStamp = async () => {
     const fabricCanvas = fabricCanvasRef.current;
     if (!fabricCanvas) {
-      setError("请先上传并加载 PDF 文件");
+      setError(ui.errUploadPdfFirst);
       return;
     }
 
     if (!stampPreviewUrl || !stampImageBytesRef.current) {
-      setError("请先选择印章图片（建议透明 PNG）");
+      setError(ui.errSelectStampFirst);
       return;
     }
 
@@ -447,11 +507,11 @@ const PdfStampClient: FC = () => {
         fabricCanvas.renderAll();
       };
       imageElement.onerror = () => {
-        setError("印章图片加载失败，请重试或更换图片文件");
+        setError(ui.errStampLoadFailed);
       };
       imageElement.src = stampPreviewUrl;
     } catch {
-      setError("印章图片加载失败，请重试或更换图片文件");
+      setError(ui.errStampLoadFailed);
     }
   };
 
@@ -477,12 +537,12 @@ const PdfStampClient: FC = () => {
     const viewport = pdfViewportRef.current;
 
     if (!loadedPdf || !fabricCanvas || !viewport || !pdfFileRef.current) {
-      setError("请先上传 PDF 并完成预览渲染");
+      setError(ui.errPreviewFirst);
       return;
     }
 
     if (!stampImageBytesRef.current) {
-      setError("请先选择印章图片并添加到页面");
+      setError(ui.errAddStampToPageFirst);
       return;
     }
 
@@ -492,7 +552,7 @@ const PdfStampClient: FC = () => {
     );
 
     if (stamps.length === 0) {
-      setError("当前页尚未添加印章，请先拖拽盖章后再导出");
+      setError(ui.errNoStampOnCurrentPage);
       return;
     }
 
@@ -556,7 +616,7 @@ const PdfStampClient: FC = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "导出带章 PDF 失败，请稍后重试",
+          : ui.errExportFailed,
       );
     } finally {
       setIsExporting(false);
@@ -583,16 +643,15 @@ const PdfStampClient: FC = () => {
   );
 
   return (
-    <ToolPageLayout toolSlug="pdf-stamp" maxWidthClassName="max-w-[1400px]">
-      <div className="space-y-8">
+    <div className="space-y-8">
       {/* Header Section */}
       <div className="text-center mb-8">
         <h2 className="text-4xl font-bold tracking-tight text-slate-900 mb-3 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-          PDF 盖章工具
+          {ui.title}
         </h2>
         <p className="text-slate-500 max-w-2xl mx-auto text-sm leading-relaxed">
-          纯前端安全处理，拖拽式盖章体验。
-          <span className="hidden sm:inline">支持透明印章、自由缩放旋转，所见即所得。</span>
+          {ui.descriptionPrefix}
+          <span className="hidden sm:inline">{ui.descriptionSuffix}</span>
         </p>
       </div>
 
@@ -618,7 +677,7 @@ const PdfStampClient: FC = () => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">步骤 1</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{ui.step1}</span>
                 {pdfFileName && <CheckCircle2 size={14} className="text-emerald-500" />}
               </div>
               <div className="flex items-center gap-2">
@@ -626,15 +685,15 @@ const PdfStampClient: FC = () => {
                   onClick={() => pdfInputRef.current?.click()}
                   className="text-sm font-semibold text-slate-900 hover:text-blue-600 transition-colors truncate text-left"
                 >
-                  {pdfFileName ? "更换 PDF 文件" : "上传 PDF 文件"}
+                  {pdfFileName ? ui.replacePdf : ui.uploadPdf}
                 </button>
               </div>
               {pdfFileName && (
                 <div className="text-[10px] text-slate-500 truncate">
-                  {formatSize(pdfSize)} • {pageCount} 页
+                  {formatSize(pdfSize)} • {pageCount} {ui.pageCountSuffix}
                 </div>
               )}
-              <div className="text-[10px] text-slate-500 truncate">支持拖拽上传/替换 PDF</div>
+              <div className="text-[10px] text-slate-500 truncate">{ui.pdfDropHint}</div>
             </div>
             <input
               ref={pdfInputRef}
@@ -670,17 +729,17 @@ const PdfStampClient: FC = () => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">步骤 2</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{ui.step2}</span>
                 {stampPreviewUrl && <CheckCircle2 size={14} className="text-emerald-500" />}
               </div>
               <button
                 onClick={() => stampInputRef.current?.click()}
                 className="text-sm font-semibold text-slate-900 hover:text-rose-600 transition-colors truncate text-left w-full"
               >
-                {stampPreviewUrl ? "更换印章" : "选择印章图片"}
+                {stampPreviewUrl ? ui.replaceStamp : ui.selectStamp}
               </button>
               <div className="text-[10px] text-slate-500 truncate">
-                建议使用透明 PNG，支持拖拽上传/替换
+                {ui.stampDropHint}
               </div>
             </div>
             <input
@@ -701,7 +760,7 @@ const PdfStampClient: FC = () => {
             </div>
             <div className="flex-1 min-w-0">
                <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">步骤 3</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{ui.step3}</span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -709,12 +768,12 @@ const PdfStampClient: FC = () => {
                   className="flex-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm shadow-emerald-200 transition hover:bg-emerald-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!pdfFileName || !stampPreviewUrl}
                 >
-                  添加印章
+                  {ui.addStamp}
                 </button>
                 <button
                   onClick={handleClearStamps}
                   className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-slate-500 transition hover:bg-slate-50 hover:text-rose-600 active:scale-95 disabled:opacity-50"
-                  title="清除本页印章"
+                  title={ui.clearStamps}
                   disabled={!fabricCanvasRef.current}
                 >
                   <Trash2 size={14} />
@@ -732,7 +791,7 @@ const PdfStampClient: FC = () => {
             </div>
             <div className="flex-1 min-w-0">
                <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">步骤 4</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{ui.step4}</span>
               </div>
               {downloadUrl ? (
                 <a
@@ -741,7 +800,7 @@ const PdfStampClient: FC = () => {
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-slate-800 active:scale-95"
                 >
                   <Download size={14} />
-                  下载文件
+                  {ui.downloadFile}
                 </a>
               ) : (
                 <button
@@ -749,7 +808,7 @@ const PdfStampClient: FC = () => {
                   className="w-full rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-slate-800 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isExporting || !loadedPdfRef.current}
                 >
-                  {isExporting ? "处理中..." : "导出 PDF"}
+                  {isExporting ? ui.exporting : ui.exportPdf}
                 </button>
               )}
             </div>
@@ -794,7 +853,7 @@ const PdfStampClient: FC = () => {
           {isRendering && (
             <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm">
               <div className="h-10 w-10 animate-spin rounded-full border-3 border-slate-200 border-t-slate-900 mb-3" />
-              <span className="text-sm font-medium text-slate-600">正在渲染页面...</span>
+              <span className="text-sm font-medium text-slate-600">{ui.rendering}</span>
             </div>
           )}
           
@@ -803,7 +862,7 @@ const PdfStampClient: FC = () => {
               <div className="h-20 w-20 rounded-3xl bg-slate-100 border-2 border-dashed border-slate-200 flex items-center justify-center">
                 <FileText size={32} className="opacity-50" />
               </div>
-              <p className="text-sm">请先上传 PDF 文件开始操作</p>
+              <p className="text-sm">{ui.uploadPrompt}</p>
             </div>
           )}
 
@@ -815,13 +874,10 @@ const PdfStampClient: FC = () => {
         {/* Bottom Info */}
         <div className="absolute bottom-4 right-4 z-20">
            <div className="rounded-full bg-white/80 backdrop-blur px-3 py-1 text-[10px] font-medium text-slate-500 shadow-sm border border-white/50">
-              {loadedPdfRef.current ? "可拖拽、缩放、旋转印章" : "等待文件上传"}
+              {loadedPdfRef.current ? ui.stampGuide : ui.waitingUpload}
            </div>
         </div>
       </div>
     </div>
-    </ToolPageLayout>
-    );
+  );
 };
-
-export default PdfStampClient;

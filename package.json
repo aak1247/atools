@@ -13,6 +13,7 @@
     "start": "next start -p 3100",
     "preview:out": "node scripts/generate-sw.mjs && node scripts/sync-public-assets-to-out.mjs && node scripts/remove-non-locale-tools-out.mjs && node scripts/fix-export-rsc-flat-files.mjs && cd out && npx --yes serve -l 3200 . -c ../serve.out.json",
     "lint": "eslint",
+    "test": "node --test tests/*.test.mjs",
     "check:tools": "node scripts/check-tools-config.mjs",
     "scaffold:tool": "node scripts/scaffold-tool.mjs",
     "deploy:qiniu": "node scripts/deploy-qiniu.mjs",

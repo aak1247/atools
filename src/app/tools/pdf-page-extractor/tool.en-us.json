@@ -9,6 +9,8 @@
   "ui": {
     "hint": "Extract selected pages from a PDF locally (no uploads).",
     "pick": "Select PDF",
+    "replace": "Click to Replace PDF",
+    "dropReplaceHint": "Drag & drop a new PDF here to replace directly.",
     "clear": "Clear",
     "pageUnit": "pages",
     "mode": "Mode",

@@ -3,6 +3,29 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+
+const DEFAULT_UI = {
+  pickImage: "选择图片",
+  replaceImage: "点击替换图片",
+  clear: "清空",
+  dropHint: "支持拖拽新图片到此区域直接替换",
+  extract: "提取配色",
+  extracting: "提取中…",
+  imagePreview: "图片预览",
+  params: "参数",
+  colorCount: "颜色数量",
+  sampleSize: "采样边长（px）",
+  ignoreWhite: "忽略近白背景",
+  ignoreBlack: "忽略近黑背景",
+  paletteResult: "配色结果",
+  copyCssVars: "复制 CSS 变量",
+  noPaletteHint: "点击“提取配色”后显示结果。",
+  copyHexTitle: "点击复制 HEX",
+  errNoPixels: "未采样到有效像素（可尝试取消忽略白/黑背景）。",
+  errExtractFailed: "提取失败",
+  canvasUnavailable: "Canvas 不可用",
+} as const;
 
 type Rgb = { r: number; g: number; b: number };
 
@@ -79,6 +102,9 @@ export default function ColorPaletteFromImageClient() {
 }
 
 function ColorPaletteFromImageInner() {
+  const config = useOptionalToolConfig("color-palette-from-image");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -148,7 +174,7 @@ function ColorPaletteFromImageInner() {
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext("2d", { willReadFrequently: true } as CanvasRenderingContext2DSettings);
-      if (!ctx) throw new Error("Canvas unavailable");
+      if (!ctx) throw new Error(ui.canvasUnavailable);
       ctx.drawImage(bitmap, 0, 0, w, h);
       const img = ctx.getImageData(0, 0, w, h);
       const pts: Rgb[] = [];
@@ -166,7 +192,7 @@ function ColorPaletteFromImageInner() {
         }
       }
 
-      if (pts.length === 0) throw new Error("未采样到有效像素（可尝试取消忽略白/黑背景）。");
+      if (pts.length === 0) throw new Error(ui.errNoPixels);
 
       const result = kmeans(pts.filter((_, idx) => idx % stride === 0), count, 10);
       const total = result.reduce((acc, r) => acc + r.count, 0) || 1;
@@ -175,7 +201,7 @@ function ColorPaletteFromImageInner() {
         .map((r) => ({ hex: rgbToHex(r.color), ratio: r.count / total }));
       setPalette(out);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "提取失败");
+      setError(e instanceof Error ? e.message : ui.errExtractFailed);
     } finally {
       setIsWorking(false);
     }
@@ -220,14 +246,14 @@ function ColorPaletteFromImageInner() {
               onClick={openFilePicker}
               className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              {file ? "点击替换图片" : "选择图片"}
+              {file ? ui.replaceImage : ui.pickImage}
             </button>
             <button
               type="button"
               onClick={clear}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
             >
-              清空
+              {ui.clear}
             </button>
             {file && (
               <div className="text-sm text-slate-700">
@@ -237,7 +263,7 @@ function ColorPaletteFromImageInner() {
             )}
           </div>
           <div className="w-full text-[11px] text-slate-500">
-            支持拖拽新图片到此区域直接替换
+            {ui.dropHint}
           </div>
 
           <button
@@ -246,7 +272,7 @@ function ColorPaletteFromImageInner() {
             disabled={!file || isWorking}
             className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
           >
-            {isWorking ? "提取中…" : "提取配色"}
+            {isWorking ? ui.extracting : ui.extract}
           </button>
         </div>
 
@@ -259,7 +285,7 @@ function ColorPaletteFromImageInner() {
         {file && (
           <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">图片预览</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.imagePreview}</div>
               <div className="mt-4 overflow-hidden rounded-2xl bg-slate-50 ring-1 ring-slate-200">
                 {imageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -270,10 +296,10 @@ function ColorPaletteFromImageInner() {
 
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">参数</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.params}</div>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <label className="block text-sm text-slate-700">
-                    颜色数量
+                    {ui.colorCount}
                     <input
                       type="number"
                       min={2}
@@ -285,7 +311,7 @@ function ColorPaletteFromImageInner() {
                     />
                   </label>
                   <label className="block text-sm text-slate-700">
-                    采样边长（px）
+                    {ui.sampleSize}
                     <input
                       type="number"
                       min={64}
@@ -305,7 +331,7 @@ function ColorPaletteFromImageInner() {
                       onChange={(e) => setIgnoreWhite(e.target.checked)}
                       className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
-                    忽略近白背景
+                    {ui.ignoreWhite}
                   </label>
                   <label className="flex items-center gap-2">
                     <input
@@ -314,28 +340,28 @@ function ColorPaletteFromImageInner() {
                       onChange={(e) => setIgnoreBlack(e.target.checked)}
                       className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
-                    忽略近黑背景
+                    {ui.ignoreBlack}
                   </label>
                 </div>
               </div>
 
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="text-sm font-semibold text-slate-900">配色结果</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.paletteResult}</div>
                   {palette.length > 0 && (
                     <button
                       type="button"
                       onClick={() => void copy(cssVars)}
                       className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
                     >
-                      复制 CSS 变量
+                      {ui.copyCssVars}
                     </button>
                   )}
                 </div>
 
                 {palette.length === 0 ? (
                   <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
-                    点击“提取配色”后显示结果。
+                    {ui.noPaletteHint}
                   </div>
                 ) : (
                   <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -345,7 +371,7 @@ function ColorPaletteFromImageInner() {
                         type="button"
                         onClick={() => void copy(p.hex)}
                         className="group overflow-hidden rounded-2xl ring-1 ring-slate-200 transition hover:shadow-md"
-                        title="点击复制 HEX"
+                        title={ui.copyHexTitle}
                       >
                         <div className="h-14 w-full" style={{ background: p.hex }} />
                         <div className="bg-white px-3 py-2 text-center font-mono text-xs text-slate-800">{p.hex}</div>

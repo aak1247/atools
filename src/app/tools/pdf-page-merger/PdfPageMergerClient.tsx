@@ -4,6 +4,7 @@ import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PDFDocument } from "pdf-lib";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Scope = "all" | "custom";
 
@@ -64,7 +65,45 @@ const parsePagesInput = (input: string, pageCount: number): number[] => {
 
 const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
+const DEFAULT_UI = {
+  hint: "合并多个 PDF 并调整顺序，可为每个文件设置页码范围，全程本地处理不上传。",
+  pick: "选择多个 PDF",
+  add: "追加 PDF",
+  replace: "点击替换全部",
+  clear: "清空",
+  dropReplaceHint: "支持拖拽新 PDF 到此区域直接替换全部已选文件。",
+  files: "文件列表",
+  fileUnit: "个文件",
+  pageUnit: "页",
+  moveUp: "上移",
+  moveDown: "下移",
+  remove: "移除",
+  scope: "页码范围",
+  all: "全部",
+  custom: "指定页码",
+  pagesPlaceholder: "例如：1-3,5,10-",
+  start: "开始合并",
+  working: "处理中…",
+  result: "输出结果",
+  download: "下载合并后的 PDF",
+  noOutput: "暂无输出。",
+  errNeedTwoFiles: "请至少选择 2 个 PDF 文件。",
+  errParseFailed: "PDF 解析失败。",
+  errMergeFailed: "合并失败。",
+} as const;
+
 export default function PdfPageMergerClient() {
+  return (
+    <ToolPageLayout toolSlug="pdf-page-merger" maxWidthClassName="max-w-5xl">
+      <PdfPageMergerInner />
+    </ToolPageLayout>
+  );
+}
+
+function PdfPageMergerInner() {
+  const config = useOptionalToolConfig("pdf-page-merger");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const pickerModeRef = useRef<"append" | "replace">("append");
   const [items, setItems] = useState<LoadedPdf[]>([]);
@@ -113,7 +152,7 @@ export default function PdfPageMergerClient() {
           pagesInput: "1-",
         });
       } catch (e) {
-        setError(e instanceof Error ? e.message : DEFAULT_UI.errParseFailed);
+        setError(e instanceof Error ? e.message : ui.errParseFailed);
       }
     }
 
@@ -170,7 +209,7 @@ export default function PdfPageMergerClient() {
   const updateItem = (id: string, patch: Partial<LoadedPdf>) =>
     setItems((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
 
-  const run = async (ui: Ui) => {
+  const run = async () => {
     if (items.length < 2) {
       setError(ui.errNeedTwoFiles);
       return;
@@ -211,225 +250,164 @@ export default function PdfPageMergerClient() {
   const totalPages = useMemo(() => items.reduce((sum, x) => sum + x.pageCount, 0), [items]);
 
   return (
-    <ToolPageLayout toolSlug="pdf-page-merger" maxWidthClassName="max-w-5xl">
-      {({ config }) => {
-        const ui: Ui = { ...DEFAULT_UI, ...((config.ui ?? {}) as Partial<Ui>) };
-        return (
-          <div className="w-full px-4">
-            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">{ui.hint}</div>
+    <div className="w-full px-4">
+      <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">{ui.hint}</div>
 
-            <div
-              className={`mt-5 flex flex-wrap items-center gap-2 rounded-2xl border-2 border-dashed p-4 transition ${
-                isDragging
-                  ? "border-slate-400 bg-slate-50/60"
-                  : "border-slate-200 bg-slate-50/80"
-              }`}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-            >
-              <button
-                type="button"
-                onClick={() => openFilePicker("append")}
-                className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-              >
-                {items.length > 0 ? ui.add : ui.pick}
-              </button>
-              {items.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => openFilePicker("replace")}
-                  className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                >
-                  {ui.replace}
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={resetAll}
-                className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                {ui.clear}
-              </button>
-              <input
-                ref={inputRef}
-                type="file"
-                accept="application/pdf,.pdf"
-                multiple
-                className="hidden"
-                onChange={onFiles}
-              />
-              <div className="w-full text-[11px] text-slate-500">{ui.dropReplaceHint}</div>
-            </div>
+      <div
+        className={`mt-5 flex flex-wrap items-center gap-2 rounded-2xl border-2 border-dashed p-4 transition ${
+          isDragging
+            ? "border-slate-400 bg-slate-50/60"
+            : "border-slate-200 bg-slate-50/80"
+        }`}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
+        <button
+          type="button"
+          onClick={() => openFilePicker("append")}
+          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+        >
+          {items.length > 0 ? ui.add : ui.pick}
+        </button>
+        {items.length > 0 && (
+          <button
+            type="button"
+            onClick={() => openFilePicker("replace")}
+            className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            {ui.replace}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={resetAll}
+          className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          {ui.clear}
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="application/pdf,.pdf"
+          multiple
+          className="hidden"
+          onChange={onFiles}
+        />
+        <div className="w-full text-[11px] text-slate-500">{ui.dropReplaceHint}</div>
+      </div>
 
-            {items.length ? (
-              <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-xs font-medium text-slate-700">
-                  {ui.files} · {items.length} {ui.fileUnit} · {totalPages} {ui.pageUnit}
-                </div>
-                <div className="mt-3 grid gap-3">
-                  {items.map((item, idx) => (
-                    <div key={item.id} className="rounded-lg bg-slate-50 p-3 ring-1 ring-slate-200">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <div className="truncate text-sm font-medium text-slate-900" title={item.name}>
-                            {idx + 1}. {item.name}
-                          </div>
-                          <div className="text-xs text-slate-500">
-                            {formatSize(item.size)} · {item.pageCount} {ui.pageUnit}
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => move(item.id, -1)}
-                            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                          >
-                            {ui.moveUp}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => move(item.id, 1)}
-                            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                          >
-                            {ui.moveDown}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => remove(item.id)}
-                            className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50"
-                          >
-                            {ui.remove}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,160px)_minmax(0,1fr)]">
-                        <div className="text-xs font-medium text-slate-700">{ui.scope}</div>
-                        <div className="flex flex-wrap items-center gap-3 text-sm">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name={`scope-${item.id}`}
-                              checked={item.scope === "all"}
-                              onChange={() => updateItem(item.id, { scope: "all" })}
-                            />
-                            <span>{ui.all}</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name={`scope-${item.id}`}
-                              checked={item.scope === "custom"}
-                              onChange={() => updateItem(item.id, { scope: "custom" })}
-                            />
-                            <span>{ui.custom}</span>
-                          </label>
-                          {item.scope === "custom" ? (
-                            <input
-                              value={item.pagesInput}
-                              onChange={(e) => updateItem(item.id, { pagesInput: e.target.value })}
-                              placeholder={ui.pagesPlaceholder}
-                              className="min-w-[220px] flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
-                            />
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
-                <button
-                  type="button"
-                  onClick={() => void run(ui)}
-                  disabled={isWorking || items.length < 2}
-                  className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isWorking ? ui.working : ui.start}
-                </button>
-                {error ? (
-                  <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
-                ) : null}
-              </div>
-
-              <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-xs font-medium text-slate-700">{ui.result}</div>
-                <div className="flex flex-wrap gap-2">
-                  {downloadUrl ? (
-                    <a
-                      href={downloadUrl}
-                      download={downloadName || "merged.pdf"}
-                      className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
-                    >
-                      {ui.download}
-                    </a>
-                  ) : (
-                    <div className="text-sm text-slate-500">{ui.noOutput}</div>
-                  )}
-                </div>
-              </div>
-            </div>
+      {items.length ? (
+        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+          <div className="text-xs font-medium text-slate-700">
+            {ui.files} · {items.length} {ui.fileUnit} · {totalPages} {ui.pageUnit}
           </div>
-        );
-      }}
-    </ToolPageLayout>
+          <div className="mt-3 grid gap-3">
+            {items.map((item, idx) => (
+              <div key={item.id} className="rounded-lg bg-slate-50 p-3 ring-1 ring-slate-200">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-slate-900" title={item.name}>
+                      {idx + 1}. {item.name}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {formatSize(item.size)} · {item.pageCount} {ui.pageUnit}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => move(item.id, -1)}
+                      className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      {ui.moveUp}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => move(item.id, 1)}
+                      className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      {ui.moveDown}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => remove(item.id)}
+                      className="rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50"
+                    >
+                      {ui.remove}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,160px)_minmax(0,1fr)]">
+                  <div className="text-xs font-medium text-slate-700">{ui.scope}</div>
+                  <div className="flex flex-wrap items-center gap-3 text-sm">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name={`scope-${item.id}`}
+                        checked={item.scope === "all"}
+                        onChange={() => updateItem(item.id, { scope: "all" })}
+                      />
+                      <span>{ui.all}</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name={`scope-${item.id}`}
+                        checked={item.scope === "custom"}
+                        onChange={() => updateItem(item.id, { scope: "custom" })}
+                      />
+                      <span>{ui.custom}</span>
+                    </label>
+                    {item.scope === "custom" ? (
+                      <input
+                        value={item.pagesInput}
+                        onChange={(e) => updateItem(item.id, { pagesInput: e.target.value })}
+                        placeholder={ui.pagesPlaceholder}
+                        className="min-w-[220px] flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
+                      />
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
+          <button
+            type="button"
+            onClick={() => void run()}
+            disabled={isWorking || items.length < 2}
+            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isWorking ? ui.working : ui.start}
+          </button>
+          {error ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+          ) : null}
+        </div>
+
+        <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
+          <div className="text-xs font-medium text-slate-700">{ui.result}</div>
+          <div className="flex flex-wrap gap-2">
+            {downloadUrl ? (
+              <a
+                href={downloadUrl}
+                download={downloadName || "merged.pdf"}
+                className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+              >
+                {ui.download}
+              </a>
+            ) : (
+              <div className="text-sm text-slate-500">{ui.noOutput}</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
-
-type Ui = {
-  hint: string;
-  pick: string;
-  add: string;
-  replace: string;
-  clear: string;
-  dropReplaceHint: string;
-  files: string;
-  fileUnit: string;
-  pageUnit: string;
-  moveUp: string;
-  moveDown: string;
-  remove: string;
-  scope: string;
-  all: string;
-  custom: string;
-  pagesPlaceholder: string;
-  start: string;
-  working: string;
-  result: string;
-  download: string;
-  noOutput: string;
-  errNeedTwoFiles: string;
-  errParseFailed: string;
-  errMergeFailed: string;
-};
-
-const DEFAULT_UI: Ui = {
-  hint: "合并多个 PDF 并调整顺序，可为每个文件设置页码范围，全程本地处理不上传。",
-  pick: "选择多个 PDF",
-  add: "追加 PDF",
-  replace: "点击替换全部",
-  clear: "清空",
-  dropReplaceHint: "支持拖拽新 PDF 到此区域直接替换全部已选文件。",
-  files: "文件列表",
-  fileUnit: "个文件",
-  pageUnit: "页",
-  moveUp: "上移",
-  moveDown: "下移",
-  remove: "移除",
-  scope: "页码范围",
-  all: "全部",
-  custom: "指定页码",
-  pagesPlaceholder: "例如：1-3,5,10-",
-  start: "开始合并",
-  working: "处理中…",
-  result: "输出结果",
-  download: "下载合并后的 PDF",
-  noOutput: "暂无输出。",
-  errNeedTwoFiles: "请至少选择 2 个 PDF 文件。",
-  errParseFailed: "PDF 解析失败。",
-  errMergeFailed: "合并失败。",
-};

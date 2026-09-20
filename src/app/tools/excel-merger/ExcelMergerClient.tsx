@@ -21,6 +21,7 @@ type Ui = {
   working: string;
   start: string;
   errPickExcel: string;
+  errMergeFailed: string;
   note: string;
 };
 
@@ -40,6 +41,7 @@ const DEFAULT_UI: Ui = {
   working: "处理中…",
   start: "开始合并",
   errPickExcel: "请选择 .xlsx/.xls 文件。",
+  errMergeFailed: "合并失败。",
   note: "提示：复杂格式与跨表公式可能无法完整保持；建议合并后自检。",
 };
 
@@ -198,7 +200,7 @@ function Inner({ ui }: { ui: Ui }) {
       setDownloadUrl(url);
       setDownloadName("merged.xlsx");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Merge failed");
+      setError(e instanceof Error ? e.message : ui.errMergeFailed);
     } finally {
       setIsWorking(false);
     }

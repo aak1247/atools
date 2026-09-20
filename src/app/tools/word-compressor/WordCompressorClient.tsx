@@ -34,9 +34,12 @@ const formatBytes = (bytes: number): string => {
 type Strategy = "balanced" | "aggressive" | "repackOnly";
 
 const DEFAULT_UI = {
+  headerTitle: "Word 文档智能压缩",
+  clear: "清空",
   pickFile: "选择 Word 文档 (.docx)",
   replaceFile: "替换文档",
   dropHint: "拖拽 .docx 文件到此处，或点击按钮上传。",
+  fileSelectedPrefix: "已选择：",
   compressModeTitle: "压缩策略",
   modeBalanced: "智能深度压缩（推荐）",
   modeBalancedDesc: "自动优化文档内的高清插图（保留清晰度），并使用最高级别重新打包，大幅减小体积。",
@@ -46,23 +49,35 @@ const DEFAULT_UI = {
   modeRepackOnlyDesc: "仅重新打包 ZIP 容器，不修改任何图片资源。",
   runCompress: "开始压缩文档",
   working: "正在优化压缩中…",
-  originalSize: "原始体积：",
-  compressedSize: "压缩后体积：",
-  reduction: "体积变化：",
-  imagesFound: "检测到内嵌图片：",
-  imagesOptimized: "成功优化图片：",
-  download: "下载压缩后的 Word 文档",
+  optimizingProgress: "正在优化第 {current}/{total} 张图片: {filename}",
   tipTitle: "说明与提示",
   tips: [
     "Word 文档（.docx）中 90% 以上的体积通常来源于插入的高清照片、插图和截屏；",
     "本工具纯前端在本地解包，针对文档内置多媒体图片进行智能有损/无损重采样压缩，同时保持文档内容和排版完全不变；",
     "全程在浏览器本地离线完成，绝不会上传文档至服务器，安全可靠。",
   ],
+  resultTitle: "压缩结果与导出",
+  successTitle: "压缩成功！",
+  originalSize: "原始体积：",
+  compressedSize: "压缩后体积：",
+  reduction: "体积变化：",
+  imageOptimizationLabel: "内嵌图片优化",
+  imageOptimizationStats: "共 {total} 张，成功优化 {count} 张",
+  download: "下载压缩后的 Word 文档",
+  emptyResultHint: "点击“开始压缩文档”即可获取优化后的 Word 文档",
   errNotDocx: "请上传以 .docx 结尾的 Word 文档",
   errFailed: "压缩失败，请确认该文档为未受损坏的有效 .docx 文件",
 } as const;
 
 export default function WordCompressorClient() {
+  return (
+    <ToolPageLayout toolSlug="word-compressor" maxWidthClassName="max-w-6xl">
+      <WordCompressorInner />
+    </ToolPageLayout>
+  );
+}
+
+function WordCompressorInner() {
   const config = useOptionalToolConfig("word-compressor");
   const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
 
@@ -167,7 +182,12 @@ export default function WordCompressorClient() {
         imageQuality: strategy === "repackOnly" ? 1.0 : quality,
         maxImageDimension: strategy === "repackOnly" ? 99999 : maxDim,
         onProgress: ({ current, total, filename }) => {
-          setProgressStatus(`正在优化第 ${current}/${total} 张图片: ${filename}`);
+          setProgressStatus(
+            ui.optimizingProgress
+              .replace("{current}", current.toString())
+              .replace("{total}", total.toString())
+              .replace("{filename}", filename),
+          );
         },
       });
 
@@ -191,28 +211,27 @@ export default function WordCompressorClient() {
   };
 
   return (
-    <ToolPageLayout toolSlug="word-compressor" maxWidthClassName="max-w-6xl">
-      <div className="w-full px-4">
-        <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-          {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
-            <div className="flex items-center gap-2">
-              <div className="rounded-2xl bg-blue-100 p-2 text-blue-600">
-                <FileText className="h-5 w-5" />
-              </div>
-              <h1 className="text-lg font-bold text-slate-900">Word 文档智能压缩</h1>
+    <div className="w-full px-4">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
+          <div className="flex items-center gap-2">
+            <div className="rounded-2xl bg-blue-100 p-2 text-blue-600">
+              <FileText className="h-5 w-5" />
             </div>
-            {file && (
-              <button
-                type="button"
-                onClick={clear}
-                className="flex items-center gap-1.5 rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
-              >
-                <Trash2 className="h-4 w-4" />
-                清空
-              </button>
-            )}
+            <h1 className="text-lg font-bold text-slate-900">{ui.headerTitle}</h1>
           </div>
+          {file && (
+            <button
+              type="button"
+              onClick={clear}
+              className="flex items-center gap-1.5 rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+            >
+              <Trash2 className="h-4 w-4" />
+              {ui.clear}
+            </button>
+          )}
+        </div>
 
           {/* Dropzone */}
           <div
@@ -244,7 +263,7 @@ export default function WordCompressorClient() {
                 <FileText className="h-8 w-8" />
               </div>
               <p className="mt-3 text-sm font-medium text-slate-800">
-                {file ? `已选择：${file.name} (${formatBytes(file.size)})` : ui.dropHint}
+                {file ? `${ui.fileSelectedPrefix}${file.name} (${formatBytes(file.size)})` : ui.dropHint}
               </p>
               <div className="mt-4">
                 <button
@@ -361,19 +380,19 @@ export default function WordCompressorClient() {
               {/* Right Column: Output */}
               <div className="space-y-4 lg:col-span-6">
                 <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-                  <div className="text-sm font-semibold text-slate-900">压缩结果与导出</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.resultTitle}</div>
 
-                  {outputSize != null && downloadUrl ? (
-                    <div className="space-y-4">
-                      <div className="rounded-2xl bg-emerald-50 p-4 text-xs text-emerald-900 ring-1 ring-emerald-200 flex items-start gap-2.5">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                        <div>
-                          <div className="font-semibold text-sm">压缩成功！</div>
-                          <div className="mt-1 text-slate-600 leading-relaxed">
-                            {ui.reduction} <span className="font-semibold text-emerald-700">{reductionText}</span>
-                          </div>
+                {outputSize != null && downloadUrl ? (
+                  <div className="space-y-4">
+                    <div className="rounded-2xl bg-emerald-50 p-4 text-xs text-emerald-900 ring-1 ring-emerald-200 flex items-start gap-2.5">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="font-semibold text-sm">{ui.successTitle}</div>
+                        <div className="mt-1 text-slate-600 leading-relaxed">
+                          {ui.reduction} <span className="font-semibold text-emerald-700">{reductionText}</span>
                         </div>
                       </div>
+                    </div>
 
                       <div className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-slate-50 text-xs">
                         <div className="flex justify-between p-3">
@@ -390,10 +409,12 @@ export default function WordCompressorClient() {
                           <div className="flex justify-between p-3">
                             <span className="text-slate-500 flex items-center gap-1">
                               <ImageIcon className="h-3.5 w-3.5 text-slate-400" />
-                              内嵌图片优化
+                              {ui.imageOptimizationLabel}
                             </span>
                             <span className="text-slate-700">
-                              共 {stats.imageCount} 张，成功优化 {stats.compressedImageCount} 张
+                              {ui.imageOptimizationStats
+                                .replace("{total}", stats.imageCount.toString())
+                                .replace("{count}", stats.compressedImageCount.toString())}
                             </span>
                           </div>
                         )}
@@ -411,7 +432,7 @@ export default function WordCompressorClient() {
                   ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-center text-slate-400">
                       <FileText className="h-10 w-10 stroke-1" />
-                      <p className="mt-3 text-xs">点击“开始压缩文档”即可获取优化后的 Word 文档</p>
+                      <p className="mt-3 text-xs">{ui.emptyResultHint}</p>
                     </div>
                   )}
                 </div>
@@ -420,6 +441,5 @@ export default function WordCompressorClient() {
           )}
         </div>
       </div>
-    </ToolPageLayout>
   );
 }

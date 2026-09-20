@@ -18,7 +18,10 @@
   "ui": {
     "hint": "合并多个 PDF 并调整顺序，可为每个文件设置页码范围，全程本地处理不上传。",
     "pick": "选择多个 PDF",
+    "add": "追加 PDF",
+    "replace": "点击替换全部",
     "clear": "清空",
+    "dropReplaceHint": "支持拖拽新 PDF 到此区域直接替换全部已选文件。",
     "files": "文件列表",
     "fileUnit": "个文件",
     "pageUnit": "页",

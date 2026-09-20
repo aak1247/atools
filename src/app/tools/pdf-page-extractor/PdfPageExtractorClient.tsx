@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { zipSync } from "fflate";
 import { PDFDocument } from "pdf-lib";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Mode = "single" | "per-page";
 type LoadedPdf = { name: string; size: number; bytes: Uint8Array; pageCount: number };
@@ -59,7 +60,41 @@ const padPage = (page: number, totalPages: number) => {
   return String(page).padStart(width, "0");
 };
 
+const DEFAULT_UI = {
+  hint: "提取 PDF 指定页面，全程本地处理，不上传文件。",
+  pick: "选择 PDF",
+  replace: "点击替换 PDF",
+  dropReplaceHint: "支持拖拽新 PDF 到此区域直接替换。",
+  clear: "清空",
+  pageUnit: "页",
+  mode: "模式",
+  single: "提取为一个新 PDF",
+  perPage: "每页单独导出（ZIP）",
+  pages: "页码",
+  pagesPlaceholder: "例如：1-3,5,10-",
+  start: "开始提取",
+  working: "处理中…",
+  result: "输出结果",
+  downloadPdf: "下载 PDF",
+  downloadZip: "下载 ZIP",
+  noOutput: "暂无输出。",
+  errParseFailed: "PDF 解析失败。",
+  errNoValidPages: "未选择有效页码。",
+  errExtractFailed: "提取失败。",
+} as const;
+
 export default function PdfPageExtractorClient() {
+  return (
+    <ToolPageLayout toolSlug="pdf-page-extractor" maxWidthClassName="max-w-5xl">
+      <PdfPageExtractorInner />
+    </ToolPageLayout>
+  );
+}
+
+function PdfPageExtractorInner() {
+  const config = useOptionalToolConfig("pdf-page-extractor");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [pdf, setPdf] = useState<LoadedPdf | null>(null);
   const [pagesInput, setPagesInput] = useState("1-");
@@ -98,6 +133,7 @@ export default function PdfPageExtractorClient() {
 
   const loadPdfFile = async (file: File) => {
     if (!file) return;
+
     setError(null);
     cleanupUrls();
     setDownloadUrl(null);
@@ -110,7 +146,7 @@ export default function PdfPageExtractorClient() {
       setPagesInput("1-");
     } catch (e) {
       setPdf(null);
-      setError(e instanceof Error ? e.message : DEFAULT_UI.errParseFailed);
+      setError(e instanceof Error ? e.message : ui.errParseFailed);
     }
   };
 
@@ -144,7 +180,7 @@ export default function PdfPageExtractorClient() {
     setIsDragging(false);
   };
 
-  const run = async (ui: Ui) => {
+  const run = async () => {
     if (!pdf) return;
     setIsWorking(true);
     setError(null);
@@ -196,168 +232,119 @@ export default function PdfPageExtractorClient() {
   };
 
   return (
-    <ToolPageLayout toolSlug="pdf-page-extractor" maxWidthClassName="max-w-5xl">
-      {({ config }) => {
-        const ui: Ui = { ...DEFAULT_UI, ...((config.ui ?? {}) as Partial<Ui>) };
-        return (
-          <div className="w-full px-4">
-            <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">{ui.hint}</div>
+    <div className="w-full px-4">
+      <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">{ui.hint}</div>
 
-            <div
-              className={`mt-5 flex flex-wrap items-center gap-2 rounded-2xl border-2 border-dashed p-4 transition ${
-                isDragging
-                  ? "border-slate-400 bg-slate-50/60"
-                  : "border-slate-200 bg-slate-50/80"
-              }`}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-            >
-              <button
-                type="button"
-                onClick={openFilePicker}
-                className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
-              >
-                {pdf ? "点击替换 PDF" : ui.pick}
-              </button>
-              <button
-                type="button"
-                onClick={resetAll}
-                className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                {ui.clear}
-              </button>
-              <input
-                ref={inputRef}
-                type="file"
-                accept="application/pdf,.pdf"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <div className="w-full text-[11px] text-slate-500">支持拖拽新 PDF 到此区域直接替换。</div>
-            </div>
+      <div
+        className={`mt-5 flex flex-wrap items-center gap-2 rounded-2xl border-2 border-dashed p-4 transition ${
+          isDragging
+            ? "border-slate-400 bg-slate-50/60"
+            : "border-slate-200 bg-slate-50/80"
+        }`}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
+        <button
+          type="button"
+          onClick={openFilePicker}
+          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+        >
+          {pdf ? ui.replace : ui.pick}
+        </button>
+        <button
+          type="button"
+          onClick={resetAll}
+          className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          {ui.clear}
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="application/pdf,.pdf"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <div className="w-full text-[11px] text-slate-500">{ui.dropReplaceHint}</div>
+      </div>
 
-            {pdf ? (
-              <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-sm font-medium text-slate-900">{pdf.name}</div>
-                <div className="text-xs text-slate-500">
-                  {formatSize(pdf.size)} · {pdf.pageCount} {ui.pageUnit}
-                </div>
-              </div>
-            ) : null}
+      {pdf ? (
+        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+          <div className="text-sm font-medium text-slate-900">{pdf.name}</div>
+          <div className="text-xs text-slate-500">
+            {formatSize(pdf.size)} · {pdf.pageCount} {ui.pageUnit}
+          </div>
+        </div>
+      ) : null}
 
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
-                <div className="grid gap-2">
-                  <div className="text-xs font-medium text-slate-700">{ui.mode}</div>
-                  <div className="flex flex-wrap gap-3 text-sm">
-                    <label className="flex items-center gap-2">
-                      <input type="radio" name="mode" checked={mode === "single"} onChange={() => setMode("single")} />
-                      <span>{ui.single}</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input type="radio" name="mode" checked={mode === "per-page"} onChange={() => setMode("per-page")} />
-                      <span>{ui.perPage}</span>
-                    </label>
-                  </div>
-                </div>
-
-                <label className="grid gap-1">
-                  <span className="text-xs text-slate-600">{ui.pages}</span>
-                  <input
-                    value={pagesInput}
-                    onChange={(e) => setPagesInput(e.target.value)}
-                    placeholder={ui.pagesPlaceholder}
-                    className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
-                  />
-                </label>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void run(ui)}
-                    disabled={!pdf || isWorking}
-                    className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {isWorking ? ui.working : ui.start}
-                  </button>
-                </div>
-
-                {error ? (
-                  <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
-                ) : null}
-              </div>
-
-              <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-xs font-medium text-slate-700">{ui.result}</div>
-                <div className="flex flex-wrap gap-2">
-                  {downloadUrl ? (
-                    <a
-                      href={downloadUrl}
-                      download={downloadName || "extracted.pdf"}
-                      className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
-                    >
-                      {ui.downloadPdf}
-                    </a>
-                  ) : null}
-                  {zipUrl ? (
-                    <a
-                      href={zipUrl}
-                      download={zipName || "pages.zip"}
-                      className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
-                    >
-                      {ui.downloadZip}
-                    </a>
-                  ) : null}
-                  {!downloadUrl && !zipUrl ? <div className="text-sm text-slate-500">{ui.noOutput}</div> : null}
-                </div>
-              </div>
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
+          <div className="grid gap-2">
+            <div className="text-xs font-medium text-slate-700">{ui.mode}</div>
+            <div className="flex flex-wrap gap-3 text-sm">
+              <label className="flex items-center gap-2">
+                <input type="radio" name="mode" checked={mode === "single"} onChange={() => setMode("single")} />
+                <span>{ui.single}</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="radio" name="mode" checked={mode === "per-page"} onChange={() => setMode("per-page")} />
+                <span>{ui.perPage}</span>
+              </label>
             </div>
           </div>
-        );
-      }}
-    </ToolPageLayout>
+
+          <label className="grid gap-1">
+            <span className="text-xs text-slate-600">{ui.pages}</span>
+            <input
+              value={pagesInput}
+              onChange={(e) => setPagesInput(e.target.value)}
+              placeholder={ui.pagesPlaceholder}
+              className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
+            />
+          </label>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void run()}
+              disabled={!pdf || isWorking}
+              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isWorking ? ui.working : ui.start}
+            </button>
+          </div>
+
+          {error ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+          ) : null}
+        </div>
+
+        <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4">
+          <div className="text-xs font-medium text-slate-700">{ui.result}</div>
+          <div className="flex flex-wrap gap-2">
+            {downloadUrl ? (
+              <a
+                href={downloadUrl}
+                download={downloadName || "extracted.pdf"}
+                className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+              >
+                {ui.downloadPdf}
+              </a>
+            ) : null}
+            {zipUrl ? (
+              <a
+                href={zipUrl}
+                download={zipName || "pages.zip"}
+                className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+              >
+                {ui.downloadZip}
+              </a>
+            ) : null}
+            {!downloadUrl && !zipUrl ? <div className="text-sm text-slate-500">{ui.noOutput}</div> : null}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
-
-type Ui = {
-  hint: string;
-  pick: string;
-  clear: string;
-  pageUnit: string;
-  mode: string;
-  single: string;
-  perPage: string;
-  pages: string;
-  pagesPlaceholder: string;
-  start: string;
-  working: string;
-  result: string;
-  downloadPdf: string;
-  downloadZip: string;
-  noOutput: string;
-  errParseFailed: string;
-  errNoValidPages: string;
-  errExtractFailed: string;
-};
-
-const DEFAULT_UI: Ui = {
-  hint: "提取 PDF 指定页面，全程本地处理，不上传文件。",
-  pick: "选择 PDF",
-  clear: "清空",
-  pageUnit: "页",
-  mode: "模式",
-  single: "提取为一个新 PDF",
-  perPage: "每页单独导出（ZIP）",
-  pages: "页码",
-  pagesPlaceholder: "例如：1-3,5,10-",
-  start: "开始提取",
-  working: "处理中…",
-  result: "输出结果",
-  downloadPdf: "下载 PDF",
-  downloadZip: "下载 ZIP",
-  noOutput: "暂无输出。",
-  errParseFailed: "PDF 解析失败。",
-  errNoValidPages: "未选择有效页码。",
-  errExtractFailed: "提取失败。",
-};

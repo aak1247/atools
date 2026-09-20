@@ -11,7 +11,9 @@
   "keywords": ["PDF TOC", "TOC generator", "PDF table of contents", "report TOC", "local processing"],
   "ui": {
     "selectPdf": "Select PDF",
+    "replacePdf": "Replace PDF",
     "clear": "Clear",
+    "dropReplaceHint": "Drag & drop a new PDF here to replace",
     "pageCount": "Pages: ",
     "generating": "Generating...",
     "generateTocPage": "Generate PDF with TOC",
@@ -46,6 +48,12 @@
     "buildError": "Generation failed",
     "defaultOutline": "1\tCover\n2\tPreface\n5\tChapter 1 Title\n",
     "defaultTitle": "Table of Contents",
-    "defaultTocText": "Table of Contents"
+    "defaultTocText": "Table of Contents",
+    "fontSansChinese": "System Sans-serif (Hei)",
+    "fontSerifChinese": "System Serif (Song)",
+    "fontSans": "Sans-serif",
+    "fontMono": "Monospace",
+    "errCanvasContext": "Unable to create canvas context in the current browser.",
+    "errCanvasExport": "Unable to export TOC page image in the current browser."
   }
 }

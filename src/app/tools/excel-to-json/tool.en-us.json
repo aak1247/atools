@@ -1,16 +1,38 @@
 {
-  "name": "Free Online Excel to JSON - ATools",
+  "name": "Free Online Excel to JSON Converter - Pure Tools",
   "shortName": "Excel to JSON",
-  "description": "Free online Excel to JSON. Runs locally in your browser with zero uploads for privacy and speed.",
-  "seoDescription": "The ultimate free online Excel to JSON — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Excel to JSON on any device, this is the one you bookmark and share.",
+  "description": "Convert Excel (.xlsx) to JSON: select sheets and export as JSON objects or 2D matrix arrays. Runs locally in your browser.",
+  "seoDescription": "Free online Excel to JSON converter. Upload .xlsx files, select worksheets, and export tabular data to JSON (array of objects or 2D array). Supports using the first row as headers, skipping empty rows, and custom null handling. Runs 100% locally in your browser with zero file uploads.",
   "category": "Data Tools",
   "lang": "en-US",
   "keywords": [
-    "free online Excel to JSON",
-    "Excel to JSON tool",
-    "Excel to JSON web app",
-    "excel-to-json",
-    "ATools",
-    "Pure Tools"
-  ]
+    "excel to json",
+    "xlsx to json",
+    "spreadsheet export",
+    "data processing",
+    "local converter"
+  ],
+  "ui": {
+    "pickFile": "Select .xlsx",
+    "replaceFile": "Replace .xlsx",
+    "copyJson": "Copy JSON",
+    "downloadJson": "Download {name}",
+    "dropHint": "Click to upload or drag & drop an XLSX file here. Dragging replaces the current file.",
+    "optionsTitle": "Options",
+    "sheetLabel": "Worksheet",
+    "outputModeLabel": "Output Mode",
+    "modeObjects": "Array of Objects (Recommended)",
+    "modeMatrix": "2D Array (Matrix)",
+    "firstRowHeader": "Use first row as headers / field names",
+    "skipEmptyRows": "Skip empty rows",
+    "emptyAsNull": "Output empty values as null",
+    "indentLabel": "Indentation",
+    "outputTitle": "JSON Output",
+    "errorPrefix": "Error: ",
+    "outputPlaceholder": "Converted JSON will appear here...",
+    "formulaTip": "Note: Formula cells will be exported as their calculated cached values if available.",
+    "errParseFailed": "Failed to parse Excel file.",
+    "errSheetNotFound": "Worksheet not found.",
+    "errConvertFailed": "Conversion failed."
+  }
 }

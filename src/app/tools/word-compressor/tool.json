@@ -17,6 +17,41 @@
     "本地处理",
     "安全无损"
   ],
+  "ui": {
+    "headerTitle": "Word 文档智能压缩",
+    "clear": "清空",
+    "pickFile": "选择 Word 文档 (.docx)",
+    "replaceFile": "替换文档",
+    "dropHint": "拖拽 .docx 文件到此处，或点击按钮上传。",
+    "fileSelectedPrefix": "已选择：",
+    "compressModeTitle": "压缩策略",
+    "modeBalanced": "智能深度压缩（推荐）",
+    "modeBalancedDesc": "自动优化文档内的高清插图（保留清晰度），并使用最高级别重新打包，大幅减小体积。",
+    "modeAggressive": "强力极致压缩",
+    "modeAggressiveDesc": "较大力度压缩内嵌图片，适合仅需日常传阅或邮件发送的超大文档。",
+    "modeRepackOnly": "仅重打包容器",
+    "modeRepackOnlyDesc": "仅重新打包 ZIP 容器，不修改任何图片资源。",
+    "runCompress": "开始压缩文档",
+    "working": "正在优化压缩中…",
+    "optimizingProgress": "正在优化第 {current}/{total} 张图片: {filename}",
+    "tipTitle": "说明与提示",
+    "tips": [
+      "Word 文档（.docx）中 90% 以上的体积通常来源于插入的高清照片、插图和截屏；",
+      "本工具纯前端在本地解包，针对文档内置多媒体图片进行智能有损/无损重采样压缩，同时保持文档内容和排版完全不变；",
+      "全程在浏览器本地离线完成，绝不会上传文档至服务器，安全可靠。"
+    ],
+    "resultTitle": "压缩结果与导出",
+    "successTitle": "压缩成功！",
+    "originalSize": "原始体积：",
+    "compressedSize": "压缩后体积：",
+    "reduction": "体积变化：",
+    "imageOptimizationLabel": "内嵌图片优化",
+    "imageOptimizationStats": "共 {total} 张，成功优化 {count} 张",
+    "download": "下载压缩后的 Word 文档",
+    "emptyResultHint": "点击“开始压缩文档”即可获取优化后的 Word 文档",
+    "errNotDocx": "请上传以 .docx 结尾的 Word 文档",
+    "errFailed": "压缩失败，请确认该文档为未受损坏的有效 .docx 文件"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

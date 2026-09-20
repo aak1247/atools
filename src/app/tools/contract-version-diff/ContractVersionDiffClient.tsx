@@ -106,7 +106,11 @@ type UploadNotice = { tone: "info" | "error"; text: string };
 const DEFAULT_UI = {
   ignoreTrailingWhitespace: "忽略行尾空白",
   uploadBaseText: "上传基准文本",
+  replaceBaseText: "替换基准文本",
+  dropBaseHint: "支持点击或拖拽替换基准文本。",
   batchUploadVersions: "批量上传版本",
+  replaceVersionList: "替换版本列表",
+  dropVersionsHint: "支持点击或拖拽上传版本；拖拽会替换当前版本列表。",
   addVersion: "添加版本",
   baseContract: "基准合同（Base）",
   versionList: "版本列表",
@@ -373,9 +377,9 @@ function ContractVersionDiffInner() {
                 onClick={() => baseFileRef.current?.click()}
                 className="w-full rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
               >
-                {baseFileName ? "替换基准文本" : ui.uploadBaseText}
+                {baseFileName ? ui.replaceBaseText : ui.uploadBaseText}
               </button>
-              <div className="mt-1 text-[11px] text-slate-500">支持点击或拖拽替换基准文本。</div>
+              <div className="mt-1 text-[11px] text-slate-500">{ui.dropBaseHint}</div>
             </div>
             <div
               className={`rounded-2xl border-2 border-dashed p-2 transition ${
@@ -399,7 +403,7 @@ function ContractVersionDiffInner() {
                     onClick={() => openVersionsPicker("replace")}
                     className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50"
                   >
-                    替换版本列表
+                    {ui.replaceVersionList}
                   </button>
                 )}
                 <button
@@ -410,7 +414,7 @@ function ContractVersionDiffInner() {
                   {ui.addVersion}
                 </button>
               </div>
-              <div className="mt-1 text-[11px] text-slate-500">支持点击或拖拽上传版本；拖拽会替换当前版本列表。</div>
+              <div className="mt-1 text-[11px] text-slate-500">{ui.dropVersionsHint}</div>
             </div>
           </div>
         </div>

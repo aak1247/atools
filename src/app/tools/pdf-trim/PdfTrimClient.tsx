@@ -1,6 +1,7 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { PDFDocument } from "pdf-lib";
@@ -20,7 +21,45 @@ const formatSize = (bytes: number | null): string => {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
 
-const PdfTrimClient: FC = () => {
+const DEFAULT_UI = {
+  title: "PDF 剪切工具",
+  description: "上传一个 PDF，勾选需要删除的页面，浏览器会在本地生成删除这些页面后的新 PDF，适合合同隐私页删除、说明书裁剪等场景。",
+  step1Title: "第一步：选择要剪切的 PDF",
+  step1Hint: "支持常见 A4 文档，建议文件大小不超过 50MB。支持拖拽新 PDF 到此区域直接替换。",
+  pick: "选择 PDF 文件",
+  replace: "点击替换 PDF",
+  clear: "清空",
+  pageUnit: "页",
+  step2Title: "第二步：选择要删除的页面",
+  step2Hint: "点击下方页码即可勾选要删除的页；再次点击可取消选择。",
+  selectAll: "全选所有页面",
+  clearSelection: "清空选择",
+  pagePrefix: "第",
+  pageSuffix: "页",
+  selectedPrefix: "当前已选择",
+  selectedSuffix: "页，将从原 PDF 中删除。",
+  previewNote: "提示：不会修改原文件，只会生成一个新的已删除所选页面的 PDF 供下载。",
+  trimming: "剪切中...",
+  startTrim: "生成剪切后的 PDF",
+  successHint: "已生成剪切后的 PDF，可点击右侧按钮下载到本地。",
+  download: "下载剪切后的 PDF",
+  bottomTip: "小提示：本工具完全在浏览器本地内存中操作 PDF 文件，不会上传到服务器。若需要复杂的“保留指定页”场景，也可以只勾选不需要的页并删除。",
+  errInvalidPdf: "请选择 PDF 文件（.pdf）",
+  errSizeLimit: "单个 PDF 文件建议不超过 50MB，以免浏览器内存占用过高。",
+  errParseFailed: "PDF 文件解析失败，请确认文件是否正常。",
+  errNoPdf: "请先选择需要剪切的 PDF 文件。",
+  errNoSelectedPages: "请至少选择一页需要删除的页面。",
+  errCannotDeleteAll: "不能删除全部页面，请至少保留一页。",
+  errNoPagesToKeep: "未找到需要保留的页面。",
+  errTrimFailed: "PDF 剪切失败，请稍后重试。",
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
+const PdfTrimInner: FC = () => {
+  const config = useOptionalToolConfig("pdf-trim");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const [pdf, setPdf] = useState<LoadedPdf | null>(null);
   const [selectedPages, setSelectedPages] = useState<Set<number>>(
     () => new Set(),
@@ -28,8 +67,7 @@ const PdfTrimClient: FC = () => {
   const [isTrimming, setIsTrimming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [downloadName, setDownloadName] =
-    useState<string>("trimmed.pdf");
+  const [downloadName, setDownloadName] = useState<string>("trimmed.pdf");
 
   const cleanupDownloadUrl = () => {
     if (downloadUrl) {
@@ -50,10 +88,10 @@ const PdfTrimClient: FC = () => {
     const isPdfType = file.type === "application/pdf";
     const isPdfExt = file.name.toLowerCase().endsWith(".pdf");
     if (!isPdfType && !isPdfExt) {
-      return "请选择 PDF 文件（.pdf）";
+      return ui.errInvalidPdf;
     }
     if (file.size > 50 * 1024 * 1024) {
-      return "单个 PDF 文件建议不超过 50MB，以免浏览器内存占用过高。";
+      return ui.errSizeLimit;
     }
     return null;
   };
@@ -92,7 +130,7 @@ const PdfTrimClient: FC = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "PDF 文件解析失败，请确认文件是否正常。",
+          : ui.errParseFailed,
       );
     }
   };
@@ -133,17 +171,17 @@ const PdfTrimClient: FC = () => {
 
   const handleTrim = async () => {
     if (!pdf) {
-      setError("请先选择需要剪切的 PDF 文件。");
+      setError(ui.errNoPdf);
       return;
     }
 
     if (selectedPages.size === 0) {
-      setError("请至少选择一页需要删除的页面。");
+      setError(ui.errNoSelectedPages);
       return;
     }
 
     if (selectedPages.size >= pdf.pageCount) {
-      setError("不能删除全部页面，请至少保留一页。");
+      setError(ui.errCannotDeleteAll);
       return;
     }
 
@@ -171,7 +209,7 @@ const PdfTrimClient: FC = () => {
       }
 
       if (keepIndices.length === 0) {
-        throw new Error("未找到需要保留的页面。");
+        throw new Error(ui.errNoPagesToKeep);
       }
 
       const trimmedDoc = await PDFDocument.create();
@@ -191,7 +229,7 @@ const PdfTrimClient: FC = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "PDF 剪切失败，请稍后重试。",
+          : ui.errTrimFailed,
       );
     } finally {
       setIsTrimming(false);
@@ -207,15 +245,13 @@ const PdfTrimClient: FC = () => {
   );
 
   return (
-    <ToolPageLayout toolSlug="pdf-trim" maxWidthClassName="max-w-5xl">
-      <div className="space-y-8">
+    <div className="space-y-8">
       <div className="text-center">
         <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-          PDF 剪切工具
+          {ui.title}
         </h2>
         <p className="mt-2 text-slate-500">
-          上传一个 PDF，勾选需要删除的页面，浏览器会在本地生成删除这些页面后的新
-          PDF，适合合同隐私页删除、说明书裁剪等场景。
+          {ui.description}
         </p>
       </div>
 
@@ -232,10 +268,10 @@ const PdfTrimClient: FC = () => {
         >
           <div>
             <h2 className="text-sm font-semibold text-slate-900">
-              第一步：选择要剪切的 PDF
+              {ui.step1Title}
             </h2>
             <p className="mt-1 text-xs text-slate-500">
-              支持常见 A4 文档，建议文件大小不超过 50MB。支持拖拽新 PDF 到此区域直接替换。
+              {ui.step1Hint}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -244,14 +280,14 @@ const PdfTrimClient: FC = () => {
               onClick={openFilePicker}
               className="rounded-lg bg-slate-900 px-4 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-slate-800 active:scale-95"
             >
-              {pdf ? "点击替换 PDF" : "选择 PDF 文件"}
+              {pdf ? ui.replace : ui.pick}
             </button>
             <button
               type="button"
               onClick={resetAll}
               className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 active:scale-95"
             >
-              清空
+              {ui.clear}
             </button>
             <input
               ref={fileInputRef}
@@ -272,7 +308,7 @@ const PdfTrimClient: FC = () => {
               <div className="flex items-center gap-3 whitespace-nowrap">
                 <span>{formatSize(pdf.size)}</span>
                 <span className="text-slate-400">·</span>
-                <span>{pdf.pageCount} 页</span>
+                <span>{pdf.pageCount} {ui.pageUnit}</span>
               </div>
             </div>
           </div>
@@ -284,10 +320,10 @@ const PdfTrimClient: FC = () => {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-sm font-semibold text-slate-900">
-                第二步：选择要删除的页面
+                {ui.step2Title}
               </h2>
               <p className="mt-1 text-xs text-slate-500">
-                点击下方页码即可勾选要删除的页；再次点击可取消选择。
+                {ui.step2Hint}
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs">
@@ -296,14 +332,14 @@ const PdfTrimClient: FC = () => {
                 onClick={selectAllPages}
                 className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-50 active:scale-95"
               >
-                全选所有页面
+                {ui.selectAll}
               </button>
               <button
                 type="button"
                 onClick={clearSelection}
                 className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 transition hover:bg-slate-50 active:scale-95"
               >
-                清空选择
+                {ui.clearSelection}
               </button>
             </div>
           </div>
@@ -313,6 +349,9 @@ const PdfTrimClient: FC = () => {
               {Array.from({ length: pdf.pageCount }, (_, index) => {
                 const pageNumber = index + 1;
                 const isSelected = selectedPages.has(pageNumber);
+                const pageLabel = ui.pagePrefix
+                  ? `${ui.pagePrefix} ${pageNumber} ${ui.pageSuffix}`.trim()
+                  : `${pageNumber} ${ui.pageSuffix}`.trim();
                 return (
                   <button
                     key={pageNumber}
@@ -324,7 +363,7 @@ const PdfTrimClient: FC = () => {
                         : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                     }`}
                   >
-                    第 {pageNumber} 页
+                    {pageLabel}
                   </button>
                 );
               })}
@@ -334,15 +373,14 @@ const PdfTrimClient: FC = () => {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-xs text-slate-600">
             <div>
               <p>
-                当前已选择{" "}
+                {ui.selectedPrefix}{" "}
                 <span className="font-semibold text-rose-600">
                   {selectedPages.size}
                 </span>{" "}
-                页，将从原 PDF 中删除。
+                {ui.selectedSuffix}
               </p>
               <p className="mt-1 text-[11px] text-slate-500">
-                提示：不会修改原文件，只会生成一个新的已删除所选页面的
-                PDF 供下载。
+                {ui.previewNote}
               </p>
             </div>
             <button
@@ -351,21 +389,21 @@ const PdfTrimClient: FC = () => {
               disabled={isTrimming || !pdf}
               className="rounded-lg bg-slate-900 px-4 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-slate-800 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {isTrimming ? "剪切中..." : "生成剪切后的 PDF"}
+              {isTrimming ? ui.trimming : ui.startTrim}
             </button>
           </div>
 
           {downloadUrl && (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-emerald-50/80 px-3 py-2 text-xs">
               <p className="text-emerald-800">
-                已生成剪切后的 PDF，可点击右侧按钮下载到本地。
+                {ui.successHint}
               </p>
               <a
                 href={downloadUrl}
                 download={downloadName}
                 className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-emerald-700 active:scale-95"
               >
-                下载剪切后的 PDF
+                {ui.download}
               </a>
             </div>
           )}
@@ -378,15 +416,21 @@ const PdfTrimClient: FC = () => {
 
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-3 text-[11px] leading-relaxed text-slate-500">
             <p>
-              小提示：本工具完全在浏览器本地内存中操作 PDF
-              文件，不会上传到服务器。若需要复杂的“保留指定页”场景，也可以只勾选不需要的页并删除。
+              {ui.bottomTip}
             </p>
           </div>
         </div>
       )}
     </div>
+  );
+};
+
+const PdfTrimClient: FC = () => {
+  return (
+    <ToolPageLayout toolSlug="pdf-trim" maxWidthClassName="max-w-5xl">
+      <PdfTrimInner />
     </ToolPageLayout>
-    );
+  );
 };
 
 export default PdfTrimClient;

@@ -39,6 +39,8 @@ const DEFAULT_UI = {
   csvOutputPlaceholder: "读取 XLSX 后显示转换结果…",
   errorPrefix: "错误：",
   privacyHint: "提示：所有转换均在浏览器本地完成，不上传任何文件。",
+  currentFilePrefix: " 当前文件：",
+  errPickCsvFile: "请选择 CSV 文件。",
   errReadXlsxFailed: "读取 XLSX 失败",
   errInputCsvRequired: "请先输入 CSV 内容",
   errExportFailed: "导出失败",
@@ -197,7 +199,7 @@ const CsvExcelConverterInner: FC<{ ui: CsvExcelConverterUi }> = ({ ui }) => {
     const isCsvMime = selected.type === "text/csv";
     const isCsvExt = selected.name.toLowerCase().endsWith(".csv");
     if (!isCsvMime && !isCsvExt) {
-      setError("请选择 CSV 文件");
+      setError(ui.errPickCsvFile);
       return;
     }
     setError(null);
@@ -394,7 +396,7 @@ const CsvExcelConverterInner: FC<{ ui: CsvExcelConverterUi }> = ({ ui }) => {
                 </div>
                 <div className="mt-2 text-[11px] text-slate-500">
                   {ui.dropCsvHint}
-                  {csvFileName ? ` 当前文件：${csvFileName}` : ""}
+                  {csvFileName ? `${ui.currentFilePrefix}${csvFileName}` : ""}
                 </div>
               </div>
             </div>

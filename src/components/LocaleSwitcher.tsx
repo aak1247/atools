@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { LOCALE_LABEL, SUPPORTED_LOCALES, type Locale } from "../i18n/locales";
+import { PREFERRED_LOCALE_KEY } from "../i18n/detect-locale";
 import { useI18n } from "../i18n/I18nProvider";
 
 const switchLocaleInPath = (pathname: string, nextLocale: Locale): string => {
@@ -23,9 +24,17 @@ export default function LocaleSwitcher() {
   const nextLocale = useMemo<Locale>(() => (locale === "zh-cn" ? "en-us" : "zh-cn"), [locale]);
   const href = useMemo(() => switchLocaleInPath(pathname, nextLocale), [nextLocale, pathname]);
 
+  const handleLocaleSwitch = () => {
+    try {
+      localStorage.setItem(PREFERRED_LOCALE_KEY, nextLocale);
+      document.cookie = `${PREFERRED_LOCALE_KEY}=${nextLocale};path=/;max-age=31536000;SameSite=Lax`;
+    } catch {}
+  };
+
   return (
     <Link
       href={href}
+      onClick={handleLocaleSwitch}
       className="inline-flex items-center rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-medium text-slate-700 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:bg-slate-50"
       prefetch={false}
       aria-label={`Switch language to ${LOCALE_LABEL[nextLocale]}`}

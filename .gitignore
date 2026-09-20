@@ -65,4 +65,6 @@ docs/features/
 legionmind/
 .claude/
 .serena/
+.zcode/
+.playwright-mcp/
 .archived/

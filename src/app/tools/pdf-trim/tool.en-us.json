@@ -12,5 +12,37 @@
     "pdf-trim",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "PDF Page Trimmer",
+    "description": "Upload a PDF and select pages to delete. Your browser generates a trimmed PDF locally—perfect for removing confidential clauses, blank pages, or redundant sections.",
+    "step1Title": "Step 1: Select a PDF to trim",
+    "step1Hint": "Supports standard PDF documents up to 50MB. Drag & drop a new PDF here to replace.",
+    "pick": "Select PDF File",
+    "replace": "Replace PDF",
+    "clear": "Clear",
+    "pageUnit": "pages",
+    "step2Title": "Step 2: Select pages to remove",
+    "step2Hint": "Click page numbers below to mark them for deletion; click again to deselect.",
+    "selectAll": "Select All Pages",
+    "clearSelection": "Clear Selection",
+    "pagePrefix": "Page",
+    "pageSuffix": "",
+    "selectedPrefix": "Selected",
+    "selectedSuffix": "page(s) to remove from the original PDF.",
+    "previewNote": "Note: Your original file is untouched. A new PDF excluding selected pages will be created for download.",
+    "trimming": "Trimming…",
+    "startTrim": "Generate Trimmed PDF",
+    "successHint": "Trimmed PDF generated successfully! Click download below.",
+    "download": "Download Trimmed PDF",
+    "bottomTip": "Tip: All processing runs entirely in your local browser memory with zero server uploads. To keep specific pages only, mark all unneeded pages for deletion.",
+    "errInvalidPdf": "Please choose a valid PDF file (.pdf).",
+    "errSizeLimit": "Files over 50MB are not recommended to prevent high browser memory usage.",
+    "errParseFailed": "Failed to parse PDF file. Please ensure the file is not corrupted.",
+    "errNoPdf": "Please select a PDF file first.",
+    "errNoSelectedPages": "Please select at least one page to delete.",
+    "errCannotDeleteAll": "Cannot delete all pages. Please keep at least one page.",
+    "errNoPagesToKeep": "No pages remaining to keep.",
+    "errTrimFailed": "Failed to trim PDF. Please try again later."
+  }
 }

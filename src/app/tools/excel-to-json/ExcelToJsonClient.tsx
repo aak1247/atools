@@ -3,9 +3,34 @@
 import type { ChangeEvent, DragEvent } from "react";
 import { useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 
 type OutputMode = "objects" | "matrix";
+
+const DEFAULT_UI = {
+  pickFile: "选择 .xlsx",
+  replaceFile: "替换 .xlsx",
+  copyJson: "复制 JSON",
+  downloadJson: "下载 {name}",
+  dropHint: "支持点击上传与拖拽上传 XLSX，拖拽可直接替换当前文件。",
+  optionsTitle: "选项",
+  sheetLabel: "工作表",
+  outputModeLabel: "输出模式",
+  modeObjects: "数组对象（推荐）",
+  modeMatrix: "二维数组（matrix）",
+  firstRowHeader: "首行作为字段名",
+  skipEmptyRows: "跳过空行",
+  emptyAsNull: "空值输出为 null",
+  indentLabel: "缩进",
+  outputTitle: "JSON 输出",
+  errorPrefix: "错误：",
+  outputPlaceholder: "转换结果会显示在这里…",
+  formulaTip: "提示：含公式的单元格会导出为计算后的值（若有缓存）。",
+  errParseFailed: "解析 Excel 失败。",
+  errSheetNotFound: "未找到工作表。",
+  errConvertFailed: "转换失败。",
+} as const;
 
 const formatBytes = (bytes: number): string => {
   if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
@@ -16,7 +41,7 @@ const formatBytes = (bytes: number): string => {
     value /= 1024;
     index += 1;
   }
-  return `${value.toFixed(index === 0 ? 0 : 2).replace(/\\.00$/, "")} ${units[index]}`;
+  return `${value.toFixed(index === 0 ? 0 : 2).replace(/\.00$/, "")} ${units[index]}`;
 };
 
 const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
@@ -26,6 +51,9 @@ const toArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
 };
 
 export default function ExcelToJsonClient() {
+  const config = useOptionalToolConfig("excel-to-json");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -52,12 +80,12 @@ export default function ExcelToJsonClient() {
       setWorkbook(wb);
       const first = wb.SheetNames[0] ?? "";
       setSheetName(first);
-      const base = selected.name.replace(/\\.[^.]+$/, "") || "data";
+      const base = selected.name.replace(/\.[^.]+$/, "") || "data";
       setDownloadName(`${base}.json`);
     } catch (e) {
       setWorkbook(null);
       setSheetName("");
-      setError(e instanceof Error ? e.message : "解析 Excel 失败。");
+      setError(e instanceof Error ? e.message : ui.errParseFailed);
     }
   };
 
@@ -88,7 +116,7 @@ export default function ExcelToJsonClient() {
   const output = useMemo(() => {
     if (!workbook || !sheetName) return { ok: true as const, text: "", data: null as unknown };
     const sheet = workbook.Sheets[sheetName];
-    if (!sheet) return { ok: false as const, error: "未找到工作表。", text: "", data: null as unknown };
+    if (!sheet) return { ok: false as const, error: ui.errSheetNotFound, text: "", data: null as unknown };
 
     try {
       const defval = emptyAsNull ? null : "";
@@ -130,9 +158,9 @@ export default function ExcelToJsonClient() {
       const text = `${JSON.stringify(items, null, indent)}\n`;
       return { ok: true as const, text, data: items as unknown };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : "转换失败。", text: "", data: null as unknown };
+      return { ok: false as const, error: e instanceof Error ? e.message : ui.errConvertFailed, text: "", data: null as unknown };
     }
-  }, [emptyAsNull, firstRowHeader, indent, outputMode, sheetName, skipEmptyRows, workbook]);
+  }, [emptyAsNull, firstRowHeader, indent, outputMode, sheetName, skipEmptyRows, ui.errConvertFailed, ui.errSheetNotFound, workbook]);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -170,7 +198,7 @@ export default function ExcelToJsonClient() {
               onClick={() => inputRef.current?.click()}
               className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200"
             >
-              {file ? "替换 .xlsx" : "选择 .xlsx"}
+              {file ? ui.replaceFile : ui.pickFile}
             </button>
             <input
               ref={inputRef}
@@ -186,7 +214,7 @@ export default function ExcelToJsonClient() {
                 disabled={!output.ok || !output.text}
                 className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
               >
-                复制 JSON
+                {ui.copyJson}
               </button>
               <button
                 type="button"
@@ -194,12 +222,12 @@ export default function ExcelToJsonClient() {
                 disabled={!output.ok || !output.text}
                 className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800 disabled:opacity-60"
               >
-                下载 {downloadName}
+                {ui.downloadJson.replace("{name}", downloadName)}
               </button>
             </div>
             </div>
             <div className="mt-2 text-[11px] text-slate-500">
-              支持点击上传与拖拽上传 XLSX，拖拽可直接替换当前文件。
+              {ui.dropHint}
             </div>
           </div>
 
@@ -218,10 +246,10 @@ export default function ExcelToJsonClient() {
           {workbook && (
             <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">选项</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.optionsTitle}</div>
                 <div className="mt-4 grid gap-3">
                   <label className="block text-sm text-slate-700">
-                    工作表
+                    {ui.sheetLabel}
                     <select
                       value={sheetName}
                       onChange={(e) => setSheetName(e.target.value)}
@@ -235,14 +263,14 @@ export default function ExcelToJsonClient() {
                     </select>
                   </label>
                   <label className="block text-sm text-slate-700">
-                    输出模式
+                    {ui.outputModeLabel}
                     <select
                       value={outputMode}
                       onChange={(e) => setOutputMode(e.target.value as OutputMode)}
                       className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      <option value="objects">数组对象（推荐）</option>
-                      <option value="matrix">二维数组（matrix）</option>
+                      <option value="objects">{ui.modeObjects}</option>
+                      <option value="matrix">{ui.modeMatrix}</option>
                     </select>
                   </label>
                   <label className="flex items-center gap-2 text-sm text-slate-700">
@@ -253,7 +281,7 @@ export default function ExcelToJsonClient() {
                       disabled={outputMode !== "objects"}
                       className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 disabled:opacity-60"
                     />
-                    首行作为字段名
+                    {ui.firstRowHeader}
                   </label>
                   <label className="flex items-center gap-2 text-sm text-slate-700">
                     <input
@@ -262,7 +290,7 @@ export default function ExcelToJsonClient() {
                       onChange={(e) => setSkipEmptyRows(e.target.checked)}
                       className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
-                    跳过空行
+                    {ui.skipEmptyRows}
                   </label>
                   <label className="flex items-center gap-2 text-sm text-slate-700">
                     <input
@@ -271,10 +299,10 @@ export default function ExcelToJsonClient() {
                       onChange={(e) => setEmptyAsNull(e.target.checked)}
                       className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                     />
-                    空值输出为 null
+                    {ui.emptyAsNull}
                   </label>
                   <label className="block text-sm text-slate-700">
-                    缩进
+                    {ui.indentLabel}
                     <select
                       value={indent}
                       onChange={(e) => setIndent(Number(e.target.value))}
@@ -290,16 +318,16 @@ export default function ExcelToJsonClient() {
 
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
                 <div className="mb-3 flex items-center justify-between gap-2">
-                  <div className="text-sm font-semibold text-slate-900">JSON 输出</div>
-                  {!output.ok && <div className="text-xs text-rose-600">错误：{output.error}</div>}
+                  <div className="text-sm font-semibold text-slate-900">{ui.outputTitle}</div>
+                  {!output.ok && <div className="text-xs text-rose-600">{ui.errorPrefix}{output.error}</div>}
                 </div>
                 <textarea
                   value={output.ok ? output.text : ""}
                   readOnly
-                  placeholder="转换结果会显示在这里…"
+                  placeholder={ui.outputPlaceholder}
                   className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
                 />
-                <div className="mt-3 text-xs text-slate-500">提示：含公式的单元格会导出为计算后的值（若有缓存）。</div>
+                <div className="mt-3 text-xs text-slate-500">{ui.formulaTip}</div>
               </div>
             </div>
           )}
@@ -308,3 +336,4 @@ export default function ExcelToJsonClient() {
     </ToolPageLayout>
   );
 }
+

@@ -18,6 +18,8 @@
   "ui": {
     "hint": "Excel 合并工具：导入多个 Excel，将所有工作表合并导出（本地处理不上传）。",
     "pick": "选择 Excel 文件",
+    "replace": "替换全部文件",
+    "dropHint": "支持点击上传与拖拽上传 Excel；已有文件时拖拽会替换当前列表。",
     "clear": "清空",
     "files": "文件",
     "sheets": "工作表",
@@ -29,6 +31,7 @@
     "working": "处理中…",
     "start": "开始合并",
     "errPickExcel": "请选择 .xlsx/.xls 文件。",
+    "errMergeFailed": "合并失败。",
     "note": "提示：复杂格式与跨表公式可能无法完整保持；建议合并后自检。"
   },
   "pageFeatures": {

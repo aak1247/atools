@@ -91,6 +91,8 @@ function fillSmallTransparentHoles(
   const { data, width, height } = imageData;
   const size = width * height;
   if (size <= 0) return;
+  // 保护性能：超大分辨率限制孔洞修复深度，防止主线程冻结
+  if (size > 2500000 && threshold > 12) return;
 
   const outside = new Uint8Array(size);
 
@@ -379,10 +381,121 @@ function fillSmallTransparentHoles(
   }
 }
 
+interface ExtractResult {
+  blob: Blob;
+  hasSeal: boolean;
+}
+
+async function generateSampleSealFile(): Promise<File> {
+  const canvas = document.createElement("canvas");
+  canvas.width = 600;
+  canvas.height = 600;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("无法创建示例画布");
+
+  // 1. 模拟合同白纸底色
+  ctx.fillStyle = "#faf9f6";
+  ctx.fillRect(0, 0, 600, 600);
+
+  // 2. 模拟底部的合同文字内容（灰色文字段落）
+  ctx.fillStyle = "#64748b";
+  ctx.font = "14px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+  const lines = [
+    "甲方：某某智能科技有限公司",
+    "乙方：某某信息技术服务有限公司",
+    "一、合作内容与服务规范：",
+    "1. 双方本着平等互利、优势互补的原则开展全面合作；",
+    "2. 甲方负责提供相关业务数据与接口对接技术支持；",
+    "3. 乙方应严格遵守数据安全及保密协议条款；",
+    "二、协议生效与盖章：",
+    "本协议自双方加盖公章或合同专用章之日起正式生效。",
+    "特此立约，以资信守。",
+    "                                      盖章确认处：",
+  ];
+  let textY = 70;
+  for (const line of lines) {
+    ctx.fillText(line, 50, textY);
+    textY += 32;
+  }
+
+  // 3. 绘制真实的红色圆形公章（盖在文字上，稍作倾斜）
+  ctx.save();
+  const sealCenterX = 380;
+  const sealCenterY = 360;
+  const sealRadius = 110;
+
+  ctx.translate(sealCenterX, sealCenterY);
+  ctx.rotate(-0.06);
+
+  ctx.strokeStyle = "#d7282f";
+  ctx.fillStyle = "#d7282f";
+  ctx.lineWidth = 5;
+
+  // 外圈圆
+  ctx.beginPath();
+  ctx.arc(0, 0, sealRadius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // 中心五角星
+  ctx.beginPath();
+  const starRadius = 32;
+  for (let i = 0; i < 5; i++) {
+    const angle = ((18 + i * 72) * Math.PI) / 180 - Math.PI / 2;
+    const x = Math.cos(angle) * starRadius;
+    const y = Math.sin(angle) * starRadius;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+
+    const innerAngle = ((54 + i * 72) * Math.PI) / 180 - Math.PI / 2;
+    const ix = Math.cos(innerAngle) * (starRadius * 0.4);
+    const iy = Math.sin(innerAngle) * (starRadius * 0.4);
+    ctx.lineTo(ix, iy);
+  }
+  ctx.closePath();
+  ctx.fill();
+
+  // 环形文字：“纯粹工具站演示印章有限公司”
+  const sealText = "纯粹工具站演示印章有限公司";
+  ctx.font = "bold 20px serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const totalAngle = Math.PI * 1.1;
+  const startAngle = -Math.PI / 2 - totalAngle / 2;
+  const step = totalAngle / (sealText.length - 1);
+  const textRadius = sealRadius - 24;
+
+  for (let i = 0; i < sealText.length; i++) {
+    const char = sealText[i];
+    const angle = startAngle + i * step;
+    ctx.save();
+    ctx.rotate(angle + Math.PI / 2);
+    ctx.translate(0, -textRadius);
+    ctx.fillText(char, 0, 0);
+    ctx.restore();
+  }
+
+  // 底部横排文字：“合同专用章”
+  ctx.font = "bold 16px sans-serif";
+  ctx.fillText("合同专用章", 0, sealRadius * 0.55);
+
+  ctx.restore();
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("示例生成失败"))),
+      "image/png",
+      0.95,
+    );
+  });
+
+  return new File([blob], "sample-contract-seal.png", { type: "image/png" });
+}
+
 async function extractSealFromFile(
   file: File,
   options: ExtractOptions,
-): Promise<Blob> {
+): Promise<ExtractResult> {
   const bitmap = await createImageBitmap(file);
   const crop = options.cropRect;
 
@@ -395,9 +508,23 @@ async function extractSealFromFile(
     ? clamp(Math.floor(crop.height), 1, bitmap.height - sourceY)
     : bitmap.height;
 
+  // 性能保护：大图等比缩放至最大边2560px以内，防止主线程卡顿
+  const MAX_DIMENSION = 2560;
+  let renderW = sourceW;
+  let renderH = sourceH;
+  if (renderW > MAX_DIMENSION || renderH > MAX_DIMENSION) {
+    if (renderW > renderH) {
+      renderH = Math.max(1, Math.round((renderH * MAX_DIMENSION) / renderW));
+      renderW = MAX_DIMENSION;
+    } else {
+      renderW = Math.max(1, Math.round((renderW * MAX_DIMENSION) / renderH));
+      renderH = MAX_DIMENSION;
+    }
+  }
+
   const baseCanvas = document.createElement("canvas");
-  baseCanvas.width = sourceW;
-  baseCanvas.height = sourceH;
+  baseCanvas.width = renderW;
+  baseCanvas.height = renderH;
   const ctx = baseCanvas.getContext("2d", {
     willReadFrequently: true,
   } as CanvasRenderingContext2DSettings);
@@ -414,8 +541,8 @@ async function extractSealFromFile(
     sourceH,
     0,
     0,
-    sourceW,
-    sourceH,
+    renderW,
+    renderH,
   );
   const imageData = ctx.getImageData(0, 0, baseCanvas.width, baseCanvas.height);
   const { data, width, height } = imageData;
@@ -511,22 +638,26 @@ async function extractSealFromFile(
     outputCanvas = sealCanvas;
   }
 
-  return new Promise<Blob>((resolve, reject) => {
+  const blob = await new Promise<Blob>((resolve, reject) => {
     outputCanvas.toBlob(
-      (blob) => {
-        if (blob) resolve(blob);
+      (b) => {
+        if (b) resolve(b);
         else reject(new Error("生成结果失败"));
       },
       "image/png",
       1,
     );
   });
+
+  return { blob, hasSeal };
 }
 
 const SealExtractorClient: FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [hasDetectedSeal, setHasDetectedSeal] = useState<boolean>(true);
+  const [isLoadingSample, setIsLoadingSample] = useState(false);
   const [originalSize, setOriginalSize] = useState<number | null>(null);
   const [resultSize, setResultSize] = useState<number | null>(null);
   const [sensitivity, setSensitivity] = useState<number>(70);
@@ -620,8 +751,9 @@ const SealExtractorClient: FC = () => {
       setIsProcessing(true);
       setError(null);
       try {
-        const blob = await extractSealFromFile(targetFile, options);
+        const { blob, hasSeal } = await extractSealFromFile(targetFile, options);
         if (seq !== extractSeqRef.current) return;
+        setHasDetectedSeal(hasSeal);
         setResultSize(blob.size);
         const url = URL.createObjectURL(blob);
         replaceResultUrl(url);
@@ -737,34 +869,96 @@ const SealExtractorClient: FC = () => {
     [],
   );
 
-  const processFile = async (selected: File) => {
-    if (!selected.type.startsWith("image/")) {
-      setError("请选择图片文件");
-      return;
+  const processFile = useCallback(
+    async (selected: File) => {
+      if (!selected.type.startsWith("image/")) {
+        setError("请选择图片文件（支持 JPG、PNG、WebP 等格式）");
+        return;
+      }
+      cleanupUrls();
+      setFile(selected);
+      setOriginalSize(selected.size);
+      const url = URL.createObjectURL(selected);
+      setOriginalUrl(url);
+      setCropRect(null);
+      cropDraftRef.current = null;
+      cropPointerRef.current = null;
+      setCropEnabled(false);
+      replaceCroppedPreviewUrl(null);
+      setIsCropModalOpen(false);
+      await handleExtract(selected, {
+        sensitivity,
+        mode,
+        targetColor,
+        tolerance,
+        graySaturationCutoff,
+        channelRatioChannel,
+        channelRatioMinPercent,
+        cropRect: null,
+        holeFillThreshold,
+      });
+    },
+    [
+      channelRatioChannel,
+      channelRatioMinPercent,
+      cleanupUrls,
+      graySaturationCutoff,
+      handleExtract,
+      holeFillThreshold,
+      mode,
+      replaceCroppedPreviewUrl,
+      sensitivity,
+      targetColor,
+      tolerance,
+    ],
+  );
+
+  const loadSampleSeal = async () => {
+    try {
+      setIsLoadingSample(true);
+      setError(null);
+      const sampleFile = await generateSampleSealFile();
+      await processFile(sampleFile);
+    } catch {
+      setError("加载示例印章失败，请重试");
+    } finally {
+      setIsLoadingSample(false);
     }
-    cleanupUrls();
-    setFile(selected);
-    setOriginalSize(selected.size);
-    const url = URL.createObjectURL(selected);
-    setOriginalUrl(url);
-    setCropRect(null);
-    cropDraftRef.current = null;
-    cropPointerRef.current = null;
-	    setCropEnabled(false);
-	    replaceCroppedPreviewUrl(null);
-	    setIsCropModalOpen(false);
-		    await handleExtract(selected, {
-		      sensitivity,
-		      mode,
-		      targetColor,
-		      tolerance,
-		      graySaturationCutoff,
-		      channelRatioChannel,
-		      channelRatioMinPercent,
-		      cropRect: null,
-		      holeFillThreshold,
-		    });
-		  };
+  };
+
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const activeEl = document.activeElement;
+      if (
+        activeEl &&
+        (activeEl.tagName === "INPUT" ||
+          activeEl.tagName === "TEXTAREA" ||
+          (activeEl as HTMLElement).isContentEditable)
+      ) {
+        if ((activeEl as HTMLInputElement).type !== "file") {
+          return;
+        }
+      }
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith("image/")) {
+          const pastedFile = item.getAsFile();
+          if (pastedFile) {
+            e.preventDefault();
+            void processFile(pastedFile);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [processFile]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0];
@@ -814,6 +1008,7 @@ const SealExtractorClient: FC = () => {
     cropDraftRef.current = null;
     cropPointerRef.current = null;
     setCropEnabled(false);
+    setHasDetectedSeal(true);
     setError(null);
     setIsProcessing(false);
     setIsDragging(false);
@@ -1116,16 +1311,7 @@ const SealExtractorClient: FC = () => {
   return (
     <ToolPageLayout toolSlug="seal-extractor" maxWidthClassName="max-w-5xl">
       <div className="space-y-8">
-	      <div className="text-center">
-	        <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-	          印章提取工具
-	        </h2>
-	        <p className="mt-2 text-slate-500">
-	          从扫描件/图片中自动提取印章区域，支持自定义颜色与容差，生成透明背景电子章，全程浏览器本地处理。
-	        </p>
-	      </div>
-
-	      {isCropModalOpen && (
+		      {isCropModalOpen && (
 	        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
 	          <div
 	            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -1203,50 +1389,92 @@ const SealExtractorClient: FC = () => {
 	        </div>
 	      )}
 
-	      <div className="glass-card overflow-hidden rounded-3xl p-8 shadow-xl">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-	        {!file ? (
-	          <div
-	            className={`relative flex h-64 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all duration-300 ${
-	              isDragging
-                ? "border-rose-500 bg-rose-50/50 scale-[1.02]"
-                : "border-slate-300 hover:border-slate-400 hover:bg-slate-50/50"
-            }`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onClick={openFilePicker}
-          >
-            <div className="mb-4 rounded-full bg-rose-50 p-4">
-              <svg
-                className="h-8 w-8 text-rose-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 3a4 4 0 00-4 4c0 1.313.633 2.474 1.605 3.2C8.09 11.194 7 12.91 7 15v1h10v-1c0-2.09-1.09-3.806-2.605-4.8A3.999 3.999 0 0016 7a4 4 0 00-4-4zM5 19h14"
-                />
-              </svg>
-            </div>
-            <p className="text-lg font-medium text-slate-700">
-              点击或拖拽印章图片到此处
-            </p>
-            <p className="mt-1 text-sm text-slate-500">
-              建议上传扫描件或拍照图片，支持 JPG/PNG 等格式
-            </p>
-          </div>
-        ) : (
-	          <div className="space-y-8">
+		      <div className="glass-card overflow-hidden rounded-3xl p-8 shadow-xl">
+		        {!file ? (
+		          <div className="space-y-5">
+		            <label
+		              className={`relative flex min-h-[17rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition-all duration-200 ${
+		                isDragging
+		                  ? "border-rose-500 bg-rose-50/50 scale-[1.01]"
+		                  : "border-slate-300 hover:border-rose-400 hover:bg-slate-50/70"
+		              }`}
+		              onDrop={handleDrop}
+		              onDragOver={handleDragOver}
+		              onDragLeave={handleDragLeave}
+		            >
+		              <input
+		                ref={fileInputRef}
+		                type="file"
+		                accept="image/*"
+		                className="sr-only"
+		                onChange={handleFileChange}
+		              />
+		              <div className="mb-3 rounded-full bg-rose-50 p-4 text-rose-500 shadow-sm transition-transform hover:scale-105">
+		                <svg
+		                  className="h-9 w-9"
+		                  fill="none"
+		                  viewBox="0 0 24 24"
+		                  stroke="currentColor"
+		                >
+		                  <path
+		                    strokeLinecap="round"
+		                    strokeLinejoin="round"
+		                    strokeWidth={2}
+		                    d="M12 3a4 4 0 00-4 4c0 1.313.633 2.474 1.605 3.2C8.09 11.194 7 12.91 7 15v1h10v-1c0-2.09-1.09-3.806-2.605-4.8A3.999 3.999 0 0016 7a4 4 0 00-4-4zM5 19h14"
+		                  />
+		                </svg>
+		              </div>
+		              <p className="text-lg font-semibold text-slate-800">
+		                点击选择图片 / 拖拽文件到此处
+		              </p>
+		              <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
+		                <span className="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
+		                  快捷支持
+		                </span>
+		                <span>
+		                  可直接按{" "}
+		                  <kbd className="rounded border border-slate-300 bg-white px-1.5 py-0.5 font-mono text-[11px] shadow-sm">
+		                    Ctrl + V
+		                  </kbd>{" "}
+		                  粘贴剪贴板截图
+		                </span>
+		              </div>
+		              <p className="mt-2 text-xs text-slate-400">
+		                支持 JPG、PNG、WebP 等图片，全程浏览器本地提取，安全零上传
+		              </p>
+		            </label>
+
+		            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+		              <span className="text-xs text-slate-400">手头没有印章文件？</span>
+		              <button
+		                type="button"
+		                onClick={loadSampleSeal}
+		                disabled={isLoadingSample}
+		                className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50/90 px-3.5 py-1.5 text-xs font-medium text-rose-700 shadow-sm transition hover:bg-rose-100 active:scale-95 disabled:opacity-50"
+		              >
+		                {isLoadingSample ? (
+		                  <>
+		                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-rose-600 border-t-transparent" />
+		                    正在生成示例…
+		                  </>
+		                ) : (
+		                  <>
+		                    <span>✨</span>
+		                    一键加载示例印章试用
+		                  </>
+		                )}
+		              </button>
+		            </div>
+		          </div>
+		        ) : (
+		          <div className="space-y-8">
+		            <input
+		              ref={fileInputRef}
+		              type="file"
+		              accept="image/*"
+		              className="sr-only"
+		              onChange={handleFileChange}
+		            />
 	            <div
                 className={`flex flex-col gap-4 rounded-xl border-2 border-dashed p-4 backdrop-blur-sm transition md:flex-row md:items-center md:justify-between ${
                   isDragging
@@ -1598,7 +1826,7 @@ const SealExtractorClient: FC = () => {
                     <div className="flex h-full items-center justify-center">
                       <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-200 border-t-rose-600" />
                     </div>
-                  ) : resultUrl ? (
+                  ) : resultUrl && hasDetectedSeal ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={resultUrl}
@@ -1606,8 +1834,45 @@ const SealExtractorClient: FC = () => {
                       className="h-full w-full object-contain p-4"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                      未检测到明显印章区域，可尝试提高灵敏度或切换模式
+                    <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+                      <div className="mb-2 text-2xl">🔍</div>
+                      <p className="text-sm font-semibold text-slate-700">
+                        未检测到明显红色印章区域
+                      </p>
+                      <p className="mt-1 max-w-xs text-xs text-slate-500">
+                        印章可能颜色较深/偏暗，或受文字遮挡。建议尝试以下快捷优化：
+                      </p>
+                      <div className="mt-4 flex flex-wrap justify-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSensitivity(85);
+                            if (file) {
+                              scheduleExtract(file, {
+                                ...currentExtractOptions,
+                                sensitivity: 85,
+                              });
+                            }
+                          }}
+                          className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 shadow-sm transition hover:bg-rose-100"
+                        >
+                          提高灵敏度至 85%
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleModeChange("keepRed")}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                        >
+                          切换为“仅保留红色”
+                        </button>
+                        <button
+                          type="button"
+                          onClick={openCropModal}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                        >
+                          框选印章局部
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

@@ -1,26 +1,30 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-
-const SUPPORTED_LOCALES = ["zh-cn", "en-us"] as const;
-type Locale = (typeof SUPPORTED_LOCALES)[number];
-const DEFAULT_LOCALE: Locale = "zh-cn";
-
-const isLocale = (value: string): value is Locale =>
-  (SUPPORTED_LOCALES as readonly string[]).includes(value);
+import { detectServerLocale } from "./src/i18n/detect-locale";
+import { isLocale } from "./src/i18n/locales";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const targetLocale = detectServerLocale({
+    cookieHeader: request.headers.get("cookie"),
+    acceptLanguageHeader: request.headers.get("accept-language"),
+    country:
+      (request as unknown as { geo?: { country?: string } }).geo?.country ??
+      request.headers.get("x-vercel-ip-country") ??
+      request.headers.get("cf-ipcountry"),
+  });
+
   if (pathname === "/tools" || pathname === "/tools/") {
     const url = request.nextUrl.clone();
-    url.pathname = `/${DEFAULT_LOCALE}`;
-    return NextResponse.redirect(url);
+    url.pathname = `/${targetLocale}`;
+    return NextResponse.redirect(url, 307);
   }
 
   if (pathname.startsWith("/tools/")) {
     const url = request.nextUrl.clone();
-    url.pathname = `/${DEFAULT_LOCALE}${pathname}`;
-    return NextResponse.redirect(url);
+    url.pathname = `/${targetLocale}${pathname}`;
+    return NextResponse.redirect(url, 307);
   }
 
   if (
@@ -48,8 +52,8 @@ export function middleware(request: NextRequest) {
   }
 
   const url = request.nextUrl.clone();
-  url.pathname = `/${DEFAULT_LOCALE}${pathname === "/" ? "" : pathname}`;
-  return NextResponse.redirect(url);
+  url.pathname = `/${targetLocale}${pathname === "/" ? "" : pathname}`;
+  return NextResponse.redirect(url, 307);
 }
 
 export const config = {

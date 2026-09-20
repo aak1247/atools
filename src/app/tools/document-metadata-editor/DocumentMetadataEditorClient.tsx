@@ -66,6 +66,7 @@ type OoxmlMetaDraft = {
 
 const DEFAULT_UI = {
   pick: "选择文件",
+  replace: "替换文件",
   clear: "清空",
   parsing: "解析中…",
   saving: "生成中…",
@@ -82,6 +83,8 @@ const DEFAULT_UI = {
   encryptedOfficeHint: "检测到 Office 文档已加密/受保护（EncryptedPackage），无法在纯前端环境修改其元信息。",
   privacyHint: "提示：全程浏览器本地处理，不上传文件。",
   timezoneHint: "时间会保存为 ISO 8601（UTC/Z）格式；显示为本地时间仅用于输入。",
+  dropHint: "支持点击上传与拖拽上传，拖拽可直接替换当前文档。",
+  tipNotice: "提示",
   quickActions: "快捷操作",
   setNow: "时间设为当前",
   clearDates: "清空时间字段",
@@ -92,10 +95,74 @@ const DEFAULT_UI = {
   ooxmlCustomSection: "Office 自定义属性（custom.xml）",
   addCustom: "添加自定义属性",
   remove: "删除",
+  noCustomProps: "暂无自定义属性（可点击下方按钮添加）。",
   jsonEditor: "高级：JSON 批量编辑",
   jsonFromForm: "从表单生成 JSON",
   jsonApply: "应用到表单",
   jsonCopy: "复制 JSON",
+  expand: "展开",
+  collapse: "收起",
+  labelTitle: "标题 Title",
+  placeholderTitle: "例如：项目总结",
+  labelAuthor: "作者 Author",
+  placeholderAuthor: "例如：张三",
+  labelSubject: "主题 Subject",
+  placeholderSubject: "例如：财务报表",
+  labelKeywords: "关键词 Keywords",
+  hintKeywords: "用逗号/分号分隔",
+  placeholderKeywords: "例如：报销, 2026, 机密",
+  labelCreationDate: "创建时间 CreationDate",
+  labelModDate: "修改时间 ModDate",
+  labelCreatorTool: "Creator（创建工具）",
+  placeholderCreatorTool: "例如：Microsoft Word",
+  labelProducer: "Producer（生成器）",
+  placeholderProducer: "例如：Adobe PDF Library",
+  labelCoreTitle: "标题 Title (dc:title)",
+  labelCoreSubject: "主题 Subject (dc:subject)",
+  labelCoreAuthor: "作者 Author (dc:creator)",
+  labelCoreLastModifiedBy: "最后修改者 LastModifiedBy (cp:lastModifiedBy)",
+  labelCoreKeywords: "关键词 Keywords (cp:keywords)",
+  hintCoreKeywords: "原样写入 core.xml",
+  labelCoreDescription: "描述 Description (dc:description)",
+  labelCoreCategory: "分类 Category (cp:category)",
+  labelCoreContentStatus: "内容状态 ContentStatus (cp:contentStatus)",
+  labelCoreRevision: "修订号 Revision (cp:revision)",
+  labelCoreIdentifier: "Identifier (dc:identifier)",
+  labelCoreLanguage: "语言 Language (dc:language)",
+  placeholderLanguage: "例如：zh-CN",
+  labelCoreVersion: "版本 Version (cp:version)",
+  labelCoreCreated: "创建时间 Created (dcterms:created)",
+  labelCoreModified: "修改时间 Modified (dcterms:modified)",
+  labelCoreLastPrinted: "上次打印 LastPrinted (cp:lastPrinted)",
+  labelAppCompany: "公司 Company",
+  labelAppManager: "经理 Manager",
+  labelAppApplication: "Application",
+  labelAppVersion: "AppVersion",
+  labelAppTemplate: "Template",
+  labelAppHyperlinkBase: "HyperlinkBase",
+  customNamePlaceholder: "例如：Project",
+  customNumberPlaceholder: "例如：123.45",
+  customTextPlaceholder: "例如：Alpha",
+  thName: "Name",
+  thType: "Type",
+  thValue: "Value",
+  errXmlParse: "XML 解析失败",
+  errNotStandardOoxml: "无法识别为标准 OOXML 文档（缺少 _rels/.rels 或 [Content_Types].xml）",
+  errInvalidCreationDate: "创建时间格式无效",
+  errInvalidModificationDate: "修改时间格式无效",
+  errParseFailed: "解析失败",
+  errJsonNotObject: "JSON 不是对象",
+  errJsonTypePdf: "JSON type 必须为 pdf",
+  errJsonInfoMissing: "info 字段缺失",
+  errJsonTypeOoxml: "JSON type 必须为 ooxml",
+  errJsonOoxmlMissing: "ooxml 字段缺失",
+  errJsonUnsupported: "当前文件类型不支持应用 JSON",
+  errJsonParseFailed: "JSON 解析失败",
+  errCopyFailed: "复制失败",
+  errPdfMetaNotReady: "PDF 元信息未准备好",
+  errOoxmlMetaNotReady: "Office 元信息未准备好",
+  errSaveFailed: "生成失败",
+  warningCustomDateInvalid: "自定义属性“{name}”日期无效，已忽略该字段。",
 } as const;
 
 const DEFAULT_PDF_DRAFT: PdfMetaDraft = {
@@ -245,11 +312,11 @@ const uint8ArrayToArrayBuffer = (bytes: Uint8Array): ArrayBuffer => {
   return buffer;
 };
 
-function parseXml(xml: string): Document {
+function parseXml(xml: string, errMessage: string = DEFAULT_UI.errXmlParse): Document {
   const parser = new DOMParser();
   const doc = parser.parseFromString(xml, "application/xml");
   const error = doc.getElementsByTagName("parsererror")[0];
-  if (error) throw new Error("XML 解析失败");
+  if (error) throw new Error(errMessage);
   return doc;
 }
 
@@ -372,7 +439,7 @@ function parseOoxmlCustomProperties(xml: string): OoxmlCustomDraft[] {
   return out;
 }
 
-function buildOoxmlCustomXml(custom: OoxmlCustomDraft[], warnings: string[]): string {
+function buildOoxmlCustomXml(custom: OoxmlCustomDraft[], warnings: string[], uiWarningInvalidDate: string = DEFAULT_UI.warningCustomDateInvalid): string {
   const doc = document.implementation.createDocument(OOXML_CUSTOM_NS, "Properties", null);
   const root = doc.documentElement;
   root.setAttribute("xmlns:vt", OOXML_VT_NS);
@@ -414,7 +481,7 @@ function buildOoxmlCustomXml(custom: OoxmlCustomDraft[], warnings: string[]): st
     } else if (item.type === "date") {
       const iso = datetimeLocalToIso(item.value);
       if (!iso) {
-        warnings.push(`自定义属性“${item.name}”日期无效，已忽略该字段。`);
+        warnings.push(uiWarningInvalidDate.replace("{name}", item.name));
         continue;
       }
       valueEl = doc.createElementNS(OOXML_VT_NS, "vt:filetime");
@@ -502,14 +569,16 @@ function applyOoxmlMetadata(params: {
   subtype: OoxmlSubtype;
   draft: OoxmlMetaDraft;
   warnings: string[];
+  errNotStandard?: string;
+  uiWarningInvalidDate?: string;
 }): Uint8Array {
-  const { bytes, draft, warnings } = params;
+  const { bytes, draft, warnings, errNotStandard = DEFAULT_UI.errNotStandardOoxml, uiWarningInvalidDate } = params;
   const entries = unzipSync(bytes);
 
   const relsPath = "_rels/.rels";
   const ctPath = "[Content_Types].xml";
   if (!entries[relsPath] || !entries[ctPath]) {
-    throw new Error("无法识别为标准 OOXML 文档（缺少 _rels/.rels 或 [Content_Types].xml）");
+    throw new Error(errNotStandard);
   }
 
   const coreXmlRaw = entries["docProps/core.xml"] ? strFromU8(entries["docProps/core.xml"]) : emptyOoxmlCoreXml();
@@ -586,7 +655,7 @@ function applyOoxmlMetadata(params: {
   entries["docProps/app.xml"] = strToU8(serializeXml(appDoc));
 
   const customWarnings: string[] = [];
-  const customXml = buildOoxmlCustomXml(draft.custom, customWarnings);
+  const customXml = buildOoxmlCustomXml(draft.custom, customWarnings, uiWarningInvalidDate);
   for (const w of customWarnings) warnings.push(w);
   if (draft.custom.length > 0) {
     entries["docProps/custom.xml"] = strToU8(customXml);
@@ -624,8 +693,20 @@ async function parsePdfMetadata(bytes: Uint8Array): Promise<PdfMetaDraft> {
   return { title, author, subject, keywords, creator, producer, creationDate, modificationDate };
 }
 
-async function applyPdfMetadata(params: { bytes: Uint8Array; original: PdfMetaDraft; draft: PdfMetaDraft }): Promise<Uint8Array> {
-  const { bytes, original, draft } = params;
+async function applyPdfMetadata(params: {
+  bytes: Uint8Array;
+  original: PdfMetaDraft;
+  draft: PdfMetaDraft;
+  errInvalidCreationDate?: string;
+  errInvalidModificationDate?: string;
+}): Promise<Uint8Array> {
+  const {
+    bytes,
+    original,
+    draft,
+    errInvalidCreationDate = DEFAULT_UI.errInvalidCreationDate,
+    errInvalidModificationDate = DEFAULT_UI.errInvalidModificationDate,
+  } = params;
   const doc = await PDFDocument.load(bytes, { ignoreEncryption: false });
 
   if (draft.title !== original.title) doc.setTitle(draft.title);
@@ -644,7 +725,7 @@ async function applyPdfMetadata(params: { bytes: Uint8Array; original: PdfMetaDr
       if (original.creationDate.trim()) doc.setCreationDate(new Date(0));
     } else {
       const date = new Date(draft.creationDate);
-      if (Number.isNaN(date.getTime())) throw new Error("创建时间格式无效");
+      if (Number.isNaN(date.getTime())) throw new Error(errInvalidCreationDate);
       doc.setCreationDate(date);
     }
   }
@@ -654,7 +735,7 @@ async function applyPdfMetadata(params: { bytes: Uint8Array; original: PdfMetaDr
       if (original.modificationDate.trim()) doc.setModificationDate(new Date(0));
     } else {
       const date = new Date(draft.modificationDate);
-      if (Number.isNaN(date.getTime())) throw new Error("修改时间格式无效");
+      if (Number.isNaN(date.getTime())) throw new Error(errInvalidModificationDate);
       doc.setModificationDate(date);
     }
   }
@@ -858,19 +939,19 @@ function DocumentMetadataEditorInner() {
     setJsonError(null);
     try {
       const parsed = JSON.parse(jsonText) as unknown;
-      if (!parsed || typeof parsed !== "object") throw new Error("JSON 不是对象");
+      if (!parsed || typeof parsed !== "object") throw new Error(ui.errJsonNotObject);
       const obj = parsed as Record<string, unknown>;
       const type = obj.type;
       if (kind === "pdf") {
-        if (type !== "pdf") throw new Error("JSON type 必须为 pdf");
+        if (type !== "pdf") throw new Error(ui.errJsonTypePdf);
         const info = obj.info;
-        if (!info || typeof info !== "object") throw new Error("info 字段缺失");
+        if (!info || typeof info !== "object") throw new Error(ui.errJsonInfoMissing);
         const next = { ...DEFAULT_PDF_DRAFT, ...(info as Partial<PdfMetaDraft>) };
         setPdfDraft(next);
       } else if (kind === "ooxml") {
-        if (type !== "ooxml") throw new Error("JSON type 必须为 ooxml");
+        if (type !== "ooxml") throw new Error(ui.errJsonTypeOoxml);
         const ooxml = obj.ooxml;
-        if (!ooxml || typeof ooxml !== "object") throw new Error("ooxml 字段缺失");
+        if (!ooxml || typeof ooxml !== "object") throw new Error(ui.errJsonOoxmlMissing);
         const o = ooxml as Partial<OoxmlMetaDraft>;
         const next: OoxmlMetaDraft = {
           core: { ...DEFAULT_OOXML_DRAFT.core, ...(o.core ?? {}) },
@@ -879,10 +960,10 @@ function DocumentMetadataEditorInner() {
         };
         setOoxmlDraft(next);
       } else {
-        throw new Error("当前文件类型不支持应用 JSON");
+        throw new Error(ui.errJsonUnsupported);
       }
     } catch (e) {
-      setJsonError(e instanceof Error ? e.message : "JSON 解析失败");
+      setJsonError(e instanceof Error ? e.message : ui.errJsonParseFailed);
     }
   };
 
@@ -891,7 +972,7 @@ function DocumentMetadataEditorInner() {
     try {
       await navigator.clipboard.writeText(jsonText);
     } catch (e) {
-      setJsonError(e instanceof Error ? e.message : "复制失败");
+      setJsonError(e instanceof Error ? e.message : ui.errCopyFailed);
     }
   };
 
@@ -903,7 +984,7 @@ function DocumentMetadataEditorInner() {
       const nextWarnings: string[] = [];
 
       if (kind === "pdf") {
-        if (!pdfDraft || !pdfOriginal) throw new Error("PDF 元信息未准备好");
+        if (!pdfDraft || !pdfOriginal) throw new Error(ui.errPdfMetaNotReady);
         const outBytes = await applyPdfMetadata({ bytes, original: pdfOriginal, draft: pdfDraft });
         const url = URL.createObjectURL(
           new Blob([uint8ArrayToArrayBuffer(outBytes)], { type: "application/pdf" }),
@@ -911,7 +992,7 @@ function DocumentMetadataEditorInner() {
         setDownloadUrl(url);
         setDownloadName(buildDownloadName(file));
       } else if (kind === "ooxml") {
-        if (!ooxmlDraft) throw new Error("Office 元信息未准备好");
+        if (!ooxmlDraft) throw new Error(ui.errOoxmlMetaNotReady);
         const outBytes = applyOoxmlMetadata({ bytes, subtype, draft: ooxmlDraft, warnings: nextWarnings });
         const mime = mimeForOoxmlSubtype(subtype);
         const url = URL.createObjectURL(new Blob([uint8ArrayToArrayBuffer(outBytes)], { type: mime }));
@@ -923,7 +1004,7 @@ function DocumentMetadataEditorInner() {
 
       setWarnings(nextWarnings);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "生成失败");
+      setError(e instanceof Error ? e.message : ui.errSaveFailed);
     } finally {
       setIsSaving(false);
     }
@@ -952,7 +1033,7 @@ function DocumentMetadataEditorInner() {
                 className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
                 disabled={isParsing || isSaving}
               >
-                {file ? "替换文件" : ui.pick}
+                {file ? ui.replace : ui.pick}
               </button>
               <button
                 type="button"
@@ -991,7 +1072,7 @@ function DocumentMetadataEditorInner() {
               )}
             </div>
           </div>
-          <p className="mt-2 text-xs text-slate-500">支持点击上传与拖拽上传，拖拽可直接替换当前文档。</p>
+          <p className="mt-2 text-xs text-slate-500">{ui.dropHint}</p>
         </div>
 
         <p className="mt-4 text-xs text-slate-600">{ui.privacyHint}</p>
@@ -1006,7 +1087,7 @@ function DocumentMetadataEditorInner() {
         )}
         {warnings.length > 0 && (
           <div className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-200">
-            <div className="font-semibold">提示</div>
+            <div className="font-semibold">{ui.tipNotice}</div>
             <ul className="mt-2 list-disc space-y-1 pl-5">
               {warnings.map((w) => (
                 <li key={w}>{w}</li>
@@ -1068,39 +1149,39 @@ function DocumentMetadataEditorInner() {
           {kind === "pdf" && pdfDraft && (
             <MetadataSection title={ui.pdfSection}>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormField label="标题 Title">
+                <FormField label={ui.labelTitle}>
                   <input
                     className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                     value={pdfDraft.title}
                     onChange={(e) => setPdfDraft((prev) => (prev ? { ...prev, title: e.target.value } : prev))}
-                    placeholder="例如：项目总结"
+                    placeholder={ui.placeholderTitle}
                   />
                 </FormField>
-                <FormField label="作者 Author">
+                <FormField label={ui.labelAuthor}>
                   <input
                     className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                     value={pdfDraft.author}
                     onChange={(e) => setPdfDraft((prev) => (prev ? { ...prev, author: e.target.value } : prev))}
-                    placeholder="例如：张三"
+                    placeholder={ui.placeholderAuthor}
                   />
                 </FormField>
-                <FormField label="主题 Subject">
+                <FormField label={ui.labelSubject}>
                   <input
                     className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                     value={pdfDraft.subject}
                     onChange={(e) => setPdfDraft((prev) => (prev ? { ...prev, subject: e.target.value } : prev))}
-                    placeholder="例如：财务报表"
+                    placeholder={ui.placeholderSubject}
                   />
                 </FormField>
-                <FormField label="关键词 Keywords" hint="用逗号/分号分隔">
+                <FormField label={ui.labelKeywords} hint={ui.hintKeywords}>
                   <input
                     className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                     value={pdfDraft.keywords}
                     onChange={(e) => setPdfDraft((prev) => (prev ? { ...prev, keywords: e.target.value } : prev))}
-                    placeholder="例如：报销, 2026, 机密"
+                    placeholder={ui.placeholderKeywords}
                   />
                 </FormField>
-                <FormField label="创建时间 CreationDate">
+                <FormField label={ui.labelCreationDate}>
                   <input
                     type="datetime-local"
                     className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
@@ -1108,7 +1189,7 @@ function DocumentMetadataEditorInner() {
                     onChange={(e) => setPdfDraft((prev) => (prev ? { ...prev, creationDate: e.target.value } : prev))}
                   />
                 </FormField>
-                <FormField label="修改时间 ModDate">
+                <FormField label={ui.labelModDate}>
                   <input
                     type="datetime-local"
                     className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
@@ -1116,20 +1197,20 @@ function DocumentMetadataEditorInner() {
                     onChange={(e) => setPdfDraft((prev) => (prev ? { ...prev, modificationDate: e.target.value } : prev))}
                   />
                 </FormField>
-                <FormField label="Creator（创建工具）">
+                <FormField label={ui.labelCreatorTool}>
                   <input
                     className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                     value={pdfDraft.creator}
                     onChange={(e) => setPdfDraft((prev) => (prev ? { ...prev, creator: e.target.value } : prev))}
-                    placeholder="例如：Microsoft Word"
+                    placeholder={ui.placeholderCreatorTool}
                   />
                 </FormField>
-                <FormField label="Producer（生成器）">
+                <FormField label={ui.labelProducer}>
                   <input
                     className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                     value={pdfDraft.producer}
                     onChange={(e) => setPdfDraft((prev) => (prev ? { ...prev, producer: e.target.value } : prev))}
-                    placeholder="例如：Adobe PDF Library"
+                    placeholder={ui.placeholderProducer}
                   />
                 </FormField>
               </div>
@@ -1140,7 +1221,7 @@ function DocumentMetadataEditorInner() {
             <>
               <MetadataSection title={ui.ooxmlCoreSection}>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField label="标题 Title (dc:title)">
+                  <FormField label={ui.labelCoreTitle}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.title}
@@ -1149,7 +1230,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="主题 Subject (dc:subject)">
+                  <FormField label={ui.labelCoreSubject}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.subject}
@@ -1158,7 +1239,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="作者 Author (dc:creator)">
+                  <FormField label={ui.labelCoreAuthor}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.creator}
@@ -1167,7 +1248,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="最后修改者 LastModifiedBy (cp:lastModifiedBy)">
+                  <FormField label={ui.labelCoreLastModifiedBy}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.lastModifiedBy}
@@ -1178,7 +1259,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="关键词 Keywords (cp:keywords)" hint="原样写入 core.xml">
+                  <FormField label={ui.labelCoreKeywords} hint={ui.hintCoreKeywords}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.keywords}
@@ -1187,7 +1268,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="描述 Description (dc:description)">
+                  <FormField label={ui.labelCoreDescription}>
                     <textarea
                       className="mt-1 min-h-[40px] w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.description}
@@ -1198,7 +1279,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="分类 Category (cp:category)">
+                  <FormField label={ui.labelCoreCategory}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.category}
@@ -1207,7 +1288,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="内容状态 ContentStatus (cp:contentStatus)">
+                  <FormField label={ui.labelCoreContentStatus}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.contentStatus}
@@ -1218,7 +1299,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="修订号 Revision (cp:revision)">
+                  <FormField label={ui.labelCoreRevision}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.revision}
@@ -1227,7 +1308,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="Identifier (dc:identifier)">
+                  <FormField label={ui.labelCoreIdentifier}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.identifier}
@@ -1238,17 +1319,17 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="语言 Language (dc:language)">
+                  <FormField label={ui.labelCoreLanguage}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.language}
                       onChange={(e) =>
                         setOoxmlDraft((prev) => (prev ? { ...prev, core: { ...prev.core, language: e.target.value } } : prev))
                       }
-                      placeholder="例如：zh-CN"
+                      placeholder={ui.placeholderLanguage}
                     />
                   </FormField>
-                  <FormField label="版本 Version (cp:version)">
+                  <FormField label={ui.labelCoreVersion}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.core.version}
@@ -1257,7 +1338,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="创建时间 Created (dcterms:created)">
+                  <FormField label={ui.labelCoreCreated}>
                     <input
                       type="datetime-local"
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
@@ -1267,7 +1348,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="修改时间 Modified (dcterms:modified)">
+                  <FormField label={ui.labelCoreModified}>
                     <input
                       type="datetime-local"
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
@@ -1277,7 +1358,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="上次打印 LastPrinted (cp:lastPrinted)">
+                  <FormField label={ui.labelCoreLastPrinted}>
                     <input
                       type="datetime-local"
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
@@ -1294,7 +1375,7 @@ function DocumentMetadataEditorInner() {
 
               <MetadataSection title={ui.ooxmlAppSection}>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField label="公司 Company">
+                  <FormField label={ui.labelAppCompany}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.app.company}
@@ -1303,7 +1384,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="经理 Manager">
+                  <FormField label={ui.labelAppManager}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.app.manager}
@@ -1312,7 +1393,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="Application">
+                  <FormField label={ui.labelAppApplication}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.app.application}
@@ -1323,7 +1404,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="AppVersion">
+                  <FormField label={ui.labelAppVersion}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.app.appVersion}
@@ -1332,7 +1413,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="Template">
+                  <FormField label={ui.labelAppTemplate}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.app.template}
@@ -1341,7 +1422,7 @@ function DocumentMetadataEditorInner() {
                       }
                     />
                   </FormField>
-                  <FormField label="HyperlinkBase">
+                  <FormField label={ui.labelAppHyperlinkBase}>
                     <input
                       className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
                       value={ooxmlDraft.app.hyperlinkBase}
@@ -1358,15 +1439,15 @@ function DocumentMetadataEditorInner() {
               <MetadataSection title={ui.ooxmlCustomSection}>
                 <div className="space-y-3">
                   {ooxmlDraft.custom.length === 0 ? (
-                    <p className="text-sm text-slate-600">暂无自定义属性（可点击下方按钮添加）。</p>
+                    <p className="text-sm text-slate-600">{ui.noCustomProps}</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="min-w-full border-separate border-spacing-0">
                         <thead>
                           <tr className="text-left text-xs text-slate-600">
-                            <th className="px-2 py-2">Name</th>
-                            <th className="px-2 py-2">Type</th>
-                            <th className="px-2 py-2">Value</th>
+                            <th className="px-2 py-2">{ui.thName}</th>
+                            <th className="px-2 py-2">{ui.thType}</th>
+                            <th className="px-2 py-2">{ui.thValue}</th>
                             <th className="px-2 py-2"></th>
                           </tr>
                         </thead>
@@ -1386,7 +1467,7 @@ function DocumentMetadataEditorInner() {
                                       };
                                     })
                                   }
-                                  placeholder="例如：Project"
+                                  placeholder={ui.customNamePlaceholder}
                                 />
                               </td>
                               <td className="px-2 py-2">
@@ -1465,7 +1546,7 @@ function DocumentMetadataEditorInner() {
                                         };
                                       })
                                     }
-                                    placeholder={item.type === "number" ? "例如：123.45" : "例如：Alpha"}
+                                    placeholder={item.type === "number" ? ui.customNumberPlaceholder : ui.customTextPlaceholder}
                                   />
                                 )}
                               </td>
@@ -1522,7 +1603,7 @@ function DocumentMetadataEditorInner() {
                 onClick={() => setShowJsonEditor((v) => !v)}
                 className="rounded-2xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-200"
               >
-                {showJsonEditor ? "收起" : "展开"}
+                {showJsonEditor ? ui.collapse : ui.expand}
               </button>
             </div>
 

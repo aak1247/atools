@@ -69,7 +69,13 @@ const DEFAULT_UI = {
   buildError: "生成失败",
   defaultOutline: "1\t封面\n2\t前言\n5\t第一章 标题\n",
   defaultTitle: "目录",
-  defaultTocText: "目录"
+  defaultTocText: "目录",
+  fontSansChinese: "系统黑体",
+  fontSerifChinese: "系统宋体",
+  fontSans: "无衬线",
+  fontMono: "等宽",
+  errCanvasContext: "当前浏览器无法创建目录页画布。",
+  errCanvasExport: "当前浏览器无法导出目录页图片。",
 } as const;
 
 type PdfTocGeneratorUi = typeof DEFAULT_UI;
@@ -186,6 +192,16 @@ function PdfTocGeneratorInner() {
   }, [insertAtBeginning]);
 
   const items = useMemo(() => parseOutline(outline), [outline]);
+
+  const fontOptions = useMemo(
+    () => [
+      { label: ui.fontSansChinese, value: `"Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", Arial, sans-serif` },
+      { label: ui.fontSerifChinese, value: `"Songti SC", SimSun, "Noto Serif CJK SC", serif` },
+      { label: ui.fontSans, value: `Arial, "Helvetica Neue", sans-serif` },
+      { label: ui.fontMono, value: `"SFMono-Regular", Consolas, "Liberation Mono", monospace` },
+    ],
+    [ui.fontSansChinese, ui.fontSerifChinese, ui.fontSans, ui.fontMono],
+  );
 
   const pick = async (selected: File) => {
     setFile(selected);
@@ -320,7 +336,7 @@ function PdfTocGeneratorInner() {
 
       for (let i = 0; i < tocPages.length; i += 1) {
         const page = tocPages[i];
-        const pngBytes = await renderTocPagePngBytes(tocRenderPagesWithNumbers[i], size.width, size.height, tocStyle);
+        const pngBytes = await renderTocPagePngBytes(tocRenderPagesWithNumbers[i], size.width, size.height, tocStyle, ui);
         const image = await doc.embedPng(pngBytes);
         page.drawImage(image, {
           x: 0,
@@ -506,7 +522,7 @@ function PdfTocGeneratorInner() {
                       onChange={(e) => updateTocStyle("titleFont", e.target.value)}
                       className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      {FONT_OPTIONS.map((option) => (
+                      {fontOptions.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
                         </option>
@@ -540,7 +556,7 @@ function PdfTocGeneratorInner() {
                       onChange={(e) => updateTocStyle("itemFont", e.target.value)}
                       className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      {FONT_OPTIONS.map((option) => (
+                      {fontOptions.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
                         </option>
@@ -1009,6 +1025,7 @@ const renderTocPagePngBytes = (
   pageWidth: number,
   pageHeight: number,
   style: TocStyle,
+  ui: PdfTocGeneratorUi,
 ): Promise<Uint8Array> => {
   const canvas = document.createElement("canvas");
   const scale = TOC_LAYOUT.renderScale;
@@ -1016,7 +1033,7 @@ const renderTocPagePngBytes = (
   canvas.height = Math.ceil(pageHeight * scale);
 
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("当前浏览器无法创建目录页画布。");
+  if (!ctx) throw new Error(ui.errCanvasContext);
 
   ctx.scale(scale, scale);
   ctx.fillStyle = "#ffffff";
@@ -1053,7 +1070,7 @@ const renderTocPagePngBytes = (
   return new Promise<Uint8Array>((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (!blob) {
-        reject(new Error("当前浏览器无法导出目录页图片。"));
+        reject(new Error(ui.errCanvasExport));
         return;
       }
       blob

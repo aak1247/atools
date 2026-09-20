@@ -14,5 +14,26 @@
     "extract colors from image",
     "HEX colors",
     "CSS color variables"
-  ]
+  ],
+  "ui": {
+    "pickImage": "Select Image",
+    "replaceImage": "Replace Image",
+    "clear": "Clear",
+    "dropHint": "Drag & drop a new image here to replace",
+    "extract": "Extract Palette",
+    "extracting": "Extracting...",
+    "imagePreview": "Image Preview",
+    "params": "Parameters",
+    "colorCount": "Color Count",
+    "sampleSize": "Sample Size (px)",
+    "ignoreWhite": "Ignore Near-White Background",
+    "ignoreBlack": "Ignore Near-Black Background",
+    "paletteResult": "Palette Result",
+    "copyCssVars": "Copy CSS Variables",
+    "noPaletteHint": "Click \"Extract Palette\" to generate results.",
+    "copyHexTitle": "Click to copy HEX",
+    "errNoPixels": "No valid pixels sampled (try unchecking ignore white/black background).",
+    "errExtractFailed": "Failed to extract palette",
+    "canvasUnavailable": "Canvas is not available"
+  }
 }

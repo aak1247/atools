@@ -15,6 +15,32 @@
     "音频拼接工具",
     "WAV合并"
   ],
+  "ui": {
+    "pickTitle": "选择多个音频文件",
+    "addFiles": "添加文件",
+    "replaceFiles": "替换全部文件",
+    "dropReplaceHint": "支持点击上传与拖拽上传；已有文件时拖拽会直接替换当前列表。",
+    "probeDurations": "读取时长",
+    "orderTitle": "拼接顺序",
+    "totalDurationUnknown": "未读取时长",
+    "totalDurationTemplate": "总时长：{time}（{seconds}s）",
+    "durationUnknown": "时长：-",
+    "durationTemplate": "时长：{time}（{seconds}s）",
+    "moveUp": "上移",
+    "moveDown": "下移",
+    "remove": "移除",
+    "exportTitle": "导出",
+    "exportHint": "会将所有音频解码并重新编码为 WAV（16-bit PCM，立体声）。文件较大时导出耗时较长。",
+    "mergeExport": "合并并导出 WAV",
+    "processing": "处理中...",
+    "clear": "清空",
+    "generated": "已生成合并文件：",
+    "download": "下载",
+    "errorPrefix": "错误：",
+    "errReadAudio": "读取音频时出错。",
+    "errNeedAtLeastTwo": "请至少选择 2 个音频文件再进行拼接。",
+    "errMergeFailed": "拼接失败，请换一批音频再试。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

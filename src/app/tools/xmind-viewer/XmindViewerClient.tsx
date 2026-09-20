@@ -342,149 +342,159 @@ const VIEW_OVERRIDES_STORAGE_KEY = "atools:xmind-viewer:viewOverrides:v1";
 const DEFAULT_DROP_REPLACE_HINT = "支持拖拽新 .xmind 到此区域直接替换";
 const VERSION_HISTORY_LIMIT = 24;
 const VERSION_HISTORY_STORAGE_LIMIT = 10;
-type XmindViewerUi = {
-  untitled: string;
-  newNode: string;
-  centerTopic: string;
-  sheetPrefix: string;
-  newCanvasNamePrompt: string;
-  renameCanvasPrompt: string;
-  duplicateCanvasPrompt: string;
-  copiedSuffix: string;
-  keepOneCanvasAlert: string;
-  deleteCanvasConfirm: string;
-  fileExtHint: string;
-  parseFailed: string;
-  copied: string;
-  copyFailed: string;
-  exportPngFailed: string;
-  exportSvgFailed: string;
-  exportPdfFailed: string;
-  expand: string;
-  collapse: string;
-  collapseAll: string;
-  expandAll: string;
-  openFile: string;
-  dropTip: string;
-  chooseFile: string;
-  replaceFile: string;
-  copyOutline: string;
-  downloadOutline: string;
-  clear: string;
-  parsing: string;
-  error: string;
-  sheetTotalPrefix: string;
-  sheetTotalSuffix: string;
-  newCanvas: string;
-  rename: string;
-  duplicate: string;
-  delete: string;
-  layoutTitle: string;
-  themeTitle: string;
-  themePrefix: string;
-  undo: string;
-  redo: string;
-  collapseExpand: string;
-  exportPng: string;
-  exportSvg: string;
-  exportPdf: string;
-  exportXmind: string;
-  panelCanvas: string;
-  panelLayout: string;
-  panelTheme: string;
-  panelExport: string;
-  panelEdit: string;
-  panelNode: string;
-  panelHistory: string;
-  historyEmpty: string;
-  historyRollback: string;
-  historyCurrent: string;
-  relationTitle: string;
-  relationTarget: string;
-  relationLabel: string;
-  relationAdd: string;
-  relationRemove: string;
-  relationEmpty: string;
-  relationSelfBlocked: string;
-  relationExists: string;
-  boundaryTitle: string;
-  boundaryLabel: string;
-  boundaryAdd: string;
-  boundaryRemove: string;
-  summaryTitle: string;
-  summaryLabel: string;
-  summaryAdd: string;
-  summaryRemove: string;
-  create: string;
-  moveUp: string;
-  moveDown: string;
-  nodeTitlePlaceholder: string;
-  childNode: string;
-  siblingNode: string;
-  currentNode: string;
-  noNodeSelected: string;
-  nodeEditor: string;
-  selectNodeTip: string;
-  nodeTitleLabel: string;
-  inputNodeTitle: string;
-  addChildNode: string;
-  addSiblingNode: string;
-  deleteNode: string;
-  rootNodeTip: string;
-  nodeEditTip: string;
-  fileInfo: string;
-  fileName: string;
-  fileSize: string;
-  fileStatus: string;
-  statusParsing: string;
-  statusFailed: string;
-  statusParsed: string;
-  statusIdle: string;
-  zipEntries: string;
-  parseSource: string;
-  noteBlock: string;
-  outlinePreview: string;
-  currentSheet: string;
-  outlinePlaceholder: string;
-  textViewTitle: string;
-  textViewShortcutHint: string;
-  textViewEmpty: string;
-  tutorial: string;
-  tutorial1: string;
-  tutorial2: string;
-  tutorial3: string;
-  tutorial4: string;
-  tutorial5: string;
-  faq: string;
-  faqFormat: string;
-  faqFormatDesc: string;
-  faqNoContent: string;
-  faqNoContentDesc: string;
-  privacy: string;
-  privacyDesc: string;
-  draftDetected: string;
-  draftPrompt: string;
-  restoreDraft: string;
-  ignoreDraft: string;
-  deleteDraft: string;
-  layoutBalanced: string;
-  layoutRight: string;
-  layoutLeft: string;
-  layoutUp: string;
-  layoutDown: string;
-  layoutDownCompact: string;
-  layoutDownCompact2: string;
-  layoutSuperCompactDown: string;
-  layoutSuperCompactRight: string;
-  layoutSuperCompactDownVertical: string;
+const DEFAULT_UI = {
+  untitled: "(无标题)",
+  newNode: "新节点",
+  centerTopic: "中心主题",
+  sheetPrefix: "画布",
+  newCanvasNamePrompt: "新建画布名称",
+  renameCanvasPrompt: "重命名画布",
+  duplicateCanvasPrompt: "复制画布名称",
+  copiedSuffix: " 副本",
+  keepOneCanvasAlert: "至少保留一个画布。",
+  deleteCanvasConfirm: "确认删除画布",
+  fileExtHint: "提示：文件后缀不是 .xmind，但仍会尝试解析（如果是改名文件也可以）。",
+  parseFailed: "解析失败，请确认文件是 .xmind。",
+  copied: "已复制",
+  copyFailed: "复制失败（请检查浏览器权限/HTTPS 环境）",
+  exportPngFailed: "导出 PNG 失败",
+  exportSvgFailed: "导出 SVG 失败",
+  exportPdfFailed: "导出 PDF 失败",
+  expand: "展开",
+  collapse: "折叠",
+  collapseAll: "全部折叠",
+  expandAll: "全部展开",
+  openFile: "打开 .xmind 文件",
+  dropTip: "支持点击上传/点击替换与拖拽上传/拖拽替换（本地解析，不上传）",
+  chooseFile: "选择文件",
+  replaceFile: "点击替换 .xmind",
+  copyOutline: "复制大纲",
+  downloadOutline: "下载大纲",
+  clear: "清除",
+  parsing: "解析中…",
+  error: "错误",
+  sheetTotalPrefix: "Sheet",
+  sheetTotalSuffix: "个",
+  newCanvas: "新建画布",
+  rename: "重命名",
+  duplicate: "复制",
+  delete: "删除",
+  layoutTitle: "布局模式",
+  themeTitle: "主题",
+  themePrefix: "主题",
+  undo: "撤销",
+  redo: "重做",
+  collapseExpand: "折叠/展开",
+  exportPng: "导出 PNG",
+  exportSvg: "导出 SVG",
+  exportPdf: "导出 PDF",
+  exportXmind: "导出 .xmind",
+  panelCanvas: "画布",
+  panelLayout: "布局",
+  panelTheme: "主题",
+  panelExport: "导出",
+  panelEdit: "编辑",
+  panelNode: "节点",
+  panelHistory: "版本历史",
+  historyEmpty: "暂无历史快照",
+  historyRollback: "回滚",
+  historyCurrent: "当前版本",
+  relationTitle: "关系线",
+  relationTarget: "选择关联节点",
+  relationLabel: "关系线标签（可选）",
+  relationAdd: "添加关系线",
+  relationRemove: "移除",
+  relationEmpty: "当前节点暂无关系线",
+  relationSelfBlocked: "不能与自己建立关系线",
+  relationExists: "关系线已存在",
+  boundaryTitle: "边界",
+  boundaryLabel: "边界标题（可选）",
+  boundaryAdd: "添加边界",
+  boundaryRemove: "移除边界",
+  summaryTitle: "概要",
+  summaryLabel: "概要标题（可选）",
+  summaryAdd: "添加概要",
+  summaryRemove: "移除概要",
+  create: "新建",
+  moveUp: "上移",
+  moveDown: "下移",
+  nodeTitlePlaceholder: "节点标题",
+  childNode: "子节点",
+  siblingNode: "同级",
+  currentNode: "当前",
+  noNodeSelected: "未选中节点",
+  nodeEditor: "节点编辑",
+  selectNodeTip: "请选择一个节点开始编辑。",
+  nodeTitleLabel: "节点标题",
+  inputNodeTitle: "输入节点标题",
+  addChildNode: "添加子节点",
+  addSiblingNode: "添加同级",
+  deleteNode: "删除节点",
+  rootNodeTip: "根节点不能删除，也不能添加同级节点。",
+  nodeEditTip: "可编辑选中节点，并进行增删改与折叠。",
+  fileInfo: "文件信息",
+  fileName: "文件名",
+  fileSize: "大小",
+  fileStatus: "状态",
+  statusParsing: "解析中...",
+  statusFailed: "解析失败",
+  statusParsed: "已解析",
+  statusIdle: "未解析",
+  zipEntries: "压缩包条目",
+  parseSource: "解析来源",
+  noteBlock: "说明：.xmind 本质是 zip 文件。当前版本支持解析 content.json（新格式）与 content.xml（旧格式），支持在 Canvas 中进行基础编辑。",
+  outlinePreview: "大纲预览",
+  currentSheet: "当前",
+  outlinePlaceholder: "解析后的大纲会显示在这里…",
+  textViewTitle: "文本视图",
+  textViewShortcutHint: "快捷键：Enter 新建同级，Tab 新建子级，Shift+Tab 降一级",
+  textViewEmpty: "暂无可编辑节点",
+  tutorial: "使用教程",
+  tutorial1: "拖拽或选择一个 .xmind 文件（文件仅在本地浏览器解析，不会上传）。",
+  tutorial2: "如果文件包含多个 Sheet，可在上方下拉框切换。",
+  tutorial3: "Canvas 支持：点击节点选中、点击 +/- 折叠展开、拖拽平移、滚轮缩放、双击自适应。",
+  tutorial4: "在左侧「节点编辑」中可改标题、增删节点；支持撤销/重做；编辑会自动保存为本地草稿。",
+  tutorial5: "在「大纲预览」中复制或下载 Markdown，方便粘贴到 Obsidian/Notion/飞书文档等。",
+  faq: "兼容性与常见问题",
+  faqFormat: "支持格式",
+  faqFormatDesc: "支持 content.json（较新 XMind）与 content.xml（较旧 XMind 8/Classic）。若仍提示无法解析，可尝试在 XMind 中另存为兼容格式后再打开。",
+  faqNoContent: "为什么看不到内容？",
+  faqNoContentDesc: "可能是文件格式较旧、或压缩包内缺少 content.json。你可以先查看左侧「压缩包条目」确认包含哪些文件。",
+  privacy: "隐私说明",
+  privacyDesc: "解析与渲染在本地完成，页面不上传思维导图内容。",
+  draftDetected: "检测到上次未完成的本地草稿",
+  draftPrompt: "是否恢复继续编辑？（草稿仅保存在本地浏览器）",
+  restoreDraft: "恢复草稿",
+  ignoreDraft: "忽略",
+  deleteDraft: "删除草稿",
+  layoutBalanced: "布局：左右均衡",
+  layoutRight: "布局：向右",
+  layoutLeft: "布局：向左",
+  layoutUp: "布局：向上（树形）",
+  layoutDown: "布局：向下（树形）",
+  layoutDownCompact: "布局：向下紧凑",
+  layoutDownCompact2: "布局：向下紧凑2",
+  layoutSuperCompactDown: "布局：超级紧凑（向下）",
+  layoutSuperCompactRight: "布局：超级紧凑（向右）",
+  layoutSuperCompactDownVertical: "布局：超级紧凑（向下竖排）",
+  modeRead: "阅读",
+  modeEdit: "编辑",
+  switchToEditMode: "切换到编辑模式",
+  switchToReadMode: "切换到阅读模式",
+  switchToMindmapView: "切换到思维导图视图",
+  switchToTextView: "切换到文本视图",
+  viewMindmap: "思维导图",
+  viewTextView: "文本视图",
   parseErrors: {
-    invalid_zip: string;
-    content_json_parse_failed: string;
-    content_json_sheet_not_found: string;
-    content_xml_parse_failed: string;
-    content_entry_not_found: string;
-  };
-};
+    invalid_zip: "文件不是有效的 .xmind（zip）或已损坏。",
+    content_json_parse_failed: "已找到 content.json，但解析失败（文件可能损坏或编码异常）。",
+    content_json_sheet_not_found: "已找到 content.json，但未识别出 Sheet 数据（可能是格式差异）。",
+    content_xml_parse_failed: "已找到 content.xml，但解析失败（可能是格式差异或文件损坏）。",
+    content_entry_not_found: "未找到 content.json 或 content.xml（可能不是 XMind 文件或格式暂不支持）。",
+  },
+} as const;
+
+type XmindViewerUi = typeof DEFAULT_UI;
 
 const cloneValue = <T,>(value: T): T => {
   if (typeof structuredClone === "function") return structuredClone(value) as T;
@@ -1282,9 +1292,13 @@ const hasAnyExpandedBranch = (node: MindMapNode): boolean => {
   return node.children.some((child) => hasAnyExpandedBranch(child));
 };
 
-const normalizeToMindMapSheets = (sheets: Sheet[], createId: () => string): MindMapSheet[] => {
+const normalizeToMindMapSheets = (
+  sheets: Sheet[],
+  createId: () => string,
+  fallbackRootTitle = "中心主题",
+): MindMapSheet[] => {
   if (sheets.length === 0) {
-    const rootTopic = createNodeWithTitle(createId(), "中心主题");
+    const rootTopic = createNodeWithTitle(createId(), fallbackRootTitle);
     return [
       {
         id: createId(),
@@ -1302,7 +1316,7 @@ const normalizeToMindMapSheets = (sheets: Sheet[], createId: () => string): Mind
   return sheets.map((sheet, index) => {
     const rootTopic = sheet.rootTopic
       ? topicNodeToMindMapNode(sheet.rootTopic, createId)
-      : createNodeWithTitle(createId(), "中心主题");
+      : createNodeWithTitle(createId(), fallbackRootTitle);
     const nodeIds = collectNodeIds(rootTopic);
     const rawRelationships = normalizeRelationships((sheet as Record<string, unknown>).relationships);
     const rawBoundaries = normalizeBoundaries((sheet as Record<string, unknown>).boundaries);
@@ -1454,7 +1468,17 @@ export default function XmindViewerClient() {
   const autosaveTimerRef = useRef<number | null>(null);
 
   const sheetViewByIdRef = useRef<Record<string, ViewStateBundle>>({});
-  const ui = useMemo(() => providedConfig?.ui as XmindViewerUi, [providedConfig?.ui]);
+  const ui: XmindViewerUi = useMemo(() => {
+    const customUi = (providedConfig?.ui ?? {}) as Partial<XmindViewerUi>;
+    return {
+      ...DEFAULT_UI,
+      ...customUi,
+      parseErrors: {
+        ...DEFAULT_UI.parseErrors,
+        ...(customUi.parseErrors ?? {}),
+      },
+    };
+  }, [providedConfig?.ui]);
   const [viewerMode, setViewerMode] = useState<"edit" | "read">("edit");
   const [fullscreenPrimaryView, setFullscreenPrimaryView] = useState<"mindmap" | "text">("mindmap");
   const isReadMode = viewerMode === "read";
@@ -2679,7 +2703,7 @@ export default function XmindViewerClient() {
         return;
       }
 
-      const normalizedSheets = normalizeToMindMapSheets(next.sheets, createId);
+      const normalizedSheets = normalizeToMindMapSheets(next.sheets, createId, ui.centerTopic);
       setEditorSheets(normalizedSheets);
       const nextActiveId = normalizedSheets[0]?.id ?? null;
       setActiveSheetId(nextActiveId);
@@ -3024,18 +3048,18 @@ export default function XmindViewerClient() {
             ? "rounded-2xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700"
             : "rounded-2xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
         }
-        title={viewerMode === "read" ? (isEnglish ? "Switch to edit mode" : "切换到编辑模式") : isEnglish ? "Switch to read mode" : "切换到阅读模式"}
+        title={viewerMode === "read" ? ui.switchToEditMode : ui.switchToReadMode}
       >
-        {viewerMode === "read" ? (isEnglish ? "Read" : "阅读") : isEnglish ? "Edit" : "编辑"}
+        {viewerMode === "read" ? ui.modeRead : ui.modeEdit}
       </button>
 
       <button
         type="button"
         onClick={() => setFullscreenPrimaryView((prev) => (prev === "mindmap" ? "text" : "mindmap"))}
         className="rounded-2xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-200"
-        title={isFullscreenTextView ? (isEnglish ? "Switch to mind map view" : "切换到思维导图视图") : isEnglish ? "Switch to text view" : "切换到文本视图"}
+        title={isFullscreenTextView ? ui.switchToMindmapView : ui.switchToTextView}
       >
-        {isFullscreenTextView ? (isEnglish ? "Mind Map" : "思维导图") : isEnglish ? "Text View" : "文本视图"}
+        {isFullscreenTextView ? ui.viewMindmap : ui.viewTextView}
       </button>
 
       {viewerMode === "edit" ? (
@@ -3341,17 +3365,9 @@ export default function XmindViewerClient() {
                     ? "rounded-2xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
                     : "rounded-2xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
                 }
-                title={
-                  viewerMode === "read"
-                    ? isEnglish
-                      ? "Switch to edit mode"
-                      : "切换到编辑模式"
-                    : isEnglish
-                      ? "Switch to read mode"
-                      : "切换到阅读模式"
-                }
+                title={viewerMode === "read" ? ui.switchToEditMode : ui.switchToReadMode}
               >
-                {viewerMode === "read" ? (isEnglish ? "Read" : "阅读") : isEnglish ? "Edit" : "编辑"}
+                {viewerMode === "read" ? ui.modeRead : ui.modeEdit}
               </button>
 
               <button

@@ -17,6 +17,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
+  // Root entry (defaults to x-default / DEFAULT_LOCALE)
+  entries.push({
+    url: baseUrl,
+    lastModified,
+    changeFrequency: "daily",
+    priority: 1.0,
+    alternates: {
+      languages: buildAlternates(""),
+    },
+  });
+
   for (const locale of SUPPORTED_LOCALES) {
     entries.push({
       url: `${baseUrl}/${locale}`,

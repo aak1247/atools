@@ -15,6 +15,27 @@
     "调色板",
     "HEX颜色"
   ],
+  "ui": {
+    "pickImage": "选择图片",
+    "replaceImage": "点击替换图片",
+    "clear": "清空",
+    "dropHint": "支持拖拽新图片到此区域直接替换",
+    "extract": "提取配色",
+    "extracting": "提取中…",
+    "imagePreview": "图片预览",
+    "params": "参数",
+    "colorCount": "颜色数量",
+    "sampleSize": "采样边长（px）",
+    "ignoreWhite": "忽略近白背景",
+    "ignoreBlack": "忽略近黑背景",
+    "paletteResult": "配色结果",
+    "copyCssVars": "复制 CSS 变量",
+    "noPaletteHint": "点击“提取配色”后显示结果。",
+    "copyHexTitle": "点击复制 HEX",
+    "errNoPixels": "未采样到有效像素（可尝试取消忽略白/黑背景）。",
+    "errExtractFailed": "提取失败",
+    "canvasUnavailable": "Canvas 不可用"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

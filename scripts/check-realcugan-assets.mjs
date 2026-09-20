@@ -22,26 +22,37 @@ if (usesRemoteAssets) {
 }
 
 const realcuganDir = path.join(ROOT, "public", "vendor", "realcugan");
-const requiredFiles = [
+const requiredFilesThreads = [
+  "realcugan-ncnn-webassembly-simd-threads.js",
+  "realcugan-ncnn-webassembly-simd-threads.wasm",
+  "realcugan-ncnn-webassembly-simd-threads.data",
+  "realcugan-ncnn-webassembly-simd-threads.worker.js",
+];
+const requiredFilesStandard = [
   "realcugan-ncnn-webassembly-simd.js",
   "realcugan-ncnn-webassembly-simd.wasm",
   "realcugan-ncnn-webassembly-simd.data",
 ];
 
 async function main() {
-  const missing = [];
-  for (const filename of requiredFiles) {
-    try {
-      await fs.access(path.join(realcuganDir, filename));
-    } catch {
-      missing.push(filename);
+  const checkList = async (files) => {
+    for (const f of files) {
+      try {
+        await fs.access(path.join(realcuganDir, f));
+      } catch {
+        return false;
+      }
     }
-  }
+    return true;
+  };
 
-  if (missing.length === 0) return;
+  const hasThreads = await checkList(requiredFilesThreads);
+  const hasStandard = await checkList(requiredFilesStandard);
+
+  if (hasThreads || hasStandard) return;
 
   console.error("[realcugan] 缺少本地静态资源（用于纯静态部署）:");
-  for (const f of missing) console.error(`  - public/vendor/realcugan/${f}`);
+  for (const f of requiredFilesThreads) console.error(`  - public/vendor/realcugan/${f}`);
   console.error("\n解决方案（二选一）：");
   console.error("1) 把上述文件放入 `public/vendor/realcugan/`（会随 `out/` 一起上传到静态托管/CDN）");
   console.error("2) 配置 `NEXT_PUBLIC_R2_ASSETS_URL` 为远程资源域名（例如 https://assets.example.com），并确保对应文件可访问");

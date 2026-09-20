@@ -13,6 +13,7 @@ type Ui = {
   selectFile: string;
   currentFilePrefix: string;
   reselect: string;
+  dropReplaceHint: string;
   optionsTitle: string;
   optionPageBreaks: string;
   optionHeaders: string;
@@ -35,10 +36,11 @@ const DEFAULT_UI: Ui = {
   hint: "DOCX 预览与转 PDF：纯前端本地渲染（不上传），支持 .docx 文件的快速预览与打印/保存为 PDF。",
   privacyNote: "提示：文件仅在浏览器本地处理，不会上传到服务器。",
   dropTitle: "点击或拖拽 DOCX 文件到此处",
-  dropSubtitle: "仅支持 .docx（Word 文档的新格式）；如为 .doc/.wps 请先另存为 .docx 或导出 PDF。已加载后也支持点击替换和拖拽替换。",
+  dropSubtitle: "仅支持 .docx（Word 文档的新格式）；如为 .doc/.wps 请先另存为 .docx 或导出 PDF。",
   selectFile: "选择文件",
   currentFilePrefix: "当前文件：",
   reselect: "点击替换",
+  dropReplaceHint: "支持拖拽新 DOCX 到当前区域直接替换",
   optionsTitle: "渲染选项",
   optionPageBreaks: "分页（接近 Word 的页面效果）",
   optionHeaders: "渲染页眉",
@@ -284,7 +286,7 @@ function Inner({ ui }: { ui: Ui }) {
                     </button>
                   </div>
                 </div>
-                <div className="text-[11px] text-slate-500">支持拖拽新 DOCX 到当前区域直接替换</div>
+                <div className="text-[11px] text-slate-500">{ui.dropReplaceHint}</div>
 
                 <div className="grid gap-3 rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
                   <div className="text-sm font-semibold text-slate-900">{ui.optionsTitle}</div>

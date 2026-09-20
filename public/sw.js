@@ -1,4 +1,4 @@
-const CACHE_NAME = "tools-pwa-v0.1.0-710135ebe171";
+const CACHE_NAME = "tools-pwa-v0.1.0-13d31ba4e9cb";
 const OFFLINE_URLS = [
   "/",
   "/zh-cn",
@@ -48,7 +48,6 @@ function isLikelyNextRsc(pathname) {
   if (pathname.includes("/__next.")) return true;
   if (pathname.startsWith("/zh-cn/tools/")) return true;
   if (pathname.startsWith("/en-us/tools/")) return true;
-  if (pathname.startsWith("/tools/")) return true;
   return false;
 }
 

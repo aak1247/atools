@@ -34,9 +34,12 @@ const formatBytes = (bytes: number): string => {
 type Strategy = "balanced" | "aggressive" | "repackOnly";
 
 const DEFAULT_UI = {
+  title: "PPT 幻灯片智能压缩",
+  clear: "清空",
   pickFile: "选择 PPT 幻灯片 (.pptx)",
   replaceFile: "替换幻灯片",
   dropHint: "拖拽 .pptx 文件到此处，或点击按钮上传。",
+  selectedPrefix: "已选择：",
   compressModeTitle: "压缩策略",
   modeBalanced: "智能深度压缩（推荐）",
   modeBalancedDesc: "自动优化幻灯片内的高清插图与背景图，结合最高级别容器重打包，大幅减小体积。",
@@ -46,11 +49,17 @@ const DEFAULT_UI = {
   modeRepackOnlyDesc: "仅重新打包 ZIP 容器，不修改任何插图资源。",
   runCompress: "开始压缩幻灯片",
   working: "正在优化压缩中…",
+  optimizingImage: "正在优化第 {current}/{total} 张图片: {filename}",
+  resultTitle: "压缩结果与导出",
+  compressSuccess: "压缩成功！",
   originalSize: "原始体积：",
   compressedSize: "压缩后体积：",
   reduction: "体积变化：",
   imagesFound: "检测到内嵌图片：",
   imagesOptimized: "成功优化图片：",
+  imageOptimization: "内嵌图片优化",
+  imageStats: "共 {count} 张，成功优化 {optimized} 张",
+  emptyHint: "点击“开始压缩幻灯片”即可获取优化后的 PPT 文件",
   download: "下载压缩后的 PPT 文件",
   tipTitle: "说明与提示",
   tips: [
@@ -167,7 +176,12 @@ export default function PptCompressorClient() {
         imageQuality: strategy === "repackOnly" ? 1.0 : quality,
         maxImageDimension: strategy === "repackOnly" ? 99999 : maxDim,
         onProgress: ({ current, total, filename }) => {
-          setProgressStatus(`正在优化第 ${current}/${total} 张图片: ${filename}`);
+          setProgressStatus(
+            ui.optimizingImage
+              .replace("{current}", String(current))
+              .replace("{total}", String(total))
+              .replace("{filename}", filename)
+          );
         },
       });
 
@@ -200,7 +214,7 @@ export default function PptCompressorClient() {
               <div className="rounded-2xl bg-amber-100 p-2 text-amber-600">
                 <Presentation className="h-5 w-5" />
               </div>
-              <h1 className="text-lg font-bold text-slate-900">PPT 幻灯片智能压缩</h1>
+              <h1 className="text-lg font-bold text-slate-900">{ui.title}</h1>
             </div>
             {file && (
               <button
@@ -209,7 +223,7 @@ export default function PptCompressorClient() {
                 className="flex items-center gap-1.5 rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
               >
                 <Trash2 className="h-4 w-4" />
-                清空
+                {ui.clear}
               </button>
             )}
           </div>
@@ -244,7 +258,7 @@ export default function PptCompressorClient() {
                 <Presentation className="h-8 w-8" />
               </div>
               <p className="mt-3 text-sm font-medium text-slate-800">
-                {file ? `已选择：${file.name} (${formatBytes(file.size)})` : ui.dropHint}
+                {file ? `${ui.selectedPrefix}${file.name} (${formatBytes(file.size)})` : ui.dropHint}
               </p>
               <div className="mt-4">
                 <button
@@ -361,14 +375,14 @@ export default function PptCompressorClient() {
               {/* Right Column: Output */}
               <div className="space-y-4 lg:col-span-6">
                 <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-                  <div className="text-sm font-semibold text-slate-900">压缩结果与导出</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.resultTitle}</div>
 
                   {outputSize != null && downloadUrl ? (
                     <div className="space-y-4">
                       <div className="rounded-2xl bg-emerald-50 p-4 text-xs text-emerald-900 ring-1 ring-emerald-200 flex items-start gap-2.5">
                         <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                         <div>
-                          <div className="font-semibold text-sm">压缩成功！</div>
+                          <div className="font-semibold text-sm">{ui.compressSuccess}</div>
                           <div className="mt-1 text-slate-600 leading-relaxed">
                             {ui.reduction} <span className="font-semibold text-emerald-700">{reductionText}</span>
                           </div>
@@ -390,10 +404,12 @@ export default function PptCompressorClient() {
                           <div className="flex justify-between p-3">
                             <span className="text-slate-500 flex items-center gap-1">
                               <ImageIcon className="h-3.5 w-3.5 text-slate-400" />
-                              内嵌图片优化
+                              {ui.imageOptimization}
                             </span>
                             <span className="text-slate-700">
-                              共 {stats.imageCount} 张，成功优化 {stats.compressedImageCount} 张
+                              {ui.imageStats
+                                .replace("{count}", String(stats.imageCount))
+                                .replace("{optimized}", String(stats.compressedImageCount))}
                             </span>
                           </div>
                         )}
@@ -411,7 +427,7 @@ export default function PptCompressorClient() {
                   ) : (
                     <div className="flex flex-col items-center justify-center py-20 text-center text-slate-400">
                       <Presentation className="h-10 w-10 stroke-1" />
-                      <p className="mt-3 text-xs">点击“开始压缩幻灯片”即可获取优化后的 PPT 文件</p>
+                      <p className="mt-3 text-xs">{ui.emptyHint}</p>
                     </div>
                   )}
                 </div>

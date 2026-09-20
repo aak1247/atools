@@ -9,7 +9,9 @@
   "ui": {
     "hint": "Rotate PDF pages locally in your browser (no uploads).",
     "pick": "Select PDF",
+    "replace": "Replace PDF",
     "clear": "Clear",
+    "dropReplaceHint": "Drag & drop a new PDF here to replace.",
     "pageUnit": "pages",
     "scope": "Pages",
     "all": "All pages",

@@ -12,7 +12,11 @@
   "ui": {
     "ignoreTrailingWhitespace": "Ignore trailing whitespace",
     "uploadBaseText": "Upload Base Text",
+    "replaceBaseText": "Replace Base Text",
+    "dropBaseHint": "Click or drag to replace base text.",
     "batchUploadVersions": "Batch Upload Versions",
+    "replaceVersionList": "Replace Version List",
+    "dropVersionsHint": "Click or drag to upload versions; dragging replaces current version list.",
     "addVersion": "Add Version",
     "baseContract": "Base Contract",
     "versionList": "Version List",

@@ -7,8 +7,7 @@ type Env = {
 };
 
 import responseHeaders from "./response-headers.json";
-
-const DEFAULT_LOCALE = "zh-cn";
+import { detectServerLocale } from "../src/i18n/detect-locale";
 
 function hasFileExtension(pathname: string) {
   const lastSegment = pathname.split("/").pop() ?? "";
@@ -73,13 +72,32 @@ const worker = {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    const getTargetLocale = () => {
+      const country =
+        (request as Request & { cf?: { country?: string } }).cf?.country ??
+        request.headers.get("CF-IPCountry");
+      return detectServerLocale({
+        cookieHeader: request.headers.get("cookie"),
+        acceptLanguageHeader: request.headers.get("accept-language"),
+        country,
+      });
+    };
+
+    if (url.pathname === "/" || url.pathname === "") {
+      const targetLocale = getTargetLocale();
+      url.pathname = `/${targetLocale}`;
+      return Response.redirect(url.toString(), 307);
+    }
+
     if (url.pathname === "/tools" || url.pathname === "/tools/") {
-      url.pathname = `/${DEFAULT_LOCALE}`;
-      return Response.redirect(url.toString(), 308);
+      const targetLocale = getTargetLocale();
+      url.pathname = `/${targetLocale}`;
+      return Response.redirect(url.toString(), 307);
     }
     if (url.pathname.startsWith("/tools/")) {
-      url.pathname = `/${DEFAULT_LOCALE}${url.pathname}`;
-      return Response.redirect(url.toString(), 308);
+      const targetLocale = getTargetLocale();
+      url.pathname = `/${targetLocale}${url.pathname}`;
+      return Response.redirect(url.toString(), 307);
     }
 
     const originalResponse = await fetchAsset(request, env);
