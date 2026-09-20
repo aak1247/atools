@@ -1,4 +1,4 @@
-const CACHE_NAME = "tools-pwa-v0.1.0-b64304f9f710";
+const CACHE_NAME = "tools-pwa-v0.1.0-efd86e3b9284";
 const OFFLINE_URLS = [
   "/",
   "/zh-cn",

@@ -18,5 +18,36 @@
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true
+  },
+  "ui": {
+    "selectImages": "选择图片",
+    "addImages": "追加图片",
+    "replaceImages": "点击替换全部",
+    "sortByName": "按文件名排序",
+    "clear": "清空",
+    "selectedCount": "已选 {count} 张",
+    "dropReplaceHint": "支持拖拽图片到此区域直接替换全部已选图片",
+    "generating": "生成中…",
+    "generateSpriteSheet": "生成雪碧图",
+    "inputImages": "输入图片",
+    "selectImagesHint": "请选择多张图片生成雪碧图。",
+    "delete": "删除",
+    "outputSpriteSheet": "输出雪碧图",
+    "download": "下载 {filename}",
+    "layoutSettings": "布局设置",
+    "maxWidth": "最大宽度（px）",
+    "padding": "padding（px）",
+    "background": "背景",
+    "transparent": "透明",
+    "white": "白色",
+    "layoutDescription": "说明：使用简单的“货架（shelf）”排布算法：按高度排序后逐行摆放，适合快速生成雪碧图。",
+    "coordinatesExport": "坐标导出",
+    "copyJson": "复制 JSON",
+    "copyCss": "复制 CSS",
+    "jsonPlaceholder": "生成后输出 sprites 坐标 JSON…",
+    "cssPlaceholder": "生成后输出基础 CSS…",
+    "coordinatesPreview": "坐标预览",
+    "readImageError": "读取图片失败",
+    "buildError": "生成失败"
   }
 }

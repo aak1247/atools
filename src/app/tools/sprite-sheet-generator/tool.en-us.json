@@ -8,12 +8,24 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["sprite sheet", "image merging", "coordinates export", "CSS background positioning"],
+  "keywords": [
+    "sprite sheet",
+    "image merging",
+    "coordinates export",
+    "CSS background positioning"
+  ],
+  "pageFeatures": {
+    "floatingUploadAction": true,
+    "globalDropZone": true
+  },
   "ui": {
     "selectImages": "Select Images",
+    "addImages": "Add Images",
+    "replaceImages": "Click to Replace All",
     "sortByName": "Sort by Name",
     "clear": "Clear",
     "selectedCount": "Selected {count} images",
+    "dropReplaceHint": "Drag & drop images here to replace all selected images",
     "generating": "Generating...",
     "generateSpriteSheet": "Generate Sprite Sheet",
     "inputImages": "Input Images",
