@@ -4,34 +4,11 @@ import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Canvas } from "fabric";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type ToolMode = "select" | "pen" | "rect" | "arrow" | "text";
 
-type Ui = {
-  hint: string;
-  pick: string;
-  replace: string;
-  clear: string;
-  dropReplaceHint: string;
-  mode: string;
-  select: string;
-  pen: string;
-  rect: string;
-  arrow: string;
-  text: string;
-  stroke: string;
-  fill: string;
-  width: string;
-  fontSize: string;
-  undo: string;
-  redo: string;
-  downloadPng: string;
-  copyPng: string;
-  errPickImage: string;
-  copied: string;
-};
-
-const DEFAULT_UI: Ui = {
+const DEFAULT_UI = {
   hint: "截图标注工具：上传截图后可画笔、矩形、箭头、文字标注，导出 PNG（全程本地处理不上传）。",
   pick: "选择图片",
   replace: "点击替换图片",
@@ -53,7 +30,7 @@ const DEFAULT_UI: Ui = {
   copyPng: "复制 PNG",
   errPickImage: "请选择图片文件（PNG/JPG/WebP）。",
   copied: "已复制",
-};
+} as const;
 
 const dataUrlToBlob = async (dataUrl: string) => {
   const res = await fetch(dataUrl);
@@ -82,12 +59,15 @@ function calcFitSize(imageWidth: number, imageHeight: number, areaWidth: number,
 export default function ScreenshotAnnotatorClient() {
   return (
     <ToolPageLayout toolSlug="screenshot-annotator" maxWidthClassName="max-w-6xl">
-      {({ config }) => <Inner ui={{ ...DEFAULT_UI, ...((config.ui ?? {}) as Partial<Ui>) }} />}
+      <ScreenshotAnnotatorInner />
     </ToolPageLayout>
   );
 }
 
-function Inner({ ui }: { ui: Ui }) {
+function ScreenshotAnnotatorInner() {
+  const config = useOptionalToolConfig("screenshot-annotator");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasElRef = useRef<HTMLCanvasElement | null>(null);
   const canvasViewportRef = useRef<HTMLDivElement | null>(null);

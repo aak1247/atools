@@ -8,6 +8,9 @@ import { useFileDropzone } from "../../../hooks/useFileDropzone";
 const DEFAULT_UI = {
   pickTitle: "选择音频文件",
   pickFile: "选择文件",
+  replaceFile: "点击替换音频",
+  clear: "清空",
+  dropReplaceHint: "支持拖拽新音频到此区域直接替换",
   previewTitle: "预览",
   durationTemplate: "时长：{time}（{seconds}s）",
   rangeTitle: "裁剪范围",
@@ -18,7 +21,6 @@ const DEFAULT_UI = {
   exportHint: "导出为 WAV（16-bit PCM）。长音频导出会占用较多内存。",
   exportWav: "导出 WAV",
   processing: "处理中...",
-  clear: "清空",
   generated: "已生成剪辑文件：",
   download: "下载",
   errorPrefix: "错误：",
@@ -230,7 +232,7 @@ function AudioTrimmerInner() {
             onClick={openFilePicker}
             className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            {file ? "点击替换音频" : ui.pickFile}
+            {file ? ui.replaceFile : ui.pickFile}
           </button>
           <input
             ref={inputRef}
@@ -239,7 +241,7 @@ function AudioTrimmerInner() {
             className="hidden"
             onChange={handleInputChange}
           />
-          <div className="w-full text-[11px] text-slate-500">支持拖拽新音频到此区域直接替换</div>
+          <div className="w-full text-[11px] text-slate-500">{ui.dropReplaceHint}</div>
         </div>
 
         {file && objectUrl && (

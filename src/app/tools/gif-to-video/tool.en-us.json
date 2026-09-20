@@ -12,5 +12,32 @@
     "gif-to-video",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "GIF to Video",
+    "subtitle": "Powered by ffmpeg.wasm: Convert GIF to WebM/MP4 (100% local processing)",
+    "dropTitle": "Select GIF File",
+    "pickFile": "Select File",
+    "replaceGif": "Click to Replace GIF",
+    "ffmpegReady": "FFmpeg Ready",
+    "ffmpegLoading": "Loading...",
+    "ffmpegLoad": "Load FFmpeg",
+    "clear": "Clear",
+    "dropHint": "Drag and drop a new GIF here to replace",
+    "mp4Tip": "Note: MP4 export requires encoder support built into ffmpeg.wasm; if conversion fails, WebM export is recommended.",
+    "settings": "Settings",
+    "outputFormat": "Output Format",
+    "webmRecommend": "WebM (Recommended)",
+    "mp4Notice": "MP4 (May fail depending on browser build)",
+    "fps": "Frame Rate (FPS)",
+    "width": "Width (px)",
+    "startConvert": "Start Conversion",
+    "converting": "Converting...",
+    "download": "Download",
+    "progress": "Progress",
+    "ffmpegLogs": "FFmpeg Logs",
+    "logsPlaceholder": "Logs will appear here...",
+    "errFfmpegLoad": "Failed to load FFmpeg.",
+    "errConvertFailed": "Conversion failed (selected output codec might not be available). We recommend using WebM format instead."
+  }
 }

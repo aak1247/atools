@@ -15,6 +15,33 @@
     "GIF格式转换",
     "FFmpeg转换工具"
   ],
+  "ui": {
+    "title": "GIF 转视频",
+    "subtitle": "基于 ffmpeg.wasm：GIF 转 WebM/MP4（纯本地处理）",
+    "dropTitle": "选择 GIF 文件",
+    "pickFile": "选择文件",
+    "replaceGif": "点击替换 GIF",
+    "ffmpegReady": "FFmpeg 已就绪",
+    "ffmpegLoading": "加载中...",
+    "ffmpegLoad": "加载 FFmpeg",
+    "clear": "清空",
+    "dropHint": "支持拖拽新 GIF 到此区域直接替换",
+    "mp4Tip": "提示：MP4 输出需要浏览器内置的 ffmpeg.wasm 编码器支持；如失败，建议选择 WebM 输出。",
+    "settings": "设置",
+    "outputFormat": "输出格式",
+    "webmRecommend": "WebM（推荐）",
+    "mp4Notice": "MP4（可能失败）",
+    "fps": "帧率（FPS）",
+    "width": "宽度（px）",
+    "startConvert": "开始转换",
+    "converting": "转换中...",
+    "download": "下载",
+    "progress": "进度",
+    "ffmpegLogs": "FFmpeg 日志",
+    "logsPlaceholder": "日志会显示在这里…",
+    "errFfmpegLoad": "FFmpeg 加载失败。",
+    "errConvertFailed": "转换失败（可能是所选输出编码器未内置）。建议改用 WebM 输出。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

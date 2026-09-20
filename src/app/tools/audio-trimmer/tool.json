@@ -15,6 +15,30 @@
     "音频剪切工具",
     "WAV剪辑"
   ],
+  "ui": {
+    "pickTitle": "选择音频文件",
+    "pickFile": "选择文件",
+    "replaceFile": "点击替换音频",
+    "clear": "清空",
+    "dropReplaceHint": "支持拖拽新音频到此区域直接替换",
+    "previewTitle": "预览",
+    "durationTemplate": "时长：{time}（{seconds}s）",
+    "rangeTitle": "裁剪范围",
+    "startSeconds": "开始（秒）",
+    "endSeconds": "结束（秒）",
+    "selectedSegmentTemplate": "选中片段：{time}（{seconds}s）",
+    "exportTitle": "导出",
+    "exportHint": "导出为 WAV（16-bit PCM）。长音频导出会占用较多内存。",
+    "exportWav": "导出 WAV",
+    "processing": "处理中...",
+    "generated": "已生成剪辑文件：",
+    "download": "下载",
+    "errorPrefix": "错误：",
+    "hint": "提示：不同浏览器对音频解码支持不同；如导出失败，建议先转为常见格式（MP3/WAV）后再试。",
+    "errChooseFile": "请先选择一个音频文件。",
+    "errEndAfterStart": "结束时间必须大于开始时间。",
+    "errProcessFailed": "处理音频失败，请换一个文件试试。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true
