@@ -38,11 +38,13 @@ const defaultKeywords = [
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const clarityProjectId = getClarityProjectId();
@@ -95,7 +97,7 @@ export default function RootLayout({
       {clarityProjectId ? (
         <Script
           id="clarity-bootstrap"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: buildClarityBootstrapScript(clarityProjectId),
           }}

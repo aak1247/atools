@@ -115,6 +115,7 @@ const DEFAULT_UI = {
   formatJsonDesc: "包含 Base64 密文与元数据，便于复制纯文本传输或查看参数。",
   iterations: "PBKDF2 迭代轮次",
   iterationsHint: "默认 200,000 轮，数字越高暴力破解难度越大。",
+  encryptOptions: "加密参数设置",
   runEncrypt: "加密并导出文件",
   runDecrypt: "解密并还原原始文件",
   working: "处理中…",
@@ -561,7 +562,7 @@ function FileEncryptorInner() {
                 <div className="rounded-3xl border border-slate-200 bg-white p-5 space-y-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
                     <Settings className="h-4 w-4 text-slate-500" />
-                    加密参数设置
+                    {ui.encryptOptions}
                   </div>
 
                   {/* Password */}

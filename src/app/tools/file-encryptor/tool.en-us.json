@@ -25,6 +25,7 @@
     "formatJsonDesc": "Contains Base64 ciphertext and metadata, easy to copy for text transfer.",
     "iterations": "PBKDF2 Iterations",
     "iterationsHint": "Default 200,000 rounds. Higher numbers increase brute-force resistance.",
+    "encryptOptions": "Encryption Settings",
     "runEncrypt": "Encrypt & Export File",
     "runDecrypt": "Decrypt & Restore File",
     "working": "Processing...",

@@ -27,7 +27,7 @@ export function useToolConfig(toolSlug: string, locale?: string) {
         const urls = [`/${effectiveLocale}/tools/${toolSlug}/tool.json`];
 
         for (const url of urls) {
-          const response = await fetch(url, { cache: "no-store" });
+          const response = await fetch(url, { cache: "default" });
           if (!response.ok) continue;
           const data = (await response.json()) as ToolConfig;
           setConfig(data);

@@ -336,12 +336,13 @@ export default function ToolNavClient() {
 	        {filteredTools.map((tool) => {
             const href = `/${locale}${tool.path}`;
             return (
-            <Link
-              key={tool.slug}
-              href={href}
-              onMouseEnter={() => router.prefetch(href)}
-              onFocus={() => router.prefetch(href)}
-              onTouchStart={() => router.prefetch(href)}
+	            <Link
+	              key={tool.slug}
+	              href={href}
+	              prefetch={false}
+	              onMouseEnter={() => router.prefetch(href)}
+	              onFocus={() => router.prefetch(href)}
+	              onTouchStart={() => router.prefetch(href)}
               className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/50 hover:ring-slate-300 sm:rounded-3xl sm:p-6"
             >
             <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />

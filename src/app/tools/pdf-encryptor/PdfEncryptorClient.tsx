@@ -50,6 +50,7 @@ const DEFAULT_UI = {
   aes256Desc: "现代国际标准，高强度安全加密。兼容 Adobe Acrobat、Chrome、Edge 及现代 PDF 阅读器。",
   rc4Label: "RC4 128-bit (经典兼容模式)",
   rc4Desc: "旧版 PDF 加密规范，安全性相对较弱，兼容老旧设备与旧版软件。",
+  encryptionOptions: "加密选项与权限保护",
   permissionsTitle: "权限限制设置",
   allowPrinting: "允许打印文档",
   allowCopying: "允许复制文字和内容",
@@ -79,7 +80,9 @@ const DEFAULT_UI = {
   decryptEmptySubHint: "解密后将移除密码限制，生成干净的无密码 PDF 文件",
   errPasswordRequired: "请输入密码",
   errNoPdfFile: "请选择有效的 PDF 文件",
+  errNoEncryptedFile: "请选择要解密的 PDF 文件",
   errInvalidPdfType: "请上传 .pdf 格式的文件",
+  errInvalidDecryptFileType: "请选择 .pdf 或 .json 文件",
   errAlreadyEncrypted: "该 PDF 文件本身已包含加密，请先在解密面板解密后再加密",
   errEncryptFailed: "PDF 加密失败，请重试",
   errInvalidPassword: "解密失败：密码错误，请核对密码后重试",
@@ -183,7 +186,7 @@ function PdfEncryptorInner() {
     const isJson =
       file.type === "application/json" || file.name.toLowerCase().endsWith(".json");
     if (!isPdf && !isJson) {
-      setError("请选择 .pdf 或 .json 文件");
+      setError(ui.errInvalidDecryptFileType);
       return;
     }
     clearOutputState();
@@ -263,7 +266,7 @@ function PdfEncryptorInner() {
   // Run Decrypt
   const runDecrypt = async () => {
     if (!encryptedFile) {
-      setError("请选择要解密的 PDF 文件");
+      setError(ui.errNoEncryptedFile);
       return;
     }
     if (!password) {
@@ -434,7 +437,7 @@ function PdfEncryptorInner() {
                 <div className="rounded-3xl border border-slate-200 bg-white p-5 space-y-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
                     <Settings className="h-4 w-4 text-slate-500" />
-                    加密选项与权限保护
+                    {ui.encryptionOptions}
                   </div>
 
                   {/* Passwords */}
