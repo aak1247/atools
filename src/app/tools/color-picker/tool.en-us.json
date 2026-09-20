@@ -10,13 +10,15 @@
     "dropTitle": "Click or drag an image here",
     "dropSubtitle": "Supports common formats (JPG/PNG/WebP…)",
     "currentImagePrefix": "Current image: ",
-    "reselect": "Choose another",
+    "replace": "Click to replace image",
+    "clear": "Clear",
+    "dropReplaceHint": "Drag and drop a new image here to replace",
     "hintPick": "Tip: Click anywhere on the canvas to pick a color.",
-    "colorInfo": "Color info",
+    "colorInfo": "Color Info",
     "pixelPrefix": "Pixel: ",
     "notPicked": "No color selected",
     "copy": "Copy",
-    "alphaNote": "Note: Colors with alpha output 8-digit HEX (#RRGGBBAA)."
+    "alphaNote": "Note: Colors with transparency output 8-digit HEX (#RRGGBBAA)."
   },
   "keywords": [
     "free online Color Picker",

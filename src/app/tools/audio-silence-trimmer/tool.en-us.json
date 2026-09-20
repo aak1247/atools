@@ -12,7 +12,9 @@
   "ui": {
     "pickTitle": "Select Audio File",
     "pickFile": "Select File",
+    "replaceFile": "Click to Replace Audio",
     "clear": "Clear",
+    "dropReplaceHint": "Drag and drop a new audio file here to replace directly",
     "firstLoadHint": "Note: First-time loading of ffmpeg.wasm requires downloading core files (large), which may take time; all processing is done locally in the browser without uploading to server.",
     "ffmpegReady": "FFmpeg Ready",
     "ffmpegLoading": "Loading...",

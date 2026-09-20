@@ -25,6 +25,8 @@ const DEFAULT_UI = {
   loadFfmpeg: "加载 FFmpeg",
   settings: "降噪设置",
   outputFormat: "输出格式",
+  formatWavRecommended: "WAV（推荐）",
+  formatMp3: "MP3",
   strength: "降噪强度",
   start: "开始降噪",
   working: "处理中...",
@@ -33,6 +35,8 @@ const DEFAULT_UI = {
   preview: "试听预览",
   ffmpegLogs: "FFmpeg 日志",
   logsPlaceholder: "日志会显示在这里…",
+  errFfmpegLoadFailed: "FFmpeg 加载失败。",
+  errProcessFailed: "处理失败（可能浏览器资源不足或编码器不支持）。",
 } as const;
 
 type Ui = typeof DEFAULT_UI;
@@ -119,7 +123,7 @@ function AudioNoiseReducerInner() {
       setFfmpegState("ready");
     } catch (e) {
       setFfmpegState("error");
-      setError(e instanceof Error ? e.message : "FFmpeg 加载失败。");
+      setError(e instanceof Error ? e.message : ui.errFfmpegLoadFailed);
     }
   };
 
@@ -179,7 +183,7 @@ function AudioNoiseReducerInner() {
       setDownloadUrl(url);
       setProgress(1);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "处理失败（可能浏览器资源不足或编码器不支持）。");
+      setError(e instanceof Error ? e.message : ui.errProcessFailed);
       setFfmpegState("error");
     } finally {
       setIsWorking(false);
@@ -278,8 +282,8 @@ function AudioNoiseReducerInner() {
                       onChange={(e) => setOutputFormat(e.target.value as OutputFormat)}
                       className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      <option value="wav">WAV（推荐）</option>
-                      <option value="mp3">MP3</option>
+                      <option value="wav">{ui.formatWavRecommended}</option>
+                      <option value="mp3">{ui.formatMp3}</option>
                     </select>
                   </label>
                   <label className="block text-sm text-slate-700">

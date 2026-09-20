@@ -12,5 +12,35 @@
     "gif-optimizer",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "ffmpegLocalNotice": "Runs locally using ffmpeg.wasm. First use will download core engine files (cached by browser).",
+    "ffmpegReady": "FFmpeg Ready",
+    "ffmpegLoading": "Loading...",
+    "ffmpegLoad": "Load FFmpeg",
+    "pickGif": "Select GIF",
+    "replaceGif": "Replace GIF",
+    "dropHint": "Drag and drop a new GIF here to replace",
+    "settings": "Settings",
+    "fps": "Frame Rate (FPS)",
+    "width": "Width (px)",
+    "maxColors": "Max Colors",
+    "ditherAlgorithm": "Dither Algorithm",
+    "ditherBayer": "bayer (Recommended)",
+    "ditherFloyd": "floyd_steinberg",
+    "ditherNone": "none (No dithering)",
+    "loopPlay": "Loop animation (GIF loop=0)",
+    "startOptimize": "Start Optimization",
+    "optimizing": "Optimizing...",
+    "download": "Download",
+    "originalSize": "Original Size: ",
+    "optimizedSize": "Optimized Size: ",
+    "progress": "Progress",
+    "tip": "Tip: Reducing width, FPS, and color count significantly reduces file size. If color banding occurs, try another dither algorithm or increase max colors.",
+    "ffmpegLogs": "FFmpeg Logs",
+    "logsPlaceholder": "Logs will appear here...",
+    "emptyHint": "Select a GIF file to begin optimization (loading FFmpeg first is recommended).",
+    "errLoadFfmpeg": "Failed to load FFmpeg.",
+    "errOptimizeFailed": "Optimization failed. Try reducing width or color count."
+  }
 }

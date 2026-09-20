@@ -5,6 +5,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import { getFFmpegBaseURL } from "../../../lib/r2-assets";
 
 type Dither = "bayer" | "floyd_steinberg" | "none";
@@ -27,10 +28,52 @@ const formatBytes = (bytes: number): string => {
     value /= 1024;
     index += 1;
   }
-  return `${value.toFixed(index === 0 ? 0 : 2).replace(/\\.00$/, "")} ${units[index]}`;
+  return `${value.toFixed(index === 0 ? 0 : 2).replace(/\.00$/, "")} ${units[index]}`;
 };
 
+const DEFAULT_UI = {
+  ffmpegLocalNotice: "基于 ffmpeg.wasm 本地处理，首次使用需下载核心文件（浏览器缓存）。",
+  ffmpegReady: "FFmpeg 已就绪",
+  ffmpegLoading: "加载中...",
+  ffmpegLoad: "加载 FFmpeg",
+  pickGif: "选择 GIF",
+  replaceGif: "点击替换 GIF",
+  dropHint: "支持拖拽新 GIF 到此区域直接替换",
+  settings: "设置",
+  fps: "帧率（FPS）",
+  width: "宽度（px）",
+  maxColors: "最大颜色数",
+  ditherAlgorithm: "抖动算法",
+  ditherBayer: "bayer（推荐）",
+  ditherFloyd: "floyd_steinberg",
+  ditherNone: "none（无抖动）",
+  loopPlay: "循环播放（GIF loop=0）",
+  startOptimize: "开始优化",
+  optimizing: "优化中...",
+  download: "下载",
+  originalSize: "原始体积：",
+  optimizedSize: "优化后体积：",
+  progress: "进度",
+  tip: "提示：降低宽度、帧率与颜色数通常能显著减小体积；若出现色带，可尝试更换抖动算法或提高颜色数。",
+  ffmpegLogs: "FFmpeg 日志",
+  logsPlaceholder: "日志会显示在这里…",
+  emptyHint: "选择一个 GIF 文件后即可开始优化（建议先点击“加载 FFmpeg”）。",
+  errLoadFfmpeg: "FFmpeg 加载失败。",
+  errOptimizeFailed: "优化失败，请尝试降低宽度或颜色数。",
+} as const;
+
 export default function GifOptimizerClient() {
+  return (
+    <ToolPageLayout toolSlug="gif-optimizer">
+      <GifOptimizerInner />
+    </ToolPageLayout>
+  );
+}
+
+function GifOptimizerInner() {
+  const config = useOptionalToolConfig("gif-optimizer");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const logRef = useRef<string[]>([]);
@@ -70,7 +113,7 @@ export default function GifOptimizerClient() {
       ffmpeg.on("log", ({ message }) => {
         logRef.current.push(message);
         if (logRef.current.length > 500) logRef.current.splice(0, logRef.current.length - 500);
-        setLogs(logRef.current.join("\\n"));
+        setLogs(logRef.current.join("\n"));
       });
       ffmpeg.on("progress", ({ progress: p }) => {
         if (typeof p === "number" && Number.isFinite(p)) setProgress(Math.max(0, Math.min(1, p)));
@@ -84,7 +127,7 @@ export default function GifOptimizerClient() {
       setFfmpegState("ready");
     } catch (e) {
       setFfmpegState("error");
-      setError(e instanceof Error ? e.message : "FFmpeg 加载失败。");
+      setError(e instanceof Error ? e.message : ui.errLoadFfmpeg);
     }
   };
 
@@ -99,7 +142,7 @@ export default function GifOptimizerClient() {
       URL.revokeObjectURL(downloadUrl);
       setDownloadUrl(null);
     }
-    const base = selected.name.replace(/\\.[^.]+$/, "") || "output";
+    const base = selected.name.replace(/\.[^.]+$/, "") || "output";
     setDownloadName(`${base}.optimized.gif`);
   };
 
@@ -176,189 +219,189 @@ export default function GifOptimizerClient() {
       setDownloadUrl(url);
       setProgress(1);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "优化失败，请尝试降低宽度或颜色数。");
+      setError(e instanceof Error ? e.message : ui.errOptimizeFailed);
     } finally {
       setIsWorking(false);
     }
   };
 
   return (
-    <ToolPageLayout toolSlug="gif-optimizer">
-      <div className="w-full px-4">
-        <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-          <div
-            className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dashed p-4 transition ${
-              isDragging
-                ? "border-slate-400 bg-slate-50/60"
-                : "border-slate-200 bg-slate-50/80"
-            }`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-          >
-            <div className="text-sm text-slate-700">
-              基于 <span className="font-mono">ffmpeg.wasm</span> 本地处理，首次使用需下载核心文件（浏览器缓存）。
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => void ensureLoaded()}
-                disabled={ffmpegState === "loading" || ffmpegState === "ready"}
-                className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
-              >
-                {ffmpegState === "ready" ? "FFmpeg 已就绪" : ffmpegState === "loading" ? "加载中..." : "加载 FFmpeg"}
-              </button>
-              <button
-                type="button"
-                onClick={openFilePicker}
-                className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200"
-              >
-                {file ? "点击替换 GIF" : "选择 GIF"}
-              </button>
-              <input ref={inputRef} type="file" accept="image/gif" className="hidden" onChange={onChange} />
-            </div>
-            <div className="w-full text-[11px] text-slate-500">支持拖拽新 GIF 到此区域直接替换</div>
+    <div className="w-full px-4">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+        <div
+          className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dashed p-4 transition ${
+            isDragging
+              ? "border-slate-400 bg-slate-50/60"
+              : "border-slate-200 bg-slate-50/80"
+          }`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
+          <div className="text-sm text-slate-700">
+            {ui.ffmpegLocalNotice.split("ffmpeg.wasm")[0]}
+            <span className="font-mono">ffmpeg.wasm</span>
+            {ui.ffmpegLocalNotice.split("ffmpeg.wasm")[1] ?? ""}
           </div>
-
-          {file && (
-            <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="space-y-4">
-                <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                  <div className="text-sm font-semibold text-slate-900">设置</div>
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <label className="block text-sm text-slate-700">
-                      帧率（FPS）
-                      <input
-                        type="number"
-                        min={1}
-                        max={60}
-                        step={1}
-                        value={fps}
-                        onChange={(e) => setFps(Number(e.target.value))}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                      />
-                    </label>
-                    <label className="block text-sm text-slate-700">
-                      宽度（px）
-                      <input
-                        type="number"
-                        min={64}
-                        max={2048}
-                        step={16}
-                        value={width}
-                        onChange={(e) => setWidth(Number(e.target.value))}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                      />
-                    </label>
-                    <label className="block text-sm text-slate-700">
-                      最大颜色数
-                      <input
-                        type="number"
-                        min={2}
-                        max={256}
-                        step={1}
-                        value={maxColors}
-                        onChange={(e) => setMaxColors(Number(e.target.value))}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                      />
-                    </label>
-                    <label className="block text-sm text-slate-700">
-                      抖动算法
-                      <select
-                        value={dither}
-                        onChange={(e) => setDither(e.target.value as Dither)}
-                        className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                      >
-                        <option value="bayer">bayer（推荐）</option>
-                        <option value="floyd_steinberg">floyd_steinberg</option>
-                        <option value="none">none（无抖动）</option>
-                      </select>
-                    </label>
-                  </div>
-                  <label className="mt-4 flex items-center gap-2 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={loop}
-                      onChange={(e) => setLoop(e.target.checked)}
-                      className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    循环播放（GIF loop=0）
-                  </label>
-
-                  <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void optimize()}
-                      disabled={ffmpegState !== "ready" || isWorking}
-                      className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
-                    >
-                      {isWorking ? "优化中..." : "开始优化"}
-                    </button>
-                    {downloadUrl && (
-                      <a
-                        href={downloadUrl}
-                        download={downloadName}
-                        className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-                      >
-                        下载 {downloadName}
-                      </a>
-                    )}
-                  </div>
-
-                  <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
-                    <div>
-                      原始体积：<span className="font-mono">{formatBytes(file.size)}</span>
-                    </div>
-                    <div>
-                      优化后体积：<span className="font-mono">{outputSize != null ? formatBytes(outputSize) : "-"}</span>
-                    </div>
-                  </div>
-
-                  {progress != null && (
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between text-xs text-slate-600">
-                        <span>进度</span>
-                        <span>{Math.round(progress * 100)}%</span>
-                      </div>
-                      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
-                        <div className="h-full bg-emerald-500" style={{ width: `${Math.round(progress * 100)}%` }} />
-                      </div>
-                    </div>
-                  )}
-
-                  {error && (
-                    <div className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-100">
-                      {error}
-                    </div>
-                  )}
-
-                  <div className="mt-4 text-xs text-slate-500">
-                    提示：降低宽度、帧率与颜色数通常能显著减小体积；若出现色带，可尝试更换抖动算法或提高颜色数。
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                  <div className="text-sm font-semibold text-slate-900">FFmpeg 日志</div>
-                  <textarea
-                    value={logs}
-                    readOnly
-                    placeholder="日志会显示在这里…"
-                    className="mt-3 h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {!file && (
-            <div className="mt-6 rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200 text-sm text-slate-700">
-              选择一个 GIF 文件后即可开始优化（建议先点击“加载 FFmpeg”）。
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void ensureLoaded()}
+              disabled={ffmpegState === "loading" || ffmpegState === "ready"}
+              className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
+            >
+              {ffmpegState === "ready" ? ui.ffmpegReady : ffmpegState === "loading" ? ui.ffmpegLoading : ui.ffmpegLoad}
+            </button>
+            <button
+              type="button"
+              onClick={openFilePicker}
+              className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200"
+            >
+              {file ? ui.replaceGif : ui.pickGif}
+            </button>
+            <input ref={inputRef} type="file" accept="image/gif" className="hidden" onChange={onChange} />
+          </div>
+          <div className="w-full text-[11px] text-slate-500">{ui.dropHint}</div>
         </div>
+
+        {file && (
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="space-y-4">
+              <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+                <div className="text-sm font-semibold text-slate-900">{ui.settings}</div>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm text-slate-700">
+                    {ui.fps}
+                    <input
+                      type="number"
+                      min={1}
+                      max={60}
+                      step={1}
+                      value={fps}
+                      onChange={(e) => setFps(Number(e.target.value))}
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                    />
+                  </label>
+                  <label className="block text-sm text-slate-700">
+                    {ui.width}
+                    <input
+                      type="number"
+                      min={64}
+                      max={2048}
+                      step={16}
+                      value={width}
+                      onChange={(e) => setWidth(Number(e.target.value))}
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                    />
+                  </label>
+                  <label className="block text-sm text-slate-700">
+                    {ui.maxColors}
+                    <input
+                      type="number"
+                      min={2}
+                      max={256}
+                      step={1}
+                      value={maxColors}
+                      onChange={(e) => setMaxColors(Number(e.target.value))}
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                    />
+                  </label>
+                  <label className="block text-sm text-slate-700">
+                    {ui.ditherAlgorithm}
+                    <select
+                      value={dither}
+                      onChange={(e) => setDither(e.target.value as Dither)}
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                    >
+                      <option value="bayer">{ui.ditherBayer}</option>
+                      <option value="floyd_steinberg">{ui.ditherFloyd}</option>
+                      <option value="none">{ui.ditherNone}</option>
+                    </select>
+                  </label>
+                </div>
+                <label className="mt-4 flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={loop}
+                    onChange={(e) => setLoop(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  {ui.loopPlay}
+                </label>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void optimize()}
+                    disabled={ffmpegState !== "ready" || isWorking}
+                    className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                  >
+                    {isWorking ? ui.optimizing : ui.startOptimize}
+                  </button>
+                  {downloadUrl && (
+                    <a
+                      href={downloadUrl}
+                      download={downloadName}
+                      className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      {ui.download} {downloadName}
+                    </a>
+                  )}
+                </div>
+
+                <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+                  <div>
+                    {ui.originalSize}<span className="font-mono">{formatBytes(file.size)}</span>
+                  </div>
+                  <div>
+                    {ui.optimizedSize}<span className="font-mono">{outputSize != null ? formatBytes(outputSize) : "-"}</span>
+                  </div>
+                </div>
+
+                {progress != null && (
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-xs text-slate-600">
+                      <span>{ui.progress}</span>
+                      <span>{Math.round(progress * 100)}%</span>
+                    </div>
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                      <div className="h-full bg-emerald-500" style={{ width: `${Math.round(progress * 100)}%` }} />
+                    </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-100">
+                    {error}
+                  </div>
+                )}
+
+                <div className="mt-4 text-xs text-slate-500">
+                  {ui.tip}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+                <div className="text-sm font-semibold text-slate-900">{ui.ffmpegLogs}</div>
+                <textarea
+                  value={logs}
+                  readOnly
+                  placeholder={ui.logsPlaceholder}
+                  className="mt-3 h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!file && (
+          <div className="mt-6 rounded-3xl bg-slate-50 p-6 ring-1 ring-slate-200 text-sm text-slate-700">
+            {ui.emptyHint}
+          </div>
+        )}
       </div>
-    </ToolPageLayout>
+    </div>
   );
 }

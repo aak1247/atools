@@ -12,6 +12,8 @@
     "addMoreImages": "Add More Images",
     "dropHint": "Drop screenshots here, or press Ctrl+V (Cmd+V) anywhere on the page to paste",
     "itemCountTemplate": "{count} screenshots added",
+    "queueTitle": "Screenshot Queue & Reordering",
+    "queueSubtitle": "Arranged Top to Bottom",
     "optionsTitle": "Stitching & Layout Settings",
     "widthMode": "Output Width Mode",
     "widthModeMax": "Align to Max Width (Recommended)",

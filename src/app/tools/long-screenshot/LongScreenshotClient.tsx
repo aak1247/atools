@@ -35,6 +35,8 @@ const DEFAULT_UI = {
   addMoreImages: "继续添加图片",
   dropHint: "拖拽多张截图到此处，或在页面任意处直接按下 Ctrl+V (Cmd+V) 快速粘贴截图",
   itemCountTemplate: "已添加 {count} 张截图",
+  queueTitle: "截图队列与顺序调整",
+  queueSubtitle: "上至下排列",
   optionsTitle: "拼接与排版参数",
   widthMode: "输出宽度模式",
   widthModeMax: "对齐最大宽度（推荐）",
@@ -363,8 +365,8 @@ function LongScreenshotInner() {
             {images.length > 0 && (
               <div className="rounded-3xl border border-slate-200 bg-white p-4 space-y-3">
                 <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
-                  <span>截图队列与顺序调整</span>
-                  <span className="text-slate-400 font-normal">上至下排列</span>
+                  <span>{ui.queueTitle}</span>
+                  <span className="text-slate-400 font-normal">{ui.queueSubtitle}</span>
                 </div>
                 <div className="max-h-64 overflow-y-auto divide-y divide-slate-100 pr-1">
                   {images.map((item, idx) => (

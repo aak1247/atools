@@ -15,6 +15,31 @@
     "WAV降噪",
     "MP3降噪"
   ],
+  "ui": {
+    "pickTitle": "选择音频文件",
+    "pickFile": "选择文件",
+    "replaceFile": "点击替换音频",
+    "clear": "清空",
+    "dropReplaceHint": "支持拖拽新音频到此区域直接替换",
+    "firstLoadHint": "提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。",
+    "ffmpegReady": "FFmpeg 已就绪",
+    "ffmpegLoading": "加载中...",
+    "loadFfmpeg": "加载 FFmpeg",
+    "settings": "降噪设置",
+    "outputFormat": "输出格式",
+    "formatWavRecommended": "WAV（推荐）",
+    "formatMp3": "MP3",
+    "strength": "降噪强度",
+    "start": "开始降噪",
+    "working": "处理中...",
+    "download": "下载",
+    "progress": "进度",
+    "preview": "试听预览",
+    "ffmpegLogs": "FFmpeg 日志",
+    "logsPlaceholder": "日志会显示在这里…",
+    "errFfmpegLoadFailed": "FFmpeg 加载失败。",
+    "errProcessFailed": "处理失败（可能浏览器资源不足或编码器不支持）。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

@@ -18,7 +18,9 @@
   "ui": {
     "pickTitle": "选择音频文件",
     "pickFile": "选择文件",
+    "replaceFile": "点击替换音频",
     "clear": "清空",
+    "dropReplaceHint": "支持拖拽新音频到此区域直接替换",
     "firstLoadHint": "提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。",
     "ffmpegReady": "FFmpeg 已就绪",
     "ffmpegLoading": "加载中...",

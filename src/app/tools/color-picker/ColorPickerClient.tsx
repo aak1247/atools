@@ -3,6 +3,7 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type PickedColor = {
   r: number;
@@ -48,23 +49,7 @@ const rgbToHsl = (r: number, g: number, b: number) => {
 
 const MAX_DISPLAY = 900;
 
-type ColorPickerUi = {
-  pickImageError: string;
-  dropTitle: string;
-  dropSubtitle: string;
-  currentImagePrefix: string;
-  replace: string;
-  clear: string;
-  dropReplaceHint: string;
-  hintPick: string;
-  colorInfo: string;
-  pixelPrefix: string;
-  notPicked: string;
-  copy: string;
-  alphaNote: string;
-};
-
-const DEFAULT_UI: ColorPickerUi = {
+const DEFAULT_UI = {
   pickImageError: "请选择图片文件",
   dropTitle: "点击或拖拽图片到此处",
   dropSubtitle: "支持常见图片格式（JPG/PNG/WebP…）",
@@ -78,9 +63,20 @@ const DEFAULT_UI: ColorPickerUi = {
   notPicked: "未取色",
   copy: "复制",
   alphaNote: "说明：带透明度的颜色会输出 8 位 HEX（#RRGGBBAA）。",
-};
+} as const;
 
-function ColorPickerInner({ ui }: { ui: ColorPickerUi }) {
+export default function ColorPickerClient() {
+  return (
+    <ToolPageLayout toolSlug="color-picker">
+      <ColorPickerInner />
+    </ToolPageLayout>
+  );
+}
+
+function ColorPickerInner() {
+  const config = useOptionalToolConfig("color-picker");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const [file, setFile] = useState<File | null>(null);
   const [bitmap, setBitmap] = useState<ImageBitmap | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -386,15 +382,5 @@ function ColorPickerInner({ ui }: { ui: ColorPickerUi }) {
         </div>
       )}
     </>
-  );
-}
-
-export default function ColorPickerClient() {
-  return (
-    <ToolPageLayout toolSlug="color-picker">
-      {({ config }) => (
-        <ColorPickerInner ui={{ ...DEFAULT_UI, ...(config.ui as Partial<ColorPickerUi> | undefined) }} />
-      )}
-    </ToolPageLayout>
   );
 }
