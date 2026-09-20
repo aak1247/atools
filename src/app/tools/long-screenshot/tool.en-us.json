@@ -1,32 +1,57 @@
 {
-  "name": "Free Online Full Page Screenshot (Chrome Extension) - ATools",
-  "shortName": "Full Page Screenshot",
-  "description": "Free online full page/long screenshot for any webpage (requires ATools Chrome extension). Runs locally in your browser.",
-  "seoDescription": "Free online full page screenshot tool (Chrome extension edition). Due to same-origin and browser security restrictions, a normal web page cannot reliably capture external websites by URL. With the ATools Chrome extension, you can open the side panel on the current tab, scroll-and-capture in segments, stitch into a single PNG, and download it for archiving, documentation, QA and bug reports.",
+  "name": "Free Online Long Screenshot & Vertical Image Stitcher - ATools",
+  "shortName": "Long Screenshot",
+  "description": "Free online long screenshot tool: Drag & drop or paste (Ctrl+V) multiple screenshots to seamlessly stitch into a high-resolution long image. Pure client-side processing.",
+  "seoDescription": "Free online long screenshot and vertical image stitcher. Drag & drop images or press Ctrl+V / Cmd+V anywhere to quickly paste multiple screenshots (e.g. mobile chats, web pages, feeds). Features smart width matching, gap, padding, and corner radius styling. Exports high-resolution PNG long screenshots in real time. Pure client-side Canvas processing, private and secure.",
   "category": "Image Tools",
   "lang": "en-US",
+  "ui": {
+    "title": "Long Screenshot & Vertical Image Stitcher",
+    "subtitle": "Drag & drop or paste (Ctrl+V) multiple screenshot segments to stitch into a high-resolution long image",
+    "pickImages": "Select Screenshots",
+    "addMoreImages": "Add More Images",
+    "dropHint": "Drop screenshots here, or press Ctrl+V (Cmd+V) anywhere on the page to paste",
+    "itemCountTemplate": "{count} screenshots added",
+    "optionsTitle": "Stitching & Layout Settings",
+    "widthMode": "Output Width Mode",
+    "widthModeMax": "Align to Max Width (Recommended)",
+    "widthModeOriginal": "Keep Original Widths",
+    "widthModeFixed": "Fixed Mobile Width (750px)",
+    "gap": "Image Gap (Gap)",
+    "padding": "Canvas Padding",
+    "radius": "Corner Radius",
+    "bgColor": "Background Color",
+    "bgColorWhite": "White",
+    "bgColorTransparent": "Transparent",
+    "bgColorDark": "Dark Gray",
+    "actionMoveUp": "Move Up",
+    "actionMoveDown": "Move Down",
+    "actionDelete": "Remove",
+    "clear": "Clear All",
+    "downloadLongImage": "Export Long Screenshot (PNG)",
+    "generating": "Generating high-resolution image...",
+    "previewTitle": "Long Screenshot Preview",
+    "previewEmptyHint": "Add 2 or more screenshots to generate stitched preview in real time",
+    "resultMetaTemplate": "Resolution: {width} × {height} px",
+    "extensionGuideTitle": "How to capture full-page scrolling screenshots of online websites?",
+    "extensionGuideSubtitle": "Due to browser Same-Origin Policy (SOP) restrictions, ordinary web pages cannot directly capture external third-party websites. To capture external live websites, you can install the ATools Chrome Extension to capture the current active tab seamlessly.",
+    "extensionGuideSteps": [
+      "Open the ATools extension side panel on the webpage you want to capture;",
+      "Click the 'Long Screenshot' button; the extension will automatically scroll and stitch the page;",
+      "Download the complete full-page PNG image with one click."
+    ]
+  },
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "keywords": [
-    "full page screenshot",
     "long screenshot",
-    "scrolling screenshot",
-    "capture webpage",
+    "image stitcher",
+    "vertical stitcher",
+    "chat screenshot stitch",
+    "scroll screenshot",
     "export PNG",
-    "Chrome extension"
-  ],
-  "ui": {
-    "whyTitle": "Why does this need an extension?",
-    "whyBody": "Because of same-origin and browser security restrictions, a normal website cannot read/render arbitrary external pages, so “capture by URL” is not reliable on the web. A Chrome extension can capture the current tab while scrolling and then stitch the result.",
-    "howTitle": "How to use",
-    "howSteps": [
-      "Install the ATools Chrome extension (load unpacked from the repo before it’s published).",
-      "Open ATools side panel on the page you want to capture.",
-      "Click Start under “Long Screenshot (Current Tab)” and download the PNG."
-    ],
-    "tipTitle": "Tip",
-    "tipBody": "Some sites use lazy-loading or fixed headers which can affect stitching. Increase the “scroll delay” or scroll once manually to preload content."
-  }
+    "client-side secure",
+    "paste screenshot"
+  ]
 }
-

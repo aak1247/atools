@@ -29,6 +29,8 @@
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
     "@iarna/toml": "^3.0.0",
+    "@pdfsmaller/pdf-decrypt": "^1.0.1",
+    "@pdfsmaller/pdf-encrypt": "^1.2.0",
     "@peculiar/x509": "1.14.2",
     "@zip.js/zip.js": "^2.16.0",
     "cbor-x": "^1.6.0",

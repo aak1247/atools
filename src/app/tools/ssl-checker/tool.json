@@ -1,13 +1,25 @@
 {
-  "name": "免费在线 SSL 证书检查器 - 纯粹工具站",
+  "name": "免费在线 SSL证书解析与HTTPS安全检测工具 - 纯粹工具站",
   "shortName": "SSL检查",
-  "description": "免费在线 SSL/HTTPS 检查器：检测站点 HTTPS 可达性、响应状态码、最终 URL 与耗时（静态站点使用公共代理）。",
-  "seoDescription": "免费在线 SSL/HTTPS 检查器，输入域名或 URL 即可检测 HTTPS 可达性、HTTP/HTTPS 状态码、最终跳转 URL 与响应耗时。由于工具站为纯静态站点，浏览器端无法直接读取证书细节，本工具通过公共代理获取基本可达性信息，适合快速判断站点是否支持 HTTPS 与是否存在跳转异常。",
+  "description": "免费在线 SSL 证书解析与 HTTPS 检测工具：支持证书文件深度解析（颁发者/有效期/SAN），检测域名 HTTPS 连通性并直达权威评级报告。",
+  "seoDescription": "免费在线 SSL 证书解析与 HTTPS 连通性检测工具。纯前端解析 .crt / .cer / .pem 格式 SSL/TLS 证书，秒级读取颁发者、有效期剩余天数、覆盖域名（SAN）及公钥指纹；支持域名 HTTPS/HTTP 连通与重定向状态探测，并提供 SSL Labs 及 MySSL 权威评测直达入口。纯前端本地处理，证书文件绝不上传，安全可信。",
   "category": "开发工具",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["SSL检查", "HTTPS检查", "网站证书", "状态码检测", "跳转检测"]
+  "keywords": [
+    "SSL检查",
+    "SSL证书解析",
+    "HTTPS检测",
+    "证书有效期",
+    "SAN域名查询",
+    "证书颁发机构",
+    "本地解析",
+    "隐私安全"
+  ],
+  "pageFeatures": {
+    "floatingUploadAction": true,
+    "globalDropZone": true
+  }
 }
-

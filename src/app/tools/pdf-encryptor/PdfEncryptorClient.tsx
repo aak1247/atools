@@ -1,43 +1,102 @@
 "use client";
 
 import type { ChangeEvent, DragEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { encryptPDF, AlreadyEncryptedError } from "@pdfsmaller/pdf-encrypt";
+import { decryptPDF } from "@pdfsmaller/pdf-decrypt";
+import {
+  Lock,
+  Unlock,
+  FileText,
+  Upload,
+  Download,
+  Trash2,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  Settings,
+  Printer,
+  Copy,
+  Edit3,
+  CheckSquare,
+  Loader2,
+} from "lucide-react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
-import { decryptBytes, encryptBytes, parseEncryptedPayload } from "../../../lib/crypto/aes256gcm-pbkdf2";
+import { decryptBytes, parseEncryptedPayload } from "../../../lib/crypto/aes256gcm-pbkdf2";
 
 type Mode = "encrypt" | "decrypt";
+type EncryptionAlgorithm = "AES-256" | "RC4";
 
 const DEFAULT_UI = {
   encrypt: "加密 PDF",
   decrypt: "解密 PDF",
   inputTitle: "输入",
   outputTitle: "输出",
-  pickPdf: "选择 PDF",
-  replacePdf: "替换 PDF",
-  pickEncrypted: "选择加密 JSON",
-  replaceEncrypted: "替换加密 JSON",
-  dropHintEncrypt: "支持点击上传 PDF 或拖拽 PDF 到此区域替换。",
-  dropHintDecrypt: "支持点击上传 JSON 或拖拽 JSON 到此区域替换。",
-  password: "密码",
-  iterations: "迭代次数",
-  run: "执行",
+  pickPdf: "选择 PDF 文件",
+  replacePdf: "替换 PDF 文件",
+  pickEncryptedPdf: "选择受保护的 PDF 文件",
+  replaceEncryptedPdf: "替换受保护的 PDF 文件",
+  dropHintEncrypt: "拖拽 PDF 文件到此处，或点击按钮上传。",
+  dropHintDecrypt: "拖拽需要解密的 PDF 文件（或旧版加密 JSON）到此处。",
+  password: "打开密码 (User Password)",
+  passwordPlaceholder: "输入用于打开 PDF 的解密密码",
+  ownerPassword: "管理密码 (Owner Password，可选)",
+  ownerPasswordPlaceholder: "设置独立的权限管理密码（留空则同打开密码）",
+  algorithm: "加密标准",
+  aes256Label: "AES-256 (推荐，ISO 32000-2 / PDF 2.0)",
+  aes256Desc: "现代国际标准，高强度安全加密。兼容 Adobe Acrobat、Chrome、Edge 及现代 PDF 阅读器。",
+  rc4Label: "RC4 128-bit (经典兼容模式)",
+  rc4Desc: "旧版 PDF 加密规范，安全性相对较弱，兼容老旧设备与旧版软件。",
+  permissionsTitle: "权限限制设置",
+  allowPrinting: "允许打印文档",
+  allowCopying: "允许复制文字和内容",
+  allowModifying: "允许修改文档内容",
+  allowAnnotating: "允许批注与填写表单",
+  runEncrypt: "加密并导出标准 PDF",
+  runDecrypt: "解密并导出无密码 PDF",
   working: "处理中…",
   clear: "清空",
   download: "下载",
-  outputJson: "加密输出 JSON",
-  inputJson: "待解密 JSON",
-  jsonPlaceholder: "粘贴本工具生成的 JSON…",
-  encryptOutputPlaceholder: "加密后会在这里输出 JSON…",
-  decryptOutputPlaceholder: "解密后会在这里输出元信息…",
+  downloadEncryptedPdf: "下载加密 PDF (带密码)",
+  downloadDecryptedPdf: "下载已解密 PDF (无密码)",
+  selectedFileTemplate: "已选择文件：{name} ({size})",
+  encryptSuccess: "加密成功！已生成符合行业标准的受密码保护 PDF 文件",
+  decryptSuccess: "解密成功！已成功移除密码保护，生成无密码 PDF",
+  showPassword: "显示密码",
+  hidePassword: "隐藏密码",
+  fileInfo: "文件信息",
+  outputPdfTitle: "加密输出 PDF",
+  decryptResultTitle: "解密输出 PDF",
+  generatedFile: "生成文件：",
+  originalSize: "原始大小：",
+  resultSize: "最终大小：",
+  encryptEmptyHint: "选择 PDF 文件并设置密码后点击“加密并导出标准 PDF”",
+  encryptEmptySubHint: "生成的 .pdf 文件可用 Adobe Acrobat、浏览器等任意 PDF 阅读器直接输入密码打开",
+  decryptEmptyHint: "选择加密的 PDF 并输入密码后点击解密",
+  decryptEmptySubHint: "解密后将移除密码限制，生成干净的无密码 PDF 文件",
   errPasswordRequired: "请输入密码",
-  errEncryptFailed: "加密失败",
-  errDecryptFailed: "解密失败（可能密码错误或内容损坏）",
+  errNoPdfFile: "请选择有效的 PDF 文件",
+  errInvalidPdfType: "请上传 .pdf 格式的文件",
+  errAlreadyEncrypted: "该 PDF 文件本身已包含加密，请先在解密面板解密后再加密",
+  errEncryptFailed: "PDF 加密失败，请重试",
+  errInvalidPassword: "解密失败：密码错误，请核对密码后重试",
+  errCorruptedFile: "解密失败：PDF 文件损坏或格式不受支持",
   note:
-    "说明：由于纯静态站点无法对 PDF 做标准“打开密码”加密/解密，本工具使用 AES-256-GCM 将整个 PDF 文件加密为 JSON，可在本工具中解密还原原 PDF。",
+    "说明：本工具生成符合 ISO 32000 行业标准的密码保护 PDF 文件（AES-256 与 RC4 128-bit），生成的文件可在 Adobe Acrobat、Edge、Chrome 或任何标准阅读器中直接输入密码打开。全流程在浏览器本地纯前端完成，文件绝不上传至任何服务器。",
 } as const;
 
-const readAsBytes = async (file: File): Promise<Uint8Array> => new Uint8Array(await file.arrayBuffer());
+function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
+const readAsBytes = async (file: File): Promise<Uint8Array> =>
+  new Uint8Array(await file.arrayBuffer());
 
 export default function PdfEncryptorClient() {
   return (
@@ -51,98 +110,99 @@ function PdfEncryptorInner() {
   const config = useOptionalToolConfig("pdf-encryptor");
   const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
 
-  const pdfRef = useRef<HTMLInputElement>(null);
-  const jsonRef = useRef<HTMLInputElement>(null);
+  const encryptInputRef = useRef<HTMLInputElement>(null);
+  const decryptInputRef = useRef<HTMLInputElement>(null);
 
+  // Common states
   const [mode, setMode] = useState<Mode>("encrypt");
   const [password, setPassword] = useState("");
-  const [iterations, setIterations] = useState(200_000);
-
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [jsonText, setJsonText] = useState("");
-
+  const [ownerPassword, setOwnerPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [outputText, setOutputText] = useState("");
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [downloadName, setDownloadName] = useState<string>("encrypted.pdf.enc.json");
 
+  // Encrypt states
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [algorithm, setAlgorithm] = useState<EncryptionAlgorithm>("AES-256");
+  const [allowPrinting, setAllowPrinting] = useState(true);
+  const [allowCopying, setAllowCopying] = useState(false);
+  const [allowModifying, setAllowModifying] = useState(false);
+  const [allowAnnotating, setAllowAnnotating] = useState(true);
+
+  // Output states
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string>("document-encrypted.pdf");
+  const [resultFileSize, setResultFileSize] = useState<number | null>(null);
+
+  // Decrypt states
+  const [encryptedFile, setEncryptedFile] = useState<File | null>(null);
+
+  // Revoke object URL on cleanup
   useEffect(() => {
     return () => {
       if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     };
   }, [downloadUrl]);
 
-  const resetOutput = () => {
+  const clearOutputState = () => {
     setError(null);
-    setOutputText("");
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    setDownloadUrl(null);
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+    }
+    setResultFileSize(null);
   };
 
-  const canRun = useMemo(() => {
-    if (!password) return false;
-    if (mode === "encrypt") return !!pdfFile;
-    return jsonText.trim().length > 0;
-  }, [jsonText, mode, password, pdfFile]);
+  const clearAll = () => {
+    clearOutputState();
+    setPdfFile(null);
+    setEncryptedFile(null);
+    setPassword("");
+    setOwnerPassword("");
+    if (encryptInputRef.current) encryptInputRef.current.value = "";
+    if (decryptInputRef.current) decryptInputRef.current.value = "";
+  };
 
-  const handlePdfFile = (selected: File) => {
-    const isPdfType = selected.type === "application/pdf";
-    const isPdfExt = selected.name.toLowerCase().endsWith(".pdf");
-    if (!isPdfType && !isPdfExt) {
-      setError("请选择 PDF 文件");
+  const handleSelectEncryptPdf = (file: File) => {
+    const isPdf =
+      file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    if (!isPdf) {
+      setError(ui.errInvalidPdfType);
       return;
     }
-    if (!selected) return;
-    resetOutput();
-    setPdfFile(selected);
-    const base = selected.name.replace(/\.pdf$/i, "") || "document";
-    setDownloadName(`${base}.pdf.enc.json`);
+    clearOutputState();
+    setPdfFile(file);
+    const base = file.name.replace(/\.pdf$/i, "") || "document";
+    setDownloadName(`${base}-encrypted.pdf`);
   };
 
-  const onPdfChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
-    handlePdfFile(selected);
-  };
-
-  const handleJsonFile = async (selected: File) => {
-    const isJsonType = selected.type === "application/json";
-    const isJsonExt = selected.name.toLowerCase().endsWith(".json");
-    if (!isJsonType && !isJsonExt) {
-      setError("请选择 JSON 文件");
+  const handleSelectDecryptFile = (file: File) => {
+    const isPdf =
+      file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const isJson =
+      file.type === "application/json" || file.name.toLowerCase().endsWith(".json");
+    if (!isPdf && !isJson) {
+      setError("请选择 .pdf 或 .json 文件");
       return;
     }
-    resetOutput();
-    try {
-      const text = await selected.text();
-      setJsonText(text);
-    } catch {
-      setError("读取 JSON 文件失败");
-    }
+    clearOutputState();
+    setEncryptedFile(file);
+    const base = file.name.replace(/\.(pdf|enc\.json|json)$/i, "") || "document";
+    setDownloadName(`${base}-decrypted.pdf`);
   };
 
-  const onJsonFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
-    await handleJsonFile(selected);
-  };
-
-  const openActivePicker = () => {
-    if (mode === "encrypt") pdfRef.current?.click();
-    else jsonRef.current?.click();
-  };
-
+  // Drag and drop handlers
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
-    const selected = event.dataTransfer.files?.[0];
-    if (!selected) return;
+    const dropped = event.dataTransfer.files?.[0];
+    if (!dropped) return;
+
     if (mode === "encrypt") {
-      handlePdfFile(selected);
+      handleSelectEncryptPdf(dropped);
     } else {
-      void handleJsonFile(selected);
+      handleSelectDecryptFile(dropped);
     }
   };
 
@@ -156,227 +216,547 @@ function PdfEncryptorInner() {
     setIsDragging(false);
   };
 
+  // Run Encrypt
   const runEncrypt = async () => {
-    if (!pdfFile) return;
-    setIsWorking(true);
-    setError(null);
-    setOutputText("");
-    try {
-      const bytes = await readAsBytes(pdfFile);
-      const payload = await encryptBytes({
-        bytes,
-        password,
-        iterations,
-        meta: { name: pdfFile.name, type: "application/pdf", size: pdfFile.size, createdAt: new Date().toISOString() },
-      });
-      const out = `${JSON.stringify(payload, null, 2)}\n`;
-      setOutputText(out);
-      const url = URL.createObjectURL(new Blob([out], { type: "application/json" }));
-      setDownloadUrl(url);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : ui.errEncryptFailed);
-    } finally {
-      setIsWorking(false);
+    if (!pdfFile) {
+      setError(ui.errNoPdfFile);
+      return;
     }
-  };
-
-  const runDecrypt = async () => {
-    setIsWorking(true);
-    setError(null);
-    setOutputText("");
-    try {
-      const payload = parseEncryptedPayload(jsonText);
-      const { bytes, meta } = await decryptBytes({ payload, password });
-      const name = meta?.name?.toLowerCase().endsWith(".pdf") ? meta.name : "decrypted.pdf";
-      const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }));
-      setDownloadUrl(url);
-      setDownloadName(name);
-      setOutputText(JSON.stringify({ meta, size: bytes.byteLength }, null, 2));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : ui.errDecryptFailed);
-    } finally {
-      setIsWorking(false);
-    }
-  };
-
-  const run = async () => {
-    resetOutput();
     if (!password) {
       setError(ui.errPasswordRequired);
       return;
     }
-    if (mode === "encrypt") await runEncrypt();
-    else await runDecrypt();
+
+    clearOutputState();
+    setIsWorking(true);
+
+    try {
+      const fileBytes = await readAsBytes(pdfFile);
+
+      const encryptedBytes = await encryptPDF(fileBytes, password, {
+        ownerPassword: ownerPassword.trim() || undefined,
+        algorithm,
+        allowPrinting,
+        allowCopying,
+        allowModifying,
+        allowAnnotating,
+        allowFillingForms: allowAnnotating,
+      });
+
+      const blob = new Blob([encryptedBytes as Uint8Array<ArrayBuffer>], {
+        type: "application/pdf",
+      });
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setResultFileSize(encryptedBytes.byteLength);
+    } catch (e) {
+      if (e instanceof AlreadyEncryptedError) {
+        setError(ui.errAlreadyEncrypted);
+      } else {
+        setError(e instanceof Error ? e.message : ui.errEncryptFailed);
+      }
+    } finally {
+      setIsWorking(false);
+    }
   };
 
-  const clear = () => {
-    setPdfFile(null);
-    setJsonText("");
-    resetOutput();
-    if (pdfRef.current) pdfRef.current.value = "";
-    if (jsonRef.current) jsonRef.current.value = "";
+  // Run Decrypt
+  const runDecrypt = async () => {
+    if (!encryptedFile) {
+      setError("请选择要解密的 PDF 文件");
+      return;
+    }
+    if (!password) {
+      setError(ui.errPasswordRequired);
+      return;
+    }
+
+    clearOutputState();
+    setIsWorking(true);
+
+    try {
+      const isJsonFile =
+        encryptedFile.type === "application/json" ||
+        encryptedFile.name.toLowerCase().endsWith(".json");
+
+      if (isJsonFile) {
+        // Backward compatibility for old .pdf.enc.json
+        const jsonText = await encryptedFile.text();
+        const payload = parseEncryptedPayload(jsonText);
+        const { bytes } = await decryptBytes({ payload, password });
+
+        const blob = new Blob([bytes as Uint8Array<ArrayBuffer>], {
+          type: "application/pdf",
+        });
+        const url = URL.createObjectURL(blob);
+        setDownloadUrl(url);
+        setResultFileSize(bytes.byteLength);
+      } else {
+        // Standard encrypted PDF file: unlock via pure JS WebCrypto
+        const fileBytes = await readAsBytes(encryptedFile);
+        const decryptedBytes = await decryptPDF(fileBytes, password);
+
+        const blob = new Blob([decryptedBytes as Uint8Array<ArrayBuffer>], {
+          type: "application/pdf",
+        });
+        const url = URL.createObjectURL(blob);
+        setDownloadUrl(url);
+        setResultFileSize(decryptedBytes.byteLength);
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (
+        msg.includes("invalid password") ||
+        msg.includes("Invalid password") ||
+        msg.includes("password") ||
+        msg.includes("Password") ||
+        msg.includes("密码")
+      ) {
+        setError(ui.errInvalidPassword);
+      } else {
+        setError(ui.errCorruptedFile);
+      }
+    } finally {
+      setIsWorking(false);
+    }
   };
 
   return (
     <div className="w-full px-4">
       <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Top Switcher */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
           <div className="flex items-center gap-2 rounded-2xl bg-slate-100 p-1 text-sm">
             <button
               type="button"
               onClick={() => {
                 setMode("encrypt");
-                resetOutput();
+                clearOutputState();
               }}
-              className={`rounded-2xl px-4 py-2 font-semibold transition ${
-                mode === "encrypt" ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
+              className={`flex items-center gap-2 rounded-2xl px-5 py-2.5 font-semibold transition ${
+                mode === "encrypt"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
+              <Lock className="h-4 w-4" />
               {ui.encrypt}
             </button>
             <button
               type="button"
               onClick={() => {
                 setMode("decrypt");
-                resetOutput();
+                clearOutputState();
               }}
-              className={`rounded-2xl px-4 py-2 font-semibold transition ${
-                mode === "decrypt" ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
+              className={`flex items-center gap-2 rounded-2xl px-5 py-2.5 font-semibold transition ${
+                mode === "decrypt"
+                  ? "bg-white text-emerald-600 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
+              <Unlock className="h-4 w-4" />
               {ui.decrypt}
             </button>
           </div>
+
           <button
             type="button"
-            onClick={clear}
-            className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
+            onClick={clearAll}
+            className="flex items-center gap-1.5 rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
           >
+            <Trash2 className="h-4 w-4" />
             {ui.clear}
           </button>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
-          {ui.note}
+        {/* Note Banner */}
+        <div className="mt-4 flex items-start gap-3 rounded-2xl bg-blue-50/70 p-4 text-xs text-blue-900 ring-1 ring-blue-100">
+          <ShieldCheck className="h-5 w-5 shrink-0 text-blue-600" />
+          <div className="leading-relaxed">{ui.note}</div>
         </div>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="text-sm font-semibold text-slate-900">{ui.inputTitle}</div>
+        {/* Workspace Grid */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-12">
+          {/* Left Column: 7 cols */}
+          <div className="space-y-5 lg:col-span-7">
+            {mode === "encrypt" ? (
+              <>
+                {/* Upload Zone */}
+                <div
+                  className={`rounded-3xl border-2 border-dashed p-6 transition ${
+                    isDragging
+                      ? "border-blue-500 bg-blue-50/50"
+                      : "border-slate-200 bg-slate-50/60 hover:bg-slate-50"
+                  }`}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                >
+                  <input
+                    ref={encryptInputRef}
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    className="hidden"
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleSelectEncryptPdf(file);
+                      e.target.value = "";
+                    }}
+                  />
 
-            <div className="mt-4 space-y-3">
-              <div
-                className={`rounded-2xl border-2 border-dashed p-3 transition ${
-                  isDragging ? "border-slate-400 bg-slate-50/80" : "border-slate-200 bg-slate-50/80"
-                }`}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-              >
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <div className="rounded-2xl bg-blue-100 p-3 text-blue-600">
+                      <FileText className="h-8 w-8" />
+                    </div>
+                    <p className="mt-3 text-sm font-medium text-slate-800">
+                      {pdfFile ? (
+                        ui.selectedFileTemplate
+                          .replace("{name}", pdfFile.name)
+                          .replace("{size}", formatBytes(pdfFile.size))
+                      ) : (
+                        ui.dropHintEncrypt
+                      )}
+                    </p>
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={() => encryptInputRef.current?.click()}
+                        className="flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                      >
+                        <Upload className="h-4 w-4" />
+                        {pdfFile ? ui.replacePdf : ui.pickPdf}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Password and Options */}
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 space-y-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                    <Settings className="h-4 w-4 text-slate-500" />
+                    加密选项与权限保护
+                  </div>
+
+                  {/* Passwords */}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                        {ui.password} <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="relative mt-1.5">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder={ui.passwordPlaceholder}
+                          className="w-full rounded-2xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          title={showPassword ? ui.hidePassword : ui.showPassword}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                        {ui.ownerPassword}
+                      </label>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={ownerPassword}
+                        onChange={(e) => setOwnerPassword(e.target.value)}
+                        placeholder={ui.ownerPasswordPlaceholder}
+                        className="mt-1.5 w-full rounded-2xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Algorithm Selector */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      {ui.algorithm}
+                    </label>
+                    <div className="mt-2 grid gap-2.5 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        onClick={() => setAlgorithm("AES-256")}
+                        className={`text-left rounded-2xl border p-3.5 transition ${
+                          algorithm === "AES-256"
+                            ? "border-blue-600 bg-blue-50/50 ring-1 ring-blue-500"
+                            : "border-slate-200 bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <div className="font-semibold text-xs text-blue-900">
+                          {ui.aes256Label}
+                        </div>
+                        <div className="mt-1 text-[11px] leading-tight text-slate-500">
+                          {ui.aes256Desc}
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setAlgorithm("RC4")}
+                        className={`text-left rounded-2xl border p-3.5 transition ${
+                          algorithm === "RC4"
+                            ? "border-blue-600 bg-blue-50/50 ring-1 ring-blue-500"
+                            : "border-slate-200 bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <div className="font-semibold text-xs text-slate-800">
+                          {ui.rc4Label}
+                        </div>
+                        <div className="mt-1 text-[11px] leading-tight text-slate-500">
+                          {ui.rc4Desc}
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Permissions Checklist */}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-2">
+                      {ui.permissionsTitle}
+                    </label>
+                    <div className="grid gap-2 sm:grid-cols-2 text-xs text-slate-700">
+                      <label className="flex items-center gap-2 cursor-pointer p-2 rounded-xl bg-slate-50 hover:bg-slate-100">
+                        <input
+                          type="checkbox"
+                          checked={allowPrinting}
+                          onChange={(e) => setAllowPrinting(e.target.checked)}
+                          className="rounded accent-blue-600"
+                        />
+                        <Printer className="h-3.5 w-3.5 text-slate-500" />
+                        <span>{ui.allowPrinting}</span>
+                      </label>
+
+                      <label className="flex items-center gap-2 cursor-pointer p-2 rounded-xl bg-slate-50 hover:bg-slate-100">
+                        <input
+                          type="checkbox"
+                          checked={allowCopying}
+                          onChange={(e) => setAllowCopying(e.target.checked)}
+                          className="rounded accent-blue-600"
+                        />
+                        <Copy className="h-3.5 w-3.5 text-slate-500" />
+                        <span>{ui.allowCopying}</span>
+                      </label>
+
+                      <label className="flex items-center gap-2 cursor-pointer p-2 rounded-xl bg-slate-50 hover:bg-slate-100">
+                        <input
+                          type="checkbox"
+                          checked={allowModifying}
+                          onChange={(e) => setAllowModifying(e.target.checked)}
+                          className="rounded accent-blue-600"
+                        />
+                        <Edit3 className="h-3.5 w-3.5 text-slate-500" />
+                        <span>{ui.allowModifying}</span>
+                      </label>
+
+                      <label className="flex items-center gap-2 cursor-pointer p-2 rounded-xl bg-slate-50 hover:bg-slate-100">
+                        <input
+                          type="checkbox"
+                          checked={allowAnnotating}
+                          onChange={(e) => setAllowAnnotating(e.target.checked)}
+                          className="rounded accent-blue-600"
+                        />
+                        <CheckSquare className="h-3.5 w-3.5 text-slate-500" />
+                        <span>{ui.allowAnnotating}</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="button"
+                    onClick={() => void runEncrypt()}
+                    disabled={isWorking || !pdfFile || !password}
+                    className="flex items-center justify-center gap-2 w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isWorking ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>{ui.working}</span>
+                      </>
+                    ) : (
+                      ui.runEncrypt
+                    )}
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* Decrypt Mode */
+              <>
+                <div
+                  className={`rounded-3xl border-2 border-dashed p-6 transition ${
+                    isDragging
+                      ? "border-emerald-500 bg-emerald-50/50"
+                      : "border-slate-200 bg-slate-50/60 hover:bg-slate-50"
+                  }`}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                >
+                  <input
+                    ref={decryptInputRef}
+                    type="file"
+                    accept=".pdf,.json,application/pdf,application/json"
+                    className="hidden"
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleSelectDecryptFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-600">
+                      <FileText className="h-8 w-8" />
+                    </div>
+                    <p className="mt-3 text-sm font-medium text-slate-800">
+                      {encryptedFile ? (
+                        ui.selectedFileTemplate
+                          .replace("{name}", encryptedFile.name)
+                          .replace("{size}", formatBytes(encryptedFile.size))
+                      ) : (
+                        ui.dropHintDecrypt
+                      )}
+                    </p>
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={() => decryptInputRef.current?.click()}
+                        className="flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                      >
+                        <Upload className="h-4 w-4" />
+                        {encryptedFile ? ui.replaceEncryptedPdf : ui.pickEncryptedPdf}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                      {ui.password} <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative mt-1.5">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder={ui.passwordPlaceholder}
+                        className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 pr-11 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        title={showPassword ? ui.hidePassword : ui.showPassword}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => void runDecrypt()}
+                    disabled={isWorking || !encryptedFile || !password}
+                    className="flex items-center justify-center gap-2 w-full rounded-2xl bg-emerald-600 px-5 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isWorking ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>{ui.working}</span>
+                      </>
+                    ) : (
+                      ui.runDecrypt
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {error && (
+              <div className="flex items-center gap-2.5 rounded-2xl bg-rose-50 p-4 text-xs sm:text-sm text-rose-800 ring-1 ring-rose-200">
+                <AlertCircle className="h-5 w-5 shrink-0 text-rose-600" />
+                <span>{error}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column: 5 cols */}
+          <div className="space-y-5 lg:col-span-5">
+            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
                 {mode === "encrypt" ? (
                   <>
-                    <input ref={pdfRef} type="file" accept="application/pdf,.pdf" className="hidden" onChange={onPdfChange} />
-                    <button
-                      type="button"
-                      onClick={openActivePicker}
-                      className="w-full rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-                    >
-                      {pdfFile ? ui.replacePdf : ui.pickPdf}
-                    </button>
-                    {pdfFile && (
-                      <div className="mt-3 rounded-2xl bg-white px-4 py-3 text-sm text-slate-700 ring-1 ring-slate-200">
-                        <div className="font-medium text-slate-900">{pdfFile.name}</div>
-                        <div className="mt-1 text-xs text-slate-600">{(pdfFile.size / 1024).toFixed(1)} KB</div>
-                      </div>
-                    )}
+                    <Lock className="h-4 w-4 text-blue-600" />
+                    <span>{ui.outputPdfTitle}</span>
                   </>
                 ) : (
                   <>
-                    <input ref={jsonRef} type="file" accept="application/json,.json" className="hidden" onChange={(e) => void onJsonFileChange(e)} />
-                    <button
-                      type="button"
-                      onClick={openActivePicker}
-                      className="w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                    >
-                      {jsonText.trim() ? ui.replaceEncrypted : ui.pickEncrypted}
-                    </button>
-                    <label className="mt-3 block text-sm text-slate-700">
-                      {ui.inputJson}
-                      <textarea
-                        value={jsonText}
-                        onChange={(e) => setJsonText(e.target.value)}
-                        className="mt-2 h-44 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                        placeholder={ui.jsonPlaceholder}
-                      />
-                    </label>
+                    <Unlock className="h-4 w-4 text-emerald-600" />
+                    <span>{ui.decryptResultTitle}</span>
                   </>
                 )}
-                <div className="mt-2 text-[11px] text-slate-500">
-                  {mode === "encrypt" ? ui.dropHintEncrypt : ui.dropHintDecrypt}
+              </div>
+
+              {downloadUrl ? (
+                <div className="space-y-4">
+                  <div className="rounded-2xl bg-emerald-50 p-4 text-xs text-emerald-800 ring-1 ring-emerald-100 flex items-start gap-2.5">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
+                    <div>
+                      <div className="font-semibold text-emerald-900">
+                        {mode === "encrypt" ? ui.encryptSuccess : ui.decryptSuccess}
+                      </div>
+                      <div className="mt-1 text-slate-600 leading-relaxed">
+                        {ui.generatedFile}
+                        <span className="font-mono font-medium">{downloadName}</span>
+                        {resultFileSize && (
+                          <>
+                            <br />
+                            {ui.resultSize} {formatBytes(resultFileSize)}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <a
+                    href={downloadUrl}
+                    download={downloadName}
+                    className={`flex items-center justify-center gap-2 w-full rounded-2xl px-5 py-3.5 text-sm font-semibold text-white shadow-md transition ${
+                      mode === "encrypt"
+                        ? "bg-blue-600 hover:bg-blue-700"
+                        : "bg-emerald-600 hover:bg-emerald-700"
+                    }`}
+                  >
+                    <Download className="h-4 w-4" />
+                    {mode === "encrypt" ? ui.downloadEncryptedPdf : ui.downloadDecryptedPdf}
+                  </a>
                 </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="block text-sm text-slate-700">
-                  {ui.password}
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                  />
-                </label>
-                <label className={`block text-sm text-slate-700 ${mode === "encrypt" ? "" : "opacity-60"}`}>
-                  {ui.iterations}
-                  <input
-                    type="number"
-                    min={10_000}
-                    max={2_000_000}
-                    step={10_000}
-                    value={iterations}
-                    onChange={(e) => setIterations(Number(e.target.value))}
-                    disabled={mode !== "encrypt"}
-                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 disabled:opacity-60"
-                  />
-                </label>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => void run()}
-                disabled={!canRun || isWorking}
-                className="w-full rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
-              >
-                {isWorking ? ui.working : ui.run}
-              </button>
-
-              {error && (
-                <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-100">
-                  {error}
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
+                  {mode === "encrypt" ? (
+                    <Lock className="h-10 w-10 stroke-1" />
+                  ) : (
+                    <Unlock className="h-10 w-10 stroke-1" />
+                  )}
+                  <p className="mt-3 text-xs">
+                    {mode === "encrypt" ? ui.encryptEmptyHint : ui.decryptEmptyHint}
+                  </p>
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    {mode === "encrypt" ? ui.encryptEmptySubHint : ui.decryptEmptySubHint}
+                  </p>
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-slate-900">{mode === "encrypt" ? ui.outputJson : ui.outputTitle}</div>
-              {downloadUrl && (
-                <a
-                  href={downloadUrl}
-                  download={downloadName}
-                  className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
-                >
-                  {ui.download} {downloadName}
-                </a>
-              )}
-            </div>
-            <textarea
-              value={outputText}
-              readOnly
-              className="mt-3 h-72 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-              placeholder={mode === "encrypt" ? ui.encryptOutputPlaceholder : ui.decryptOutputPlaceholder}
-            />
           </div>
         </div>
       </div>

@@ -669,6 +669,16 @@
   dependencies:
     pako "^1.0.10"
 
+"@pdfsmaller/pdf-decrypt@^1.0.1":
+  version "1.0.1"
+  resolved "https://mirrors.cloud.tencent.com/npm/@pdfsmaller/pdf-decrypt/-/pdf-decrypt-1.0.1.tgz#286888309edd7a89494cc457405ac495354adda8"
+  integrity sha512-UO5KyC+jvcXPTuxfTcEDODHBqO5+YFyuYz/f8tQfiRw5hqZTYTh0ea72OjGw6kuYEUiCyT+A/Ymg2A948Vwx0w==
+
+"@pdfsmaller/pdf-encrypt@^1.2.0":
+  version "1.2.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/@pdfsmaller/pdf-encrypt/-/pdf-encrypt-1.2.0.tgz#6e97b67b3de02944c4b7b7a1f88c246dff17dac3"
+  integrity sha512-fIS3Ld+hOpoxmwmgoAnPjVC+9CN6/wbineumJ9ZOlJXZcuXft8OvdcSGqUDCpRSVJilrhYHsnJg626j06eM85g==
+
 "@peculiar/asn1-cms@^2.6.0":
   version "2.6.0"
   resolved "https://mirrors.tencent.com/npm/@peculiar/asn1-cms/-/asn1-cms-2.6.0.tgz"

@@ -1,8 +1,8 @@
 {
   "name": "免费在线文件加密解密工具 - 纯粹工具站",
   "shortName": "文件加密",
-  "description": "免费在线文件加密解密工具：AES-256-GCM + PBKDF2，本地加密任意文件并输出可保存的加密 JSON。",
-  "seoDescription": "免费在线文件加密解密工具，使用 AES-256-GCM 加密算法与 PBKDF2(SHA-256) 密钥派生，在浏览器本地对任意文件进行加密/解密。输出包含 salt/iv/iter/ct 的 JSON 便于保存与传输，支持下载加密结果和解密恢复原文件。纯前端处理不上传数据，适合备份加密、敏感文件传输与临时加密。",
+  "description": "免费在线文件加密解密工具：AES-256-GCM + PBKDF2 本地加密任意文件，支持导出紧凑二进制加密包 (.enc) 或 JSON，可随时解密还原原始文件。",
+  "seoDescription": "免费在线文件加密解密工具，使用 AES-256-GCM 工业级算法与 PBKDF2(SHA-256) 密钥派生，在浏览器本地对任意文件进行高强度加密。默认导出紧凑二进制加密包（.enc），零体积冗余，还原原始扩展名与文件名；同时支持 JSON 格式输出及历史解密兼容。纯前端本地处理不上传文件，适合敏感数据备份与私密文件传输。",
   "category": "密码学工具",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
@@ -10,10 +10,13 @@
   "icon": "/icon.svg",
   "keywords": [
     "文件加密",
+    "文件解密",
     "AES-256-GCM",
     "PBKDF2",
+    "ENC文件加密",
     "本地加密",
-    "在线解密"
+    "在线解密",
+    "隐私安全"
   ],
   "pageFeatures": {
     "floatingUploadAction": true,

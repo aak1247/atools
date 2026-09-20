@@ -1,16 +1,47 @@
 {
-  "name": "Free Online Word Compressor - ATools",
+  "name": "Free Online Word (DOCX) Compressor - ATools",
   "shortName": "Word Compressor",
-  "description": "Free online Word Compressor. Runs locally in your browser with zero uploads for privacy and speed.",
-  "seoDescription": "The ultimate free online Word Compressor — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Word Compressor on any device, this is the one you bookmark and share.",
+  "description": "Free online Word compressor: Intelligently compress embedded images in DOCX documents and repackage to dramatically reduce file size. Pure client-side processing.",
+  "seoDescription": "Free online Word (DOCX) document compressor. Automatically discovers and resamples large embedded images, screenshots, and photos inside Word documents while preserving original formatting and text. Drastically reduces DOCX file size for easier sharing and email attachments. Runs 100% locally in your browser with zero file uploads.",
   "category": "Document Tools",
   "lang": "en-US",
+  "ui": {
+    "pickFile": "Select Word Document (.docx)",
+    "replaceFile": "Replace Document",
+    "dropHint": "Drop .docx file here or click to upload.",
+    "compressModeTitle": "Compression Strategy",
+    "modeBalanced": "Smart Deep Compression (Recommended)",
+    "modeBalancedDesc": "Optimizes embedded high-resolution images while preserving clarity, repacking with maximum compression.",
+    "modeAggressive": "Maximum Aggressive Compression",
+    "modeAggressiveDesc": "Heavier compression on embedded images, ideal for large docs sent via email.",
+    "modeRepackOnly": "Repack Container Only",
+    "modeRepackOnlyDesc": "Repackages the ZIP container without touching any image assets.",
+    "runCompress": "Compress Document",
+    "working": "Compressing and optimizing...",
+    "originalSize": "Original Size:",
+    "compressedSize": "Compressed Size:",
+    "reduction": "Size Reduction:",
+    "imagesFound": "Embedded Images Found:",
+    "imagesOptimized": "Optimized Images:",
+    "download": "Download Compressed Word Document",
+    "tipTitle": "Tips & Info",
+    "tips": [
+      "Over 90% of a Word document (.docx) size usually comes from embedded high-res photos and screenshots;",
+      "This tool unpacks locally in your browser, resampling images without altering document text or layout;",
+      "All processing happens 100% client-side without uploading files to any server."
+    ],
+    "errNotDocx": "Please upload a Word document ending in .docx",
+    "errFailed": "Compression failed. Please ensure the file is a valid .docx document."
+  },
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
   "keywords": [
-    "free online Word Compressor",
-    "Word Compressor tool",
-    "Word Compressor web app",
-    "word-compressor",
-    "ATools",
-    "Pure Tools"
+    "Word compressor",
+    "DOCX compressor",
+    "reduce Word file size",
+    "compress Word images",
+    "shrink docx",
+    "client-side secure"
   ]
 }

@@ -1,16 +1,47 @@
 {
-  "name": "Free Online PPT Compressor - ATools",
+  "name": "Free Online PPT (PPTX) Compressor - ATools",
   "shortName": "PPT Compressor",
-  "description": "Free online PPT Compressor. Runs locally in your browser with zero uploads for privacy and speed.",
-  "seoDescription": "The ultimate free online PPT Compressor — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" PPT Compressor on any device, this is the one you bookmark and share.",
+  "description": "Free online PowerPoint (PPTX) compressor: Intelligently compress embedded images & media in PPTX presentations to drastically shrink file size. Pure client-side processing.",
+  "seoDescription": "Free online PowerPoint (PPTX) presentation compressor. Automatically discovers and resamples large embedded images, illustrations, and background photos inside PowerPoint slides while preserving original animations, typography, and layout. Drastically reduces PPTX file size for easier sharing and email attachments. Runs 100% locally in your browser with zero file uploads.",
   "category": "Document Tools",
   "lang": "en-US",
+  "ui": {
+    "pickFile": "Select PowerPoint Slide (.pptx)",
+    "replaceFile": "Replace Presentation",
+    "dropHint": "Drop .pptx file here or click to upload.",
+    "compressModeTitle": "Compression Strategy",
+    "modeBalanced": "Smart Deep Compression (Recommended)",
+    "modeBalancedDesc": "Optimizes embedded high-resolution illustrations while preserving clarity, repacking with maximum compression.",
+    "modeAggressive": "Maximum Aggressive Compression",
+    "modeAggressiveDesc": "Heavier compression on embedded images, ideal for large presentations sent via email.",
+    "modeRepackOnly": "Repack Container Only",
+    "modeRepackOnlyDesc": "Repackages the ZIP container without touching any slide images.",
+    "runCompress": "Compress Presentation",
+    "working": "Compressing and optimizing...",
+    "originalSize": "Original Size:",
+    "compressedSize": "Compressed Size:",
+    "reduction": "Size Reduction:",
+    "imagesFound": "Embedded Images Found:",
+    "imagesOptimized": "Optimized Images:",
+    "download": "Download Compressed PPT Presentation",
+    "tipTitle": "Tips & Info",
+    "tips": [
+      "Over 85% of a PowerPoint (.pptx) file size usually comes from embedded photos and background images;",
+      "This tool unpacks locally in your browser, resampling images without altering slide animations or formatting;",
+      "All processing happens 100% client-side without uploading files to any server."
+    ],
+    "errNotPptx": "Please upload a PowerPoint presentation ending in .pptx",
+    "errFailed": "Compression failed. Please ensure the file is a valid .pptx presentation."
+  },
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
   "keywords": [
-    "free online PPT Compressor",
-    "PPT Compressor tool",
-    "PPT Compressor web app",
-    "ppt-compressor",
-    "ATools",
-    "Pure Tools"
+    "PPT compressor",
+    "PPTX compressor",
+    "reduce PPT file size",
+    "compress PowerPoint images",
+    "shrink pptx",
+    "client-side secure"
   ]
 }
