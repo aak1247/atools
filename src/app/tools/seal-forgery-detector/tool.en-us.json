@@ -8,7 +8,17 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["seal detection", "electronic seal verification", "seal forgery", "suspicion analysis", "pixel analysis"],
+  "keywords": [
+    "seal detection",
+    "electronic seal verification",
+    "seal forgery",
+    "suspicion analysis",
+    "pixel analysis"
+  ],
+  "pageFeatures": {
+    "floatingUploadAction": true,
+    "globalDropZone": true
+  },
   "ui": {
     "title": "Seal Forgery Suspicion Detector",
     "upload": "Upload Seal Image",
@@ -41,10 +51,12 @@
     "lowRiskHint": "Low suspicion: No obvious abnormal features detected (for reference only).",
     "analysisFailed": "Analysis Failed",
     "selectImage": "Select Image",
+    "replaceImage": "Click to Replace Image",
+    "dropReplaceHint": "Drag & drop a new image here to replace",
     "originalImage": "Original",
     "detectionResults": "Detection Results",
     "riskScore": "Suspicion Score {score}/100",
-    "clickToDetect": "Click 'Start Detection' to display results.",
+    "clickToDetect": "Click 'Analyze Detect' to display results.",
     "pixelRatio": "Pixel Ratio: {ratio}%",
     "connectedComponents": "Connected Components: {components}",
     "boundaryLength": "Boundary Length: {perimeter}",
