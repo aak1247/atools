@@ -4,44 +4,13 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import { useFileDropzone } from "../../../hooks/useFileDropzone";
 import { getFFmpegBaseURL } from "../../../lib/r2-assets";
 
 type OutputFormat = "mp3" | "wav" | "m4a" | "ogg" | "flac" | "opus";
 
-type Ui = {
-  hint: string;
-  pick: string;
-  replace: string;
-  clear: string;
-  dropReplaceHint: string;
-  loadFfmpeg: string;
-  ffmpegLoading: string;
-  ffmpegReady: string;
-  file: string;
-  outputFormat: string;
-  bitrate: string;
-  sampleRate: string;
-  channels: string;
-  keep: string;
-  mono: string;
-  stereo: string;
-  metadata: string;
-  title: string;
-  artist: string;
-  album: string;
-  start: string;
-  working: string;
-  download: string;
-  progress: string;
-  logs: string;
-  logsPlaceholder: string;
-  errPickAudio: string;
-  errFfmpegLoadFailed: string;
-  errTranscodeFailed: string;
-};
-
-const DEFAULT_UI: Ui = {
+const DEFAULT_UI = {
   hint: "音频格式转换：支持 MP3/WAV/FLAC/OGG/M4A/OPUS 转换与基础参数设置（纯前端本地处理不上传）。首次需加载 ffmpeg.wasm。",
   pick: "选择音频文件",
   replace: "点击替换音频",
@@ -71,7 +40,9 @@ const DEFAULT_UI: Ui = {
   errPickAudio: "请先选择一个音频文件。",
   errFfmpegLoadFailed: "FFmpeg 加载失败。",
   errTranscodeFailed: "转换失败（可能输出编码器未内置或浏览器资源不足）。",
-};
+} as const;
+
+type Ui = typeof DEFAULT_UI;
 
 // 动态获取 FFmpeg 基础 URL（支持本地和 R2）
 const CORE_BASE = getFFmpegBaseURL();
@@ -99,12 +70,14 @@ const outputExt = (format: OutputFormat) => (format === "m4a" ? "m4a" : format);
 export default function AudioFormatConverterClient() {
   return (
     <ToolPageLayout toolSlug="audio-format-converter" maxWidthClassName="max-w-6xl">
-      {({ config }) => <Inner ui={{ ...DEFAULT_UI, ...((config.ui ?? {}) as Partial<Ui>) }} />}
+      <Inner />
     </ToolPageLayout>
   );
 }
 
-function Inner({ ui }: { ui: Ui }) {
+function Inner() {
+  const config = useOptionalToolConfig("audio-format-converter");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const logRef = useRef<string[]>([]);
 

@@ -8,7 +8,9 @@
   "ui": {
     "pickTitle": "Select a file",
     "pickFile": "Choose file",
+    "replaceFile": "Replace file",
     "clear": "Clear",
+    "dropReplaceHint": "Drag & drop a new audio or video file here to replace",
     "previewTitle": "Preview",
     "fileInfoTemplate": "File: {name} · Duration: {time} ({seconds}s)",
     "outputFormatTitle": "Output format",

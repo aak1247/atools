@@ -9,7 +9,9 @@
   "ui": {
     "hint": "Audio format converter (MP3/WAV/FLAC/OGG/M4A/OPUS) with basic settings. Loads ffmpeg.wasm locally (no uploads).",
     "pick": "Select audio file",
+    "replace": "Replace audio file",
     "clear": "Clear",
+    "dropReplaceHint": "Drag & drop a new audio file here to replace.",
     "loadFfmpeg": "Load FFmpeg",
     "ffmpegLoading": "Loading…",
     "ffmpegReady": "FFmpeg ready",

@@ -15,6 +15,23 @@
     "JPG压缩",
     "PNG压缩工具"
   ],
+  "ui": {
+    "title": "图片压缩工具",
+    "subtitle": "智能压缩算法 • 隐私安全 • 即刻预览",
+    "dropTitle": "点击或拖拽图片到此处",
+    "dropFormats": "支持 JPG, PNG, WebP 等格式",
+    "replaceImage": "点击替换图片",
+    "currentQuality": "当前质量：",
+    "dropHint": "支持拖拽新图片到此区域直接替换",
+    "original": "原图",
+    "compressed": "压缩后",
+    "noResult": "暂无压缩结果",
+    "savedPrefix": "节省",
+    "download": "下载",
+    "errSelectImage": "请选择图片文件",
+    "errCanvasContext": "无法创建画布上下文",
+    "errCompressFailed": "压缩失败"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

@@ -1,11 +1,42 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFileDropzone } from "../../../hooks/useFileDropzone";
 import { getFFmpegBaseURL } from "../../../lib/r2-assets";
+
+const DEFAULT_UI = {
+  title: "视频转 GIF",
+  subtitle: "基于 ffmpeg.wasm：截取片段并转为 GIF（纯本地处理）",
+  pickTitle: "选择视频文件",
+  pickFile: "选择文件",
+  replaceFile: "点击替换视频",
+  loadFfmpeg: "加载 FFmpeg",
+  ffmpegLoading: "加载中...",
+  ffmpegReady: "FFmpeg 已就绪",
+  clear: "清空",
+  dropReplaceHint: "支持拖拽新视频到此区域直接替换",
+  hint: "提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。",
+  settingsTitle: "设置",
+  startSec: "开始时间（秒）",
+  durationSec: "截取时长（秒）",
+  fps: "帧率（FPS）",
+  width: "宽度（px）",
+  loop: "循环播放（GIF loop=0）",
+  startConvert: "开始转换",
+  converting: "转换中...",
+  download: "下载",
+  progress: "进度",
+  ffmpegLogs: "FFmpeg 日志",
+  logsPlaceholder: "日志会显示在这里…",
+  errFfmpegLoadFailed: "FFmpeg 加载失败。",
+  errConvertFailed: "转换失败，请稍后重试。",
+} as const;
+
+type VideoToGifUi = typeof DEFAULT_UI;
 
 // 动态获取 FFmpeg 基础 URL（支持本地和 R2）
 const CORE_BASE = getFFmpegBaseURL();
@@ -22,6 +53,17 @@ const formatSeconds = (seconds: number): string => {
 };
 
 export default function VideoToGifClient() {
+  return (
+    <ToolPageLayout toolSlug="video-to-gif" maxWidthClassName="max-w-6xl">
+      <VideoToGifInner />
+    </ToolPageLayout>
+  );
+}
+
+function VideoToGifInner() {
+  const config = useOptionalToolConfig("video-to-gif");
+  const ui: VideoToGifUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<VideoToGifUi>) };
+
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const logRef = useRef<string[]>([]);
 
@@ -78,7 +120,7 @@ export default function VideoToGifClient() {
       setFfmpegState("ready");
     } catch (e) {
       setFfmpegState("error");
-      setError(e instanceof Error ? e.message : "FFmpeg 加载失败。");
+      setError(e instanceof Error ? e.message : ui.errFfmpegLoadFailed);
     }
   };
 
@@ -158,7 +200,7 @@ export default function VideoToGifClient() {
       setDownloadUrl(url);
       setProgress(1);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "转换失败，请稍后重试。");
+      setError(e instanceof Error ? e.message : ui.errConvertFailed);
       setFfmpegState("error");
     } finally {
       setIsWorking(false);
@@ -184,11 +226,10 @@ export default function VideoToGifClient() {
   };
 
   return (
-    <ToolPageLayout toolSlug="video-to-gif" maxWidthClassName="max-w-6xl">
-      <div className="space-y-8">
+    <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">视频转 GIF</h2>
-        <p className="mt-2 text-sm text-slate-500">基于 ffmpeg.wasm：截取片段并转为 GIF（纯本地处理）</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900">{ui.title}</h2>
+        <p className="mt-2 text-sm text-slate-500">{ui.subtitle}</p>
       </div>
 
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
@@ -202,14 +243,14 @@ export default function VideoToGifClient() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
         >
-          <div className="text-sm font-semibold text-slate-900">选择视频文件</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.pickTitle}</div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={openFilePicker}
               className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
-              {file ? "点击替换视频" : "选择文件"}
+              {file ? ui.replaceFile : ui.pickFile}
             </button>
             <button
               type="button"
@@ -217,7 +258,7 @@ export default function VideoToGifClient() {
               disabled={ffmpegState === "ready" || ffmpegState === "loading"}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              {ffmpegState === "ready" ? "FFmpeg 已就绪" : ffmpegState === "loading" ? "加载中..." : "加载 FFmpeg"}
+              {ffmpegState === "ready" ? ui.ffmpegReady : ffmpegState === "loading" ? ui.ffmpegLoading : ui.loadFfmpeg}
             </button>
             <button
               type="button"
@@ -225,25 +266,25 @@ export default function VideoToGifClient() {
               disabled={!file && ffmpegState === "idle"}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              清空
+              {ui.clear}
             </button>
             <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={handleInputChange} />
           </div>
-          <div className="w-full text-[11px] text-slate-500">支持拖拽新视频到此区域直接替换</div>
+          <div className="w-full text-[11px] text-slate-500">{ui.dropReplaceHint}</div>
         </div>
 
         <div className="mt-4 rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200 text-xs text-slate-600">
-          提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。
+          {ui.hint}
         </div>
 
         {file && (
           <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">设置</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.settingsTitle}</div>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <label className="block text-sm text-slate-700">
-                    开始时间（秒）
+                    {ui.startSec}
                     <input
                       type="number"
                       min={0}
@@ -254,7 +295,7 @@ export default function VideoToGifClient() {
                     />
                   </label>
                   <label className="block text-sm text-slate-700">
-                    截取时长（秒）
+                    {ui.durationSec}
                     <input
                       type="number"
                       min={0.1}
@@ -265,7 +306,7 @@ export default function VideoToGifClient() {
                     />
                   </label>
                   <label className="block text-sm text-slate-700">
-                    帧率（FPS）
+                    {ui.fps}
                     <input
                       type="number"
                       min={1}
@@ -277,7 +318,7 @@ export default function VideoToGifClient() {
                     />
                   </label>
                   <label className="block text-sm text-slate-700">
-                    宽度（px）
+                    {ui.width}
                     <input
                       type="number"
                       min={64}
@@ -296,7 +337,7 @@ export default function VideoToGifClient() {
                     onChange={(e) => setLoop(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  循环播放（GIF loop=0）
+                  {ui.loop}
                 </label>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -306,7 +347,7 @@ export default function VideoToGifClient() {
                     disabled={ffmpegState !== "ready" || isWorking}
                     className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
                   >
-                    {isWorking ? "转换中..." : "开始转换"}
+                    {isWorking ? ui.converting : ui.startConvert}
                   </button>
                   {downloadUrl && (
                     <a
@@ -314,7 +355,7 @@ export default function VideoToGifClient() {
                       download={downloadName}
                       className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                     >
-                      下载 {downloadName}
+                      {ui.download} {downloadName}
                     </a>
                   )}
                 </div>
@@ -322,7 +363,7 @@ export default function VideoToGifClient() {
                 {progress != null && (
                   <div className="mt-4">
                     <div className="flex items-center justify-between text-xs text-slate-600">
-                      <span>进度</span>
+                      <span>{ui.progress}</span>
                       <span>{Math.round(progress * 100)}%</span>
                     </div>
                     <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200">
@@ -341,11 +382,11 @@ export default function VideoToGifClient() {
 
             <div className="space-y-4">
               <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                <div className="text-sm font-semibold text-slate-900">FFmpeg 日志</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.ffmpegLogs}</div>
                 <textarea
                   value={logs}
                   readOnly
-                  placeholder="日志会显示在这里…"
+                  placeholder={ui.logsPlaceholder}
                   className="mt-3 h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
                 />
               </div>
@@ -354,6 +395,5 @@ export default function VideoToGifClient() {
         )}
       </div>
     </div>
-    </ToolPageLayout>
-    );
+  );
 }
