@@ -8,8 +8,6 @@
   "keywords": ["screenshot annotator", "image annotation", "arrow markup", "draw on image", "export PNG"],
   "ui": {
     "hint": "Annotate screenshots locally: pen, rectangles, arrows, text, then export PNG (no uploads).",
-    "pick": "Select image",
-    "clear": "Clear",
     "pick": "Choose Image",
     "replace": "Click to Replace Image",
     "clear": "Clear",

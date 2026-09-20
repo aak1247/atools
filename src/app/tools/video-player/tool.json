@@ -15,6 +15,22 @@
     "本地视频播放",
     "MP4播放器"
   ],
+  "ui": {
+    "title": "视频播放器",
+    "subtitle": "导入本地视频播放（不上传服务器）",
+    "pickTitle": "选择视频文件",
+    "pickFile": "选择文件",
+    "replaceFile": "点击替换视频",
+    "clear": "清空",
+    "dropReplaceHint": "支持拖拽新视频到此区域直接替换",
+    "noFile": "未选择视频",
+    "pip": "画中画",
+    "settingsTitle": "设置",
+    "speedLabel": "倍速",
+    "volumeLabel": "音量",
+    "loopLabel": "循环播放",
+    "hint": "提示：播放能力取决于浏览器对编码格式的支持（例如 H.265/HEVC 在部分浏览器不可播放）。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

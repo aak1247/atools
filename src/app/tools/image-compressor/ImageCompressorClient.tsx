@@ -1,8 +1,27 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import type { FC, ChangeEvent } from "react";
 import { useState, useRef, useEffect } from "react";
+
+const DEFAULT_UI = {
+  title: "图片压缩工具",
+  subtitle: "智能压缩算法 • 隐私安全 • 即刻预览",
+  dropTitle: "点击或拖拽图片到此处",
+  dropFormats: "支持 JPG, PNG, WebP 等格式",
+  replaceImage: "点击替换图片",
+  currentQuality: "当前质量：",
+  dropHint: "支持拖拽新图片到此区域直接替换",
+  original: "原图",
+  compressed: "压缩后",
+  noResult: "暂无压缩结果",
+  savedPrefix: "节省",
+  download: "下载",
+  errSelectImage: "请选择图片文件",
+  errCanvasContext: "无法创建画布上下文",
+  errCompressFailed: "压缩失败",
+} as const;
 
 const formatSize = (bytes: number | null): string => {
   if (!bytes || bytes <= 0) return "-";
@@ -11,24 +30,32 @@ const formatSize = (bytes: number | null): string => {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
 
-async function compressImage(file: File, quality: number): Promise<Blob> {
+async function compressImage(
+  file: File,
+  quality: number,
+  errCanvasMsg: string,
+  errCompressMsg: string,
+): Promise<Blob> {
   const imageBitmap = await createImageBitmap(file);
   const canvas = document.createElement("canvas");
   canvas.width = imageBitmap.width;
   canvas.height = imageBitmap.height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("无法创建画布上下文");
+  if (!ctx) throw new Error(errCanvasMsg);
   ctx.drawImage(imageBitmap, 0, 0);
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
-      (result) => (result ? resolve(result) : reject(new Error("压缩失败"))),
+      (result) => (result ? resolve(result) : reject(new Error(errCompressMsg))),
       "image/jpeg",
       quality / 100
     );
   });
 }
 
-const ImageCompressorClient: FC = () => {
+function ImageCompressorInner() {
+  const config = useOptionalToolConfig("image-compressor");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const [file, setFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [compressedUrl, setCompressedUrl] = useState<string | null>(null);
@@ -55,7 +82,12 @@ const ImageCompressorClient: FC = () => {
     setIsCompressing(true);
     setError(null);
     try {
-      const blob = await compressImage(targetFile, qualityValue);
+      const blob = await compressImage(
+        targetFile,
+        qualityValue,
+        ui.errCanvasContext,
+        ui.errCompressFailed,
+      );
       setCompressedSize(blob.size);
       const url = URL.createObjectURL(blob);
       setCompressedUrl((prev) => {
@@ -63,7 +95,7 @@ const ImageCompressorClient: FC = () => {
         return url;
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "压缩失败");
+      setError(err instanceof Error ? err.message : ui.errCompressFailed);
     } finally {
       setIsCompressing(false);
     }
@@ -71,7 +103,7 @@ const ImageCompressorClient: FC = () => {
 
   const processFile = async (selected: File) => {
     if (!selected.type.startsWith("image/")) {
-      setError("请选择图片文件");
+      setError(ui.errSelectImage);
       return;
     }
     setError(null);
@@ -122,11 +154,10 @@ const ImageCompressorClient: FC = () => {
   }, [originalUrl, compressedUrl]);
 
   return (
-    <ToolPageLayout toolSlug="image-compressor" maxWidthClassName="max-w-4xl">
-      <div className="space-y-8">
+    <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">图片压缩工具</h2>
-        <p className="mt-2 text-slate-500">智能压缩算法 • 隐私安全 • 即刻预览</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900">{ui.title}</h2>
+        <p className="mt-2 text-slate-500">{ui.subtitle}</p>
       </div>
 
       <div className="glass-card overflow-hidden rounded-3xl p-8 shadow-xl">
@@ -153,8 +184,8 @@ const ImageCompressorClient: FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <p className="text-lg font-medium text-slate-700">点击或拖拽图片到此处</p>
-            <p className="mt-1 text-sm text-slate-500">支持 JPG, PNG, WebP 等格式</p>
+            <p className="text-lg font-medium text-slate-700">{ui.dropTitle}</p>
+            <p className="mt-1 text-sm text-slate-500">{ui.dropFormats}</p>
           </div>
         ) : (
           <div className="space-y-8">
@@ -175,11 +206,11 @@ const ImageCompressorClient: FC = () => {
                   onClick={openFilePicker}
                   className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
                 >
-                  点击替换图片
+                  {ui.replaceImage}
                 </button>
                 <div className="h-8 w-px bg-slate-200"></div>
                 <div className="text-sm">
-                  <span className="text-slate-500">当前质量：</span>
+                  <span className="text-slate-500">{ui.currentQuality}</span>
                   <span className="font-semibold text-blue-600">{quality}%</span>
                 </div>
               </div>
@@ -195,7 +226,7 @@ const ImageCompressorClient: FC = () => {
                   className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-blue-600"
                 />
                 <p className="mt-2 text-[11px] text-slate-500">
-                  支持拖拽新图片到此区域直接替换
+                  {ui.dropHint}
                 </p>
               </div>
             </div>
@@ -205,7 +236,7 @@ const ImageCompressorClient: FC = () => {
               {/* Original */}
               <div className="group relative overflow-hidden rounded-2xl bg-slate-100">
                 <div className="absolute left-4 top-4 z-10 rounded-lg bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
-                  原图
+                  {ui.original}
                 </div>
                 <div className="aspect-[4/3] w-full overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -219,7 +250,7 @@ const ImageCompressorClient: FC = () => {
               {/* Compressed */}
               <div className="group relative overflow-hidden rounded-2xl bg-slate-100 ring-2 ring-blue-500 ring-offset-2">
                 <div className="absolute left-4 top-4 z-10 rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white shadow-lg">
-                  压缩后
+                  {ui.compressed}
                 </div>
                 <div className="aspect-[4/3] w-full overflow-hidden">
                   {isCompressing ? (
@@ -231,7 +262,7 @@ const ImageCompressorClient: FC = () => {
                     <img src={compressedUrl!} alt="Compressed" className="h-full w-full object-contain p-4" />
                   ) : (
                     <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                      暂无压缩结果
+                      {ui.noResult}
                     </div>
                   )}
                 </div>
@@ -240,7 +271,7 @@ const ImageCompressorClient: FC = () => {
                     <p className="text-sm font-medium text-slate-900">{formatSize(compressedSize)}</p>
                     {originalSize && compressedSize && (
                       <p className="text-xs text-green-600">
-                        节省 {((1 - compressedSize / originalSize) * 100).toFixed(1)}%
+                        {ui.savedPrefix} {((1 - compressedSize / originalSize) * 100).toFixed(1)}%
                       </p>
                     )}
                   </div>
@@ -250,7 +281,7 @@ const ImageCompressorClient: FC = () => {
                       download={`compressed-${file.name}`}
                       className="rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-medium text-white shadow-md transition-transform hover:scale-105 hover:bg-blue-700 active:scale-95"
                     >
-                      下载
+                      {ui.download}
                     </a>
                   )}
                 </div>
@@ -266,8 +297,15 @@ const ImageCompressorClient: FC = () => {
         </div>
       )}
     </div>
+  );
+}
+
+const ImageCompressorClient: FC = () => {
+  return (
+    <ToolPageLayout toolSlug="image-compressor" maxWidthClassName="max-w-4xl">
+      <ImageCompressorInner />
     </ToolPageLayout>
-    );
+  );
 };
 
 export default ImageCompressorClient;

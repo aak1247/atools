@@ -12,5 +12,22 @@
     "image-compressor",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "Image Compressor",
+    "subtitle": "Smart Compression Algorithm • Privacy Safe • Instant Preview",
+    "dropTitle": "Click or drag image here",
+    "dropFormats": "Supports JPG, PNG, WebP and more",
+    "replaceImage": "Click to Replace Image",
+    "currentQuality": "Current Quality:",
+    "dropHint": "Drag and drop a new image here to replace",
+    "original": "Original",
+    "compressed": "Compressed",
+    "noResult": "No compression result",
+    "savedPrefix": "Saved",
+    "download": "Download",
+    "errSelectImage": "Please select an image file",
+    "errCanvasContext": "Failed to create canvas context",
+    "errCompressFailed": "Compression failed"
+  }
 }

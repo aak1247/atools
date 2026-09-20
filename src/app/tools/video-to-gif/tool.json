@@ -15,6 +15,33 @@
     "表情包制作",
     "FFmpeg转换工具"
   ],
+  "ui": {
+    "title": "视频转 GIF",
+    "subtitle": "基于 ffmpeg.wasm：截取片段并转为 GIF（纯本地处理）",
+    "pickTitle": "选择视频文件",
+    "pickFile": "选择文件",
+    "replaceFile": "点击替换视频",
+    "loadFfmpeg": "加载 FFmpeg",
+    "ffmpegLoading": "加载中...",
+    "ffmpegReady": "FFmpeg 已就绪",
+    "clear": "清空",
+    "dropReplaceHint": "支持拖拽新视频到此区域直接替换",
+    "hint": "提示：首次加载 ffmpeg.wasm 需要下载核心文件（较大），可能耗时；全程在浏览器本地处理，不上传服务器。",
+    "settingsTitle": "设置",
+    "startSec": "开始时间（秒）",
+    "durationSec": "截取时长（秒）",
+    "fps": "帧率（FPS）",
+    "width": "宽度（px）",
+    "loop": "循环播放（GIF loop=0）",
+    "startConvert": "开始转换",
+    "converting": "转换中...",
+    "download": "下载",
+    "progress": "进度",
+    "ffmpegLogs": "FFmpeg 日志",
+    "logsPlaceholder": "日志会显示在这里…",
+    "errFfmpegLoadFailed": "FFmpeg 加载失败。",
+    "errConvertFailed": "转换失败，请稍后重试。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

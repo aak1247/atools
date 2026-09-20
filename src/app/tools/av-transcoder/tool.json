@@ -15,6 +15,32 @@
     "音视频格式转换",
     "实时转码工具"
   ],
+  "ui": {
+    "pickTitle": "选择文件",
+    "pickFile": "选择文件",
+    "replaceFile": "点击替换文件",
+    "clear": "清空",
+    "dropReplaceHint": "支持拖拽新音频/视频到此区域直接替换",
+    "previewTitle": "预览",
+    "fileInfoTemplate": "文件：{name} · 时长：{time}（{seconds}s）",
+    "outputFormatTitle": "输出格式",
+    "webmOption": "WebM（实时转码）",
+    "wavOption": "WAV（仅音频）",
+    "startTranscodeTitle": "开始转码",
+    "transcodeHint": "WebM 导出依赖浏览器对 MediaRecorder/captureStream 的支持；WAV 导出会解码并重编码，文件较大时耗时较长。",
+    "transcoding": "转码中...",
+    "startTranscode": "开始转码",
+    "progress": "进度",
+    "generated": "已生成输出文件：",
+    "download": "下载",
+    "errorPrefix": "错误：",
+    "errChooseFile": "请先选择一个音频或视频文件。",
+    "errWavAudioOnly": "WAV 导出仅支持音频文件（video 请导出 WebM）。",
+    "errNoMediaRecorder": "当前浏览器不支持 MediaRecorder 导出 WebM。",
+    "errMediaNotReady": "媒体元素未初始化，请刷新页面重试。",
+    "errNoCaptureStream": "当前浏览器不支持 captureStream，无法在纯前端导出 WebM。",
+    "errTranscodeFailed": "转码失败，请稍后重试。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

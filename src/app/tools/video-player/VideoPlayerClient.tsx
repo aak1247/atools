@@ -1,8 +1,28 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import { useEffect, useRef, useState } from "react";
 import { useFileDropzone } from "../../../hooks/useFileDropzone";
+
+const DEFAULT_UI = {
+  title: "视频播放器",
+  subtitle: "导入本地视频播放（不上传服务器）",
+  pickTitle: "选择视频文件",
+  pickFile: "选择文件",
+  replaceFile: "点击替换视频",
+  clear: "清空",
+  dropReplaceHint: "支持拖拽新视频到此区域直接替换",
+  noFile: "未选择视频",
+  pip: "画中画",
+  settingsTitle: "设置",
+  speedLabel: "倍速",
+  volumeLabel: "音量",
+  loopLabel: "循环播放",
+  hint: "提示：播放能力取决于浏览器对编码格式的支持（例如 H.265/HEVC 在部分浏览器不可播放）。",
+} as const;
+
+type VideoPlayerUi = typeof DEFAULT_UI;
 
 const formatTime = (seconds: number): string => {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -13,6 +33,17 @@ const formatTime = (seconds: number): string => {
 };
 
 export default function VideoPlayerClient() {
+  return (
+    <ToolPageLayout toolSlug="video-player" maxWidthClassName="max-w-5xl">
+      <VideoPlayerInner />
+    </ToolPageLayout>
+  );
+}
+
+function VideoPlayerInner() {
+  const config = useOptionalToolConfig("video-player");
+  const ui: VideoPlayerUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<VideoPlayerUi>) };
+
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -75,11 +106,10 @@ export default function VideoPlayerClient() {
   };
 
   return (
-    <ToolPageLayout toolSlug="video-player" maxWidthClassName="max-w-5xl">
-      <div className="space-y-8">
+    <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">视频播放器</h2>
-        <p className="mt-2 text-sm text-slate-500">导入本地视频播放（不上传服务器）</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900">{ui.title}</h2>
+        <p className="mt-2 text-sm text-slate-500">{ui.subtitle}</p>
       </div>
 
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
@@ -93,14 +123,14 @@ export default function VideoPlayerClient() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
         >
-          <div className="text-sm font-semibold text-slate-900">选择视频文件</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.pickTitle}</div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={openFilePicker}
               className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
-              {file ? "点击替换视频" : "选择文件"}
+              {file ? ui.replaceFile : ui.pickFile}
             </button>
             <button
               type="button"
@@ -108,11 +138,11 @@ export default function VideoPlayerClient() {
               disabled={!file}
               className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              清空
+              {ui.clear}
             </button>
             <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={handleInputChange} />
           </div>
-          <div className="w-full text-[11px] text-slate-500">支持拖拽新视频到此区域直接替换</div>
+          <div className="w-full text-[11px] text-slate-500">{ui.dropReplaceHint}</div>
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
@@ -130,7 +160,7 @@ export default function VideoPlayerClient() {
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-700">
               <div className="min-w-0">
-                <div className="font-semibold text-slate-900 truncate">{file ? file.name : "未选择视频"}</div>
+                <div className="font-semibold text-slate-900 truncate">{file ? file.name : ui.noFile}</div>
                 <div className="mt-1 text-xs text-slate-500">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </div>
@@ -142,7 +172,7 @@ export default function VideoPlayerClient() {
                   disabled={!file}
                   className="rounded-2xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
                 >
-                  画中画
+                  {ui.pip}
                 </button>
               )}
             </div>
@@ -150,10 +180,10 @@ export default function VideoPlayerClient() {
 
           <div className="space-y-4">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">设置</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.settingsTitle}</div>
               <div className="mt-4 grid gap-4">
                 <label className="block text-sm text-slate-700">
-                  倍速
+                  {ui.speedLabel}
                   <select
                     value={playbackRate}
                     onChange={(e) => setPlaybackRate(Number(e.target.value))}
@@ -169,7 +199,7 @@ export default function VideoPlayerClient() {
                 </label>
 
                 <label className="block text-sm text-slate-700">
-                  音量
+                  {ui.volumeLabel}
                   <input
                     type="range"
                     min={0}
@@ -188,18 +218,17 @@ export default function VideoPlayerClient() {
                     onChange={(e) => setIsLoop(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  循环播放
+                  {ui.loopLabel}
                 </label>
               </div>
             </div>
 
             <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200 text-xs text-slate-500">
-              提示：播放能力取决于浏览器对编码格式的支持（例如 H.265/HEVC 在部分浏览器不可播放）。
+              {ui.hint}
             </div>
           </div>
         </div>
       </div>
     </div>
-    </ToolPageLayout>
-    );
+  );
 }

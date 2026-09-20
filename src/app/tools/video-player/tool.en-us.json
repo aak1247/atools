@@ -5,6 +5,22 @@
   "seoDescription": "The ultimate free online Video Player — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Video Player on any device, this is the one you bookmark and share.",
   "category": "Media Tools",
   "lang": "en-US",
+  "ui": {
+    "title": "Video Player",
+    "subtitle": "Play local video files directly in your browser (no server upload)",
+    "pickTitle": "Select video file",
+    "pickFile": "Choose file",
+    "replaceFile": "Replace video",
+    "clear": "Clear",
+    "dropReplaceHint": "Drag & drop a new video here to replace",
+    "noFile": "No video selected",
+    "pip": "Picture-in-Picture",
+    "settingsTitle": "Settings",
+    "speedLabel": "Speed",
+    "volumeLabel": "Volume",
+    "loopLabel": "Loop playback",
+    "hint": "Tip: Playback capabilities depend on browser codec support (e.g. H.265/HEVC may not be supported in some browsers)."
+  },
   "keywords": [
     "free online Video Player",
     "Video Player tool",
