@@ -8,6 +8,37 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["免费HMAC生成", "在线HMAC计算", "API签名工具", "HMAC-SHA256", "消息认证码"]
+  "keywords": [
+    "免费HMAC生成",
+    "在线HMAC计算",
+    "API签名工具",
+    "HMAC-SHA256",
+    "消息认证码"
+  ],
+  "ui": {
+    "title": "HMAC 生成器",
+    "subtitle": "SHA1/SHA256/SHA512（纯本地）",
+    "algoLabel": "算法",
+    "keyFormatLabel": "Key 格式",
+    "keyFormatText": "文本",
+    "keyFormatHex": "Hex",
+    "hexUppercase": "Hex 大写",
+    "generating": "生成中…",
+    "generate": "生成",
+    "keyLabel": "Key",
+    "keyPlaceholderHex": "例如：0011223344556677…",
+    "keyPlaceholderText": "输入 Key 文本…",
+    "keyHintHex": "Hex 模式下会忽略空白并要求偶数长度。",
+    "keyHintText": "文本模式使用 UTF-8 编码导入 Key。",
+    "messageLabel": "消息",
+    "hmacHex": "HMAC（Hex）",
+    "hmacBase64": "HMAC（Base64）",
+    "copy": "复制",
+    "resultPlaceholder": "点击“生成”后显示…",
+    "errorPrefix": "错误：",
+    "generateFailed": "生成失败",
+    "hexOddLengthError": "Hex 长度必须为偶数",
+    "hexInvalidCharError": "Hex 含有非法字符",
+    "hint": "提示：HMAC 输出与 Key/消息的编码方式有关；如果要兼容后端实现，请确认 Key 是否为原始字节或文本。"
+  }
 }
-

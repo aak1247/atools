@@ -8,6 +8,24 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["CSS渐变", "渐变生成器", "linear-gradient", "radial-gradient", "background生成"]
+  "keywords": [
+    "CSS渐变",
+    "渐变生成器",
+    "linear-gradient",
+    "radial-gradient",
+    "background生成"
+  ],
+  "ui": {
+    "type": "类型",
+    "linear": "线性渐变",
+    "radial": "径向渐变",
+    "angle": "角度（deg）",
+    "stops": "颜色节点",
+    "add": "添加节点",
+    "remove": "删除",
+    "random": "随机",
+    "preview": "预览",
+    "css": "CSS",
+    "copy": "复制"
+  }
 }
-

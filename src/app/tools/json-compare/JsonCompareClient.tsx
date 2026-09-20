@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type DiffKind = "added" | "removed" | "changed" | "type-changed";
 
@@ -11,6 +12,25 @@ type DiffItem = {
   left: unknown;
   right: unknown;
 };
+
+const DEFAULT_UI = {
+  leftJsonTitle: "左侧 JSON",
+  rightJsonTitle: "右侧 JSON",
+  leftInvalidJson: "错误：左侧不是合法 JSON。",
+  rightInvalidJson: "错误：右侧不是合法 JSON。",
+  diffResultsTitle: "差异结果",
+  diffStatsTemplate: "新增 {added} · 删除 {removed} · 变化 {changed} · 类型变化 {type}",
+  copyDiffJson: "复制差异 JSON",
+  noDiffsFound: "未发现差异。",
+  fixJsonErrorsFirst: "请先修正两侧 JSON 解析错误。",
+  thPath: "Path (JSON Pointer)",
+  thType: "类型",
+  thLeft: "左侧",
+  thRight: "右侧",
+  notes: "说明：这是结构化对比（递归比较对象/数组）。数组默认按索引比较，忽略 key 顺序（对象键会排序后比对）。",
+} as const;
+
+type JsonCompareUi = typeof DEFAULT_UI;
 
 const safeJsonParse = (text: string): unknown => {
   try {
@@ -81,6 +101,12 @@ const pretty = (value: unknown) => {
 };
 
 export default function JsonCompareClient() {
+  const config = useOptionalToolConfig("json-compare");
+  const ui: JsonCompareUi = useMemo(
+    () => ({ ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<JsonCompareUi>) }),
+    [config?.ui],
+  );
+
   const [leftText, setLeftText] = useState('{\n  "a": 1,\n  "b": { "c": true }\n}\n');
   const [rightText, setRightText] = useState('{\n  "a": 2,\n  "b": { "c": true, "d": "new" }\n}\n');
 
@@ -117,53 +143,57 @@ export default function JsonCompareClient() {
     await navigator.clipboard.writeText(value);
   };
 
+  const statsText = ui.diffStatsTemplate
+    .replace("{added}", String(counts.added))
+    .replace("{removed}", String(counts.removed))
+    .replace("{changed}", String(counts.changed))
+    .replace("{type}", String(counts.type));
+
   return (
     <ToolPageLayout toolSlug="json-compare">
       <div className="w-full px-4">
         <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">左侧 JSON</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.leftJsonTitle}</div>
               <textarea
                 value={leftText}
                 onChange={(e) => setLeftText(e.target.value)}
                 className="mt-3 h-72 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
-              {!parsed.leftOk && <div className="mt-2 text-sm text-rose-600">错误：左侧不是合法 JSON。</div>}
+              {!parsed.leftOk && <div className="mt-2 text-sm text-rose-600">{ui.leftInvalidJson}</div>}
             </div>
 
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">右侧 JSON</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.rightJsonTitle}</div>
               <textarea
                 value={rightText}
                 onChange={(e) => setRightText(e.target.value)}
                 className="mt-3 h-72 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
-              {!parsed.rightOk && <div className="mt-2 text-sm text-rose-600">错误：右侧不是合法 JSON。</div>}
+              {!parsed.rightOk && <div className="mt-2 text-sm text-rose-600">{ui.rightInvalidJson}</div>}
             </div>
           </div>
 
           <div className="mt-6 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="text-sm font-semibold text-slate-900">差异结果</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.diffResultsTitle}</div>
               <div className="flex items-center gap-2">
-                <div className="text-xs text-slate-600">
-                  新增 {counts.added} · 删除 {counts.removed} · 变化 {counts.changed} · 类型变化 {counts.type}
-                </div>
+                <div className="text-xs text-slate-600">{statsText}</div>
                 <button
                   type="button"
                   onClick={() => void copy(JSON.stringify(diffs, null, 2))}
                   disabled={diffs.length === 0}
                   className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
                 >
-                  复制差异 JSON
+                  {ui.copyDiffJson}
                 </button>
               </div>
             </div>
 
             {diffs.length === 0 ? (
               <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700 ring-1 ring-slate-200">
-                {parsed.leftOk && parsed.rightOk ? "未发现差异。" : "请先修正两侧 JSON 解析错误。"}
+                {parsed.leftOk && parsed.rightOk ? ui.noDiffsFound : ui.fixJsonErrorsFirst}
               </div>
             ) : (
               <div className="mt-4 overflow-hidden rounded-2xl ring-1 ring-slate-200">
@@ -171,10 +201,10 @@ export default function JsonCompareClient() {
                   <table className="w-full table-fixed border-collapse text-left text-xs">
                     <thead className="sticky top-0 bg-slate-50 text-slate-700">
                       <tr>
-                        <th className="w-44 border-b border-slate-200 px-3 py-2">Path (JSON Pointer)</th>
-                        <th className="w-28 border-b border-slate-200 px-3 py-2">类型</th>
-                        <th className="border-b border-slate-200 px-3 py-2">左侧</th>
-                        <th className="border-b border-slate-200 px-3 py-2">右侧</th>
+                        <th className="w-44 border-b border-slate-200 px-3 py-2">{ui.thPath}</th>
+                        <th className="w-28 border-b border-slate-200 px-3 py-2">{ui.thType}</th>
+                        <th className="border-b border-slate-200 px-3 py-2">{ui.thLeft}</th>
+                        <th className="border-b border-slate-200 px-3 py-2">{ui.thRight}</th>
                       </tr>
                     </thead>
                     <tbody className="text-slate-800">
@@ -210,9 +240,7 @@ export default function JsonCompareClient() {
               </div>
             )}
 
-            <div className="mt-4 text-xs text-slate-500">
-              说明：这是结构化对比（递归比较对象/数组）。数组默认按索引比较，忽略 key 顺序（对象键会排序后比对）。
-            </div>
+            <div className="mt-4 text-xs text-slate-500">{ui.notes}</div>
           </div>
         </div>
       </div>

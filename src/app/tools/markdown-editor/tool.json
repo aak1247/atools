@@ -4,6 +4,19 @@
   "description": "实时预览的Markdown编辑器，支持语法高亮、导出HTML和本地存储",
   "seoDescription": "免费在线Markdown编辑器，实时预览渲染结果，支持完整的Markdown语法高亮，支持导出为HTML格式，本地自动保存草稿，完全免费无需注册，纯浏览器实现，保护隐私安全。",
   "category": "文本处理",
-  "keywords": ["Markdown编辑器", "实时预览", "MD编辑器", "Markdown写作"],
-  "themeColor": "#0f172a"
+  "keywords": [
+    "Markdown编辑器",
+    "实时预览",
+    "MD编辑器",
+    "Markdown写作"
+  ],
+  "themeColor": "#0f172a",
+  "ui": {
+    "title": "Markdown 编辑器",
+    "input": "Markdown 输入",
+    "preview": "预览（纯文本）",
+    "placeholder": "在这里输入 Markdown…",
+    "copy": "复制",
+    "clear": "清空"
+  }
 }

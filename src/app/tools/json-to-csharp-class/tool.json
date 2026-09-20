@@ -16,6 +16,19 @@
     "nullable",
     "接口响应建模",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "rootTypeName": "根类型名",
+    "arrayType": "数组类型",
+    "jsonPropertyName": "JsonPropertyName",
+    "nullableRefTypes": "Nullable 引用类型",
+    "formatJson": "格式化 JSON",
+    "copyCsharpCode": "复制 C# 代码",
+    "jsonInput": "JSON 输入",
+    "csharpOutput": "C# 输出",
+    "errorPrefix": "错误：",
+    "jsonParseError": "JSON 解析失败，请检查格式。",
+    "generateError": "生成失败",
+    "note": "说明：混合类型/混合数组会降级为 object；字段缺失/为 null 会生成可空类型。"
+  }
 }
-

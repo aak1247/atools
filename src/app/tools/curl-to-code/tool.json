@@ -16,5 +16,18 @@
     "请求头",
     "请求体",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "copyCode": "复制代码",
+    "curlInputTitle": "cURL 输入",
+    "generatedCodeTitle": "生成代码",
+    "generatedCodePlaceholder": "解析成功后会在这里生成代码…",
+    "methodLabel": "方法：",
+    "urlLabel": "URL：",
+    "note": "提示：当前为轻量解析器，复杂 curl（多文件 form、证书、代理等）可能需要手动调整。",
+    "fileUploadComment": "// TODO: 需要在浏览器选择文件后再 append",
+    "errorPrefix": "错误：",
+    "errEmpty": "请输入 curl 命令。",
+    "errNoUrl": "未识别到 URL，请确认 curl 命令包含请求地址。"
+  }
 }

@@ -12,5 +12,28 @@
     "url-parser",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "pasteHint": "Paste a URL to automatically parse it; modifications will recompose the URL in real time.",
+    "copyNormalized": "Copy Normalized URL",
+    "urlInput": "URL Input",
+    "urlPlaceholder": "https://example.com/path?foo=1&bar=2#hash",
+    "errorPrefix": "Error: ",
+    "inputUrlRequired": "Please enter a URL.",
+    "urlParseError": "Failed to parse URL, please check the format.",
+    "missingSchemeTip": "Tip: No protocol detected, defaulted to https:// for parsing.",
+    "partsTitle": "Components",
+    "protocol": "Protocol",
+    "host": "Host",
+    "pathname": "Pathname",
+    "hash": "Hash",
+    "queryParams": "Query Parameters",
+    "add": "Add",
+    "clear": "Clear",
+    "noParams": "No parameters",
+    "keyPlaceholder": "key",
+    "valuePlaceholder": "value",
+    "delete": "Delete",
+    "note": "Note: For simplicity, duplicate keys are reconstructed in input order (which may differ from original duplicate parameters)."
+  }
 }

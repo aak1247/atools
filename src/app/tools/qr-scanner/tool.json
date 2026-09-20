@@ -8,6 +8,34 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费二维码扫描", "在线扫码工具", "QR码识别", "二维码识别器", "摄像头扫码"]
+  "keywords": [
+    "免费二维码扫描",
+    "在线扫码工具",
+    "QR码识别",
+    "二维码识别器",
+    "摄像头扫码"
+  ],
+  "ui": {
+    "errCanvasContext": "无法创建画布上下文。",
+    "errNoCameraSupport": "当前浏览器不支持摄像头访问。",
+    "errVideoNotReady": "视频元素未初始化。",
+    "errStartCamera": "无法启动摄像头。",
+    "controls": "控制",
+    "statusIdle": "未启动",
+    "statusStarting": "启动中",
+    "statusScanning": "扫描中",
+    "statusStopped": "已停止",
+    "statusError": "错误",
+    "camera": "摄像头",
+    "rear": "后置（environment）",
+    "front": "前置（user）",
+    "autoStop": "识别到结果后自动停止",
+    "start": "开始扫描",
+    "stop": "停止",
+    "result": "识别结果",
+    "copy": "复制",
+    "waiting": "等待识别结果…",
+    "openLink": "打开链接",
+    "errorPrefix": "错误："
+  }
 }
-

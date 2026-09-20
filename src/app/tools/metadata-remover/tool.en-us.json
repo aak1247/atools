@@ -10,6 +10,8 @@
   "icon": "/icon.svg",
   "ui": {
     "pick": "Select File",
+    "replace": "Replace File",
+    "dropHint": "Click or drag & drop files here. Drag a new file to replace the current one.",
     "clear": "Clear",
     "run": "Start Cleaning",
     "working": "Processing...",

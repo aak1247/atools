@@ -8,6 +8,24 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["免费盐值生成", "在线随机盐", "密码盐值", "安全随机数", "加密盐生成"]
+  "ui": {
+    "title": "盐值生成器",
+    "subtitle": "生成随机盐值（纯本地）",
+    "bytesLengthLabel": "字节长度",
+    "formatLabel": "格式",
+    "formatHex": "Hex",
+    "formatBase64": "Base64",
+    "formatBase64url": "Base64URL",
+    "generateButton": "生成",
+    "copyButton": "复制",
+    "resultTitle": "结果",
+    "hint": "说明：使用 crypto.getRandomValues 生成随机字节。"
+  },
+  "keywords": [
+    "免费盐值生成",
+    "在线随机盐",
+    "密码盐值",
+    "安全随机数",
+    "加密盐生成"
+  ]
 }
-

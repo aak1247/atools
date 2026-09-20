@@ -12,6 +12,7 @@ const DEFAULT_UI = {
   upload: "选择 CSV 文件",
   replaceUpload: "替换 CSV 文件",
   dropHint: "支持点击上传与拖拽上传 CSV，拖拽可直接替换当前内容。",
+  currentFilePrefix: " 当前文件：",
   clear: "清空",
   hasHeader: "首行是表头",
   delimiter: "分隔符",
@@ -20,10 +21,17 @@ const DEFAULT_UI = {
   semicolon: "分号 ;",
   tab: "Tab \\t",
   stats: "统计信息",
+  rowCountPrefix: "行数：",
+  colCountPrefix: "列数：",
+  delimiterPrefix: "分隔符：",
+  numericStatsTitle: "数值列（最多显示 8 列）",
+  noNumericCols: "未检测到明显的数值列。",
   preview: "表格预览",
   chart: "简单图表",
   xAxis: "X 轴",
   yAxis: "Y 轴（数值列）",
+  rowIndex: "行号（index）",
+  chartNote: "说明：这是轻量级本地可视化（最多绘制 2000 个点）。需要更复杂的图表可将数据导出到专业工具。",
   maxRowsHint: "预览最多显示前 500 行（避免浏览器卡顿）。",
   empty: "请输入或上传 CSV。",
   parseError: "解析失败：请检查分隔符/引号/换行。",
@@ -388,7 +396,7 @@ function CsvVisualizerInner() {
               </div>
               <div className="mt-2 text-[11px] text-slate-500">
                 {ui.dropHint}
-                {uploadedFileName ? ` 当前文件：${uploadedFileName}` : ""}
+                {uploadedFileName ? `${ui.currentFilePrefix}${uploadedFileName}` : ""}
               </div>
             </div>
             {error && (
@@ -406,19 +414,19 @@ function CsvVisualizerInner() {
               <div className="mt-3 space-y-3 text-sm text-slate-700">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-2xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
-                    行数：<span className="font-semibold text-slate-900">{summary?.rowCount ?? 0}</span>
+                    {ui.rowCountPrefix}<span className="font-semibold text-slate-900">{summary?.rowCount ?? 0}</span>
                   </div>
                   <div className="rounded-2xl bg-slate-50 px-3 py-2 ring-1 ring-slate-200">
-                    列数：<span className="font-semibold text-slate-900">{summary?.colCount ?? 0}</span>
+                    {ui.colCountPrefix}<span className="font-semibold text-slate-900">{summary?.colCount ?? 0}</span>
                   </div>
                 </div>
                 <div className="rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-600 ring-1 ring-slate-200">
-                  分隔符：<span className="font-mono">{delimiter === "\t" ? "\\t" : delimiter}</span>
+                  {ui.delimiterPrefix}<span className="font-mono">{delimiter === "\t" ? "\\t" : delimiter}</span>
                 </div>
 
                 {summary?.numericStats?.length ? (
                   <div className="space-y-2">
-                    <div className="text-xs font-semibold text-slate-700">数值列（最多显示 8 列）</div>
+                    <div className="text-xs font-semibold text-slate-700">{ui.numericStatsTitle}</div>
                     {summary.numericStats.map((s) => (
                       <div key={s.name} className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">
                         <div className="text-xs font-semibold text-slate-900">{s.name}</div>
@@ -436,7 +444,7 @@ function CsvVisualizerInner() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-xs text-slate-500">未检测到明显的数值列。</div>
+                  <div className="text-xs text-slate-500">{ui.noNumericCols}</div>
                 )}
               </div>
             )}
@@ -487,7 +495,7 @@ function CsvVisualizerInner() {
                     onChange={(e) => setSelectedX(e.target.value)}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                   >
-                    <option value="__index__">行号（index）</option>
+                    <option value="__index__">{ui.rowIndex}</option>
                     {columns.map((c) => (
                       <option key={c.idx} value={String(c.idx)}>
                         {c.name}
@@ -516,7 +524,7 @@ function CsvVisualizerInner() {
                 <canvas ref={canvasRef} width={800} height={360} className="h-[260px] w-full rounded-xl bg-white" />
               </div>
               <div className="mt-3 text-xs text-slate-500">
-                说明：这是轻量级本地可视化（最多绘制 2000 个点）。需要更复杂的图表可将数据导出到专业工具。
+                {ui.chartNote}
               </div>
             </div>
           </div>

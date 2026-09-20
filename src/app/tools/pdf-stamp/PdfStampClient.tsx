@@ -645,15 +645,6 @@ const PdfStampInner: FC = () => {
   return (
     <div className="space-y-8">
       {/* Header Section */}
-      <div className="text-center mb-8">
-        <h2 className="text-4xl font-bold tracking-tight text-slate-900 mb-3 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-          {ui.title}
-        </h2>
-        <p className="text-slate-500 max-w-2xl mx-auto text-sm leading-relaxed">
-          {ui.descriptionPrefix}
-          <span className="hidden sm:inline">{ui.descriptionSuffix}</span>
-        </p>
-      </div>
 
       {/* Main Control Bar - Unified Top Steps */}
       <div className="glass-card rounded-3xl p-2 sticky top-4 z-40 transition-all duration-300 shadow-lg shadow-slate-200/50 border border-white/60">

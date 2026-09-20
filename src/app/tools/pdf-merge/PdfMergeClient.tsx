@@ -201,14 +201,6 @@ const PdfMergeClient: FC = () => {
   return (
     <ToolPageLayout toolSlug="pdf-merge" maxWidthClassName="max-w-5xl">
       <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-          PDF 拼接工具
-        </h2>
-        <p className="mt-2 text-slate-500">
-          将两个 PDF 文件按顺序合并为一个新的 PDF，完全在浏览器本地处理，不上传服务器，适合合同、多页资料整理等场景。
-        </p>
-      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div

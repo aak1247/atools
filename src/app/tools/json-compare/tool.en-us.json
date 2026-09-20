@@ -12,5 +12,21 @@
     "json-compare",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "leftJsonTitle": "Left JSON",
+    "rightJsonTitle": "Right JSON",
+    "leftInvalidJson": "Error: Left is not valid JSON.",
+    "rightInvalidJson": "Error: Right is not valid JSON.",
+    "diffResultsTitle": "Diff Results",
+    "diffStatsTemplate": "Added {added} · Removed {removed} · Changed {changed} · Type Changed {type}",
+    "copyDiffJson": "Copy Diff JSON",
+    "noDiffsFound": "No differences found.",
+    "fixJsonErrorsFirst": "Please fix the JSON errors on both sides first.",
+    "thPath": "Path (JSON Pointer)",
+    "thType": "Type",
+    "thLeft": "Left",
+    "thRight": "Right",
+    "notes": "Note: This is a structural comparison (recursively comparing objects and arrays). Arrays are compared by index by default; object keys are sorted before comparison."
+  }
 }

@@ -18,13 +18,13 @@
   "ui": {
     "hint": "证件照处理器：选择尺寸与背景色，调整缩放与位置，一键导出证件照（全程本地处理不上传）。",
     "pick": "选择照片",
+    "replace": "点击替换照片",
     "clear": "清空",
+    "dropReplaceHint": "支持拖拽新照片到此区域直接替换",
     "preset": "尺寸预设",
-    "presets": {
-      "one-inch": "一寸（295×413）",
-      "two-inch": "二寸（413×579）",
-      "custom": "自定义"
-    },
+    "presetOneInch": "一寸（295×413）",
+    "presetTwoInch": "二寸（413×579）",
+    "presetCustom": "自定义",
     "size": "尺寸",
     "width": "宽度(px)",
     "height": "高度(px)",

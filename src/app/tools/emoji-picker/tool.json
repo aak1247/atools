@@ -8,6 +8,29 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["emoji", "表情符号", "emoji picker", "复制emoji", "emoji选择器"]
+  "keywords": [
+    "emoji",
+    "表情符号",
+    "emoji picker",
+    "复制emoji",
+    "emoji选择器"
+  ],
+  "ui": {
+    "searchPlaceholder": "搜索（支持按 emoji / 码点十六进制，例如 1F600）",
+    "picked": "已选内容",
+    "clear": "清空",
+    "copy": "复制",
+    "recent": "最近使用",
+    "all": "全部",
+    "empty": "未找到匹配的 emoji。",
+    "tip": "提示：点击 emoji 即可复制；最近使用保存在本地浏览器。",
+    "catSmileys": "表情",
+    "catHands": "手势",
+    "catSymbols": "符号",
+    "catObjects": "物品",
+    "regexUnsupported": "当前浏览器不支持 Unicode 属性正则（\\p{Extended_Pictographic}），建议升级浏览器以获得完整 emoji 列表。",
+    "clickToCopy": "点击复制",
+    "pickedPlaceholder": "点击左侧 emoji 自动追加到这里…",
+    "copied": "已复制"
+  }
 }
-

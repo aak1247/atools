@@ -12,5 +12,35 @@
     "hash-tools",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "Hash Generator & Verifier",
+    "subtitle": "Support MD5 / SHA1 / SHA256 / SHA512 (text & files), purely local calculation",
+    "tabText": "Text",
+    "tabFile": "File",
+    "algoLabel": "Algorithm",
+    "uppercase": "Uppercase",
+    "inputText": "Input Text",
+    "selectFile": "Select File",
+    "textPlaceholder": "Enter text to calculate hash…",
+    "chooseFile": "Select File",
+    "replaceFile": "Replace File",
+    "noFileSelected": "No file selected",
+    "fileBytesTemplate": "{name} ({size} bytes)",
+    "dropHint": "Supports click to upload and drag & drop; dragging replaces the current file.",
+    "computing": "Computing…",
+    "computeHash": "Compute Hash",
+    "clear": "Clear",
+    "hashValue": "Hash Value",
+    "copy": "Copy",
+    "fileHashPlaceholder": "Click \"Compute Hash\" to display…",
+    "autoHashPlaceholder": "Automatically computed and displayed…",
+    "verifyLabel": "Verify (Optional)",
+    "verifyPlaceholder": "Paste expected hash (case-insensitive, whitespace ignored)…",
+    "matchSuccess": "Match",
+    "matchFail": "Mismatch",
+    "errorPrefix": "Error: ",
+    "computeFailed": "Computation failed",
+    "textHint": "Note: Text is calculated with UTF-8 encoding; file hashes are computed locally by reading file contents."
+  }
 }

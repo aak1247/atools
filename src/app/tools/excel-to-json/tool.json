@@ -18,5 +18,28 @@
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true
+  },
+  "ui": {
+    "pickFile": "选择 .xlsx",
+    "replaceFile": "替换 .xlsx",
+    "copyJson": "复制 JSON",
+    "downloadJson": "下载 {name}",
+    "dropHint": "支持点击上传与拖拽上传 XLSX，拖拽可直接替换当前文件。",
+    "optionsTitle": "选项",
+    "sheetLabel": "工作表",
+    "outputModeLabel": "输出模式",
+    "modeObjects": "数组对象（推荐）",
+    "modeMatrix": "二维数组（matrix）",
+    "firstRowHeader": "首行作为字段名",
+    "skipEmptyRows": "跳过空行",
+    "emptyAsNull": "空值输出为 null",
+    "indentLabel": "缩进",
+    "outputTitle": "JSON 输出",
+    "errorPrefix": "错误：",
+    "outputPlaceholder": "转换结果会显示在这里…",
+    "formulaTip": "提示：含公式的单元格会导出为计算后的值（若有缓存）。",
+    "errParseFailed": "解析 Excel 失败。",
+    "errSheetNotFound": "未找到工作表。",
+    "errConvertFailed": "转换失败。"
   }
 }

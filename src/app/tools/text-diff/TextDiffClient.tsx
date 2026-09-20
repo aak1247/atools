@@ -2,6 +2,7 @@
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useMemo, useState } from "react";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type DiffOp =
   | { type: "equal"; value: string }
@@ -112,7 +113,22 @@ const buildUnifiedDiff = (ops: DiffOp[]): string => {
   return lines.join("\n");
 };
 
+const DEFAULT_UI = {
+  title: "文本差异对比",
+  subtitle: "按行 diff，高亮新增/删除/未变更",
+  ignoreTrailingWhitespace: "忽略行尾空白",
+  copyUnifiedDiff: "复制 unified diff",
+  originalText: "原文",
+  modifiedText: "新文",
+  diffPreview: "差异预览",
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 export default function TextDiffClient() {
+  const config = useOptionalToolConfig("text-diff");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const [left, setLeft] = useState("hello\nworld\nfoo");
   const [right, setRight] = useState("hello\nWORLD\nbar\nfoo");
   const [ignoreTrailingWhitespace, setIgnoreTrailingWhitespace] = useState(false);
@@ -143,12 +159,8 @@ export default function TextDiffClient() {
   return (
     <ToolPageLayout toolSlug="text-diff" maxWidthClassName="max-w-6xl">
       <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">文本差异对比</h2>
-        <p className="mt-2 text-sm text-slate-500">按行 diff，高亮新增/删除/未变更</p>
-      </div>
 
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <label className="flex items-center gap-2 text-sm text-slate-700">
             <input
@@ -157,7 +169,7 @@ export default function TextDiffClient() {
               onChange={(e) => setIgnoreTrailingWhitespace(e.target.checked)}
               className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
-            忽略行尾空白
+            {ui.ignoreTrailingWhitespace}
           </label>
 
           <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
@@ -175,14 +187,14 @@ export default function TextDiffClient() {
               onClick={() => void copyUnified()}
               className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
-              复制 unified diff
+              {ui.copyUnifiedDiff}
             </button>
           </div>
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <div>
-            <div className="mb-2 text-sm font-semibold text-slate-900">原文</div>
+            <div className="mb-2 text-sm font-semibold text-slate-900">{ui.originalText}</div>
             <textarea
               value={left}
               onChange={(e) => setLeft(e.target.value)}
@@ -190,7 +202,7 @@ export default function TextDiffClient() {
             />
           </div>
           <div>
-            <div className="mb-2 text-sm font-semibold text-slate-900">新文</div>
+            <div className="mb-2 text-sm font-semibold text-slate-900">{ui.modifiedText}</div>
             <textarea
               value={right}
               onChange={(e) => setRight(e.target.value)}
@@ -200,7 +212,7 @@ export default function TextDiffClient() {
         </div>
 
         <div className="mt-6 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-          <div className="text-sm font-semibold text-slate-900">差异预览</div>
+          <div className="text-sm font-semibold text-slate-900">{ui.diffPreview}</div>
           <div className="mt-4 max-h-[420px] overflow-auto rounded-2xl bg-slate-50 p-4 font-mono text-xs ring-1 ring-slate-200">
             {computed.ops.map((op, idx) => {
               const key = `${idx}-${op.type}`;

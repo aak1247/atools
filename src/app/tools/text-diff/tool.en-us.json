@@ -12,5 +12,14 @@
     "text-diff",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "Text Diff Comparison",
+    "subtitle": "Line-by-line diff highlighting additions, deletions, and unchanged text",
+    "ignoreTrailingWhitespace": "Ignore trailing whitespace",
+    "copyUnifiedDiff": "Copy unified diff",
+    "originalText": "Original Text",
+    "modifiedText": "Modified Text",
+    "diffPreview": "Diff Preview"
+  }
 }

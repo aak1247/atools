@@ -1,10 +1,24 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type DragTarget = "a" | "b" | null;
+
+const DEFAULT_UI = {
+  dragHint: "拖动端点调整角度",
+  resultTitle: "测量结果",
+  reflexAnglePrefix: "反角：",
+  copyAngle: "复制角度",
+  copied: "已复制",
+  settings: "设置",
+  rayLength: "射线长度",
+  tip: "提示：本工具用于屏幕上角度测量，不保证与物理尺规完全一致（不同屏幕缩放会影响实际长度，但角度不受影响）。",
+} as const;
+
+type Ui = typeof DEFAULT_UI;
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 
@@ -22,8 +36,20 @@ const formatDeg = (deg: number): string => {
 };
 
 export default function ProtractorClient() {
+  return (
+    <ToolPageLayout toolSlug="protractor" maxWidthClassName="max-w-5xl">
+      <ProtractorInner />
+    </ToolPageLayout>
+  );
+}
+
+function ProtractorInner() {
+  const config = useOptionalToolConfig("protractor");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragTarget, setDragTarget] = useState<DragTarget>(null);
+  const [copied, setCopied] = useState(false);
 
   const [angleA, setAngleA] = useState(() => (20 * Math.PI) / 180);
   const [angleB, setAngleB] = useState(() => (120 * Math.PI) / 180);
@@ -90,6 +116,8 @@ export default function ProtractorClient() {
 
   const copy = async () => {
     await navigator.clipboard.writeText(normalized.smallDeg.toFixed(2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   const size = 520;
@@ -116,14 +144,8 @@ export default function ProtractorClient() {
   }, [normalized.a, normalized.small, radius]);
 
   return (
-    <ToolPageLayout toolSlug="protractor" maxWidthClassName="max-w-5xl">
-      <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">量角器</h2>
-        <p className="mt-2 text-sm text-slate-500">拖动两条射线的端点，测量夹角（0–180°）</p>
-      </div>
-
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+    <div className="w-full px-4">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
           <div className="space-y-4">
             <div
@@ -207,7 +229,7 @@ export default function ProtractorClient() {
               </svg>
 
               <div className="pointer-events-none absolute left-4 top-4 rounded-2xl bg-white/90 px-4 py-2 text-xs text-slate-700 shadow-sm ring-1 ring-slate-200 backdrop-blur">
-                拖动端点调整角度
+                {ui.dragHint}
               </div>
             </div>
 
@@ -247,14 +269,14 @@ export default function ProtractorClient() {
 
           <div className="space-y-4">
             <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">测量结果</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.resultTitle}</div>
               <div className="mt-3 flex items-baseline justify-between gap-4">
                 <div>
                   <div className="text-3xl font-bold tracking-tight text-slate-900">
                     {formatDeg(normalized.smallDeg)}
                   </div>
                   <div className="mt-1 text-xs text-slate-500">
-                    反角：{formatDeg(normalized.reflexDeg)}
+                    {ui.reflexAnglePrefix}{formatDeg(normalized.reflexDeg)}
                   </div>
                 </div>
                 <button
@@ -262,15 +284,15 @@ export default function ProtractorClient() {
                   onClick={copy}
                   className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                 >
-                  复制角度
+                  {copied ? ui.copied : ui.copyAngle}
                 </button>
               </div>
             </div>
 
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">设置</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.settings}</div>
               <label className="mt-4 block text-sm text-slate-700">
-                射线长度
+                {ui.rayLength}
                 <input
                   type="range"
                   min={0.55}
@@ -282,13 +304,12 @@ export default function ProtractorClient() {
                 />
               </label>
               <div className="mt-4 text-xs text-slate-500">
-                提示：本工具用于屏幕上角度测量，不保证与物理尺规完全一致（不同屏幕缩放会影响实际长度，但角度不受影响）。
+                {ui.tip}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    </ToolPageLayout>
-    );
+  );
 }

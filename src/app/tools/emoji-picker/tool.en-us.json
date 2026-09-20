@@ -12,7 +12,15 @@
     "recent": "Recently Used",
     "all": "All",
     "empty": "No matching emoji found.",
-    "tip": "Tip: Click emoji to copy; recent usage saved in local browser."
+    "tip": "Tip: Click emoji to copy; recent usage is saved in local browser.",
+    "catSmileys": "Smileys",
+    "catHands": "Gestures",
+    "catSymbols": "Symbols",
+    "catObjects": "Objects",
+    "regexUnsupported": "Current browser does not support Unicode property regex (\\p{Extended_Pictographic}). Please upgrade your browser for full emoji support.",
+    "clickToCopy": "Click to copy",
+    "pickedPlaceholder": "Click emojis on the left to append them here...",
+    "copied": "Copied"
   },
   "keywords": ["emoji", "emoji picker", "copy emoji", "emoticon", "text tool"]
 }

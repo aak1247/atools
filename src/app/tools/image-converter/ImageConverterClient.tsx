@@ -275,17 +275,6 @@ const ImageConverterInner: FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-          {ui.title}
-        </h2>
-        <p className="mt-2 text-slate-500">
-          {ui.subtitle}
-        </p>
-        <p className="mt-1 text-xs text-slate-400">
-          {ui.notice}
-        </p>
-      </div>
 
       <div className="glass-card overflow-hidden rounded-3xl p-8 shadow-xl">
         <input

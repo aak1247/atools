@@ -12,5 +12,31 @@
     "hmac-generator",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "HMAC Generator",
+    "subtitle": "SHA1/SHA256/SHA512 (Purely Local)",
+    "algoLabel": "Algorithm",
+    "keyFormatLabel": "Key Format",
+    "keyFormatText": "Text",
+    "keyFormatHex": "Hex",
+    "hexUppercase": "Uppercase Hex",
+    "generating": "Generating…",
+    "generate": "Generate",
+    "keyLabel": "Key",
+    "keyPlaceholderHex": "e.g., 0011223344556677…",
+    "keyPlaceholderText": "Enter Key text…",
+    "keyHintHex": "In Hex mode, whitespace is ignored and even length is required.",
+    "keyHintText": "In text mode, the Key is imported using UTF-8 encoding.",
+    "messageLabel": "Message",
+    "hmacHex": "HMAC (Hex)",
+    "hmacBase64": "HMAC (Base64)",
+    "copy": "Copy",
+    "resultPlaceholder": "Click \"Generate\" to display…",
+    "errorPrefix": "Error: ",
+    "generateFailed": "Generation failed",
+    "hexOddLengthError": "Hex string length must be even",
+    "hexInvalidCharError": "Hex contains invalid characters",
+    "hint": "Note: HMAC output depends on key and message encoding. If matching a backend implementation, verify whether the key is raw bytes or text."
+  }
 }

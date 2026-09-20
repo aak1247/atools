@@ -11,7 +11,9 @@
   "ui": {
     "title": "图标字体转换器",
     "pickFile": "选择字体文件",
+    "replaceFile": "点击替换字体",
     "clear": "清空",
+    "dropReplaceHint": "支持拖拽新字体文件到此区域直接替换",
     "settings": "设置",
     "familyLabel": "font-family 名称",
     "familyPlaceholder": "例如 MyIconFont",

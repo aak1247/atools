@@ -12,5 +12,22 @@
     "http-header-parser",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "rawToJson": "Raw → JSON",
+    "jsonToRaw": "JSON → Raw",
+    "copy": "Copy",
+    "rawHeadersLabel": "Raw Headers",
+    "rawPlaceholder": "GET /path HTTP/1.1\nHost: example.com\nUser-Agent: ...\nCookie: a=1; b=2",
+    "parseResultLabel": "Parsed Results",
+    "startLineLabel": "Start Line: ",
+    "cookieParseLabel": "Parsed Cookies",
+    "cookieHint": "Note: Set-Cookie is split by semicolons without attribute parsing.",
+    "headersJsonLabel": "Headers JSON",
+    "rawOutputLabel": "Raw Output",
+    "rawOutputHint": "Note: Object and array values are formatted onto a single line via JSON.stringify.",
+    "errorPrefix": "Error: ",
+    "parseFailed": "Parse failed",
+    "jsonMustBeObjectError": "Please enter a valid JSON object (key-value pairs)."
+  }
 }

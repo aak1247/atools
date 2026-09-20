@@ -39,6 +39,7 @@ const DEFAULT_UI = {
   previewHint: "提示：识别结果的定位框会以绿色描边显示。",
   resultTitle: "解析结果",
   copy: "复制",
+  copied: "已复制",
   resultPlaceholder: "识别后会显示二维码内容…",
   errorPrefix: "错误：",
   note: "说明：解析在浏览器本地完成，不上传任何图片。",
@@ -47,6 +48,14 @@ const DEFAULT_UI = {
 type QrDecoderUi = typeof DEFAULT_UI;
 
 export default function QrDecoderClient() {
+  return (
+    <ToolPageLayout toolSlug="qr-decoder" maxWidthClassName="max-w-5xl">
+      <QrDecoderInner />
+    </ToolPageLayout>
+  );
+}
+
+function QrDecoderInner() {
   const config = useOptionalToolConfig("qr-decoder");
   const ui: QrDecoderUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<QrDecoderUi>) };
 
@@ -56,6 +65,7 @@ export default function QrDecoderClient() {
   const [result, setResult] = useState<DecodeResult | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [inversion, setInversion] = useState<InversionAttempts>("attemptBoth");
+  const [copied, setCopied] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -199,10 +209,12 @@ export default function QrDecoderClient() {
   const copy = async () => {
     if (!result || !result.ok) return;
     await navigator.clipboard.writeText(result.data);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
-    <ToolPageLayout toolSlug="qr-decoder" maxWidthClassName="max-w-5xl">
+    <>
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <input
           ref={fileInputRef}
@@ -297,7 +309,7 @@ export default function QrDecoderClient() {
                     onClick={copy}
                     className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
                   >
-                    {ui.copy}
+                    {copied ? ui.copied : ui.copy}
                   </button>
                 </div>
 
@@ -327,6 +339,6 @@ export default function QrDecoderClient() {
           {error}
         </div>
       )}
-    </ToolPageLayout>
+    </>
   );
 }

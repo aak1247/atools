@@ -18,6 +18,37 @@
     "localStorage历史记录",
     "免费在线工具",
     "隐私保护"
-  ]
+  ],
+  "ui": {
+    "length": "长度",
+    "count": "数量",
+    "charset": "字符集",
+    "lowercase": "小写字母 (a-z)",
+    "uppercase": "大写字母 (A-Z)",
+    "digits": "数字 (0-9)",
+    "symbols": "符号",
+    "customChars": "自定义字符",
+    "excludeChars": "排除字符",
+    "excludeAmbiguous": "排除易混淆字符（O0Il1）",
+    "saveHistory": "自动保存到本地历史记录（localStorage）",
+    "generate": "生成",
+    "copyAll": "复制全部",
+    "clearResult": "清空结果",
+    "result": "生成结果",
+    "emptyResult": "点击“生成”开始",
+    "history": "历史记录",
+    "emptyHistory": "暂无历史记录",
+    "clearHistory": "清空历史",
+    "copy": "复制",
+    "remove": "删除",
+    "charsetSize": "字符集数量",
+    "charsetPreview": "预览",
+    "note": "提示：保存的密码存储在浏览器 localStorage；清除浏览器数据即可移除。",
+    "errCharsetConfigInvalid": "字符集配置有误",
+    "errGenerateFailed": "生成失败",
+    "errEmptyCharset": "字符集为空，无法生成密码",
+    "errCharsetTooLarge": "字符集过大，无法生成",
+    "errNoAvailableChars": "排除后无可用的字符，无法生成密码"
+  }
 }
 

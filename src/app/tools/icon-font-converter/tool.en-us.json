@@ -11,7 +11,9 @@
   "ui": {
     "title": "Icon Font Converter",
     "pickFile": "Choose font file",
+    "replaceFile": "Click to replace font",
     "clear": "Clear",
+    "dropReplaceHint": "Drag and drop a new font file into this area to replace directly",
     "settings": "Settings",
     "familyLabel": "font-family name",
     "familyPlaceholder": "e.g. MyIconFont",

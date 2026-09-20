@@ -34,7 +34,8 @@ const DEFAULT_UI = {
   warningBaseUri: "建议设置 base-uri（防止 <base> 注入）。",
   warningFrameAncestors: "建议设置 frame-ancestors（防点击劫持）。",
   tokensLabel: "tokens：",
-  searchPlaceholder: "搜索指令..."
+  searchPlaceholder: "搜索指令...",
+  emptyValue: "(空)"
 } as const;
 
 type CspGeneratorUi = typeof DEFAULT_UI;
@@ -389,7 +390,7 @@ function CspGeneratorInner() {
                     {parsed.directives.map((d, idx) => (
                       <div key={`${d.name}-${idx}`} className="rounded-2xl bg-white px-3 py-2 ring-1 ring-slate-200">
                         <div className="text-xs font-semibold text-slate-900">{d.name}</div>
-                        <div className="mt-1 font-mono text-[11px] text-slate-700 break-words">{d.value || "(empty)"}</div>
+                        <div className="mt-1 font-mono text-[11px] text-slate-700 break-words">{d.value || ui.emptyValue}</div>
                       </div>
                     ))}
                   </div>

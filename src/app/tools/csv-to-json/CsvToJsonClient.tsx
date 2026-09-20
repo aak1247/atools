@@ -4,6 +4,7 @@ import type { ChangeEvent, DragEvent } from "react";
 import type { FC } from "react";
 import { useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type DelimiterOption = "auto" | "," | "\t" | ";" | "|";
 
@@ -19,6 +20,7 @@ const DEFAULT_UI = {
   chooseCsvFile: "选择 CSV 文件",
   replaceCsvFile: "替换 CSV 文件",
   dropCsvHint: "支持点击上传与拖拽上传 CSV，拖拽可直接替换当前内容。",
+  currentFilePrefix: " 当前文件：",
   copyJson: "复制 JSON",
   downloadJson: "下载 JSON",
   csvInputTitle: "CSV 输入",
@@ -311,7 +313,7 @@ const CsvToJsonInner: FC<{ ui: CsvToJsonUi }> = ({ ui }) => {
         </div>
         <div className="mt-2 text-[11px] text-slate-500">
           {ui.dropCsvHint}
-          {uploadedFileName ? ` 当前文件：${uploadedFileName}` : ""}
+          {uploadedFileName ? `${ui.currentFilePrefix}${uploadedFileName}` : ""}
         </div>
       </div>
 
@@ -352,16 +354,15 @@ const CsvToJsonInner: FC<{ ui: CsvToJsonUi }> = ({ ui }) => {
 };
 
 const CsvToJsonClient: FC = () => {
+  const config = useOptionalToolConfig("csv-to-json");
+  const ui: CsvToJsonUi = {
+    ...DEFAULT_UI,
+    ...((config?.ui ?? {}) as Partial<CsvToJsonUi>),
+  };
+
   return (
     <ToolPageLayout toolSlug="csv-to-json" maxWidthClassName="max-w-5xl">
-      {({ config }) => (
-        <CsvToJsonInner
-          ui={{
-            ...DEFAULT_UI,
-            ...((config.ui as Partial<CsvToJsonUi> | undefined) ?? {}),
-          }}
-        />
-      )}
+      <CsvToJsonInner ui={ui} />
     </ToolPageLayout>
   );
 };

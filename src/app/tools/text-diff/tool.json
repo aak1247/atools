@@ -8,6 +8,20 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "开发工具",
-  "keywords": ["免费文本对比", "在线diff工具", "代码差异对比", "文档对比", "版本对比工具"]
+  "keywords": [
+    "免费文本对比",
+    "在线diff工具",
+    "代码差异对比",
+    "文档对比",
+    "版本对比工具"
+  ],
+  "ui": {
+    "title": "文本差异对比",
+    "subtitle": "按行 diff，高亮新增/删除/未变更",
+    "ignoreTrailingWhitespace": "忽略行尾空白",
+    "copyUnifiedDiff": "复制 unified diff",
+    "originalText": "原文",
+    "modifiedText": "新文",
+    "diffPreview": "差异预览"
+  }
 }
-

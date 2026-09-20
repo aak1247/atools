@@ -15,6 +15,17 @@
     "SQL缩进",
     "开发工具",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "uppercaseKeywords": "关键字大写",
+    "indent": "缩进",
+    "copyResult": "复制结果",
+    "sqlInput": "SQL 输入",
+    "sqlPlaceholder": "SELECT a,b,c FROM t WHERE a=1 AND b='x' ORDER BY c DESC;",
+    "formatResult": "格式化结果",
+    "resultPlaceholder": "格式化结果会显示在这里…",
+    "errorPrefix": "错误：",
+    "formatFailed": "格式化失败。",
+    "tip": "提示：该格式化器为轻量实现，复杂 SQL（多层子查询/窗口函数）可能需要手动微调。"
+  }
 }
-

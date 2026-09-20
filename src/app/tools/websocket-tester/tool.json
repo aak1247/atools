@@ -8,6 +8,40 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "开发工具",
-  "keywords": ["免费WebSocket测试", "在线WS调试", "实时通信测试", "WebSocket客户端", "WS连接测试"]
+  "ui": {
+    "connectionCardTitle": "连接",
+    "connecting": "连接中",
+    "connected": "已连接",
+    "closing": "断开中",
+    "disconnected": "未连接",
+    "urlLabel": "WebSocket URL",
+    "urlPlaceholder": "wss://example.com/ws",
+    "protocolsLabel": "protocols（可选，逗号分隔）",
+    "protocolsPlaceholder": "graphql-ws",
+    "connectButton": "连接",
+    "disconnectButton": "断开",
+    "sendMessageCardTitle": "发送消息",
+    "sendButton": "发送",
+    "clearInputButton": "清空输入",
+    "logsCardTitle": "日志",
+    "autoScrollLabel": "自动滚动",
+    "clearLogsButton": "清空日志",
+    "noLogs": "暂无日志。",
+    "urlRequired": "URL 不能为空。",
+    "urlInvalidScheme": "URL 必须以 ws:// 或 wss:// 开头。",
+    "connectingTo": "尝试连接：{target}{protocols}",
+    "protocolsInfo": "（protocols: {protocols}）",
+    "connectedSuccess": "连接已建立。",
+    "connectionClosed": "连接已关闭（code={code}{reason}）。",
+    "reasonInfo": "，reason={reason}",
+    "connectionError": "连接发生错误（可能是网络/证书/服务端拒绝）。",
+    "notConnectedCannotSend": "未连接，无法发送。"
+  },
+  "keywords": [
+    "免费WebSocket测试",
+    "在线WS调试",
+    "实时通信测试",
+    "WebSocket客户端",
+    "WS连接测试"
+  ]
 }
-

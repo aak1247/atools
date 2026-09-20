@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Delimiter = "," | "\t" | ";";
 
@@ -66,7 +67,29 @@ const buildCsv = (rows: Array<Record<string, unknown>>, delimiter: Delimiter, in
   return { csv: lines.join("\n"), columns, rowCount: rows.length };
 };
 
+const DEFAULT_UI = {
+  delimiter: "分隔符",
+  comma: "逗号 ,",
+  tab: "Tab",
+  semicolon: "分号 ;",
+  header: "表头",
+  quoteAll: "全部加引号",
+  formatJson: "格式化 JSON",
+  downloadCsv: "下载 CSV",
+  copyCsv: "复制 CSV",
+  jsonInput: "JSON 输入",
+  csvOutput: "CSV 输出",
+  errorPrefix: "错误：",
+  jsonParseError: "JSON 解析失败，请检查格式。",
+  stats: "列数：{columns} · 行数：{rows}（对象会按 a.b.c 方式扁平化；数组/复杂值会 JSON.stringify）",
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 export default function JsonToCsvClient() {
+  const config = useOptionalToolConfig("json-to-csv");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const [delimiter, setDelimiter] = useState<Delimiter>(",");
   const [includeHeader, setIncludeHeader] = useState(true);
   const [quoteAll, setQuoteAll] = useState(false);
@@ -76,7 +99,7 @@ export default function JsonToCsvClient() {
     const trimmed = input.trim();
     if (!trimmed) return { ok: true as const, csv: "", columns: 0, rows: 0 };
     const parsed = safeJsonParse(trimmed);
-    if (parsed === null && trimmed !== "null") return { ok: false as const, error: "JSON 解析失败，请检查格式。" };
+    if (parsed === null && trimmed !== "null") return { ok: false as const, error: ui.jsonParseError };
 
     const items: unknown[] = Array.isArray(parsed) ? parsed : [parsed];
     const rows: Array<Record<string, unknown>> = items.map((item) => {
@@ -90,7 +113,7 @@ export default function JsonToCsvClient() {
 
     const built = buildCsv(rows, delimiter, includeHeader, quoteAll);
     return { ok: true as const, csv: built.csv, columns: built.columns.length, rows: built.rowCount };
-  }, [delimiter, includeHeader, input, quoteAll]);
+  }, [delimiter, includeHeader, input, quoteAll, ui.jsonParseError]);
 
   const copy = async (value: string) => {
     await navigator.clipboard.writeText(value);
@@ -122,19 +145,19 @@ export default function JsonToCsvClient() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                分隔符
+                {ui.delimiter}
                 <select
                   value={delimiter}
                   onChange={(e) => setDelimiter(e.target.value as Delimiter)}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                 >
-                  <option value=",">逗号 ,</option>
-                  <option value="\t">Tab</option>
-                  <option value=";">分号 ;</option>
+                  <option value=",">{ui.comma}</option>
+                  <option value="\t">{ui.tab}</option>
+                  <option value=";">{ui.semicolon}</option>
                 </select>
               </label>
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                表头
+                {ui.header}
                 <input
                   type="checkbox"
                   checked={includeHeader}
@@ -143,7 +166,7 @@ export default function JsonToCsvClient() {
                 />
               </label>
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                全部加引号
+                {ui.quoteAll}
                 <input
                   type="checkbox"
                   checked={quoteAll}
@@ -156,7 +179,7 @@ export default function JsonToCsvClient() {
                 onClick={formatInput}
                 className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
               >
-                格式化 JSON
+                {ui.formatJson}
               </button>
             </div>
 
@@ -167,7 +190,7 @@ export default function JsonToCsvClient() {
                 disabled={!result.ok || !result.csv}
                 className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
               >
-                下载 CSV
+                {ui.downloadCsv}
               </button>
               <button
                 type="button"
@@ -175,29 +198,29 @@ export default function JsonToCsvClient() {
                 disabled={!result.ok || !result.csv}
                 className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
               >
-                复制 CSV
+                {ui.copyCsv}
               </button>
             </div>
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
             <div>
-              <div className="mb-2 text-sm font-semibold text-slate-900">JSON 输入</div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">{ui.jsonInput}</div>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
-              {!result.ok && <div className="mt-2 text-sm text-rose-600">错误：{result.error}</div>}
+              {!result.ok && <div className="mt-2 text-sm text-rose-600">{ui.errorPrefix}{result.error}</div>}
               {result.ok && (
                 <div className="mt-3 text-xs text-slate-600">
-                  列数：{result.columns} · 行数：{result.rows}（对象会按 <span className="font-mono">a.b.c</span> 方式扁平化；数组/复杂值会 JSON.stringify）
+                  {ui.stats.replace("{columns}", String(result.columns)).replace("{rows}", String(result.rows))}
                 </div>
               )}
             </div>
 
             <div>
-              <div className="mb-2 text-sm font-semibold text-slate-900">CSV 输出</div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">{ui.csvOutput}</div>
               <textarea
                 value={result.ok ? result.csv : ""}
                 readOnly
@@ -210,4 +233,3 @@ export default function JsonToCsvClient() {
     </ToolPageLayout>
   );
 }
-

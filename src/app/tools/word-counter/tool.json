@@ -8,6 +8,26 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费字数统计", "在线字符统计", "文字计数器", "单词统计工具", "中文字数统计"]
+  "keywords": [
+    "免费字数统计",
+    "在线字符统计",
+    "文字计数器",
+    "单词统计工具",
+    "中文字数统计"
+  ],
+  "ui": {
+    "inputTitle": "输入",
+    "inputPlaceholder": "输入文本…",
+    "initialText": "在这里输入文本…\nHello world!",
+    "statsTitle": "统计",
+    "copy": "复制",
+    "labelValueSeparator": "：",
+    "totalChars": "字符数（含空白）",
+    "charsNoSpace": "字符数（去空白）",
+    "words": "单词数",
+    "lines": "行数",
+    "chineseChars": "中文字符数",
+    "bytes": "UTF-8 字节数",
+    "note": "说明：单词数按空白分隔统计；中文字符数按 Unicode 汉字区间粗略统计。"
+  }
 }
-

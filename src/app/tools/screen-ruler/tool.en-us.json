@@ -12,5 +12,32 @@
     "screen-ruler",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "modeMeasure": "Measure",
+    "modeCalibrate": "Calibrate",
+    "grid": "Grid",
+    "ruler": "Ruler",
+    "snap": "Snap",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit Fullscreen",
+    "reset": "Reset",
+    "resultTitle": "Measurement Results",
+    "deltaX": "ΔX: ",
+    "deltaY": "ΔY: ",
+    "width": "Width: ",
+    "height": "Height: ",
+    "distance": "Distance: ",
+    "conversionPrefix": "Converted: ",
+    "uncalibratedTip": "Uncalibrated: Showing pixel values only. Switch to \"Calibrate\" to convert to cm/in.",
+    "measureTip": "Tip: Drag points A and B to measure. Drag together when overlapping to move both.",
+    "calibrateTitle": "Calibration (Optional)",
+    "clearCalibration": "Clear Calibration",
+    "calibrateGuide": "Align points A and B with a known physical object, enter its length in mm, and save.",
+    "knownLengthMm": "Known Length (mm)",
+    "currentDistance": "Current Distance",
+    "saveCalibration": "Save Calibration",
+    "currentScale": "Current Scale: ",
+    "calibrateTip": "Tip: Use a standard credit card (85.6 mm) or a physical ruler to calibrate. Fullscreen mode is recommended."
+  }
 }

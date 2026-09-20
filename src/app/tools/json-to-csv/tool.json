@@ -16,6 +16,21 @@
     "扁平化",
     "表格导入",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "delimiter": "分隔符",
+    "comma": "逗号 ,",
+    "tab": "Tab",
+    "semicolon": "分号 ;",
+    "header": "表头",
+    "quoteAll": "全部加引号",
+    "formatJson": "格式化 JSON",
+    "downloadCsv": "下载 CSV",
+    "copyCsv": "复制 CSV",
+    "jsonInput": "JSON 输入",
+    "csvOutput": "CSV 输出",
+    "errorPrefix": "错误：",
+    "jsonParseError": "JSON 解析失败，请检查格式。",
+    "stats": "列数：{columns} · 行数：{rows}（对象会按 a.b.c 方式扁平化；数组/复杂值会 JSON.stringify）"
+  }
 }
-

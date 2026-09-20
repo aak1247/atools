@@ -8,6 +8,40 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "开发工具",
-  "keywords": ["免费API测试", "在线接口测试", "HTTP请求工具", "API调试", "接口测试工具"]
+  "keywords": [
+    "免费API测试",
+    "在线接口测试",
+    "HTTP请求工具",
+    "API调试",
+    "接口测试工具"
+  ],
+  "ui": {
+    "request": "请求",
+    "response": "响应",
+    "method": "方法",
+    "url": "URL",
+    "mode": "mode",
+    "modeCors": "cors（默认）",
+    "modeNoCors": "no-cors（opaque，读不到响应）",
+    "timeoutMs": "超时（ms）",
+    "headers": "请求头（每行一条：Key: Value）",
+    "body": "请求体",
+    "send": "发送请求",
+    "sending": "发送中...",
+    "cancel": "取消",
+    "raw": "原始",
+    "jsonPreview": "JSON 预览",
+    "responseHeaders": "响应头",
+    "responseBody": "响应体",
+    "copy": "复制",
+    "responsePlaceholder": "响应内容会显示在这里…",
+    "errorPrefix": "错误：",
+    "errUrlRequired": "请输入 URL。",
+    "errUrlProtocol": "仅支持 http/https URL。",
+    "errUrlInvalid": "URL 格式不正确。",
+    "errAborted": "请求已取消或超时。",
+    "errRequestFailed": "请求失败（可能是 CORS 或网络问题）。",
+    "corsTipPrefix": "提示：浏览器会强制 CORS；如果接口没有正确返回",
+    "corsTipSuffix": "，请求会失败或读不到响应内容。"
+  }
 }
-

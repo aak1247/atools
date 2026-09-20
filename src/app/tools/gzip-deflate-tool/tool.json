@@ -16,6 +16,33 @@
     "fflate",
     "本地处理"
   ],
+  "ui": {
+    "inputLabel": "输入",
+    "inputText": "文本",
+    "inputFile": "文件",
+    "modeLabel": "模式",
+    "modeCompress": "压缩",
+    "modeDecompress": "解压",
+    "algoLabel": "算法",
+    "levelLabel": "Level",
+    "copyResult": "复制结果",
+    "plainText": "原文",
+    "base64Compressed": "Base64（压缩数据）",
+    "inputCompressPlaceholder": "输入要压缩的文本…",
+    "inputDecompressPlaceholder": "粘贴 Base64（gzip/deflate 数据）…",
+    "base64Output": "Base64 输出",
+    "decompressedTextOutput": "解压文本输出",
+    "statsTemplate": "输入：{in}，输出：{out}",
+    "fileDescCompress": "选择文件后点击处理（输出 .gz/.deflate）。",
+    "fileDescDecompress": "选择文件后点击处理（输出解压后的文件）。",
+    "chooseFile": "选择文件",
+    "replaceFile": "替换文件",
+    "startProcess": "开始处理",
+    "dropHint": "支持点击上传与拖拽上传文件；拖拽可直接替换当前文件。",
+    "errorPrefix": "错误：",
+    "processFailed": "处理失败",
+    "hint": "提示：文件解压需确保算法与内容匹配；gzip 不是 zip（多文件打包请用 ZIP）。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

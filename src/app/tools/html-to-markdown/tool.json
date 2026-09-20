@@ -8,6 +8,36 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "文本处理",
-  "keywords": ["HTML转Markdown", "HTML to Markdown", "Markdown转换", "GFM表格", "在线转换器"]
+  "keywords": [
+    "HTML转Markdown",
+    "HTML to Markdown",
+    "Markdown转换",
+    "GFM表格",
+    "在线转换器"
+  ],
+  "ui": {
+    "options": "选项",
+    "gfm": "GFM（表格/任务列表/删除线）",
+    "keepLinks": "保留链接",
+    "keepImages": "保留图片",
+    "stripUnsafe": "移除 script/style/iframe",
+    "headingStyle": "标题风格",
+    "headingAtx": "ATX（#）",
+    "headingSetext": "Setext（=== / ---）",
+    "codeBlockStyle": "代码块",
+    "codeFenced": "围栏（```）",
+    "codeIndented": "缩进",
+    "bulletMarker": "无序列表符号",
+    "bulletDash": "-",
+    "bulletAsterisk": "*",
+    "copyResult": "复制结果",
+    "download": "下载 .md",
+    "copied": "已复制",
+    "input": "输入（HTML）",
+    "output": "输出（Markdown）",
+    "inputPlaceholder": "粘贴 HTML…",
+    "outputPlaceholder": "Markdown 会显示在这里…",
+    "errorPrefix": "错误：",
+    "invalidHtml": "HTML 转换失败"
+  }
 }
-

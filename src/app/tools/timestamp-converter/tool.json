@@ -8,5 +8,31 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费时间戳转换", "在线Unix转换", "时间戳工具", "日期转换器", "Unix时间戳"]
+  "keywords": [
+    "免费时间戳转换",
+    "在线Unix转换",
+    "时间戳工具",
+    "日期转换器",
+    "Unix时间戳"
+  ],
+  "ui": {
+    "zoneLocal": "本地时区",
+    "zoneUtc": "UTC",
+    "fillNow": "填入当前时间",
+    "tsToDt": "时间戳 → 日期时间",
+    "dtToTs": "日期时间 → 时间戳",
+    "inputTsPlaceholder": "输入 Unix 时间戳（秒或毫秒）…",
+    "copy": "复制",
+    "datetimeLabel": "日期时间：",
+    "copySecondsLabel": "复制秒：{value}",
+    "copyMillisecondsLabel": "复制毫秒：{value}",
+    "secondsLabel": "秒：{value}",
+    "millisecondsLabel": "毫秒：{value}",
+    "errorPrefix": "错误：",
+    "errNeedNumber": "请输入数字时间戳",
+    "errInvalidTs": "无效时间戳",
+    "errNeedDatetime": "请输入有效的日期时间",
+    "errInvalidDatetime": "无效日期时间",
+    "hint": "提示：时间戳输入自动识别秒/毫秒（长度较长按毫秒处理）。"
+  }
 }

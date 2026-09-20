@@ -18,5 +18,22 @@
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true
+  },
+  "ui": {
+    "pick": "选择文件",
+    "replace": "替换文件",
+    "dropHint": "支持点击上传与拖拽上传文件，拖拽可直接替换当前文件。",
+    "clear": "清空",
+    "run": "开始清理",
+    "working": "处理中…",
+    "download": "下载",
+    "original": "原文件",
+    "result": "清理后",
+    "imageSettings": "图片输出",
+    "format": "格式",
+    "quality": "质量（JPEG/WebP）",
+    "pdfSettings": "PDF 清理选项",
+    "pdfExplain": "说明：将 PDF 重新保存并清空常见文档信息字段（标题/作者/主题/关键词等）。",
+    "unsupported": "暂仅支持：图片（JPEG/PNG/WebP）与 PDF。其他格式的“元数据清理”在纯前端环境难以可靠实现。"
   }
 }

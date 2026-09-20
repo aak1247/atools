@@ -40,7 +40,7 @@
     "background": "背景",
     "transparent": "透明",
     "white": "白色",
-    "layoutDescription": "说明：使用简单的“货架（shelf）”排布算法：按高度排序后逐行摆放，适合快速生成雪碧图。",
+    "layoutDescription": "说明：使用简单的\"货架（shelf）\"排布算法：按高度排序后逐行摆放，适合快速生成雪碧图。",
     "coordinatesExport": "坐标导出",
     "copyJson": "复制 JSON",
     "copyCss": "复制 CSS",

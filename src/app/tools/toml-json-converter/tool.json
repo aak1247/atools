@@ -8,6 +8,25 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["TOML转JSON", "JSON转TOML", "配置转换", "toml parser", "本地处理"]
+  "keywords": [
+    "TOML转JSON",
+    "JSON转TOML",
+    "配置转换",
+    "toml parser",
+    "本地处理"
+  ],
+  "ui": {
+    "tomlToJson": "TOML → JSON",
+    "jsonToToml": "JSON → TOML",
+    "jsonPrettyPrint": "JSON 美化",
+    "swap": "互换",
+    "copyOutput": "复制输出",
+    "input": "输入",
+    "output": "输出",
+    "tomlPlaceholder": "粘贴 TOML…",
+    "jsonPlaceholder": "粘贴 JSON…",
+    "resultPlaceholder": "转换结果…",
+    "description": "说明：本工具使用 `@iarna/toml` 进行 TOML 解析/序列化，纯前端本地运行不上传内容。",
+    "conversionError": "转换失败"
+  }
 }
-

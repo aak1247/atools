@@ -109,6 +109,7 @@ const DEFAULT_UI = {
   tabCert: "SSL 证书文件解析",
   note:
     "说明：浏览器沙箱内无法直接截获外部网站的原始 TLS 握手证书数据。本工具提供：① 在线检测域名的 HTTPS 连通性、重定向与权威报告直达；② 本地免上传秒级解析 SSL 证书文件（.crt/.cer/.pem）的详细字段与有效期倒计时。",
+  domainInputTitle: "域名与网址输入",
   domainInputPlaceholder: "输入域名，例如 example.com 或 https://my-site.com",
   checkDomain: "开始检查域名",
   checking: "检查中…",
@@ -118,9 +119,14 @@ const DEFAULT_UI = {
   domainResultsTitle: "HTTPS 连通性检测结果",
   verdictHttpsOk: "HTTPS 连通正常",
   verdictHttpsBad: "HTTPS 连接异常",
+  httpsResponseStatus: "HTTPS 响应状态码: {code}，耗时: {time}ms",
   tableProtocol: "协议",
   tableStatusCode: "状态码",
   tableResponseTime: "响应时间",
+  tableHttpRedirect: "HTTP (80) 自动跳转状态",
+  httpRedirectOk: "已配置 301/302 重定向到 HTTPS",
+  httpStatusCode: "状态码 {code}",
+  domainEmptyPrompt: "输入域名并点击“开始检查域名”",
   externalAuditTitle: "权威第三方 SSL 深度报告直达",
   externalAuditDesc: "如需查看该域名线上证书链完整性、加密套件等级、OCSP 装订等专业评分：",
   sslLabsLabel: "Qualys SSL Labs 深度评测",
@@ -128,6 +134,7 @@ const DEFAULT_UI = {
   crtShLabel: "crt.sh 证书透明度日志查询",
   certUploadTitle: "上传证书文件",
   certUploadHint: "拖拽 .crt / .cer / .pem 证书到此处，或点击按钮选择",
+  certSelected: "已选择证书：{file}",
   pickCertFile: "选择证书文件",
   pasteCertTitle: "或直接粘贴 PEM 证书内容：",
   pasteCertPlaceholder: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
@@ -139,10 +146,14 @@ const DEFAULT_UI = {
   certStatusValid: "证书有效中",
   certStatusExpired: "证书已过期",
   certDaysRemaining: "剩余 {days} 天",
+  certExpiredDesc: "已过期（过期时间：{date}）",
   certSan: "覆盖域名 (SAN)",
   certKey: "公钥算法与长度",
   certSigAlg: "签名算法",
   certSerial: "证书序列号",
+  certParseError: "无法解析该证书，请确认格式是否为标准 X.509 PEM",
+  certFileReadError: "读取证书文件失败",
+  certEmptyPrompt: "上传证书或粘贴证书 PEM 文本即可查看详细信息",
 } as const;
 
 export default function SslCheckerClient() {
@@ -210,7 +221,7 @@ function SslCheckerInner() {
       const info = parseCertPem(trimmed);
       setParsedCert(info);
     } catch (e) {
-      setCertError(e instanceof Error ? e.message : "无法解析该证书，请确认格式是否为标准 X.509 PEM");
+      setCertError(e instanceof Error ? e.message : ui.certParseError);
     }
   };
 
@@ -221,7 +232,7 @@ function SslCheckerInner() {
       setCertInputText(text);
       handleCertTextParse(text);
     } catch {
-      setCertError("读取证书文件失败");
+      setCertError(ui.certFileReadError);
     }
   };
 
@@ -294,7 +305,7 @@ function SslCheckerInner() {
             {/* Left: Domain input */}
             <div className="space-y-4 lg:col-span-6">
               <div className="rounded-3xl border border-slate-200 bg-white p-5 space-y-4">
-                <div className="text-sm font-semibold text-slate-900">域名与网址输入</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.domainInputTitle}</div>
                 <div className="relative">
                   <input
                     type="text"
@@ -401,7 +412,9 @@ function SslCheckerInner() {
                             : ui.verdictHttpsBad}
                         </div>
                         <div className="mt-1 opacity-80">
-                          HTTPS 响应状态码: {httpsStatus.http_code}，耗时: {httpsStatus.response_time}ms
+                          {ui.httpsResponseStatus
+                            .replace("{code}", String(httpsStatus.http_code))
+                            .replace("{time}", String(httpsStatus.response_time))}
                         </div>
                       </div>
                     </div>
@@ -425,11 +438,11 @@ function SslCheckerInner() {
                       </div>
                       {httpStatus && (
                         <div className="flex justify-between p-3">
-                          <span className="text-slate-500">HTTP (80) 自动跳转状态</span>
+                          <span className="text-slate-500">{ui.tableHttpRedirect}</span>
                           <span className="font-mono text-slate-700">
                             {httpStatus.http_code === 301 || httpStatus.http_code === 302
-                              ? "已配置 301/302 重定向到 HTTPS"
-                              : `状态码 ${httpStatus.http_code}`}
+                              ? ui.httpRedirectOk
+                              : ui.httpStatusCode.replace("{code}", String(httpStatus.http_code))}
                           </span>
                         </div>
                       )}
@@ -438,7 +451,7 @@ function SslCheckerInner() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
                     <Globe className="h-10 w-10 stroke-1" />
-                    <p className="mt-3 text-xs">输入域名并点击“开始检查域名”</p>
+                    <p className="mt-3 text-xs">{ui.domainEmptyPrompt}</p>
                   </div>
                 )}
               </div>
@@ -487,7 +500,7 @@ function SslCheckerInner() {
                     <FileCheck className="h-8 w-8" />
                   </div>
                   <p className="mt-3 text-sm font-medium text-slate-800">
-                    {certFileName ? `已选择证书：${certFileName}` : ui.certUploadHint}
+                    {certFileName ? ui.certSelected.replace("{file}", certFileName) : ui.certUploadHint}
                   </p>
                   <div className="mt-4">
                     <button
@@ -551,7 +564,7 @@ function SslCheckerInner() {
                         </div>
                         <div className="mt-1 opacity-80">
                           {parsedCert.isExpired
-                            ? `已过期（过期时间：${parsedCert.notAfter.toLocaleDateString()}）`
+                            ? ui.certExpiredDesc.replace("{date}", parsedCert.notAfter.toLocaleDateString())
                             : ui.certDaysRemaining.replace("{days}", String(parsedCert.daysRemaining))}
                         </div>
                       </div>
@@ -621,7 +634,7 @@ function SslCheckerInner() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
                     <FileCheck className="h-10 w-10 stroke-1" />
-                    <p className="mt-3 text-xs">上传证书或粘贴证书 PEM 文本即可查看详细信息</p>
+                    <p className="mt-3 text-xs">{ui.certEmptyPrompt}</p>
                   </div>
                 )}
               </div>

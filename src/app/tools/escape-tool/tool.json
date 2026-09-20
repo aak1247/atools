@@ -8,6 +8,30 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费字符转义", "在线转义工具", "HTML转义", "JSON转义", "Unicode转义"]
+  "keywords": [
+    "免费字符转义",
+    "在线转义工具",
+    "HTML转义",
+    "JSON转义",
+    "Unicode转义"
+  ],
+  "ui": {
+    "title": "特殊字符转义工具",
+    "subtitle": "HTML / JSON / Unicode 转义与反转义",
+    "modeLabel": "模式",
+    "copyResult": "复制结果",
+    "inputLabel": "输入",
+    "outputLabel": "输出",
+    "outputPlaceholder": "结果会显示在这里…",
+    "errorPrefix": "错误：",
+    "errJsonLiteral": "请输入 JSON 字符串字面量（以双引号开头），例如：\"\\\\n\" 或 \"Hello\"。",
+    "errNotJsonString": "输入不是 JSON 字符串。",
+    "errConvertFailed": "转换失败",
+    "optHtmlEscape": "HTML 转义（< > & ...）",
+    "optHtmlUnescape": "HTML 反转义",
+    "optJsonEscape": "JSON 字符串转义（JSON.stringify）",
+    "optJsonUnescape": "JSON 字符串反转义（JSON.parse）",
+    "optUnicodeEscape": "Unicode 转义（\\uXXXX / \\u{...}）",
+    "optUnicodeUnescape": "Unicode 反转义（\\uXXXX / \\u{...}）"
+  }
 }
-

@@ -8,5 +8,21 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "测量工具",
-  "keywords": ["免费量角器", "在线角度测量", "数字量角器", "角度计算", "几何测量工具"]
+  "keywords": [
+    "免费量角器",
+    "在线角度测量",
+    "数字量角器",
+    "角度计算",
+    "几何测量工具"
+  ],
+  "ui": {
+    "dragHint": "拖动端点调整角度",
+    "resultTitle": "测量结果",
+    "reflexAnglePrefix": "反角：",
+    "copyAngle": "复制角度",
+    "copied": "已复制",
+    "settings": "设置",
+    "rayLength": "射线长度",
+    "tip": "提示：本工具用于屏幕上角度测量，不保证与物理尺规完全一致（不同屏幕缩放会影响实际长度，但角度不受影响）。"
+  }
 }

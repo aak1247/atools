@@ -8,6 +8,38 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
+  "ui": {
+    "hint": "Convert PEM/DER/JWK/JWKS locally (no uploads).",
+    "input": "Input",
+    "inputMode": "Input mode",
+    "derHint": "DER format",
+    "parse": "Parse & convert",
+    "parsing": "Working…",
+    "detected": "Detected",
+    "outputs": "Outputs",
+    "keyInfo": "Key info",
+    "publicJwk": "Public JWK",
+    "privateJwk": "Private JWK",
+    "publicJwks": "JWKS (public)",
+    "pemPublic": "PEM (PUBLIC KEY)",
+    "pemPrivate": "PEM (PRIVATE KEY)",
+    "derSpki": "DER (SPKI) Base64",
+    "derPkcs8": "DER (PKCS8) Base64",
+    "copy": "Copy",
+    "clear": "Clear",
+    "notAvailable": "Not available",
+    "needInput": "Please paste content first.",
+    "unsupportedPem": "Unsupported PEM label (supported: PUBLIC KEY, PRIVATE KEY).",
+    "unsupportedKty": "Unsupported key type (supported: RSA, EC).",
+    "parseFailed": "Failed to parse or convert.",
+    "auto": "Auto",
+    "pem": "PEM",
+    "json": "JWK/JWKS JSON",
+    "derBase64": "DER Base64",
+    "derAuto": "Auto (try SPKI then PKCS8)",
+    "spki": "SPKI (public)",
+    "pkcs8": "PKCS8 (private)"
+  },
   "keywords": [
     "PEM to JWK",
     "JWK to PEM",
@@ -19,4 +51,3 @@
     "key conversion"
   ]
 }
-

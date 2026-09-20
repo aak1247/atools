@@ -12,5 +12,37 @@
     "json-schema-validator",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "introNote": "Lightweight validator (supports common rules like type, properties, required, items, enum, const, min, max, pattern, etc.).",
+    "copyErrors": "Copy Error List",
+    "jsonDataLabel": "JSON Data",
+    "jsonPlaceholder": "{\"id\":1,\"name\":\"Alice\"}",
+    "schemaLabel": "JSON Schema",
+    "schemaPlaceholder": "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"number\"}},\"required\":[\"id\"]}",
+    "errorPrefix": "Error: ",
+    "validationResultLabel": "Validation Result",
+    "passStatus": "Passed",
+    "failStatusTemplate": "Failed ({count})",
+    "noErrorsFound": "No errors found.",
+    "refNotSupported": "$ref is not currently supported (please dereference schema before validating).",
+    "anyOfFail": "Does not match any of the anyOf subschemas",
+    "oneOfMismatchTemplate": "oneOf matched {count} schemas (expected exactly 1)",
+    "constMismatch": "Does not satisfy const constraint",
+    "enumMismatch": "Value is not in enum options",
+    "typeMismatchTemplate": "Type mismatch: expected {expected}, got {actual}",
+    "minLengthTemplate": "minLength expected >= {min}",
+    "maxLengthTemplate": "maxLength expected <= {max}",
+    "patternMismatchTemplate": "pattern mismatch: /{pattern}/",
+    "patternInvalid": "Invalid pattern regular expression",
+    "minimumTemplate": "minimum expected >= {min}",
+    "maximumTemplate": "maximum expected <= {max}",
+    "minItemsTemplate": "minItems expected >= {min}",
+    "maxItemsTemplate": "maxItems expected <= {max}",
+    "missingRequiredTemplate": "Missing required field: {key}",
+    "additionalPropertiesDisallowed": "Disallowed additional property (additionalProperties=false)",
+    "schemaMustBeObject": "Schema must be a JSON object.",
+    "refWarning": "$ref detected: currently not supported.",
+    "parseFailed": "Parse failed"
+  }
 }

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type JsonSchema = Record<string, unknown>;
 
@@ -39,7 +40,26 @@ const inferSchema = (value: unknown, options: { forbidAdditional: boolean }): Js
   return {};
 };
 
+const DEFAULT_UI = {
+  title: "标题",
+  forbidAdditional: "禁止额外字段",
+  indent: "缩进",
+  copySchema: "复制 Schema",
+  jsonInput: "JSON 输入",
+  jsonPlaceholder: '{"id":1,"name":"Alice","tags":["a","b"]}',
+  schemaOutput: "JSON Schema 输出",
+  outputPlaceholder: "生成的 JSON Schema 会显示在这里…",
+  errorPrefix: "错误：",
+  jsonParseError: "JSON 解析失败",
+  tip: "提示：Schema 基于“示例 JSON”推断；空数组会生成空 items（{}），需要你按业务补充约束。",
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 export default function JsonToJsonSchemaClient() {
+  const config = useOptionalToolConfig("json-to-json-schema");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const [input, setInput] = useState("");
   const [title, setTitle] = useState("Schema");
   const [forbidAdditional, setForbidAdditional] = useState(false);
@@ -57,9 +77,9 @@ export default function JsonToJsonSchemaClient() {
       };
       return { ok: true as const, text: `${JSON.stringify(root, null, indent)}\n` };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : "JSON 解析失败", text: "" };
+      return { ok: false as const, error: e instanceof Error ? e.message : ui.jsonParseError, text: "" };
     }
-  }, [forbidAdditional, indent, input, title]);
+  }, [forbidAdditional, indent, input, title, ui.jsonParseError]);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -72,7 +92,7 @@ export default function JsonToJsonSchemaClient() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                标题
+                {ui.title}
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -86,10 +106,10 @@ export default function JsonToJsonSchemaClient() {
                   onChange={(e) => setForbidAdditional(e.target.checked)}
                   className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                禁止额外字段
+                {ui.forbidAdditional}
               </label>
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                缩进
+                {ui.indent}
                 <select
                   value={indent}
                   onChange={(e) => setIndent(Number(e.target.value))}
@@ -108,32 +128,32 @@ export default function JsonToJsonSchemaClient() {
               disabled={!result.ok || !result.text}
               className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              复制 Schema
+              {ui.copySchema}
             </button>
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
             <div>
-              <div className="mb-2 text-sm font-semibold text-slate-900">JSON 输入</div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">{ui.jsonInput}</div>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder='{"id":1,"name":"Alice","tags":["a","b"]}'
+                placeholder={ui.jsonPlaceholder}
                 className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
-              {!result.ok && <div className="mt-2 text-sm text-rose-600">错误：{result.error}</div>}
+              {!result.ok && <div className="mt-2 text-sm text-rose-600">{ui.errorPrefix}{result.error}</div>}
             </div>
 
             <div>
-              <div className="mb-2 text-sm font-semibold text-slate-900">JSON Schema 输出</div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">{ui.schemaOutput}</div>
               <textarea
                 value={result.ok ? result.text : ""}
                 readOnly
-                placeholder="生成的 JSON Schema 会显示在这里…"
+                placeholder={ui.outputPlaceholder}
                 className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
               />
               <div className="mt-3 text-xs text-slate-500">
-                提示：Schema 基于“示例 JSON”推断；空数组会生成空 items（{}），需要你按业务补充约束。
+                {ui.tip}
               </div>
             </div>
           </div>
@@ -142,4 +162,3 @@ export default function JsonToJsonSchemaClient() {
     </ToolPageLayout>
   );
 }
-

@@ -138,12 +138,8 @@ export default function PaletteGeneratorClient() {
   return (
     <ToolPageLayout toolSlug="palette-generator" maxWidthClassName="max-w-5xl">
       <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">配色生成器</h2>
-        <p className="mt-2 text-sm text-slate-500">输入主色，生成多套配色方案（纯本地处理）</p>
-      </div>
 
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-sm font-semibold text-slate-900">主色</div>
           <div className="flex flex-wrap items-center gap-2">

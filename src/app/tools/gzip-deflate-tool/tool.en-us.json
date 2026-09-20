@@ -12,5 +12,32 @@
     "gzip-deflate-tool",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "inputLabel": "Input",
+    "inputText": "Text",
+    "inputFile": "File",
+    "modeLabel": "Mode",
+    "modeCompress": "Compress",
+    "modeDecompress": "Decompress",
+    "algoLabel": "Algorithm",
+    "levelLabel": "Level",
+    "copyResult": "Copy Result",
+    "plainText": "Plaintext",
+    "base64Compressed": "Base64 (Compressed)",
+    "inputCompressPlaceholder": "Enter text to compress…",
+    "inputDecompressPlaceholder": "Paste Base64 (gzip/deflate data)…",
+    "base64Output": "Base64 Output",
+    "decompressedTextOutput": "Decompressed Text Output",
+    "statsTemplate": "Input: {in}, Output: {out}",
+    "fileDescCompress": "Select a file and click process (outputs .gz/.deflate).",
+    "fileDescDecompress": "Select a file and click process (outputs decompressed file).",
+    "chooseFile": "Select File",
+    "replaceFile": "Replace File",
+    "startProcess": "Start Processing",
+    "dropHint": "Supports click to upload and drag & drop; dragging replaces the current file.",
+    "errorPrefix": "Error: ",
+    "processFailed": "Processing failed",
+    "hint": "Note: Make sure the chosen decompression algorithm matches the file content; gzip is not zip (use ZIP for multi-file archives)."
+  }
 }

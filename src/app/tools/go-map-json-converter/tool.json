@@ -15,5 +15,30 @@
     "接口调试",
     "数据转换",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "mapToJson": "Map → JSON",
+    "jsonToMap": "JSON → Map",
+    "jsonIndent": "JSON 缩进",
+    "copyResult": "复制结果",
+    "inputMap": "Go Map 输入",
+    "inputJson": "JSON 输入",
+    "outputJson": "JSON 输出",
+    "outputMap": "Go Map 输出",
+    "pasteMap": "粘贴 Go Map 打印结果…",
+    "pasteJson": "粘贴 JSON…",
+    "resultPlaceholder": "结果会显示在这里…",
+    "errorPrefix": "错误：",
+    "convertFailed": "转换失败",
+    "examplesLabel": "示例：",
+    "exampleSimple": "简单 Map",
+    "exampleNested": "嵌套结构",
+    "exampleSliceKey": "包含切片",
+    "hint": "提示：支持解析 Go map 的标准打印格式，如 map[string]interface {}{\"key\":\"value\"}、map[1:\"one\",2:\"two\"] 等。对于复杂嵌套结构，请确保格式正确。",
+    "examples": {
+      "simple": "map[string]interface {}{\"name\":\"张三\",\"age\":25}",
+      "nested": "map[string]interface {}{\"user\":map[string]interface {}{\"name\":\"Alice\",\"age\":30},\"tags\":[\"dev\",\"go\"]}",
+      "sliceKey": "map[interface {}]interface {}{1:\"one\",\"two\":2,true:\"yes\"}"
+    }
+  }
 }

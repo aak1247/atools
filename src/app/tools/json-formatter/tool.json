@@ -8,6 +8,24 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "数据处理工具",
-  "keywords": ["免费JSON格式化", "在线JSON美化", "JSON验证器", "JSON压缩", "JSON格式化工具"]
+  "keywords": [
+    "免费JSON格式化",
+    "在线JSON美化",
+    "JSON验证器",
+    "JSON压缩",
+    "JSON格式化工具"
+  ],
+  "ui": {
+    "pretty": "格式化",
+    "minify": "压缩",
+    "sortKeys": "键排序",
+    "indent": "缩进",
+    "copyResult": "复制结果",
+    "input": "输入",
+    "output": "输出",
+    "inputPlaceholder": "粘贴 JSON…",
+    "outputPlaceholder": "结果会显示在这里…",
+    "errorPrefix": "错误：",
+    "invalidJson": "JSON 无法解析"
+  }
 }
-

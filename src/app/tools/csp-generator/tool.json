@@ -8,6 +8,43 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["CSP", "Content-Security-Policy", "安全头", "XSS防护", "CSP校验"]
+  "ui": {
+    "title": "内容安全策略 (CSP) 配置工具",
+    "description": "Content-Security-Policy 用于限制资源加载与脚本执行，提升 XSS 防护。建议配合 `nonce-`/`sha256-` 等安全策略。",
+    "generatorTitle": "生成器",
+    "parserTitle": "解析/校验",
+    "resetButton": "重置",
+    "copyButton": "复制 CSP",
+    "tipsTitle": "提示/风险点",
+    "directiveListTitle": "指令列表",
+    "addDirectiveButton": "添加指令",
+    "placeholderValue": "例如：'self' https: data: 'nonce-...'",
+    "deleteButton": "删除",
+    "cspOutputTitle": "CSP 输出",
+    "fillInParser": "填入解析器",
+    "commonSources": "常用源：",
+    "inputCspHeaderTitle": "输入 CSP Header",
+    "unknownDirectives": "未识别的指令：",
+    "applyToGenerator": "应用到生成器",
+    "parseResultsTitle": "解析结果",
+    "noParseResults": "暂无解析结果",
+    "normalizedOutput": "标准化输出（用于 header）：",
+    "warningUnsafeInlineScript": "script-src 包含 'unsafe-inline'：会显著降低 XSS 防护能力（建议 nonce/hash）。",
+    "warningUnsafeInlineStyle": "style-src 包含 'unsafe-inline'：建议使用 nonce/hash 或尽量避免内联样式。",
+    "warningUnsafeEval": "script-src 包含 'unsafe-eval'：会允许 eval/new Function 等，风险较高。",
+    "warningWildcard": "存在 * 源：建议仅放行必要源，避免过度授权。",
+    "warningObjectSrc": "建议将 object-src 设为 'none'（除非必须）。",
+    "warningBaseUri": "建议设置 base-uri（防止 <base> 注入）。",
+    "warningFrameAncestors": "建议设置 frame-ancestors（防点击劫持）。",
+    "tokensLabel": "tokens：",
+    "searchPlaceholder": "搜索指令...",
+    "emptyValue": "(空)"
+  },
+  "keywords": [
+    "CSP",
+    "Content-Security-Policy",
+    "安全头",
+    "XSS防护",
+    "CSP校验"
+  ]
 }
-

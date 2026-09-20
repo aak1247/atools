@@ -8,5 +8,32 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费正则测试", "在线正则表达式", "正则匹配工具", "Regex测试器", "正则调试工具"]
+  "keywords": [
+    "免费正则测试",
+    "在线正则表达式",
+    "正则匹配工具",
+    "Regex测试器",
+    "正则调试工具"
+  ],
+  "ui": {
+    "expression": "表达式",
+    "flags": "flags",
+    "effectiveFlags": "实际使用：",
+    "invalidRegex": "正则表达式无效",
+    "errorPrefix": "错误：",
+    "replaceFailed": "替换失败",
+    "testText": "测试文本",
+    "matchesLabel": "匹配结果（{count}）",
+    "copy": "复制",
+    "noMatches": "暂无匹配",
+    "fixRegexFirst": "请先修正正则表达式",
+    "replaceWith": "替换为",
+    "replacePreview": "替换预览",
+    "replacePlaceholder": "例如：$&",
+    "replaceResultPlaceholder": "替换结果会显示在这里…",
+    "enterTestText": "请输入测试文本",
+    "hint": "提示：若未使用 g 标志，将只显示第一次匹配；为避免卡顿，最多展示 1000 条匹配。",
+    "patternPlaceholder": "例如：\\b\\w+\\b",
+    "groupSeparator": "："
+  }
 }

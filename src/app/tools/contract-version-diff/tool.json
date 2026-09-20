@@ -18,5 +18,32 @@
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true
+  },
+  "ui": {
+    "ignoreTrailingWhitespace": "忽略行尾空白",
+    "uploadBaseText": "上传基准文本",
+    "replaceBaseText": "替换基准文本",
+    "dropBaseHint": "支持点击或拖拽替换基准文本。",
+    "batchUploadVersions": "批量上传版本",
+    "replaceVersionList": "替换版本列表",
+    "dropVersionsHint": "支持点击或拖拽上传版本；拖拽会替换当前版本列表。",
+    "addVersion": "添加版本",
+    "baseContract": "基准合同（Base）",
+    "versionList": "版本列表",
+    "clickVersionToViewDiff": "点击版本查看差异",
+    "deleteCurrentVersion": "删除当前版本",
+    "currentVersionContent": "当前版本内容：",
+    "diffPreview": "差异预览（按行）",
+    "copyUnifiedDiff": "复制 unified diff",
+    "version": "版本",
+    "versionPrefix": "版本",
+    "defaultBaseText": "第一条 甲方...\n第二条 乙方...\n",
+    "defaultVersionName": "版本",
+    "defaultVersionText": "第一条 甲方...\n第二条 乙方（修订）...\n第三条 新增条款...\n",
+    "tip": "提示：此工具适合「对版/条款变更」快速检查；复杂合同建议先做文本化（如复制正文或 OCR），再进行对比。",
+    "pdfSupportHint": "支持上传 PDF 文件，会自动提取文本后再进行对比（扫描件需先 OCR）。",
+    "parsingPdf": "正在解析 PDF：{file}",
+    "parsingPdfDone": "PDF 文本提取完成：{file}",
+    "parsingPdfFailed": "PDF 解析失败：{file}（请确认不是纯图片扫描件）"
   }
 }

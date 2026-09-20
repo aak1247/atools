@@ -4,11 +4,42 @@ import type { ChangeEvent, DragEvent } from "react";
 import { deflateSync, gzipSync, gunzipSync, inflateSync, strFromU8, strToU8 } from "fflate";
 import { useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Algo = "gzip" | "deflate";
 type Mode = "compress" | "decompress";
 type InputKind = "text" | "file";
 type Level = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
+const DEFAULT_UI = {
+  inputLabel: "输入",
+  inputText: "文本",
+  inputFile: "文件",
+  modeLabel: "模式",
+  modeCompress: "压缩",
+  modeDecompress: "解压",
+  algoLabel: "算法",
+  levelLabel: "Level",
+  copyResult: "复制结果",
+  plainText: "原文",
+  base64Compressed: "Base64（压缩数据）",
+  inputCompressPlaceholder: "输入要压缩的文本…",
+  inputDecompressPlaceholder: "粘贴 Base64（gzip/deflate 数据）…",
+  base64Output: "Base64 输出",
+  decompressedTextOutput: "解压文本输出",
+  statsTemplate: "输入：{in}，输出：{out}",
+  fileDescCompress: "选择文件后点击处理（输出 .gz/.deflate）。",
+  fileDescDecompress: "选择文件后点击处理（输出解压后的文件）。",
+  chooseFile: "选择文件",
+  replaceFile: "替换文件",
+  startProcess: "开始处理",
+  dropHint: "支持点击上传与拖拽上传文件；拖拽可直接替换当前文件。",
+  errorPrefix: "错误：",
+  processFailed: "处理失败",
+  hint: "提示：文件解压需确保算法与内容匹配；gzip 不是 zip（多文件打包请用 ZIP）。",
+} as const;
+
+type GzipDeflateUi = typeof DEFAULT_UI;
 
 const bytesToBase64 = (bytes: Uint8Array) => {
   let binary = "";
@@ -47,6 +78,12 @@ const formatBytes = (bytes: number): string => {
 };
 
 export default function GzipDeflateToolClient() {
+  const config = useOptionalToolConfig("gzip-deflate-tool");
+  const ui: GzipDeflateUi = useMemo(
+    () => ({ ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<GzipDeflateUi>) }),
+    [config?.ui],
+  );
+
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [inputKind, setInputKind] = useState<InputKind>("text");
@@ -87,9 +124,9 @@ export default function GzipDeflateToolClient() {
       if (!file) return { ok: true as const, pending: true as const };
       return { ok: true as const, pending: true as const };
     } catch (e) {
-      return { ok: false as const, error: e instanceof Error ? e.message : "处理失败" };
+      return { ok: false as const, error: e instanceof Error ? e.message : ui.processFailed };
     }
-  }, [algo, base64, file, inputKind, level, mode, text]);
+  }, [algo, base64, file, inputKind, level, mode, text, ui.processFailed]);
 
   const copy = async (value: string) => {
     await navigator.clipboard.writeText(value);
@@ -155,7 +192,7 @@ export default function GzipDeflateToolClient() {
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (e) {
-      setFileError(e instanceof Error ? e.message : "处理失败");
+      setFileError(e instanceof Error ? e.message : ui.processFailed);
     }
   };
 
@@ -166,29 +203,29 @@ export default function GzipDeflateToolClient() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                输入
+                {ui.inputLabel}
                 <select
                   value={inputKind}
                   onChange={(e) => setInputKind(e.target.value as InputKind)}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                 >
-                  <option value="text">文本</option>
-                  <option value="file">文件</option>
+                  <option value="text">{ui.inputText}</option>
+                  <option value="file">{ui.inputFile}</option>
                 </select>
               </label>
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                模式
+                {ui.modeLabel}
                 <select
                   value={mode}
                   onChange={(e) => setMode(e.target.value as Mode)}
                   className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                 >
-                  <option value="compress">压缩</option>
-                  <option value="decompress">解压</option>
+                  <option value="compress">{ui.modeCompress}</option>
+                  <option value="decompress">{ui.modeDecompress}</option>
                 </select>
               </label>
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                算法
+                {ui.algoLabel}
                 <select
                   value={algo}
                   onChange={(e) => setAlgo(e.target.value as Algo)}
@@ -199,7 +236,7 @@ export default function GzipDeflateToolClient() {
                 </select>
               </label>
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                Level
+                {ui.levelLabel}
                 <select
                   value={level}
                   onChange={(e) => setLevel(Number(e.target.value) as Level)}
@@ -221,7 +258,7 @@ export default function GzipDeflateToolClient() {
                 disabled={!result.text}
                 className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
               >
-                复制结果
+                {ui.copyResult}
               </button>
             )}
           </div>
@@ -229,16 +266,16 @@ export default function GzipDeflateToolClient() {
           {inputKind === "text" ? (
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
               <div>
-                <div className="mb-2 text-sm font-semibold text-slate-900">{mode === "compress" ? "原文" : "Base64（压缩数据）"}</div>
+                <div className="mb-2 text-sm font-semibold text-slate-900">{mode === "compress" ? ui.plainText : ui.base64Compressed}</div>
                 <textarea
                   value={mode === "compress" ? text : base64}
                   onChange={(e) => (mode === "compress" ? setText(e.target.value) : setBase64(e.target.value))}
-                  placeholder={mode === "compress" ? "输入要压缩的文本…" : "粘贴 Base64（gzip/deflate 数据）…"}
+                  placeholder={mode === "compress" ? ui.inputCompressPlaceholder : ui.inputDecompressPlaceholder}
                   className="h-72 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                 />
               </div>
               <div>
-                <div className="mb-2 text-sm font-semibold text-slate-900">{mode === "compress" ? "Base64 输出" : "解压文本输出"}</div>
+                <div className="mb-2 text-sm font-semibold text-slate-900">{mode === "compress" ? ui.base64Output : ui.decompressedTextOutput}</div>
                 <textarea
                   value={result.ok && "text" in result ? result.text : ""}
                   readOnly
@@ -249,10 +286,10 @@ export default function GzipDeflateToolClient() {
                   typeof result.bytesIn === "number" &&
                   typeof result.bytesOut === "number" && (
                   <div className="mt-2 text-xs text-slate-500">
-                    输入：{formatBytes(result.bytesIn)}，输出：{formatBytes(result.bytesOut)}
+                    {ui.statsTemplate.replace("{in}", formatBytes(result.bytesIn)).replace("{out}", formatBytes(result.bytesOut))}
                   </div>
                 )}
-                {!result.ok && <div className="mt-2 text-sm text-rose-600">错误：{result.error}</div>}
+                {!result.ok && <div className="mt-2 text-sm text-rose-600">{ui.errorPrefix}{result.error}</div>}
               </div>
             </div>
           ) : (
@@ -266,7 +303,7 @@ export default function GzipDeflateToolClient() {
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="text-sm text-slate-700">
-                  选择文件后点击处理（{mode === "compress" ? "输出 .gz/.deflate" : "输出解压后的文件"}）。
+                  {mode === "compress" ? ui.fileDescCompress : ui.fileDescDecompress}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -274,7 +311,7 @@ export default function GzipDeflateToolClient() {
                     onClick={() => fileRef.current?.click()}
                     className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200"
                   >
-                    {file ? "替换文件" : "选择文件"}
+                    {file ? ui.replaceFile : ui.chooseFile}
                   </button>
                   <input ref={fileRef} type="file" className="hidden" onChange={onFileChange} />
                   <button
@@ -283,11 +320,11 @@ export default function GzipDeflateToolClient() {
                     disabled={!file}
                     className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
                   >
-                    开始处理
+                    {ui.startProcess}
                   </button>
                 </div>
               </div>
-              <div className="mt-2 text-[11px] text-slate-500">支持点击上传与拖拽上传文件；拖拽可直接替换当前文件。</div>
+              <div className="mt-2 text-[11px] text-slate-500">{ui.dropHint}</div>
               {file && (
                 <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
                   {file.name}（{formatBytes(file.size)}）
@@ -295,11 +332,11 @@ export default function GzipDeflateToolClient() {
               )}
               {fileError && (
                 <div className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-100">
-                  错误：{fileError}
+                  {ui.errorPrefix}{fileError}
                 </div>
               )}
               <div className="mt-4 text-xs text-slate-500">
-                提示：文件解压需确保算法与内容匹配；gzip 不是 zip（多文件打包请用 ZIP）。
+                {ui.hint}
               </div>
             </div>
           )}

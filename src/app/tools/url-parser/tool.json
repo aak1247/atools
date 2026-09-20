@@ -14,6 +14,28 @@
     "query解析",
     "链接拆分",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "pasteHint": "粘贴 URL 后会自动解析；修改字段会实时重组。",
+    "copyNormalized": "复制规范化 URL",
+    "urlInput": "URL 输入",
+    "urlPlaceholder": "https://example.com/path?foo=1&bar=2#hash",
+    "errorPrefix": "错误：",
+    "inputUrlRequired": "请输入 URL。",
+    "urlParseError": "URL 解析失败，请检查格式。",
+    "missingSchemeTip": "提示：检测到缺少协议，已默认按 https:// 解析。",
+    "partsTitle": "组成部分",
+    "protocol": "协议",
+    "host": "主机（host）",
+    "pathname": "路径（pathname）",
+    "hash": "Hash",
+    "queryParams": "Query 参数",
+    "add": "添加",
+    "clear": "清空",
+    "noParams": "暂无参数",
+    "keyPlaceholder": "key",
+    "valuePlaceholder": "value",
+    "delete": "删除",
+    "note": "说明：为简化处理，重复 key 会按输入顺序重新构造（可能与原始重复参数不同）。"
+  }
 }
-

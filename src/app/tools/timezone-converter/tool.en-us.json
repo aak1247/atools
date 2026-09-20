@@ -12,5 +12,28 @@
     "timezone-converter",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "inputTitle": "Input",
+    "sourceTimezone": "Source Timezone",
+    "targetTimezone": "Target Timezone",
+    "date": "Date",
+    "time": "Time",
+    "timePlaceholder": "HH:mm:ss",
+    "tip": "Tip: Daylight Saving Time (DST) is automatically calculated based on the selected date.",
+    "resultTitle": "Result",
+    "copyMs": "Copy ms timestamp",
+    "targetTime": "Target Timezone: ",
+    "utcTime": "UTC: ",
+    "sourceNormalized": "Normalized Source Time: ",
+    "unixSec": "Unix (Seconds): ",
+    "unixMs": "Unix (Milliseconds): ",
+    "copyTarget": "Copy Target Time",
+    "copyUtc": "Copy UTC",
+    "copySec": "Copy sec timestamp",
+    "copied": "Copied",
+    "errorPrefix": "Error: ",
+    "errDateTimeFormat": "Invalid date/time format.",
+    "errConvertFailed": "Conversion failed."
+  }
 }

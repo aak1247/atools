@@ -8,6 +8,22 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["免费UUID生成", "在线UUID工具", "UUID生成器", "随机ID生成", "唯一标识符"]
+  "keywords": [
+    "免费UUID生成",
+    "在线UUID工具",
+    "UUID生成器",
+    "随机ID生成",
+    "唯一标识符"
+  ],
+  "ui": {
+    "count": "数量",
+    "uppercase": "大写",
+    "noHyphen": "去掉短横线",
+    "generate": "生成",
+    "copyAll": "复制全部",
+    "result": "结果",
+    "empty": "点击“生成”开始",
+    "copy": "复制",
+    "hint": "提示：UUID v4 使用加密安全随机数生成（crypto.getRandomValues / randomUUID）。"
+  }
 }
-

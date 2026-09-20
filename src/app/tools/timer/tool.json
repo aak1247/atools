@@ -8,6 +8,27 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "测量工具",
-  "keywords": ["免费计时器", "在线倒计时", "秒表工具", "番茄钟", "时间管理工具"]
+  "keywords": [
+    "免费计时器",
+    "在线倒计时",
+    "秒表工具",
+    "番茄钟",
+    "时间管理工具"
+  ],
+  "ui": {
+    "modeCountdown": "倒计时",
+    "modeStopwatch": "秒表",
+    "start": "开始",
+    "pause": "暂停",
+    "reset": "复位",
+    "timeRemaining": "剩余时间",
+    "timeElapsed": "已用时间",
+    "duration": "时长",
+    "minutes": "分钟",
+    "seconds": "秒",
+    "durationLockedHint": "运行中为保证准确性，暂不允许修改时长",
+    "presets": "快捷预设",
+    "presetMinutesTemplate": "{minutes} 分钟",
+    "privacyHint": "提示：所有计时均在浏览器本地完成，不上传任何数据。"
+  }
 }
-

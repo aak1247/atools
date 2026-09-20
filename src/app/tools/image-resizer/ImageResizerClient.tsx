@@ -331,14 +331,6 @@ const ImageResizerInner: FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-          {ui.title}
-        </h2>
-        <p className="mt-2 text-slate-500">
-          {ui.subtitle}
-        </p>
-      </div>
 
       <div className="glass-card overflow-hidden rounded-3xl p-8 shadow-xl">
         <input

@@ -1,8 +1,8 @@
 {
   "name": "Free Online JSON to Excel - ATools",
-  "shortName": "JSON to Excel",
-  "description": "Free online JSON to Excel. Runs locally in your browser with zero uploads for privacy and speed.",
-  "seoDescription": "The ultimate free online JSON to Excel — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" JSON to Excel on any device, this is the one you bookmark and share.",
+  "shortName": "JSON→Excel",
+  "description": "Free online JSON to Excel (.xlsx) converter: paste JSON array of objects and export to Excel, customize sheet name, runs purely locally in your browser.",
+  "seoDescription": "Free online JSON to Excel converter. Paste JSON array of objects and export to .xlsx with one click. Automatically merges all fields as table headers, supports custom sheet name and file name, perfect for reporting, data handover, and office workflows. Runs entirely in your browser without uploading data.",
   "category": "Data Tools",
   "lang": "en-US",
   "keywords": [
@@ -10,7 +10,25 @@
     "JSON to Excel tool",
     "JSON to Excel web app",
     "json-to-excel",
+    "json to xlsx",
+    "export excel",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "sheetName": "Sheet Name",
+    "fileName": "File Name",
+    "copyInput": "Copy Input",
+    "download": "Download {filename}",
+    "jsonInput": "JSON Input (Array of Objects)",
+    "jsonPlaceholder": "[{\"id\":1,\"name\":\"Alice\"},{\"id\":2,\"name\":\"Bob\"}]",
+    "exportStatus": "Export Status",
+    "generatedRows": "Generated: {count} rows",
+    "waitingInput": "Enter valid JSON to automatically generate .xlsx.",
+    "tip": "Tip: Keys from all objects will be merged as headers and sorted alphabetically.",
+    "errorPrefix": "Error: ",
+    "arrayRequiredError": "Please enter a JSON array (array of objects).",
+    "noObjectsError": "No object elements found in the array.",
+    "parseError": "Parse failed"
+  }
 }

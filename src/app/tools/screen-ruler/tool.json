@@ -18,6 +18,32 @@
     "厘米",
     "英寸",
     "本地运行"
-  ]
+  ],
+  "ui": {
+    "modeMeasure": "测量",
+    "modeCalibrate": "校准",
+    "grid": "网格",
+    "ruler": "刻度尺",
+    "snap": "吸附",
+    "fullscreen": "全屏",
+    "exitFullscreen": "退出全屏",
+    "reset": "重置",
+    "resultTitle": "测量结果",
+    "deltaX": "ΔX：",
+    "deltaY": "ΔY：",
+    "width": "宽：",
+    "height": "高：",
+    "distance": "距离：",
+    "conversionPrefix": "换算：",
+    "uncalibratedTip": "未校准：当前仅显示像素值；切换到“校准”后可换算厘米/英寸。",
+    "measureTip": "提示：拖动 A/B 点测量；按住点同时命中可整体移动（A 与 B 重叠时）。",
+    "calibrateTitle": "校准（可选）",
+    "clearCalibration": "清除校准",
+    "calibrateGuide": "让 A 与 B 的距离对齐一段已知物理长度，然后输入该长度（毫米）并保存。",
+    "knownLengthMm": "已知长度（mm）",
+    "currentDistance": "当前距离",
+    "saveCalibration": "保存校准",
+    "currentScale": "当前比例：",
+    "calibrateTip": "建议：用银行卡宽度（85.6mm）或尺子上的 10cm 进行校准；可切换全屏提高准确度。"
+  }
 }
-

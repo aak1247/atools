@@ -56,7 +56,7 @@
     "originalImage": "原图",
     "detectionResults": "检测结果",
     "riskScore": "疑点评分 {score}/100",
-    "clickToDetect": "点击“分析检测”后显示结果。",
+    "clickToDetect": "点击\"开始检测\"后显示结果。",
     "pixelRatio": "像素占比：{ratio}%",
     "connectedComponents": "连通分量：{components}",
     "boundaryLength": "边界长度：{perimeter}",
@@ -65,7 +65,7 @@
     "sampleSize": "采样尺寸：{width}×{height}",
     "sealPixelMask": "印章像素掩膜（预览）",
     "notGenerated": "未生成",
-    "detailedExplanation": "说明：这是基于像素特征的启发式“疑点”检测，不等同于司法鉴定结果。强烈建议将结果作为线索参考，并结合原件、扫描流程与签章系统日志综合判断。",
+    "detailedExplanation": "说明：这是基于像素特征的启发式\"疑点\"检测，不等同于司法鉴定结果。强烈建议将结果作为线索参考，并结合原件、扫描流程与签章系统日志综合判断。",
     "sensitivity": "灵敏度"
   }
 }

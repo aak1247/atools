@@ -15,6 +15,21 @@
     "配置对比",
     "结构化对比",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "leftJsonTitle": "左侧 JSON",
+    "rightJsonTitle": "右侧 JSON",
+    "leftInvalidJson": "错误：左侧不是合法 JSON。",
+    "rightInvalidJson": "错误：右侧不是合法 JSON。",
+    "diffResultsTitle": "差异结果",
+    "diffStatsTemplate": "新增 {added} · 删除 {removed} · 变化 {changed} · 类型变化 {type}",
+    "copyDiffJson": "复制差异 JSON",
+    "noDiffsFound": "未发现差异。",
+    "fixJsonErrorsFirst": "请先修正两侧 JSON 解析错误。",
+    "thPath": "Path (JSON Pointer)",
+    "thType": "类型",
+    "thLeft": "左侧",
+    "thRight": "右侧",
+    "notes": "说明：这是结构化对比（递归比较对象/数组）。数组默认按索引比较，忽略 key 顺序（对象键会排序后比对）。"
+  }
 }
-

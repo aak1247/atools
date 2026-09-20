@@ -1,8 +1,8 @@
 {
   "name": "Free Online JSON to Go Struct - ATools",
-  "shortName": "JSON to Go Struct",
-  "description": "Free online JSON to Go Struct. Runs locally in your browser with zero uploads for privacy and speed.",
-  "seoDescription": "The ultimate free online JSON to Go Struct — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" JSON to Go Struct on any device, this is the one you bookmark and share.",
+  "shortName": "JSON→Go",
+  "description": "Free online JSON to Go Struct generator: generate Go struct and json tags from sample JSON, supports nested objects/arrays, runs purely locally in your browser.",
+  "seoDescription": "Free online JSON to Go Struct tool. Paste sample JSON to automatically infer field types and generate Go struct definitions with json tags. Supports nested objects, arrays, and optional omitempty tags. Runs purely locally in your browser without uploading data.",
   "category": "Developer Tools",
   "lang": "en-US",
   "keywords": [
@@ -10,7 +10,21 @@
     "JSON to Go Struct tool",
     "JSON to Go Struct web app",
     "json-to-go-struct",
+    "json to struct",
+    "go struct generator",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "rootTypeName": "Root Type Name",
+    "formatJson": "Format JSON",
+    "copyGoCode": "Copy Go Code",
+    "jsonInput": "JSON Input",
+    "goOutput": "Go Struct Output",
+    "errorPrefix": "Error: ",
+    "jsonParseError": "JSON parse failed. Please check the format.",
+    "generateError": "Generation failed",
+    "rootDefNotFound": "Generation failed: Root struct definition not found.",
+    "note": "Note: Object fields will generate JSON tags; multiple types or mixed arrays will fall back to any."
+  }
 }

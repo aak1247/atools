@@ -8,6 +8,38 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
+  "ui": {
+    "hint": "PEM/DER/JWK/JWKS 互转与字段展示，全程本地处理，不上传任何密钥。",
+    "input": "输入",
+    "inputMode": "输入类型",
+    "derHint": "DER 格式",
+    "parse": "解析并转换",
+    "parsing": "处理中…",
+    "detected": "识别结果",
+    "outputs": "输出",
+    "keyInfo": "密钥信息",
+    "publicJwk": "公钥 JWK",
+    "privateJwk": "私钥 JWK",
+    "publicJwks": "公钥 JWKS",
+    "pemPublic": "PEM（PUBLIC KEY）",
+    "pemPrivate": "PEM（PRIVATE KEY）",
+    "derSpki": "DER（SPKI）Base64",
+    "derPkcs8": "DER（PKCS8）Base64",
+    "copy": "复制",
+    "clear": "清空",
+    "notAvailable": "不可用",
+    "needInput": "请先粘贴内容。",
+    "unsupportedPem": "不支持的 PEM 类型（仅支持 PUBLIC KEY / PRIVATE KEY）。",
+    "unsupportedKty": "不支持的密钥类型（仅支持 RSA / EC）。",
+    "parseFailed": "解析或转换失败。",
+    "auto": "自动识别",
+    "pem": "PEM",
+    "json": "JWK/JWKS JSON",
+    "derBase64": "DER Base64",
+    "derAuto": "自动（先尝试 SPKI 再尝试 PKCS8）",
+    "spki": "SPKI（公钥）",
+    "pkcs8": "PKCS8（私钥）"
+  },
   "keywords": [
     "PEM转JWK",
     "JWK转PEM",
@@ -20,4 +52,3 @@
     "JWT"
   ]
 }
-

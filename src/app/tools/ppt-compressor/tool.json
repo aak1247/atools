@@ -20,5 +20,42 @@
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true
+  },
+  "ui": {
+    "title": "PPT 幻灯片智能压缩",
+    "clear": "清空",
+    "pickFile": "选择 PPT 幻灯片 (.pptx)",
+    "replaceFile": "替换幻灯片",
+    "dropHint": "拖拽 .pptx 文件到此处，或点击按钮上传。",
+    "selectedPrefix": "已选择：",
+    "compressModeTitle": "压缩策略",
+    "modeBalanced": "智能深度压缩（推荐）",
+    "modeBalancedDesc": "自动优化幻灯片内的高清插图与背景图，结合最高级别容器重打包，大幅减小体积。",
+    "modeAggressive": "强力极致压缩",
+    "modeAggressiveDesc": "较大力度压缩内嵌图片，适合演示稿件网络分享或邮件发送。",
+    "modeRepackOnly": "仅重打包容器",
+    "modeRepackOnlyDesc": "仅重新打包 ZIP 容器，不修改任何插图资源。",
+    "runCompress": "开始压缩幻灯片",
+    "working": "正在优化压缩中…",
+    "optimizingImage": "正在优化第 {current}/{total} 张图片: {filename}",
+    "resultTitle": "压缩结果与导出",
+    "compressSuccess": "压缩成功！",
+    "originalSize": "原始体积：",
+    "compressedSize": "压缩后体积：",
+    "reduction": "体积变化：",
+    "imagesFound": "检测到内嵌图片：",
+    "imagesOptimized": "成功优化图片：",
+    "imageOptimization": "内嵌图片优化",
+    "imageStats": "共 {count} 张，成功优化 {optimized} 张",
+    "emptyHint": "点击“开始压缩幻灯片”即可获取优化后的 PPT 文件",
+    "download": "下载压缩后的 PPT 文件",
+    "tipTitle": "说明与提示",
+    "tips": [
+      "PPT 幻灯片（.pptx）中 80%~95% 的体积来源于幻灯片内插入的高清摄影图、截图与背景；",
+      "本工具纯前端在本地解包，针对幻灯片内置的多媒体图片进行智能重采样压缩，同时保持所有动画、文本与排版完全不变；",
+      "全程在浏览器本地离线完成，绝不会上传幻灯片至服务器，安全保护演示隐私。"
+    ],
+    "errNotPptx": "请上传以 .pptx 结尾的 PowerPoint 幻灯片文件",
+    "errFailed": "压缩失败，请确认该文件为未受损坏的有效 .pptx 文件"
   }
 }

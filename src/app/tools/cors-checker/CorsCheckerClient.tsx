@@ -55,8 +55,38 @@ const DEFAULT_UI = {
   pasteHeadersHint:
     "可从浏览器 DevTools -> Network 复制 response headers 或 preflight response headers，粘贴每行一条：Key: Value。",
   snippetType: "示例配置/响应头",
+  snippetHeadersOption: "响应头建议",
   copy: "复制",
   copied: "已复制",
+  reasonMethodNotSimple: "方法 {method} 不是简单请求方法（GET/HEAD/POST）。",
+  reasonNonSafelistedHeaders: "包含非简单请求头：{headers}。",
+  suggestionSameOrigin: "该 URL 与当前页面同源：不会触发 CORS，浏览器不会拦截跨域读取。",
+  suggestionCrossOriginServerOnly: "跨域请求的 CORS 只能由服务端响应头决定，前端无法“绕过”。",
+  suggestionCredentialsOrigin: "携带 Cookie/凭证时：必须返回 Access-Control-Allow-Credentials: true，且 Access-Control-Allow-Origin 不能是 *（必须精确到某个 Origin）。",
+  suggestionCrossSiteCookie: "若依赖跨站 Cookie：服务端 Cookie 还需设置 SameSite=None; Secure（并使用 HTTPS）。",
+  suggestionHandlePreflight: "需要处理 OPTIONS 预检：对 OPTIONS 返回 204/200，并带上 Allow-Origin/Allow-Methods/Allow-Headers 等响应头。",
+  suggestionAllowHeadersCover: "确保预检响应的 Access-Control-Allow-Headers 覆盖：{headers}。",
+  suggestionAllowMethodsCover: "确保预检响应的 Access-Control-Allow-Methods 包含：{methods}。",
+  suggestionNetworkErrorTip: "浏览器在 CORS 失败时通常只显示 “TypeError: Failed to fetch”，具体原因请在 DevTools -> Network 查看 preflight / response headers。",
+  suggestionForbiddenHeaders: "你填写的这些请求头属于浏览器禁止设置（会被忽略或报错）：{headers}。",
+  suggestionInvalidHeaders: "以下请求头名称格式无效（未发送）：{headers}。",
+  issueMissingAcao: "缺少 Access-Control-Allow-Origin（浏览器会直接拦截跨域读取）。",
+  issueMultipleAcao: "Access-Control-Allow-Origin 不应返回多个值（逗号分隔）；只能是 * 或单个 Origin。",
+  issueWildcardWithCredentials: "携带凭证时 Access-Control-Allow-Origin 不能为 *。",
+  issueAcaoMismatch: "Access-Control-Allow-Origin 与期望 Origin 不匹配：期望 {expected}，实际 {actual}。",
+  issueMissingAcac: "携带凭证时需要 Access-Control-Allow-Credentials: true。",
+  issueMissingAcam: "预检响应缺少 Access-Control-Allow-Methods。",
+  issueAcamMissingMethod: "Access-Control-Allow-Methods 未包含 {method}。",
+  issueMissingAcah: "预检响应缺少 Access-Control-Allow-Headers。",
+  issueAcahMissingHeader: "Access-Control-Allow-Headers 未包含 {header}。",
+  snippetPreflightHeaderComment: "# 预检（OPTIONS）响应建议",
+  snippetActualHeaderComment: "# 实际业务响应建议（非 OPTIONS）",
+  snippetNginxComment: "# Nginx 示例（按需调整为白名单；不要对敏感接口开放任意 Origin）",
+  snippetExpressComment: "// Express 示例（推荐使用 cors 中间件并配置白名单）",
+  snippetExpressPreflightComment: "// 需要的话单独处理预检：",
+  snippetSpringComment: "// Spring Boot 示例（示意；请按项目实际配置）",
+  responsePlaceholder: "（CORS 成功时）这里会显示响应体预览；失败时通常读不到内容。",
+  diagnosticsNoIssues: "未发现明显问题（或当前请求不需要 CORS/预检）。",
 } as const;
 
 type CorsCheckerUi = typeof DEFAULT_UI;
@@ -201,15 +231,18 @@ function guessDefaultAssumedOrigin(): string {
   return window.location.origin;
 }
 
-function computeCorsAnalysis(params: {
-  url: string;
-  method: HttpMethod;
-  headersRaw: string;
-  bodyType: BodyType;
-  body: string;
-  credentials: RequestCredentials;
-  assumedOriginInput: string;
-}): CorsAnalysis {
+function computeCorsAnalysis(
+  params: {
+    url: string;
+    method: HttpMethod;
+    headersRaw: string;
+    bodyType: BodyType;
+    body: string;
+    credentials: RequestCredentials;
+    assumedOriginInput: string;
+  },
+  ui: CorsCheckerUi,
+): CorsAnalysis {
   const currentOrigin = guessDefaultAssumedOrigin();
   const assumedOrigin = (params.assumedOriginInput || currentOrigin).trim();
 
@@ -313,7 +346,7 @@ function computeCorsAnalysis(params: {
   const methodLower = params.method.toLowerCase();
   const isSimpleMethod = SIMPLE_METHODS.has(methodLower);
   if (!isSimpleMethod && !isSameOrigin) {
-    preflightReasons.push(`方法 ${params.method} 不是简单请求方法（GET/HEAD/POST）。`);
+    preflightReasons.push(ui.reasonMethodNotSimple.replace("{method}", params.method));
     requiredAllowMethods.push(params.method);
   }
 
@@ -337,7 +370,7 @@ function computeCorsAnalysis(params: {
   const nonSafelistedUnique = uniqSortedLower(nonSafelistedHeaderNames);
   if (nonSafelistedUnique.length > 0 && !isSameOrigin) {
     preflightReasons.push(
-      `包含非简单请求头：${nonSafelistedUnique.map((n) => n).join(", ")}。`,
+      ui.reasonNonSafelistedHeaders.replace("{headers}", nonSafelistedUnique.map((n) => n).join(", ")),
     );
     requiredAllowHeaders.push(...nonSafelistedUnique);
   }
@@ -385,48 +418,40 @@ function computeCorsAnalysis(params: {
 
   const suggestions: string[] = [];
   if (isSameOrigin) {
-    suggestions.push("该 URL 与当前页面同源：不会触发 CORS，浏览器不会拦截跨域读取。");
+    suggestions.push(ui.suggestionSameOrigin);
   } else {
-    suggestions.push("跨域请求的 CORS 只能由服务端响应头决定，前端无法“绕过”。");
+    suggestions.push(ui.suggestionCrossOriginServerOnly);
     if (params.credentials === "include") {
-      suggestions.push(
-        "携带 Cookie/凭证时：必须返回 Access-Control-Allow-Credentials: true，且 Access-Control-Allow-Origin 不能是 *（必须精确到某个 Origin）。",
-      );
-      suggestions.push(
-        "若依赖跨站 Cookie：服务端 Cookie 还需设置 SameSite=None; Secure（并使用 HTTPS）。",
-      );
+      suggestions.push(ui.suggestionCredentialsOrigin);
+      suggestions.push(ui.suggestionCrossSiteCookie);
     }
     if (willPreflight) {
-      suggestions.push(
-        "需要处理 OPTIONS 预检：对 OPTIONS 返回 204/200，并带上 Allow-Origin/Allow-Methods/Allow-Headers 等响应头。",
-      );
+      suggestions.push(ui.suggestionHandlePreflight);
     }
     if (requiredAllowHeaders.length > 0) {
       suggestions.push(
-        `确保预检响应的 Access-Control-Allow-Headers 覆盖：${uniqSortedLower(requiredAllowHeaders).join(", ")}。`,
+        ui.suggestionAllowHeadersCover.replace("{headers}", uniqSortedLower(requiredAllowHeaders).join(", ")),
       );
     }
     if (requiredAllowMethods.length > 0) {
       suggestions.push(
-        `确保预检响应的 Access-Control-Allow-Methods 包含：${uniqSortedLower(requiredAllowMethods)
+        ui.suggestionAllowMethodsCover.replace("{methods}", uniqSortedLower(requiredAllowMethods)
           .map((m) => m.toUpperCase())
-          .join(", ")}。`,
+          .join(", ")),
       );
     }
-    suggestions.push(
-      "浏览器在 CORS 失败时通常只显示 “TypeError: Failed to fetch”，具体原因请在 DevTools -> Network 查看 preflight / response headers。",
-    );
+    suggestions.push(ui.suggestionNetworkErrorTip);
   }
 
   if (forbiddenHeaders.length > 0) {
     suggestions.push(
-      `你填写的这些请求头属于浏览器禁止设置（会被忽略或报错）：${forbiddenHeaders.join(", ")}。`,
+      ui.suggestionForbiddenHeaders.replace("{headers}", forbiddenHeaders.join(", ")),
     );
   }
 
   if (invalidHeaders.length > 0) {
     suggestions.push(
-      `以下请求头名称格式无效（未发送）：${uniqSortedLower(invalidHeaders).join(", ")}。`,
+      ui.suggestionInvalidHeaders.replace("{headers}", uniqSortedLower(invalidHeaders).join(", ")),
     );
   }
 
@@ -455,6 +480,7 @@ function computeCorsAnalysis(params: {
 function diagnosePastedHeaders(
   raw: string,
   analysis: CorsAnalysis,
+  ui: CorsCheckerUi,
 ): { issues: string[]; parsed: Record<string, string> } {
   const parsed: Record<string, string> = {};
   const issues: string[] = [];
@@ -470,27 +496,25 @@ function diagnosePastedHeaders(
 
   const acao = parsed["access-control-allow-origin"];
   if (!acao) {
-    issues.push("缺少 Access-Control-Allow-Origin（浏览器会直接拦截跨域读取）。");
+    issues.push(ui.issueMissingAcao);
   } else if (acao.includes(",")) {
-    issues.push(
-      "Access-Control-Allow-Origin 不应返回多个值（逗号分隔）；只能是 * 或单个 Origin。",
-    );
+    issues.push(ui.issueMultipleAcao);
   } else if (analysis.credentials === "include" && acao.trim() === "*") {
-    issues.push("携带凭证时 Access-Control-Allow-Origin 不能为 *。");
+    issues.push(ui.issueWildcardWithCredentials);
   } else if (
     analysis.assumedOrigin &&
     acao.trim() !== "*" &&
     acao.trim() !== analysis.assumedOrigin
   ) {
     issues.push(
-      `Access-Control-Allow-Origin 与期望 Origin 不匹配：期望 ${analysis.assumedOrigin}，实际 ${acao}。`,
+      ui.issueAcaoMismatch.replace("{expected}", analysis.assumedOrigin).replace("{actual}", acao),
     );
   }
 
   if (analysis.credentials === "include") {
     const acac = parsed["access-control-allow-credentials"];
     if (!acac || acac.trim().toLowerCase() !== "true") {
-      issues.push("携带凭证时需要 Access-Control-Allow-Credentials: true。");
+      issues.push(ui.issueMissingAcac);
     }
   }
 
@@ -498,21 +522,21 @@ function diagnosePastedHeaders(
     const allowMethods = (parsed["access-control-allow-methods"] ?? "").toLowerCase();
     const allowHeaders = (parsed["access-control-allow-headers"] ?? "").toLowerCase();
 
-    if (!allowMethods) issues.push("预检响应缺少 Access-Control-Allow-Methods。");
+    if (!allowMethods) issues.push(ui.issueMissingAcam);
     const allowMethodSet = new Set(allowMethods.split(",").map((s) => s.trim()).filter(Boolean));
     if (allowMethods && !allowMethodSet.has("*") && !allowMethodSet.has(analysis.method.toLowerCase())) {
       issues.push(
-        `Access-Control-Allow-Methods 未包含 ${analysis.method}。`,
+        ui.issueAcamMissingMethod.replace("{method}", analysis.method),
       );
     }
 
     if (analysis.requiredAllowHeaders.length > 0) {
-      if (!allowHeaders) issues.push("预检响应缺少 Access-Control-Allow-Headers。");
+      if (!allowHeaders) issues.push(ui.issueMissingAcah);
       const allowHeaderSet = new Set(allowHeaders.split(",").map((s) => s.trim()).filter(Boolean));
       if (allowHeaderSet.has("*")) return { issues, parsed };
       for (const h of analysis.requiredAllowHeaders) {
         if (!allowHeaderSet.has(h.toLowerCase())) {
-          issues.push(`Access-Control-Allow-Headers 未包含 ${h}。`);
+          issues.push(ui.issueAcahMissingHeader.replace("{header}", h));
         }
       }
     }
@@ -521,7 +545,7 @@ function diagnosePastedHeaders(
   return { issues, parsed };
 }
 
-function buildSnippet(type: SnippetType, analysis: CorsAnalysis): string {
+function buildSnippet(type: SnippetType, analysis: CorsAnalysis, ui: CorsCheckerUi): string {
   const origin = analysis.assumedOrigin || analysis.currentOrigin || "https://example.com";
   const allowHeadersList =
     analysis.requiredAllowHeaders.length > 0
@@ -533,10 +557,10 @@ function buildSnippet(type: SnippetType, analysis: CorsAnalysis): string {
 
   if (type === "headers") {
     return [
-      "# 预检（OPTIONS）响应建议",
+      ui.snippetPreflightHeaderComment,
       analysis.suggestedPreflightHeaders || "",
       "",
-      "# 实际业务响应建议（非 OPTIONS）",
+      ui.snippetActualHeaderComment,
       analysis.suggestedResponseHeaders || "",
     ]
       .filter(Boolean)
@@ -545,7 +569,7 @@ function buildSnippet(type: SnippetType, analysis: CorsAnalysis): string {
 
   if (type === "nginx") {
     return [
-      "# Nginx 示例（按需调整为白名单；不要对敏感接口开放任意 Origin）",
+      ui.snippetNginxComment,
       "location / {",
       `  add_header Access-Control-Allow-Origin "${allowCredentials ? origin : "*"}" always;`,
       allowCredentials ? "  add_header Access-Control-Allow-Credentials \"true\" always;" : "",
@@ -565,7 +589,7 @@ function buildSnippet(type: SnippetType, analysis: CorsAnalysis): string {
 
   if (type === "express") {
     return [
-      "// Express 示例（推荐使用 cors 中间件并配置白名单）",
+      ui.snippetExpressComment,
       "import cors from \"cors\";",
       "",
       "app.use(cors({",
@@ -575,7 +599,7 @@ function buildSnippet(type: SnippetType, analysis: CorsAnalysis): string {
       `  allowedHeaders: [${uniqSortedLower(allowHeadersList).map((h) => JSON.stringify(h.trim())).join(", ")}],`,
       "}));",
       "",
-      "// 需要的话单独处理预检：",
+      ui.snippetExpressPreflightComment,
       "app.options(\"*\", cors());",
     ]
       .filter(Boolean)
@@ -583,7 +607,7 @@ function buildSnippet(type: SnippetType, analysis: CorsAnalysis): string {
   }
 
   return [
-    "// Spring Boot 示例（示意；请按项目实际配置）",
+    ui.snippetSpringComment,
     "@Bean",
     "public WebMvcConfigurer corsConfigurer() {",
     "  return new WebMvcConfigurer() {",
@@ -610,7 +634,10 @@ export default function CorsCheckerClient() {
 
 function CorsCheckerInner() {
   const config = useOptionalToolConfig("cors-checker");
-  const ui: CorsCheckerUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<CorsCheckerUi>) };
+  const ui: CorsCheckerUi = useMemo(
+    () => ({ ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<CorsCheckerUi>) }),
+    [config?.ui],
+  );
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -638,21 +665,30 @@ function CorsCheckerInner() {
 
   const analysis = useMemo(
     () =>
-      computeCorsAnalysis({
-        url,
-        method,
-        headersRaw,
-        bodyType,
-        body,
-        credentials,
-        assumedOriginInput,
-      }),
-    [assumedOriginInput, body, bodyType, credentials, headersRaw, method, url],
+      computeCorsAnalysis(
+        {
+          url,
+          method,
+          headersRaw,
+          bodyType,
+          body,
+          credentials,
+          assumedOriginInput,
+        },
+        ui,
+      ),
+    [assumedOriginInput, body, bodyType, credentials, headersRaw, method, ui, url],
   );
 
-  const pastedDiagnosis = useMemo(() => diagnosePastedHeaders(pastedHeadersRaw, analysis), [analysis, pastedHeadersRaw]);
+  const pastedDiagnosis = useMemo(
+    () => diagnosePastedHeaders(pastedHeadersRaw, analysis, ui),
+    [analysis, pastedHeadersRaw, ui],
+  );
 
-  const snippet = useMemo(() => buildSnippet(snippetType, analysis), [analysis, snippetType]);
+  const snippet = useMemo(
+    () => buildSnippet(snippetType, analysis, ui),
+    [analysis, snippetType, ui],
+  );
 
   const copy = async (key: string, text: string) => {
     await navigator.clipboard.writeText(text);
@@ -929,7 +965,7 @@ function CorsCheckerInner() {
                       onChange={(e) => setSnippetType(e.target.value as SnippetType)}
                       className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
-                      <option value="headers">响应头建议</option>
+                      <option value="headers">{ui.snippetHeadersOption}</option>
                       <option value="nginx">Nginx</option>
                       <option value="express">Express</option>
                       <option value="spring">Spring</option>
@@ -1004,7 +1040,7 @@ function CorsCheckerInner() {
                 value={responseText}
                 readOnly
                 className="mt-2 h-72 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
-                placeholder="（CORS 成功时）这里会显示响应体预览；失败时通常读不到内容。"
+                placeholder={ui.responsePlaceholder}
               />
             </div>
           </div>
@@ -1034,7 +1070,7 @@ function CorsCheckerInner() {
               {pastedHeadersRaw.trim() && (
                 <div className="mt-3 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">
                   {pastedDiagnosis.issues.length === 0 ? (
-                    <div>未发现明显问题（或当前请求不需要 CORS/预检）。</div>
+                    <div>{ui.diagnosticsNoIssues}</div>
                   ) : (
                     <ul className="list-disc space-y-1 pl-5">
                       {pastedDiagnosis.issues.map((issue) => (

@@ -6,6 +6,8 @@
   "category": "Developer Tools",
   "lang": "en-US",
   "ui": {
+    "mapToJson": "Map → JSON",
+    "jsonToMap": "JSON → Map",
     "jsonIndent": "JSON indent",
     "copyResult": "Copy result",
     "inputMap": "Go map input",
@@ -21,7 +23,12 @@
     "exampleSimple": "Simple map",
     "exampleNested": "Nested struct",
     "exampleSliceKey": "Mixed keys",
-    "hint": "Tip: Accepts common Go map print formats such as map[string]interface {}{\"key\":\"value\"} or map[1:\"one\",2:\"two\"}. For nested structures, make sure the format is valid."
+    "hint": "Tip: Accepts common Go map print formats such as map[string]interface {}{\"key\":\"value\"} or map[1:\"one\",2:\"two\"}. For nested structures, make sure the format is valid.",
+    "examples": {
+      "simple": "map[string]interface {}{\"name\":\"John\",\"age\":25}",
+      "nested": "map[string]interface {}{\"user\":map[string]interface {}{\"name\":\"Alice\",\"age\":30},\"tags\":[\"dev\",\"go\"]}",
+      "sliceKey": "map[interface {}]interface {}{1:\"one\",\"two\":2,true:\"yes\"}"
+    }
   },
   "keywords": [
     "Go map to JSON",

@@ -8,6 +8,44 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["JSON diff", "JSON差异", "结构化对比", "接口对比", "配置对比"]
+  "keywords": [
+    "JSON diff",
+    "JSON差异",
+    "结构化对比",
+    "接口对比",
+    "配置对比"
+  ],
+  "ui": {
+    "title": "JSON 差异对比工具",
+    "leftJson": "左侧 JSON",
+    "rightJson": "右侧 JSON",
+    "clear": "清空",
+    "format": "格式化",
+    "swap": "交换左右",
+    "diff": "对比差异",
+    "added": "新增",
+    "removed": "删除",
+    "changed": "修改",
+    "unchanged": "无变化",
+    "expandAll": "展开全部",
+    "collapseAll": "收起全部",
+    "copyPath": "复制路径",
+    "showPath": "显示路径",
+    "lineNumbers": "显示行号",
+    "statistics": "统计信息",
+    "totalChanges": "总差异",
+    "loading": "处理中...",
+    "invalidJson": "无效 JSON 格式",
+    "noDifferences": "没有差异",
+    "leftError": "错误：左侧不是合法 JSON。",
+    "rightError": "错误：右侧不是合法 JSON。",
+    "visualDiff": "可视化差异",
+    "hideEqual": "隐藏相同项",
+    "copyDiffList": "复制差异列表 JSON",
+    "diffSummary": "新增 {added} · 删除 {removed} · 变化 {changed} · 类型变化 {type}",
+    "fixJsonFirst": "请先修正两侧 JSON 解析错误。",
+    "pathHeader": "Path",
+    "leftHeader": "左侧",
+    "rightHeader": "右侧"
+  }
 }
-

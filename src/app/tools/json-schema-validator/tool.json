@@ -16,6 +16,37 @@
     "type",
     "enum",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "introNote": "当前为轻量校验器（支持 type/properties/required/items/enum/const/min/max/pattern 等常用规则）。",
+    "copyErrors": "复制错误列表",
+    "jsonDataLabel": "JSON 数据",
+    "jsonPlaceholder": "{\"id\":1,\"name\":\"Alice\"}",
+    "schemaLabel": "JSON Schema",
+    "schemaPlaceholder": "{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"number\"}},\"required\":[\"id\"]}",
+    "errorPrefix": "错误：",
+    "validationResultLabel": "校验结果",
+    "passStatus": "通过",
+    "failStatusTemplate": "失败（{count}）",
+    "noErrorsFound": "未发现错误。",
+    "refNotSupported": "暂不支持 $ref（请展开 schema 后再校验）。",
+    "anyOfFail": "不满足 anyOf 的任一子规则",
+    "oneOfMismatchTemplate": "oneOf 命中 {count} 项（应为 1 项）",
+    "constMismatch": "不满足 const 约束",
+    "enumMismatch": "不在 enum 枚举范围内",
+    "typeMismatchTemplate": "类型不匹配：期望 {expected}，实际 {actual}",
+    "minLengthTemplate": "minLength 期望 >= {min}",
+    "maxLengthTemplate": "maxLength 期望 <= {max}",
+    "patternMismatchTemplate": "pattern 不匹配：/{pattern}/",
+    "patternInvalid": "pattern 正则无效",
+    "minimumTemplate": "minimum 期望 >= {min}",
+    "maximumTemplate": "maximum 期望 <= {max}",
+    "minItemsTemplate": "minItems 期望 >= {min}",
+    "maxItemsTemplate": "maxItems 期望 <= {max}",
+    "missingRequiredTemplate": "缺少 required 字段：{key}",
+    "additionalPropertiesDisallowed": "不允许的额外字段（additionalProperties=false）",
+    "schemaMustBeObject": "Schema 必须是 JSON 对象。",
+    "refWarning": "检测到 $ref：当前仅提示不支持。",
+    "parseFailed": "解析失败"
+  }
 }
-

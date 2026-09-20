@@ -1,8 +1,8 @@
 {
   "name": "Free Online JSON to JSON Schema - ATools",
-  "shortName": "JSON to JSON Schema",
-  "description": "Free online JSON to JSON Schema. Runs locally in your browser with zero uploads for privacy and speed.",
-  "seoDescription": "The ultimate free online JSON to JSON Schema — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" JSON to JSON Schema on any device, this is the one you bookmark and share.",
+  "shortName": "JSON→Schema",
+  "description": "Free online JSON to JSON Schema generator: paste sample JSON to infer types and generate JSON Schema, supports nested objects/arrays, runs locally in browser.",
+  "seoDescription": "Free online JSON to JSON Schema generator. Paste sample JSON to automatically infer types and generate Draft 2020-12 JSON Schema (with properties, required, items, etc.). Useful for API definitions, data validation, and documentation. Runs entirely in your browser without uploading data.",
   "category": "Developer Tools",
   "lang": "en-US",
   "keywords": [
@@ -10,7 +10,22 @@
     "JSON to JSON Schema tool",
     "JSON to JSON Schema web app",
     "json-to-json-schema",
+    "json schema generator",
+    "schema inference",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "Title",
+    "forbidAdditional": "Forbid Additional Properties",
+    "indent": "Indent",
+    "copySchema": "Copy Schema",
+    "jsonInput": "JSON Input",
+    "jsonPlaceholder": "{\"id\":1,\"name\":\"Alice\",\"tags\":[\"a\",\"b\"]}",
+    "schemaOutput": "JSON Schema Output",
+    "outputPlaceholder": "Generated JSON Schema will appear here...",
+    "errorPrefix": "Error: ",
+    "jsonParseError": "JSON parse failed",
+    "tip": "Tip: Schema is inferred from the sample JSON; empty arrays will generate empty items ({}), which you can constrain as needed."
+  }
 }

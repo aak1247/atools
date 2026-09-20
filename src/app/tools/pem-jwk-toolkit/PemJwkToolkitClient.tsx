@@ -1,12 +1,48 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
-import { useOptionalI18n } from "../../../i18n/I18nProvider";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type AnyRecord = Record<string, unknown>;
 type InputMode = "auto" | "pem" | "json" | "der-base64";
 type DerHint = "auto" | "spki" | "pkcs8";
+
+// 中文默认值
+const DEFAULT_UI = {
+  hint: "PEM/DER/JWK/JWKS 互转与字段展示，全程本地处理，不上传任何密钥。",
+  input: "输入",
+  inputMode: "输入类型",
+  derHint: "DER 格式",
+  parse: "解析并转换",
+  parsing: "处理中…",
+  detected: "识别结果",
+  outputs: "输出",
+  keyInfo: "密钥信息",
+  publicJwk: "公钥 JWK",
+  privateJwk: "私钥 JWK",
+  publicJwks: "公钥 JWKS",
+  pemPublic: "PEM（PUBLIC KEY）",
+  pemPrivate: "PEM（PRIVATE KEY）",
+  derSpki: "DER（SPKI）Base64",
+  derPkcs8: "DER（PKCS8）Base64",
+  copy: "复制",
+  clear: "清空",
+  notAvailable: "不可用",
+  needInput: "请先粘贴内容。",
+  unsupportedPem: "不支持的 PEM 类型（仅支持 PUBLIC KEY / PRIVATE KEY）。",
+  unsupportedKty: "不支持的密钥类型（仅支持 RSA / EC）。",
+  parseFailed: "解析或转换失败。",
+  auto: "自动识别",
+  pem: "PEM",
+  json: "JWK/JWKS JSON",
+  derBase64: "DER Base64",
+  derAuto: "自动（先尝试 SPKI 再尝试 PKCS8）",
+  spki: "SPKI（公钥）",
+  pkcs8: "PKCS8（私钥）",
+} as const;
+
+type PemJwkToolkitUi = typeof DEFAULT_UI;
 
 type Result = {
   inputSummary: string;
@@ -251,77 +287,8 @@ const copyText = async (text: string) => {
 };
 
 export default function PemJwkToolkitClient() {
-  const i18n = useOptionalI18n();
-  const locale = i18n?.locale ?? "zh-cn";
-
-  const ui = useMemo(() => {
-    if (locale === "en-us") {
-      return {
-        hint: "Convert PEM/DER/JWK/JWKS locally (no uploads).",
-        input: "Input",
-        inputMode: "Input mode",
-        derHint: "DER format",
-        parse: "Parse & convert",
-        parsing: "Working…",
-        detected: "Detected",
-        outputs: "Outputs",
-        keyInfo: "Key info",
-        publicJwk: "Public JWK",
-        privateJwk: "Private JWK",
-        publicJwks: "JWKS (public)",
-        pemPublic: "PEM (PUBLIC KEY)",
-        pemPrivate: "PEM (PRIVATE KEY)",
-        derSpki: "DER (SPKI) Base64",
-        derPkcs8: "DER (PKCS8) Base64",
-        copy: "Copy",
-        clear: "Clear",
-        notAvailable: "Not available",
-        needInput: "Please paste content first.",
-        unsupportedPem: "Unsupported PEM label (supported: PUBLIC KEY, PRIVATE KEY).",
-        unsupportedKty: "Unsupported key type (supported: RSA, EC).",
-        parseFailed: "Failed to parse or convert.",
-        auto: "Auto",
-        pem: "PEM",
-        json: "JWK/JWKS JSON",
-        derBase64: "DER Base64",
-        derAuto: "Auto (try SPKI then PKCS8)",
-        spki: "SPKI (public)",
-        pkcs8: "PKCS8 (private)",
-      };
-    }
-    return {
-      hint: "PEM/DER/JWK/JWKS 互转与字段展示，全程本地处理，不上传任何密钥。",
-      input: "输入",
-      inputMode: "输入类型",
-      derHint: "DER 格式",
-      parse: "解析并转换",
-      parsing: "处理中…",
-      detected: "识别结果",
-      outputs: "输出",
-      keyInfo: "密钥信息",
-      publicJwk: "公钥 JWK",
-      privateJwk: "私钥 JWK",
-      publicJwks: "公钥 JWKS",
-      pemPublic: "PEM（PUBLIC KEY）",
-      pemPrivate: "PEM（PRIVATE KEY）",
-      derSpki: "DER（SPKI）Base64",
-      derPkcs8: "DER（PKCS8）Base64",
-      copy: "复制",
-      clear: "清空",
-      notAvailable: "不可用",
-      needInput: "请先粘贴内容。",
-      unsupportedPem: "不支持的 PEM 类型（仅支持 PUBLIC KEY / PRIVATE KEY）。",
-      unsupportedKty: "不支持的密钥类型（仅支持 RSA / EC）。",
-      parseFailed: "解析或转换失败。",
-      auto: "自动识别",
-      pem: "PEM",
-      json: "JWK/JWKS JSON",
-      derBase64: "DER Base64",
-      derAuto: "自动（先尝试 SPKI 再尝试 PKCS8）",
-      spki: "SPKI（公钥）",
-      pkcs8: "PKCS8（私钥）",
-    };
-  }, [locale]);
+  const config = useOptionalToolConfig("pem-jwk-toolkit");
+  const ui: PemJwkToolkitUi = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<PemJwkToolkitUi>) };
 
   const [input, setInput] = useState("");
   const [inputMode, setInputMode] = useState<InputMode>("auto");

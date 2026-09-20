@@ -2,8 +2,29 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Tab = "rawToJson" | "jsonToRaw";
+
+const DEFAULT_UI = {
+  rawToJson: "Raw → JSON",
+  jsonToRaw: "JSON → Raw",
+  copy: "复制",
+  rawHeadersLabel: "Raw Headers",
+  rawPlaceholder: "GET /path HTTP/1.1\nHost: example.com\nUser-Agent: ...\nCookie: a=1; b=2",
+  parseResultLabel: "解析结果",
+  startLineLabel: "Start Line：",
+  cookieParseLabel: "Cookie 解析",
+  cookieHint: "提示：Set-Cookie 只做简单分号切分（不解析属性）。",
+  headersJsonLabel: "Headers JSON",
+  rawOutputLabel: "Raw 输出",
+  rawOutputHint: "提示：值为对象/数组时会用 JSON.stringify 输出到一行。",
+  errorPrefix: "错误：",
+  parseFailed: "解析失败",
+  jsonMustBeObjectError: "请输入 JSON 对象（key-value）。",
+} as const;
+
+type HttpHeaderParserUi = typeof DEFAULT_UI;
 
 const normalizeKey = (key: string) =>
   key
@@ -48,11 +69,11 @@ const parseRawHeaders = (raw: string) => {
   return { startLine, headers, cookies };
 };
 
-const jsonToRaw = (jsonText: string) => {
+const jsonToRaw = (jsonText: string, ui: HttpHeaderParserUi) => {
   try {
     const parsed = JSON.parse(jsonText) as unknown;
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return { ok: false as const, error: "请输入 JSON 对象（key-value）。", text: "" };
+      return { ok: false as const, error: ui.jsonMustBeObjectError, text: "" };
     }
     const entries = Object.entries(parsed as Record<string, unknown>)
       .filter(([k]) => typeof k === "string" && k.trim())
@@ -60,17 +81,23 @@ const jsonToRaw = (jsonText: string) => {
     const text = entries.map(([k, v]) => `${k}: ${v}`).join("\n");
     return { ok: true as const, text };
   } catch (e) {
-    return { ok: false as const, error: e instanceof Error ? e.message : "解析失败", text: "" };
+    return { ok: false as const, error: e instanceof Error ? e.message : ui.parseFailed, text: "" };
   }
 };
 
 export default function HttpHeaderParserClient() {
+  const config = useOptionalToolConfig("http-header-parser");
+  const ui: HttpHeaderParserUi = useMemo(
+    () => ({ ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<HttpHeaderParserUi>) }),
+    [config?.ui],
+  );
+
   const [tab, setTab] = useState<Tab>("rawToJson");
   const [raw, setRaw] = useState("");
   const [json, setJson] = useState('{"Content-Type":"application/json","Authorization":"Bearer ..."}');
 
   const parsed = useMemo(() => parseRawHeaders(raw), [raw]);
-  const generated = useMemo(() => jsonToRaw(json), [json]);
+  const generated = useMemo(() => jsonToRaw(json, ui), [json, ui]);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -89,7 +116,7 @@ export default function HttpHeaderParserClient() {
                   tab === "rawToJson" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                Raw → JSON
+                {ui.rawToJson}
               </button>
               <button
                 type="button"
@@ -98,7 +125,7 @@ export default function HttpHeaderParserClient() {
                   tab === "jsonToRaw" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                JSON → Raw
+                {ui.jsonToRaw}
               </button>
             </div>
 
@@ -108,28 +135,28 @@ export default function HttpHeaderParserClient() {
               disabled={tab === "rawToJson" ? Object.keys(parsed.headers).length === 0 : !generated.ok || !generated.text}
               className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              复制
+              {ui.copy}
             </button>
           </div>
 
           {tab === "rawToJson" ? (
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
               <div>
-                <div className="mb-2 text-sm font-semibold text-slate-900">Raw Headers</div>
+                <div className="mb-2 text-sm font-semibold text-slate-900">{ui.rawHeadersLabel}</div>
                 <textarea
                   value={raw}
                   onChange={(e) => setRaw(e.target.value)}
-                  placeholder={"GET /path HTTP/1.1\\nHost: example.com\\nUser-Agent: ...\\nCookie: a=1; b=2"}
+                  placeholder={ui.rawPlaceholder}
                   className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                 />
               </div>
 
               <div className="space-y-4">
                 <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                  <div className="text-sm font-semibold text-slate-900">解析结果</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.parseResultLabel}</div>
                   <div className="mt-3 grid gap-2 text-xs text-slate-600">
                     <div>
-                      Start Line：<span className="font-mono">{parsed.startLine || "-"}</span>
+                      {ui.startLineLabel}<span className="font-mono">{parsed.startLine || "-"}</span>
                     </div>
                   </div>
                   <textarea
@@ -140,36 +167,36 @@ export default function HttpHeaderParserClient() {
                 </div>
 
                 <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-                  <div className="text-sm font-semibold text-slate-900">Cookie 解析</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.cookieParseLabel}</div>
                   <textarea
                     value={JSON.stringify(parsed.cookies, null, 2)}
                     readOnly
                     className="mt-3 h-28 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
                   />
-                  <div className="mt-3 text-xs text-slate-500">提示：Set-Cookie 只做简单分号切分（不解析属性）。</div>
+                  <div className="mt-3 text-xs text-slate-500">{ui.cookieHint}</div>
                 </div>
               </div>
             </div>
           ) : (
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
               <div>
-                <div className="mb-2 text-sm font-semibold text-slate-900">Headers JSON</div>
+                <div className="mb-2 text-sm font-semibold text-slate-900">{ui.headersJsonLabel}</div>
                 <textarea
                   value={json}
                   onChange={(e) => setJson(e.target.value)}
                   className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                 />
-                {!generated.ok && <div className="mt-2 text-sm text-rose-600">错误：{generated.error}</div>}
+                {!generated.ok && <div className="mt-2 text-sm text-rose-600">{ui.errorPrefix}{generated.error}</div>}
               </div>
 
               <div>
-                <div className="mb-2 text-sm font-semibold text-slate-900">Raw 输出</div>
+                <div className="mb-2 text-sm font-semibold text-slate-900">{ui.rawOutputLabel}</div>
                 <textarea
                   value={generated.ok ? generated.text : ""}
                   readOnly
                   className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
                 />
-                <div className="mt-3 text-xs text-slate-500">提示：值为对象/数组时会用 JSON.stringify 输出到一行。</div>
+                <div className="mt-3 text-xs text-slate-500">{ui.rawOutputHint}</div>
               </div>
             </div>
           )}

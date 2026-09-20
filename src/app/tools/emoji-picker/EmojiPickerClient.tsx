@@ -4,8 +4,6 @@ import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
-type Category = { key: string; name: string; ranges: Array<[number, number]> };
-
 const DEFAULT_UI = {
   searchPlaceholder: "搜索（支持按 emoji / 码点十六进制，例如 1F600）",
   picked: "已选内容",
@@ -15,6 +13,14 @@ const DEFAULT_UI = {
   all: "全部",
   empty: "未找到匹配的 emoji。",
   tip: "提示：点击 emoji 即可复制；最近使用保存在本地浏览器。",
+  catSmileys: "表情",
+  catHands: "手势",
+  catSymbols: "符号",
+  catObjects: "物品",
+  regexUnsupported: "当前浏览器不支持 Unicode 属性正则（\\p{Extended_Pictographic}），建议升级浏览器以获得完整 emoji 列表。",
+  clickToCopy: "点击复制",
+  pickedPlaceholder: "点击左侧 emoji 自动追加到这里…",
+  copied: "已复制",
 } as const;
 
 type Ui = typeof DEFAULT_UI;
@@ -44,10 +50,10 @@ const parseHexQuery = (q: string): number | null => {
   return Number.isFinite(n) ? n : null;
 };
 
-const CATEGORIES: Category[] = [
+const CATEGORIES = [
   {
     key: "smileys",
-    name: "表情",
+    nameKey: "catSmileys" as const,
     ranges: [
       [0x1f600, 0x1f64f],
       [0x1f900, 0x1f9ff],
@@ -55,26 +61,33 @@ const CATEGORIES: Category[] = [
   },
   {
     key: "hands",
-    name: "手势",
+    nameKey: "catHands" as const,
     ranges: [
       [0x1f44a, 0x1f44f],
       [0x1f590, 0x1f596],
       [0x270a, 0x270d],
     ],
   },
-  { key: "symbols", name: "符号", ranges: [[0x2600, 0x26ff], [0x2700, 0x27bf]] },
+  {
+    key: "symbols",
+    nameKey: "catSymbols" as const,
+    ranges: [
+      [0x2600, 0x26ff],
+      [0x2700, 0x27bf],
+    ],
+  },
   {
     key: "objects",
-    name: "物品",
+    nameKey: "catObjects" as const,
     ranges: [
       [0x1f300, 0x1f5ff],
       [0x1f680, 0x1f6ff],
       [0x1f9e0, 0x1f9ff],
     ],
   },
-];
+] as const;
 
-const buildEmojiList = (ranges: Array<[number, number]>) => {
+const buildEmojiList = (ranges: ReadonlyArray<readonly [number, number]>) => {
   const out: Array<{ emoji: string; codepoint: number }> = [];
   for (const [start, end] of ranges) {
     for (let cp = start; cp <= end; cp += 1) {
@@ -198,7 +211,7 @@ function EmojiPickerInner() {
       <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         {!EMOJI_RE && (
           <div className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-100">
-            当前浏览器不支持 Unicode 属性正则（{"\\p{Extended_Pictographic}"}），建议升级浏览器以获得完整 emoji 列表。
+            {ui.regexUnsupported}
           </div>
         )}
 
@@ -224,7 +237,7 @@ function EmojiPickerInner() {
                       categoryKey === c.key ? "bg-white text-slate-900 shadow" : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    {c.name}
+                    {ui[c.nameKey]}
                   </button>
                 ))}
               </div>
@@ -246,7 +259,7 @@ function EmojiPickerInner() {
                       type="button"
                       onClick={() => void copy(emoji)}
                       className="rounded-2xl bg-slate-50 py-2 text-xl ring-1 ring-slate-200 transition hover:bg-slate-100"
-                      title="点击复制"
+                      title={ui.clickToCopy}
                     >
                       {emoji}
                     </button>
@@ -315,9 +328,9 @@ function EmojiPickerInner() {
                 value={picked}
                 onChange={(e) => setPicked(e.target.value)}
                 className="mt-3 h-48 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                placeholder="点击左侧 emoji 自动追加到这里…"
+                placeholder={ui.pickedPlaceholder}
               />
-              {copied === "picked" && <div className="mt-2 text-xs text-emerald-700">已复制</div>}
+              {copied === "picked" && <div className="mt-2 text-xs text-emerald-700">{ui.copied}</div>}
             </div>
           </div>
         </div>

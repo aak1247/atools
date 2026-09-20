@@ -8,6 +8,34 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费随机数生成", "在线随机数工具", "随机数生成器", "抽奖工具", "随机算法"]
+  "keywords": [
+    "免费随机数生成",
+    "在线随机数工具",
+    "随机数生成器",
+    "抽奖工具",
+    "随机算法"
+  ],
+  "ui": {
+    "params": "参数",
+    "min": "最小值",
+    "max": "最大值",
+    "count": "数量（1~10000）",
+    "outputFormat": "输出格式",
+    "formatNewline": "换行",
+    "formatComma": "逗号分隔",
+    "unique": "去重（不重复）",
+    "rangeSizePrefix": "范围大小：",
+    "generate": "生成",
+    "reset": "恢复默认",
+    "result": "结果",
+    "copy": "复制",
+    "copied": "已复制",
+    "placeholder": "点击“生成”后显示结果…",
+    "note": "说明：使用 crypto.getRandomValues 生成随机数。",
+    "errorPrefix": "错误：",
+    "errSafeInteger": "请输入安全整数范围内的 min/max",
+    "errRangeTooLarge": "范围过大（最大支持 2^32）",
+    "errUniqueExceedsRange": "去重模式下，数量不能超过范围大小",
+    "errGenerateFailed": "生成失败"
+  }
 }
-

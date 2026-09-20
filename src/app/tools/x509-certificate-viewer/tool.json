@@ -47,6 +47,8 @@
     "emailAddresses": "邮箱地址",
     "copyToClipboard": "复制到剪贴板",
     "uploadCertificate": "上传证书（PEM/DER）",
+    "replaceCertificate": "替换证书文件",
+    "dragDropHint": "支持点击上传与拖拽上传证书文件，拖拽可直接替换当前内容。",
     "copyPem": "复制 PEM",
     "copyJson": "复制 JSON",
     "fileLabel": "文件：",

@@ -5,6 +5,19 @@
   "seoDescription": "The ultimate free online Salt Generator — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" Salt Generator on any device, this is the one you bookmark and share.",
   "category": "Crypto Tools",
   "lang": "en-US",
+  "ui": {
+    "title": "Salt Generator",
+    "subtitle": "Generate random cryptographic salt (fully local)",
+    "bytesLengthLabel": "Byte length",
+    "formatLabel": "Format",
+    "formatHex": "Hex",
+    "formatBase64": "Base64",
+    "formatBase64url": "Base64URL",
+    "generateButton": "Generate",
+    "copyButton": "Copy",
+    "resultTitle": "Result",
+    "hint": "Note: Uses crypto.getRandomValues to generate cryptographically secure random bytes."
+  },
   "keywords": [
     "free online Salt Generator",
     "Salt Generator tool",

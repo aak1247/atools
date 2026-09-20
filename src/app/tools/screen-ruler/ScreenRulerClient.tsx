@@ -2,6 +2,7 @@
 
 import { type PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Point = { x: number; y: number };
 type DragTarget = "a" | "b" | "both" | null;
@@ -53,6 +54,34 @@ const storePxPerMm = (pxPerMm: number | null) => {
   }
 };
 
+const DEFAULT_UI = {
+  modeMeasure: "测量",
+  modeCalibrate: "校准",
+  grid: "网格",
+  ruler: "刻度尺",
+  snap: "吸附",
+  fullscreen: "全屏",
+  exitFullscreen: "退出全屏",
+  reset: "重置",
+  resultTitle: "测量结果",
+  deltaX: "ΔX：",
+  deltaY: "ΔY：",
+  width: "宽：",
+  height: "高：",
+  distance: "距离：",
+  conversionPrefix: "换算：",
+  uncalibratedTip: "未校准：当前仅显示像素值；切换到“校准”后可换算厘米/英寸。",
+  measureTip: "提示：拖动 A/B 点测量；按住点同时命中可整体移动（A 与 B 重叠时）。",
+  calibrateTitle: "校准（可选）",
+  clearCalibration: "清除校准",
+  calibrateGuide: "让 A 与 B 的距离对齐一段已知物理长度，然后输入该长度（毫米）并保存。",
+  knownLengthMm: "已知长度（mm）",
+  currentDistance: "当前距离",
+  saveCalibration: "保存校准",
+  currentScale: "当前比例：",
+  calibrateTip: "建议：用银行卡宽度（85.6mm）或尺子上的 10cm 进行校准；可切换全屏提高准确度。",
+} as const;
+
 function drawRuler(ctx: CanvasRenderingContext2D, width: number, height: number) {
   ctx.save();
   ctx.fillStyle = "rgba(241, 245, 249, 0.95)";
@@ -99,6 +128,17 @@ function drawRuler(ctx: CanvasRenderingContext2D, width: number, height: number)
 }
 
 export default function ScreenRulerClient() {
+  return (
+    <ToolPageLayout toolSlug="screen-ruler">
+      <ScreenRulerInner />
+    </ToolPageLayout>
+  );
+}
+
+function ScreenRulerInner() {
+  const config = useOptionalToolConfig("screen-ruler");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const hostRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [points, setPoints] = useState<{ a: Point; b: Point }>({
@@ -345,189 +385,187 @@ export default function ScreenRulerClient() {
   };
 
   return (
-    <ToolPageLayout toolSlug="screen-ruler">
-      <div className="w-full px-4">
-        <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex rounded-2xl bg-slate-100/60 p-1">
-              <button
-                type="button"
-                onClick={() => setMode("measure")}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                  mode === "measure" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                测量
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("calibrate")}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                  mode === "calibrate"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                校准
-              </button>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={showGrid}
-                  onChange={(e) => setShowGrid(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                网格
-              </label>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={showRuler}
-                  onChange={(e) => setShowRuler(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                />
-                刻度尺
-              </label>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                吸附
-                <select
-                  value={snapStep}
-                  onChange={(e) => setSnapStep(Number(e.target.value))}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                >
-                  <option value={1}>1px</option>
-                  <option value={5}>5px</option>
-                  <option value={10}>10px</option>
-                </select>
-              </label>
-              <button
-                type="button"
-                onClick={() => void toggleFullscreen()}
-                className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200"
-              >
-                {isFullscreen ? "退出全屏" : "全屏"}
-              </button>
-              <button
-                type="button"
-                onClick={resetPoints}
-                className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200"
-              >
-                重置
-              </button>
-            </div>
+    <div className="w-full px-4">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex rounded-2xl bg-slate-100/60 p-1">
+            <button
+              type="button"
+              onClick={() => setMode("measure")}
+              className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                mode === "measure" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {ui.modeMeasure}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("calibrate")}
+              className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                mode === "calibrate"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              {ui.modeCalibrate}
+            </button>
           </div>
 
-          <div className="mt-5 rounded-3xl bg-white p-3 ring-1 ring-slate-200">
-            <div ref={hostRef} className="relative h-[520px] w-full overflow-hidden rounded-2xl bg-white">
-              <canvas
-                ref={canvasRef}
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={onPointerUp}
-                className="h-full w-full touch-none select-none"
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={showGrid}
+                onChange={(e) => setShowGrid(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
+              {ui.grid}
+            </label>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={showRuler}
+                onChange={(e) => setShowRuler(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              />
+              {ui.ruler}
+            </label>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              {ui.snap}
+              <select
+                value={snapStep}
+                onChange={(e) => setSnapStep(Number(e.target.value))}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+              >
+                <option value={1}>1px</option>
+                <option value={5}>5px</option>
+                <option value={10}>10px</option>
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => void toggleFullscreen()}
+              className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200"
+            >
+              {isFullscreen ? ui.exitFullscreen : ui.fullscreen}
+            </button>
+            <button
+              type="button"
+              onClick={resetPoints}
+              className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200"
+            >
+              {ui.reset}
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-3xl bg-white p-3 ring-1 ring-slate-200">
+          <div ref={hostRef} className="relative h-[520px] w-full overflow-hidden rounded-2xl bg-white">
+            <canvas
+              ref={canvasRef}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              className="h-full w-full touch-none select-none"
+            />
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="text-sm font-semibold text-slate-900">{ui.resultTitle}</div>
+            <div className="mt-3 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+              <div>
+                {ui.deltaX}<span className="font-mono">{formatNumber(measurement.dx, 0)} px</span>
+              </div>
+              <div>
+                {ui.deltaY}<span className="font-mono">{formatNumber(measurement.dy, 0)} px</span>
+              </div>
+              <div>
+                {ui.width}<span className="font-mono">{formatNumber(measurement.w, 0)} px</span>
+              </div>
+              <div>
+                {ui.height}<span className="font-mono">{formatNumber(measurement.h, 0)} px</span>
+              </div>
+              <div className="sm:col-span-2">
+                {ui.distance}<span className="font-mono">{formatNumber(measurement.d, 2)} px</span>
+              </div>
+              {pxPerMm ? (
+                <div className="sm:col-span-2">
+                  {ui.conversionPrefix}{formatNumber(measurement.cm ?? 0, 2)} cm / {formatNumber(measurement.mm ?? 0, 1)} mm /{" "}
+                  {formatNumber(measurement.inch ?? 0, 2)} in
+                </div>
+              ) : (
+                <div className="sm:col-span-2 text-xs text-slate-500">
+                  {ui.uncalibratedTip}
+                </div>
+              )}
+            </div>
+            <div className="mt-3 text-xs text-slate-500">
+              {ui.measureTip}
             </div>
           </div>
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
-              <div className="text-sm font-semibold text-slate-900">测量结果</div>
-              <div className="mt-3 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
-                <div>
-                  ΔX：<span className="font-mono">{formatNumber(measurement.dx, 0)} px</span>
-                </div>
-                <div>
-                  ΔY：<span className="font-mono">{formatNumber(measurement.dy, 0)} px</span>
-                </div>
-                <div>
-                  宽：<span className="font-mono">{formatNumber(measurement.w, 0)} px</span>
-                </div>
-                <div>
-                  高：<span className="font-mono">{formatNumber(measurement.h, 0)} px</span>
-                </div>
-                <div className="sm:col-span-2">
-                  距离：<span className="font-mono">{formatNumber(measurement.d, 2)} px</span>
-                </div>
-                {pxPerMm ? (
-                  <div className="sm:col-span-2">
-                    换算：{formatNumber(measurement.cm ?? 0, 2)} cm / {formatNumber(measurement.mm ?? 0, 1)} mm /{" "}
-                    {formatNumber(measurement.inch ?? 0, 2)} in
-                  </div>
-                ) : (
-                  <div className="sm:col-span-2 text-xs text-slate-500">
-                    未校准：当前仅显示像素值；切换到“校准”后可换算厘米/英寸。
-                  </div>
-                )}
-              </div>
-              <div className="mt-3 text-xs text-slate-500">
-                提示：拖动 A/B 点测量；按住点同时命中可整体移动（A 与 B 重叠时）。
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-sm font-semibold text-slate-900">校准（可选）</div>
-                {pxPerMm && (
-                  <button
-                    type="button"
-                    onClick={clearCalibration}
-                    className="rounded-xl bg-white px-3 py-2 text-xs font-medium text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100"
-                  >
-                    清除校准
-                  </button>
-                )}
-              </div>
-
-              <div className="mt-3 text-sm text-slate-700">
-                让 A 与 B 的距离对齐一段已知物理长度，然后输入该长度（毫米）并保存。
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <label className="block text-sm text-slate-700">
-                  已知长度（mm）
-                  <input
-                    type="number"
-                    min={0.1}
-                    step={0.1}
-                    value={calibrationMm}
-                    onChange={(e) => setCalibrationMm(Number(e.target.value))}
-                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                  />
-                </label>
-                <div className="text-sm text-slate-700">
-                  当前距离
-                  <div className="mt-2 rounded-2xl bg-white px-4 py-2 ring-1 ring-slate-200">
-                    <span className="font-mono">{formatNumber(measurement.d, 2)} px</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="rounded-3xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-sm font-semibold text-slate-900">{ui.calibrateTitle}</div>
+              {pxPerMm && (
                 <button
                   type="button"
-                  onClick={applyCalibration}
-                  disabled={mode !== "calibrate" || !Number.isFinite(measurement.d) || measurement.d <= 0}
-                  className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                  onClick={clearCalibration}
+                  className="rounded-xl bg-white px-3 py-2 text-xs font-medium text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100"
                 >
-                  保存校准
+                  {ui.clearCalibration}
                 </button>
-                {pxPerMm && (
-                  <div className="text-xs text-slate-600">
-                    当前比例：<span className="font-mono">{formatNumber(pxPerMm, 3)} px/mm</span>
-                  </div>
-                )}
-              </div>
+              )}
+            </div>
 
-              <div className="mt-3 text-xs text-slate-500">
-                建议：用银行卡宽度（85.6mm）或尺子上的 10cm 进行校准；可切换全屏提高准确度。
+            <div className="mt-3 text-sm text-slate-700">
+              {ui.calibrateGuide}
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm text-slate-700">
+                {ui.knownLengthMm}
+                <input
+                  type="number"
+                  min={0.1}
+                  step={0.1}
+                  value={calibrationMm}
+                  onChange={(e) => setCalibrationMm(Number(e.target.value))}
+                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+                />
+              </label>
+              <div className="text-sm text-slate-700">
+                {ui.currentDistance}
+                <div className="mt-2 rounded-2xl bg-white px-4 py-2 ring-1 ring-slate-200">
+                  <span className="font-mono">{formatNumber(measurement.d, 2)} px</span>
+                </div>
               </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={applyCalibration}
+                disabled={mode !== "calibrate" || !Number.isFinite(measurement.d) || measurement.d <= 0}
+                className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+              >
+                {ui.saveCalibration}
+              </button>
+              {pxPerMm && (
+                <div className="text-xs text-slate-600">
+                  {ui.currentScale}<span className="font-mono">{formatNumber(pxPerMm, 3)} px/mm</span>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-3 text-xs text-slate-500">
+              {ui.calibrateTip}
             </div>
           </div>
         </div>
       </div>
-    </ToolPageLayout>
+    </div>
   );
 }

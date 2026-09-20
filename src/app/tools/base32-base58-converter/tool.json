@@ -16,6 +16,28 @@
     "Base32解码",
     "Base58解码",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "fromFormat": "输入格式",
+    "toFormat": "输出格式",
+    "optionUtf8": "UTF-8 文本",
+    "optionHex": "Hex",
+    "optionBase32": "Base32",
+    "optionBase58": "Base58",
+    "base32Padding": "Base32 填充",
+    "copyOutput": "复制输出",
+    "inputTitle": "输入",
+    "outputTitle": "输出",
+    "hint": "提示：Base58 使用 Bitcoin 字母表；Base32 使用 RFC4648 字母表（A-Z2-7）。",
+    "bytesCountTemplate": "字节数：{count}",
+    "hexLabel": "Hex：",
+    "utf8Label": "UTF-8：",
+    "utf8DecodeFailed": "（无法解码）",
+    "errorPrefix": "错误：",
+    "errHexOddLength": "Hex 长度必须为偶数（每 2 位一个字节）。",
+    "errHexInvalidChar": "Hex 包含无效字符。",
+    "errBase32InvalidCharTemplate": "Base32 包含无效字符：{ch}",
+    "errBase58InvalidCharTemplate": "Base58 包含无效字符：{ch}",
+    "errConvertFailed": "转换失败"
+  }
 }
-

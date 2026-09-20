@@ -12,5 +12,15 @@
     "html-stripper",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "HTML Tag Stripper",
+    "subtitle": "Convert HTML to plain text (runs locally, no server upload)",
+    "convertHeader": "Conversion",
+    "copyResult": "Copy Result",
+    "inputHtml": "Input (HTML)",
+    "inputPlaceholder": "Enter or paste HTML code…",
+    "outputPlainText": "Output (Plain Text)",
+    "outputPlaceholder": "Plain text after stripping tags will appear here…"
+  }
 }

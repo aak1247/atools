@@ -277,12 +277,6 @@ const NoiseMeterClient = () => {
   return (
     <ToolPageLayout toolSlug="noise-meter" maxWidthClassName="max-w-3xl">
       <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">噪音计</h2>
-        <p className="mt-2 text-sm text-slate-500">
-          纯前端实时测量 • 支持校准偏移 • 数据不上传
-        </p>
-      </div>
 
       {/* 主要显示区域 */}
       <div className="glass-card overflow-hidden rounded-3xl p-8 shadow-xl ring-1 ring-black/5">

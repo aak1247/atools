@@ -197,15 +197,6 @@ export default function PasswordStrengthCheckerClient() {
   return (
     <ToolPageLayout toolSlug="password-strength-checker">
       <div className="mx-auto max-w-4xl space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-            密码强度检测器
-          </h2>
-          <p className="mt-3 text-sm text-slate-600">
-            🆓 免费在线密码强度检测 - 实时评估密码安全性，数据库泄露查询，
-            密码永不上传，100%本地处理保护您的隐私。
-          </p>
-        </div>
 
         <div className="glass-card rounded-2xl p-6 space-y-6">
           <div>

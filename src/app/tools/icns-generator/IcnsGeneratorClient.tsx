@@ -378,14 +378,6 @@ function IcnsGeneratorInner() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-          {ui.title}
-        </h2>
-        <p className="mt-3 text-sm text-slate-600">
-          {ui.subtitle}
-        </p>
-      </div>
 
       <div className="glass-card rounded-2xl p-5 space-y-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

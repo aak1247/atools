@@ -8,6 +8,21 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费HTML清理", "在线去标签", "HTML文本提取", "标签去除工具", "HTML净化器"]
+  "keywords": [
+    "免费HTML清理",
+    "在线去标签",
+    "HTML文本提取",
+    "标签去除工具",
+    "HTML净化器"
+  ],
+  "ui": {
+    "title": "HTML 标签去除",
+    "subtitle": "将 HTML 转为纯文本（不上传服务器）",
+    "convertHeader": "转换",
+    "copyResult": "复制结果",
+    "inputHtml": "输入（HTML）",
+    "inputPlaceholder": "输入或粘贴 HTML 代码…",
+    "outputPlainText": "输出（纯文本）",
+    "outputPlaceholder": "去除标签后的纯文本会显示在这里…"
+  }
 }
-

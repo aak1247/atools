@@ -8,6 +8,33 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["免费DES加密", "在线DES解密", "DES兼容工具", "旧系统加密", "DES-CBC加密"]
+  "keywords": [
+    "免费DES加密",
+    "在线DES解密",
+    "DES兼容工具",
+    "旧系统加密",
+    "DES-CBC加密"
+  ],
+  "ui": {
+    "actionEncrypt": "加密",
+    "actionDecrypt": "解密",
+    "cipherModeLabel": "模式",
+    "copyResult": "复制结果",
+    "plaintextLabel": "明文",
+    "ciphertextLabel": "密文（Base64）",
+    "plaintextPlaceholder": "输入要加密的文本…",
+    "ciphertextPlaceholder": "粘贴 Base64 密文…",
+    "resultLabel": "结果",
+    "resultPlaceholder": "结果会显示在这里…",
+    "errorPrefix": "错误：",
+    "keyLabel": "Key（8 字节 Hex）",
+    "randomKey": "生成随机 Key",
+    "ivLabel": "IV（8 字节 Hex，CBC 模式需要）",
+    "randomIv": "生成随机 IV",
+    "insecureTip": "提示：DES 已不再适合用于安全场景，建议优先使用 AES-GCM。",
+    "errKeyInvalid": "Key 需为 8 字节十六进制（16 个 hex 字符）",
+    "errIvInvalid": "IV 需为 8 字节十六进制（16 个 hex 字符）",
+    "errDecryptFailed": "解密失败（可能 Key/IV 不正确或密文无效）",
+    "errProcessFailed": "处理失败"
+  }
 }
-

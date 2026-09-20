@@ -61,7 +61,8 @@
     "hexFormatFull": "Hexadecimal (Hex)",
     "randomString": "Random String",
     "batchGenerateFull": "📦 {text} ({count})",
-    "copySelected": "📋 {text} ({count})"
+    "copySelected": "📋 {text} ({count})",
+    "unknownError": "Unknown error"
   },
   "keywords": ["API key generation", "random string generator", "JWT Token generation", "security key", "Bearer Token", "developer tools"]
 }

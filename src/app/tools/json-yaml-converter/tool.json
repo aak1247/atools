@@ -8,6 +8,27 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "数据处理工具",
-  "keywords": ["免费JSON转YAML", "在线YAML转JSON", "配置文件转换", "数据格式转换", "JSON-YAML工具"]
+  "keywords": [
+    "免费JSON转YAML",
+    "在线YAML转JSON",
+    "配置文件转换",
+    "数据格式转换",
+    "JSON-YAML工具"
+  ],
+  "ui": {
+    "jsonToYaml": "JSON → YAML",
+    "yamlToJson": "YAML → JSON",
+    "jsonIndent": "JSON 缩进",
+    "copyResult": "复制结果",
+    "inputJson": "JSON 输入",
+    "inputYaml": "YAML 输入",
+    "outputYaml": "YAML 输出",
+    "outputJson": "JSON 输出",
+    "pasteJson": "粘贴 JSON…",
+    "pasteYaml": "粘贴 YAML…",
+    "resultPlaceholder": "结果会显示在这里…",
+    "errorPrefix": "错误：",
+    "convertFailed": "转换失败",
+    "hint": "提示：YAML 支持多种语法特性，若解析失败请检查缩进与特殊字符。"
+  }
 }
-

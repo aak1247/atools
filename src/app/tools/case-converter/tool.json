@@ -8,6 +8,19 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "实用工具",
-  "keywords": ["免费大小写转换", "在线命名转换", "camelCase转换", "编程命名工具", "变量名转换"]
+  "keywords": [
+    "免费大小写转换",
+    "在线命名转换",
+    "camelCase转换",
+    "编程命名工具",
+    "变量名转换"
+  ],
+  "ui": {
+    "modeLabel": "转换模式",
+    "copyResult": "复制结果",
+    "inputLabel": "输入",
+    "outputLabel": "输出",
+    "inputPlaceholder": "输入或粘贴文本…",
+    "outputPlaceholder": "结果会显示在这里…"
+  }
 }
-

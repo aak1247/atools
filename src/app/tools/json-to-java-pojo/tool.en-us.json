@@ -1,8 +1,8 @@
 {
   "name": "Free Online JSON to Java POJO - ATools",
-  "shortName": "JSON to Java POJO",
-  "description": "Free online JSON to Java POJO. Runs locally in your browser with zero uploads for privacy and speed.",
-  "seoDescription": "The ultimate free online JSON to Java POJO — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" JSON to Java POJO on any device, this is the one you bookmark and share.",
+  "shortName": "JSON→Java",
+  "description": "Free online JSON to Java POJO generator: generate Java classes from sample JSON (supports @JsonProperty, List/T[]), runs purely locally in your browser.",
+  "seoDescription": "Free online JSON to Java POJO tool. Paste sample JSON to automatically infer field types and generate Java class definitions with nested static classes. Supports List<T>/T[] arrays, boxed wrapper types (Boolean/Long/Double) for nullable fields, and Jackson @JsonProperty mappings. Runs purely locally in your browser without uploading data.",
   "category": "Developer Tools",
   "lang": "en-US",
   "keywords": [
@@ -10,7 +10,23 @@
     "JSON to Java POJO tool",
     "JSON to Java POJO web app",
     "json-to-java-pojo",
+    "java pojo generator",
+    "jackson jsonproperty",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "rootTypeName": "Root Type Name",
+    "arrayType": "Array Type",
+    "jsonProperty": "@JsonProperty",
+    "formatJson": "Format JSON",
+    "copyJavaCode": "Copy Java Code",
+    "jsonInput": "JSON Input",
+    "javaOutput": "Java Output",
+    "errorPrefix": "Error: ",
+    "jsonParseError": "JSON parse failed. Please check the format.",
+    "generateError": "Generation failed",
+    "rootClassDefNotFound": "Generation failed: Root class definition not found.",
+    "note": "Note: Generates lightweight POJOs (public fields + optional nested static classes); mixed types will fall back to Object."
+  }
 }

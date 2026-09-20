@@ -1,11 +1,45 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import type { ChangeEvent, DragEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Algorithm = "MD5" | "SHA-1" | "SHA-256" | "SHA-512";
 type Target = "text" | "file";
+
+const DEFAULT_UI = {
+  title: "哈希生成与校验",
+  subtitle: "支持 MD5 / SHA1 / SHA256 / SHA512（文本与文件），纯本地计算",
+  tabText: "文本",
+  tabFile: "文件",
+  algoLabel: "算法",
+  uppercase: "大写",
+  inputText: "输入文本",
+  selectFile: "选择文件",
+  textPlaceholder: "输入要计算哈希的文本…",
+  chooseFile: "选择文件",
+  replaceFile: "替换文件",
+  noFileSelected: "未选择文件",
+  fileBytesTemplate: "{name}（{size} 字节）",
+  dropHint: "支持点击上传与拖拽上传文件，拖拽可直接替换当前文件。",
+  computing: "计算中…",
+  computeHash: "计算哈希",
+  clear: "清空",
+  hashValue: "哈希值",
+  copy: "复制",
+  fileHashPlaceholder: "点击“计算哈希”后显示…",
+  autoHashPlaceholder: "自动计算并显示…",
+  verifyLabel: "校验（可选）",
+  verifyPlaceholder: "粘贴期望哈希值（忽略大小写与空白）…",
+  matchSuccess: "一致",
+  matchFail: "不一致",
+  errorPrefix: "错误：",
+  computeFailed: "计算失败",
+  textHint: "说明：文本按 UTF-8 编码计算；文件哈希会在本地读取文件内容进行计算。",
+} as const;
+
+type HashToolsUi = typeof DEFAULT_UI;
 
 const bytesToHex = (bytes: Uint8Array, upper: boolean) => {
   const hex = Array.from(bytes)
@@ -113,6 +147,12 @@ const digestBytes = async (algorithm: Algorithm, data: Uint8Array) => {
 };
 
 export default function HashToolsClient() {
+  const config = useOptionalToolConfig("hash-tools");
+  const ui: HashToolsUi = useMemo(
+    () => ({ ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<HashToolsUi>) }),
+    [config?.ui],
+  );
+
   const fileRef = useRef<HTMLInputElement>(null);
   const [target, setTarget] = useState<Target>("text");
   const [algorithm, setAlgorithm] = useState<Algorithm>("SHA-256");
@@ -150,7 +190,7 @@ export default function HashToolsClient() {
           setHashHex(bytesToHex(digest, upper));
         } catch (e) {
           if (cancelled) return;
-          setError(e instanceof Error ? e.message : "计算失败");
+          setError(e instanceof Error ? e.message : ui.computeFailed);
         } finally {
           if (!cancelled) setIsComputing(false);
         }
@@ -165,7 +205,7 @@ export default function HashToolsClient() {
     return () => {
       cancelled = true;
     };
-  }, [algorithm, target, text, upper]);
+  }, [algorithm, target, text, ui.computeFailed, upper]);
 
   const computeFileHash = async () => {
     if (!file) return;
@@ -176,7 +216,7 @@ export default function HashToolsClient() {
       const digest = await digestBytes(algorithm, bytes);
       setHashHex(bytesToHex(digest, upper));
     } catch (e) {
-      setError(e instanceof Error ? e.message : "计算失败");
+      setError(e instanceof Error ? e.message : ui.computeFailed);
     } finally {
       setIsComputing(false);
     }
@@ -217,16 +257,8 @@ export default function HashToolsClient() {
   return (
     <ToolPageLayout toolSlug="hash-tools" maxWidthClassName="max-w-4xl">
       <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-          哈希生成与校验
-        </h2>
-        <p className="mt-2 text-sm text-slate-500">
-          支持 MD5 / SHA1 / SHA256 / SHA512（文本与文件），纯本地计算
-        </p>
-      </div>
 
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex rounded-2xl bg-slate-100/60 p-1">
             <button
@@ -242,7 +274,7 @@ export default function HashToolsClient() {
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              文本
+              {ui.tabText}
             </button>
             <button
               type="button"
@@ -257,13 +289,13 @@ export default function HashToolsClient() {
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              文件
+              {ui.tabFile}
             </button>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <label className="flex items-center gap-2 text-sm text-slate-700">
-              算法
+              {ui.algoLabel}
               <select
                 value={algorithm}
                 onChange={(e) => setAlgorithm(e.target.value as Algorithm)}
@@ -283,7 +315,7 @@ export default function HashToolsClient() {
                 onChange={(e) => setUpper(e.target.checked)}
                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
               />
-              大写
+              {ui.uppercase}
             </label>
           </div>
         </div>
@@ -291,14 +323,14 @@ export default function HashToolsClient() {
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <div>
             <div className="mb-2 text-sm font-semibold text-slate-900">
-              {target === "text" ? "输入文本" : "选择文件"}
+              {target === "text" ? ui.inputText : ui.selectFile}
             </div>
 
             {target === "text" ? (
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="输入要计算哈希的文本…"
+                placeholder={ui.textPlaceholder}
                 className="h-64 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
             ) : (
@@ -316,12 +348,12 @@ export default function HashToolsClient() {
                   onClick={() => fileRef.current?.click()}
                   className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-200"
                 >
-                  {file ? "替换文件" : "选择文件"}
+                  {file ? ui.replaceFile : ui.chooseFile}
                 </button>
                 <div className="mt-3 text-xs text-slate-500">
-                  {file ? `${file.name}（${file.size.toLocaleString()} 字节）` : "未选择文件"}
+                  {file ? ui.fileBytesTemplate.replace("{name}", file.name).replace("{size}", file.size.toLocaleString()) : ui.noFileSelected}
                 </div>
-                <div className="mt-2 text-[11px] text-slate-500">支持点击上传与拖拽上传文件，拖拽可直接替换当前文件。</div>
+                <div className="mt-2 text-[11px] text-slate-500">{ui.dropHint}</div>
                 <div className="mt-4 flex items-center gap-2">
                   <button
                     type="button"
@@ -329,7 +361,7 @@ export default function HashToolsClient() {
                     disabled={!file || isComputing}
                     className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-700 disabled:opacity-60"
                   >
-                    {isComputing ? "计算中…" : "计算哈希"}
+                    {isComputing ? ui.computing : ui.computeHash}
                   </button>
                   <button
                     type="button"
@@ -339,7 +371,7 @@ export default function HashToolsClient() {
                     }}
                     className="rounded-2xl px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
                   >
-                    清空
+                    {ui.clear}
                   </button>
                 </div>
               </div>
@@ -348,30 +380,30 @@ export default function HashToolsClient() {
 
           <div>
             <div className="mb-2 flex items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-slate-900">哈希值</div>
+              <div className="text-sm font-semibold text-slate-900">{ui.hashValue}</div>
               <button
                 type="button"
                 disabled={!hashHex}
                 onClick={() => copy(hashHex)}
                 className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
               >
-                复制
+                {ui.copy}
               </button>
             </div>
 
             <textarea
               value={hashHex}
               readOnly
-              placeholder={target === "file" ? "点击“计算哈希”后显示…" : "自动计算并显示…"}
+              placeholder={target === "file" ? ui.fileHashPlaceholder : ui.autoHashPlaceholder}
               className="h-36 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
             />
 
             <div className="mt-4">
-              <div className="mb-2 text-sm font-semibold text-slate-900">校验（可选）</div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">{ui.verifyLabel}</div>
               <input
                 value={expected}
                 onChange={(e) => setExpected(e.target.value)}
-                placeholder="粘贴期望哈希值（忽略大小写与空白）…"
+                placeholder={ui.verifyPlaceholder}
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
               {expectedNormalized && hashNormalized && (
@@ -380,16 +412,16 @@ export default function HashToolsClient() {
                     matches ? "text-emerald-700" : "text-rose-700"
                   }`}
                 >
-                  {matches ? "一致" : "不一致"}
+                  {matches ? ui.matchSuccess : ui.matchFail}
                 </div>
               )}
             </div>
 
-            {error && <div className="mt-3 text-sm text-rose-600">错误：{error}</div>}
+            {error && <div className="mt-3 text-sm text-rose-600">{ui.errorPrefix}{error}</div>}
 
             {target === "text" && (
               <div className="mt-3 text-xs text-slate-500">
-                说明：文本按 UTF-8 编码计算；文件哈希会在本地读取文件内容进行计算。
+                {ui.textHint}
               </div>
             )}
           </div>
@@ -397,5 +429,5 @@ export default function HashToolsClient() {
       </div>
     </div>
     </ToolPageLayout>
-    );
+  );
 }

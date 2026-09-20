@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type Token =
   | { type: "word"; value: string }
@@ -334,16 +335,40 @@ const formatSql = (
     commitLine();
     return { ok: true, text: lines.join("\n") };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "格式化失败。", text: "" };
+    return { ok: false, error: error instanceof Error ? error.message : "Formatting failed.", text: "" };
   }
 };
 
+const DEFAULT_UI = {
+  uppercaseKeywords: "关键字大写",
+  indent: "缩进",
+  copyResult: "复制结果",
+  sqlInput: "SQL 输入",
+  sqlPlaceholder: "SELECT a,b,c FROM t WHERE a=1 AND b='x' ORDER BY c DESC;",
+  formatResult: "格式化结果",
+  resultPlaceholder: "格式化结果会显示在这里…",
+  errorPrefix: "错误：",
+  formatFailed: "格式化失败。",
+  tip: "提示：该格式化器为轻量实现，复杂 SQL（多层子查询/窗口函数）可能需要手动微调。",
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 export default function SqlFormatterClient() {
+  const config = useOptionalToolConfig("sql-formatter");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const [input, setInput] = useState("");
   const [uppercaseKeywords, setUppercaseKeywords] = useState(true);
   const [indentSize, setIndentSize] = useState(2);
 
-  const result = useMemo(() => formatSql(input, { uppercaseKeywords, indentSize }), [input, indentSize, uppercaseKeywords]);
+  const result = useMemo(() => {
+    const res = formatSql(input, { uppercaseKeywords, indentSize });
+    if (!res.ok && res.error === "Formatting failed.") {
+      return { ...res, error: ui.formatFailed };
+    }
+    return res;
+  }, [indentSize, input, ui.formatFailed, uppercaseKeywords]);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -362,10 +387,10 @@ export default function SqlFormatterClient() {
                   onChange={(e) => setUppercaseKeywords(e.target.checked)}
                   className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                关键字大写
+                {ui.uppercaseKeywords}
               </label>
               <label className="flex items-center gap-2 text-sm text-slate-700">
-                缩进
+                {ui.indent}
                 <select
                   value={indentSize}
                   onChange={(e) => setIndentSize(Number(e.target.value))}
@@ -382,34 +407,34 @@ export default function SqlFormatterClient() {
               onClick={() => void copy(result.ok ? result.text : "")}
               className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
             >
-              复制结果
+              {ui.copyResult}
             </button>
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
             <div>
-              <div className="mb-2 text-sm font-semibold text-slate-900">SQL 输入</div>
+              <div className="mb-2 text-sm font-semibold text-slate-900">{ui.sqlInput}</div>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="SELECT a,b,c FROM t WHERE a=1 AND b='x' ORDER BY c DESC;"
+                placeholder={ui.sqlPlaceholder}
                 className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
               />
             </div>
 
             <div>
               <div className="mb-2 flex items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">格式化结果</div>
-                {!result.ok && <div className="text-xs text-rose-600">错误：{result.error}</div>}
+                <div className="text-sm font-semibold text-slate-900">{ui.formatResult}</div>
+                {!result.ok && <div className="text-xs text-rose-600">{ui.errorPrefix}{result.error}</div>}
               </div>
               <textarea
                 value={result.ok ? result.text : ""}
                 readOnly
-                placeholder="格式化结果会显示在这里…"
+                placeholder={ui.resultPlaceholder}
                 className="h-80 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
               />
               <div className="mt-3 text-xs text-slate-500">
-                提示：该格式化器为轻量实现，复杂 SQL（多层子查询/窗口函数）可能需要手动微调。
+                {ui.tip}
               </div>
             </div>
           </div>

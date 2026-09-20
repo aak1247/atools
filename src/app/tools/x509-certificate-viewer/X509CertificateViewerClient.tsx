@@ -106,6 +106,8 @@ const DEFAULT_UI = {
   emailAddresses: "邮箱地址",
   copyToClipboard: "复制到剪贴板",
   uploadCertificate: "上传证书（PEM/DER）",
+  replaceCertificate: "替换证书文件",
+  dragDropHint: "支持点击上传与拖拽上传证书文件，拖拽可直接替换当前内容。",
   copyPem: "复制 PEM",
   copyJson: "复制 JSON",
   fileLabel: "文件：",
@@ -256,7 +258,7 @@ function X509CertificateViewerInner() {
                 onClick={() => fileRef.current?.click()}
                 className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
               >
-                {fileName ? "替换证书文件" : ui.uploadCertificate}
+                {fileName ? ui.replaceCertificate : ui.uploadCertificate}
               </button>
               <button
                 type="button"
@@ -288,7 +290,7 @@ function X509CertificateViewerInner() {
               )}
             </div>
           </div>
-          <div className="mt-2 text-[11px] text-slate-500">支持点击上传与拖拽上传证书文件，拖拽可直接替换当前内容。</div>
+          <div className="mt-2 text-[11px] text-slate-500">{ui.dragDropHint}</div>
         </div>
 
         <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-200">

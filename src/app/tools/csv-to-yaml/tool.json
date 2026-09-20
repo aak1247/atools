@@ -15,6 +15,28 @@
     "CSV-YAML工具",
     "表格转YAML"
   ],
+  "ui": {
+    "delimiterLabel": "分隔符",
+    "delimiterAuto": "自动",
+    "delimiterComma": "逗号 ,",
+    "delimiterTab": "Tab \\t",
+    "delimiterSemicolon": "分号 ;",
+    "delimiterPipe": "竖线 |",
+    "hasHeader": "首行表头",
+    "skipEmptyLines": "忽略空行",
+    "chooseCsvFile": "选择 CSV 文件",
+    "replaceCsvFile": "替换 CSV 文件",
+    "dropCsvHint": "支持点击上传与拖拽上传 CSV，拖拽可直接替换当前内容。",
+    "currentFilePrefix": " 当前文件：",
+    "copyYaml": "复制 YAML",
+    "downloadYaml": "下载 YAML",
+    "csvInputTitle": "CSV 输入",
+    "yamlOutputTitle": "YAML 输出",
+    "detectedDelimiterTemplate": "自动识别分隔符：{delimiter}",
+    "autoDetectHint": "提示：自动模式会尝试识别常见分隔符。",
+    "errorPrefix": "错误：",
+    "errConvertFailed": "转换失败"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

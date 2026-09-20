@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import { useFileDropzone } from "../../../hooks/useFileDropzone";
 
 interface ConversionOptions {
@@ -25,9 +26,65 @@ type JsonValue =
   | JsonValue[]
   | { [key: string]: JsonValue };
 
+const DEFAULT_UI = {
+  title: "XML转JSON转换器",
+  subtitle: "🔄 免费在线XML转JSON工具 - 智能解析XML结构，转换为JSON格式。100%本地处理，无需注册，保护您的数据隐私。",
+  xmlInput: "XML输入",
+  replaceFile: "替换XML文件",
+  selectFile: "选择XML文件",
+  formatXml: "格式化XML",
+  dropHint: "支持点击上传与拖拽上传 XML，拖拽可直接替换当前内容。",
+  xmlPlaceholder: "在此输入XML代码，或选择文件后自动填充...",
+  examplesTitle: "示例XML",
+  exampleSimple: "简单XML",
+  exampleAttributes: "包含属性的XML",
+  exampleNested: "复杂嵌套XML",
+  exampleCdata: "包含CDATA的XML",
+  xmlValid: "✓ XML格式正确",
+  jsonOutput: "JSON输出",
+  conversionOptions: "转换选项",
+  indentSize: "缩进空格数",
+  compactOutput: "紧凑输出",
+  attributesToProperties: "属性转为JSON属性",
+  textContentToValue: "文本内容转为值",
+  jsonResult: "JSON结果",
+  copy: "复制",
+  download: "下载",
+  jsonPlaceholder: "转换后的JSON将显示在这里...",
+  warningsTitle: "⚠️ 注意事项:",
+  xmlLength: "XML长度:",
+  jsonLength: "JSON长度:",
+  chars: "字符",
+  chooseFileBtn: "选择文件",
+  reset: "重置",
+  instructionsTitle: "使用说明",
+  featuresTitle: "支持的功能",
+  feature1: "• XML语法验证",
+  feature2: "• 智能JSON结构转换",
+  feature3: "• 属性处理和保留",
+  feature4: "• CDATA内容处理",
+  feature5: "• 复杂嵌套结构支持",
+  conversionNotesTitle: "转换说明",
+  note1: "• XML元素转为JSON对象",
+  note2: "• 多个子元素转为数组",
+  note3: "• 属性添加@前缀标识",
+  note4: "• 文本内容自动处理",
+  note5: "• 支持格式化和紧凑输出",
+  xmlParseErrorPrefix: "XML解析错误: ",
+  unknownError: "未知错误",
+  noRootElement: "XML文档没有根元素",
+  convertFailed: "转换失败",
+  xmlEmpty: "XML内容为空",
+  invalidXml: "无效的XML格式",
+  xmlSyntaxError: "XML语法错误",
+  xmlParseFailed: "XML解析失败",
+} as const;
+
+type Ui = typeof DEFAULT_UI;
+
 // XML转JSON转换器类
 class XmlJsonConverter {
-  static convert(xmlString: string, options: ConversionOptions): ConversionResult {
+  static convert(xmlString: string, options: ConversionOptions, ui: Ui): ConversionResult {
     const warnings: string[] = [];
 
     try {
@@ -40,7 +97,7 @@ class XmlJsonConverter {
       if (parseError) {
         return {
           json: '',
-          error: `XML解析错误: ${parseError.textContent || '未知错误'}`
+          error: `${ui.xmlParseErrorPrefix}${parseError.textContent || ui.unknownError}`
         };
       }
 
@@ -49,7 +106,7 @@ class XmlJsonConverter {
       if (!rootElement) {
         return {
           json: '',
-          error: 'XML文档没有根元素'
+          error: ui.noRootElement
         };
       }
 
@@ -71,7 +128,7 @@ class XmlJsonConverter {
     } catch (error) {
       return {
         json: '',
-        error: error instanceof Error ? error.message : '转换失败'
+        error: error instanceof Error ? error.message : ui.convertFailed
       };
     }
   }
@@ -150,13 +207,13 @@ class XmlJsonConverter {
     return result;
   }
 
-  static validateXml(xmlString: string): { isValid: boolean; error?: string } {
+  static validateXml(xmlString: string, ui: Ui): { isValid: boolean; error?: string } {
     if (!xmlString.trim()) {
-      return { isValid: false, error: 'XML内容为空' };
+      return { isValid: false, error: ui.xmlEmpty };
     }
 
     if (!xmlString.includes('<') || !xmlString.includes('>')) {
-      return { isValid: false, error: '无效的XML格式' };
+      return { isValid: false, error: ui.invalidXml };
     }
 
     try {
@@ -165,17 +222,17 @@ class XmlJsonConverter {
 
       const parseError = xmlDoc.querySelector('parsererror');
       if (parseError) {
-        return { isValid: false, error: 'XML语法错误' };
+        return { isValid: false, error: ui.xmlSyntaxError };
       }
 
       const rootElement = xmlDoc.documentElement;
       if (!rootElement) {
-        return { isValid: false, error: 'XML文档没有根元素' };
+        return { isValid: false, error: ui.noRootElement };
       }
 
       return { isValid: true };
     } catch {
-      return { isValid: false, error: 'XML解析失败' };
+      return { isValid: false, error: ui.xmlParseFailed };
     }
   }
 
@@ -198,21 +255,36 @@ class XmlJsonConverter {
   }
 }
 
-// 示例XML数据
-const XML_EXAMPLES = [
-  {
-    name: '简单XML',
-    xml: `<?xml version="1.0" encoding="UTF-8"?>
+export default function XmlJsonConverterClient() {
+  const config = useOptionalToolConfig("xml-json-converter");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
+  const [xmlInput, setXmlInput] = useState("");
+  const [jsonOutput, setJsonOutput] = useState("");
+  const [options, setOptions] = useState<ConversionOptions>({
+    indentSize: 2,
+    attributesToProperties: true,
+    textContentToValue: true,
+    compactOutput: false
+  });
+  const [validation, setValidation] = useState<{ isValid: boolean; error?: string } | null>(null);
+  const [conversionResult, setConversionResult] = useState<ConversionResult | null>(null);
+  const [fileInfo, setFileInfo] = useState<{ name: string; size: number } | null>(null);
+
+  const xmlExamples = [
+    {
+      name: ui.exampleSimple,
+      xml: `<?xml version="1.0" encoding="UTF-8"?>
 <book>
   <title>JavaScript权威指南</title>
   <author>David Flanagan</author>
   <price>39.99</price>
   <available>true</available>
 </book>`
-  },
-  {
-    name: '包含属性的XML',
-    xml: `<?xml version="1.0" encoding="UTF-8"?>
+    },
+    {
+      name: ui.exampleAttributes,
+      xml: `<?xml version="1.0" encoding="UTF-8"?>
 <user id="123" status="active">
   <name>张三</name>
   <email>zhangsan@example.com</email>
@@ -221,10 +293,10 @@ const XML_EXAMPLES = [
     <role>editor</role>
   </roles>
 </user>`
-  },
-  {
-    name: '复杂嵌套XML',
-    xml: `<?xml version="1.0" encoding="UTF-8"?>
+    },
+    {
+      name: ui.exampleNested,
+      xml: `<?xml version="1.0" encoding="UTF-8"?>
 <products>
   <category id="electronics">
     <name>电子产品</name>
@@ -245,30 +317,17 @@ const XML_EXAMPLES = [
     </products>
   </category>
 </products>`
-  },
-  {
-    name: '包含CDATA的XML',
-    xml: `<?xml version="1.0" encoding="UTF-8"?>
+    },
+    {
+      name: ui.exampleCdata,
+      xml: `<?xml version="1.0" encoding="UTF-8"?>
 <message>
   <title>Hello World</title>
   <content><![CDATA[这是一个包含特殊字符的内容：& < > " ']]></content>
   <description>正常文本内容</description>
 </message>`
-  }
-];
-
-export default function XmlJsonConverterClient() {
-  const [xmlInput, setXmlInput] = useState("");
-  const [jsonOutput, setJsonOutput] = useState("");
-  const [options, setOptions] = useState<ConversionOptions>({
-    indentSize: 2,
-    attributesToProperties: true,
-    textContentToValue: true,
-    compactOutput: false
-  });
-  const [validation, setValidation] = useState<{ isValid: boolean; error?: string } | null>(null);
-  const [conversionResult, setConversionResult] = useState<ConversionResult | null>(null);
-  const [fileInfo, setFileInfo] = useState<{ name: string; size: number } | null>(null);
+    }
+  ];
 
   const loadXmlFile = (file: File) => {
     const reader = new FileReader();
@@ -277,7 +336,7 @@ export default function XmlJsonConverterClient() {
       setXmlInput(content);
       setFileInfo({ name: file.name, size: file.size });
 
-      const result = XmlJsonConverter.validateXml(content);
+      const result = XmlJsonConverter.validateXml(content, ui);
       setValidation(result);
 
       if (result.isValid) {
@@ -297,7 +356,7 @@ export default function XmlJsonConverterClient() {
     setFileInfo(null);
 
     if (content.trim()) {
-      const result = XmlJsonConverter.validateXml(content);
+      const result = XmlJsonConverter.validateXml(content, ui);
       setValidation(result);
 
       if (result.isValid) {
@@ -314,7 +373,7 @@ export default function XmlJsonConverterClient() {
   };
 
   const convertXmlToJson = (xmlString: string) => {
-    const result = XmlJsonConverter.convert(xmlString, options);
+    const result = XmlJsonConverter.convert(xmlString, options, ui);
     setJsonOutput(result.json);
     setConversionResult(result);
   };
@@ -323,7 +382,7 @@ export default function XmlJsonConverterClient() {
     setXmlInput(exampleXml);
     setFileInfo(null);
 
-    const result = XmlJsonConverter.validateXml(exampleXml);
+    const result = XmlJsonConverter.validateXml(exampleXml, ui);
     setValidation(result);
 
     if (result.isValid) {
@@ -337,7 +396,7 @@ export default function XmlJsonConverterClient() {
 
     // 如果有有效的XML，重新转换
     if (xmlInput.trim() && validation?.isValid) {
-      const result = XmlJsonConverter.convert(xmlInput, newOptions);
+      const result = XmlJsonConverter.convert(xmlInput, newOptions, ui);
       setJsonOutput(result.json);
       setConversionResult(result);
     }
@@ -380,22 +439,13 @@ export default function XmlJsonConverterClient() {
   return (
     <ToolPageLayout toolSlug="xml-json-converter">
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-            XML转JSON转换器
-          </h2>
-          <p className="mt-3 text-sm text-slate-600">
-            🔄 免费在线XML转JSON工具 - 智能解析XML结构，转换为JSON格式。
-            100%本地处理，无需注册，保护您的数据隐私。
-          </p>
-        </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* XML输入区域 */}
           <div className="space-y-4">
             <div className="glass-card rounded-2xl p-5 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900">XML输入</h2>
+                <h2 className="text-lg font-semibold text-slate-900">{ui.xmlInput}</h2>
                 {fileInfo && (
                   <span className="text-xs text-slate-600">
                     {fileInfo.name} ({Math.round(fileInfo.size / 1024)}KB)
@@ -424,17 +474,17 @@ export default function XmlJsonConverterClient() {
                     onClick={openFilePicker}
                     className="flex-1 rounded-lg border border-slate-200 px-4 py-2 transition hover:bg-slate-50"
                   >
-                    {fileInfo ? "替换XML文件" : "选择XML文件"}
+                    {fileInfo ? ui.replaceFile : ui.selectFile}
                   </button>
                   <button
                     onClick={handleFormatXml}
                     disabled={!xmlInput.trim()}
                     className="rounded-lg border border-slate-200 px-4 py-2 text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    格式化XML
+                    {ui.formatXml}
                   </button>
                 </div>
-                <div className="mt-2 text-[11px] text-slate-500">支持点击上传与拖拽上传 XML，拖拽可直接替换当前内容。</div>
+                <div className="mt-2 text-[11px] text-slate-500">{ui.dropHint}</div>
               </div>
 
               {/* XML文本输入 */}
@@ -442,16 +492,16 @@ export default function XmlJsonConverterClient() {
                 <textarea
                   value={xmlInput}
                   onChange={(e) => handleXmlInputChange(e.target.value)}
-                  placeholder="在此输入XML代码，或选择文件后自动填充..."
+                  placeholder={ui.xmlPlaceholder}
                   className="w-full h-64 px-3 py-2 border border-slate-200 rounded-lg font-mono text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
               </div>
 
               {/* 示例XML */}
               <div>
-                <h3 className="text-sm font-medium text-slate-900 mb-2">示例XML</h3>
+                <h3 className="text-sm font-medium text-slate-900 mb-2">{ui.examplesTitle}</h3>
                 <div className="space-y-2">
-                  {XML_EXAMPLES.map((example, index) => (
+                  {xmlExamples.map((example, index) => (
                     <button
                       key={index}
                       onClick={() => handleExampleSelect(example.xml)}
@@ -473,7 +523,7 @@ export default function XmlJsonConverterClient() {
                   <p className={`text-sm ${
                     validation.isValid ? 'text-green-700' : 'text-red-700'
                   }`}>
-                    {validation.isValid ? '✓ XML格式正确' : `❌ ${validation.error}`}
+                    {validation.isValid ? ui.xmlValid : `❌ ${validation.error}`}
                   </p>
                 </div>
               )}
@@ -483,11 +533,11 @@ export default function XmlJsonConverterClient() {
           {/* JSON输出区域 */}
           <div className="space-y-4">
             <div className="glass-card rounded-2xl p-5 space-y-4">
-              <h2 className="text-lg font-semibold text-slate-900">JSON输出</h2>
+              <h2 className="text-lg font-semibold text-slate-900">{ui.jsonOutput}</h2>
 
               {/* 转换选项 */}
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-slate-900">转换选项</h3>
+                <h3 className="text-sm font-medium text-slate-900">{ui.conversionOptions}</h3>
 
                 <label className="flex items-center">
                   <input
@@ -498,7 +548,7 @@ export default function XmlJsonConverterClient() {
                     onChange={(e) => handleOptionChange('indentSize', Number(e.target.value))}
                     className="w-16 px-2 py-1 border border-slate-200 rounded text-sm"
                   />
-                  <span className="ml-2 text-sm text-slate-600">缩进空格数</span>
+                  <span className="ml-2 text-sm text-slate-600">{ui.indentSize}</span>
                 </label>
 
                 <label className="flex items-center">
@@ -508,7 +558,7 @@ export default function XmlJsonConverterClient() {
                     onChange={(e) => handleOptionChange('compactOutput', e.target.checked)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-slate-600">紧凑输出</span>
+                  <span className="ml-2 text-sm text-slate-600">{ui.compactOutput}</span>
                 </label>
 
                 <label className="flex items-center">
@@ -518,7 +568,7 @@ export default function XmlJsonConverterClient() {
                     onChange={(e) => handleOptionChange('attributesToProperties', e.target.checked)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-slate-600">属性转为JSON属性</span>
+                  <span className="ml-2 text-sm text-slate-600">{ui.attributesToProperties}</span>
                 </label>
 
                 <label className="flex items-center">
@@ -528,27 +578,27 @@ export default function XmlJsonConverterClient() {
                     onChange={(e) => handleOptionChange('textContentToValue', e.target.checked)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-slate-600">文本内容转为值</span>
+                  <span className="ml-2 text-sm text-slate-600">{ui.textContentToValue}</span>
                 </label>
               </div>
 
               {/* JSON输出 */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-slate-700">JSON结果</span>
+                  <span className="text-sm font-medium text-slate-700">{ui.jsonResult}</span>
                   {jsonOutput && (
                     <div className="flex gap-2">
                       <button
                         onClick={handleCopyJson}
                         className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                       >
-                        复制
+                        {ui.copy}
                       </button>
                       <button
                         onClick={handleDownloadJson}
                         className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition"
                       >
-                        下载
+                        {ui.download}
                       </button>
                     </div>
                   )}
@@ -556,7 +606,7 @@ export default function XmlJsonConverterClient() {
                 <textarea
                   value={jsonOutput}
                   readOnly
-                  placeholder="转换后的JSON将显示在这里..."
+                  placeholder={ui.jsonPlaceholder}
                   className="w-full h-64 px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 font-mono text-sm resize-none"
                 />
               </div>
@@ -564,7 +614,7 @@ export default function XmlJsonConverterClient() {
               {/* 转换结果警告 */}
               {conversionResult?.warnings && conversionResult.warnings.length > 0 && (
                 <div className="p-3 rounded-lg border border-yellow-200 bg-yellow-50">
-                  <p className="text-sm text-yellow-700">⚠️ 注意事项:</p>
+                  <p className="text-sm text-yellow-700">{ui.warningsTitle}</p>
                   <ul className="mt-1 text-sm text-yellow-700 list-disc list-inside">
                     {conversionResult.warnings.map((warning, index) => (
                       <li key={index}>{warning}</li>
@@ -578,12 +628,12 @@ export default function XmlJsonConverterClient() {
                 <div className="p-3 bg-slate-50 rounded-lg">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-slate-600">XML长度:</span>
-                      <span className="ml-2 font-medium text-slate-900">{xmlInput.length} 字符</span>
+                      <span className="text-slate-600">{ui.xmlLength}</span>
+                      <span className="ml-2 font-medium text-slate-900">{xmlInput.length} {ui.chars}</span>
                     </div>
                     <div>
-                      <span className="text-slate-600">JSON长度:</span>
-                      <span className="ml-2 font-medium text-slate-900">{jsonOutput.length} 字符</span>
+                      <span className="text-slate-600">{ui.jsonLength}</span>
+                      <span className="ml-2 font-medium text-slate-900">{jsonOutput.length} {ui.chars}</span>
                     </div>
                   </div>
                 </div>
@@ -598,38 +648,38 @@ export default function XmlJsonConverterClient() {
             onClick={openFilePicker}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            选择文件
+            {ui.chooseFileBtn}
           </button>
           <button
             onClick={handleReset}
             className="px-6 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition"
           >
-            重置
+            {ui.reset}
           </button>
         </div>
 
         {/* 使用说明 */}
         <div className="glass-card rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">使用说明</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">{ui.instructionsTitle}</h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-slate-900">支持的功能</h3>
+              <h3 className="text-sm font-medium text-slate-900">{ui.featuresTitle}</h3>
               <ul className="text-sm text-slate-600 space-y-1">
-                <li>• XML语法验证</li>
-                <li>• 智能JSON结构转换</li>
-                <li>• 属性处理和保留</li>
-                <li>• CDATA内容处理</li>
-                <li>• 复杂嵌套结构支持</li>
+                <li>{ui.feature1}</li>
+                <li>{ui.feature2}</li>
+                <li>{ui.feature3}</li>
+                <li>{ui.feature4}</li>
+                <li>{ui.feature5}</li>
               </ul>
             </div>
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-slate-900">转换说明</h3>
+              <h3 className="text-sm font-medium text-slate-900">{ui.conversionNotesTitle}</h3>
               <ul className="text-sm text-slate-600 space-y-1">
-                <li>• XML元素转为JSON对象</li>
-                <li>• 多个子元素转为数组</li>
-                <li>• 属性添加@前缀标识</li>
-                <li>• 文本内容自动处理</li>
-                <li>• 支持格式化和紧凑输出</li>
+                <li>{ui.note1}</li>
+                <li>{ui.note2}</li>
+                <li>{ui.note3}</li>
+                <li>{ui.note4}</li>
+                <li>{ui.note5}</li>
               </ul>
             </div>
           </div>

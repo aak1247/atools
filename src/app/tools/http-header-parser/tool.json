@@ -14,6 +14,22 @@
     "cookie解析",
     "raw headers",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "rawToJson": "Raw → JSON",
+    "jsonToRaw": "JSON → Raw",
+    "copy": "复制",
+    "rawHeadersLabel": "Raw Headers",
+    "rawPlaceholder": "GET /path HTTP/1.1\nHost: example.com\nUser-Agent: ...\nCookie: a=1; b=2",
+    "parseResultLabel": "解析结果",
+    "startLineLabel": "Start Line：",
+    "cookieParseLabel": "Cookie 解析",
+    "cookieHint": "提示：Set-Cookie 只做简单分号切分（不解析属性）。",
+    "headersJsonLabel": "Headers JSON",
+    "rawOutputLabel": "Raw 输出",
+    "rawOutputHint": "提示：值为对象/数组时会用 JSON.stringify 输出到一行。",
+    "errorPrefix": "错误：",
+    "parseFailed": "解析失败",
+    "jsonMustBeObjectError": "请输入 JSON 对象（key-value）。"
+  }
 }
-

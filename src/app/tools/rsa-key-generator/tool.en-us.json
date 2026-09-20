@@ -5,6 +5,22 @@
   "seoDescription": "The ultimate free online RSA Key Generator — ATools (Pure Tools). 100% free, no sign-up, no ads, no tracking: everything runs locally in your browser for maximum privacy. Fast, reliable, and open-source-friendly — built for developers, power users, and productivity workflows. Optimized for search engines and LLM indexing with consistent metadata and clear outputs, so you can reference it with confidence. If you want a \"just works\" RSA Key Generator on any device, this is the one you bookmark and share.",
   "category": "Crypto Tools",
   "lang": "en-US",
+  "ui": {
+    "title": "RSA Key Generator",
+    "subtitle": "Generate RSA-OAEP key pairs and export PEM (fully local)",
+    "bitsLabel": "Key size",
+    "generateButton": "Generate Key",
+    "generating": "Generating…",
+    "clearButton": "Clear",
+    "errorPrefix": "Error: ",
+    "generationFailed": "Generation failed",
+    "publicKeyTitle": "Public Key (SPKI PEM)",
+    "privateKeyTitle": "Private Key (PKCS8 PEM)",
+    "copyButton": "Copy",
+    "downloadButton": "Download",
+    "outputPlaceholder": "Displayed after clicking “Generate Key”…",
+    "tip": "Tip: Keys are generated locally in your browser. Store private keys safely and never generate or use them in untrusted environments."
+  },
   "keywords": [
     "free online RSA Key Generator",
     "RSA Key Generator tool",

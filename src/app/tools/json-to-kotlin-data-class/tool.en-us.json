@@ -12,5 +12,20 @@
     "json-to-kotlin-data-class",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "rootTypeName": "Root Type Name",
+    "annotation": "Annotations",
+    "annotationKotlinx": "kotlinx.serialization",
+    "annotationNone": "None (Match JSON field names)",
+    "formatJson": "Format JSON",
+    "copyKotlinCode": "Copy Kotlin Code",
+    "jsonInput": "JSON Input",
+    "kotlinOutput": "Kotlin Output",
+    "errorPrefix": "Error: ",
+    "jsonParseError": "JSON parsing failed. Please check the syntax.",
+    "generateError": "Generation failed",
+    "notePrefix": "Note: Mixed types or mixed arrays fallback to ",
+    "noteSuffix": "; missing fields or null values produce nullable types."
+  }
 }

@@ -53,6 +53,7 @@ const DEFAULT_UI = {
   ipLabel: "IP（一行一个）",
   autoSanFromCnLabel: "若 SAN 为空，自动使用 CN 作为 SAN",
   autoSanFromCnHint: "很多 CA 只看 SAN（忽略 CN），建议保持开启。",
+  sanAutoUsing: "SAN 将自动使用：{target}",
   keyUsageTitle: "密钥与用途",
   keyLabel: "Key",
   signHashLabel: "签名哈希",
@@ -706,7 +707,7 @@ function CsrGeneratorInner() {
                 </div>
                 {effectiveSan.autoAdded && (
                   <div className="mt-3 rounded-2xl bg-amber-50 px-4 py-3 text-xs text-amber-800 ring-1 ring-amber-100">
-                    SAN 将自动使用：{effectiveSan.dns.length ? `DNS=${effectiveSan.dns[0]}` : `IP=${effectiveSan.ips[0]}`}
+                    {ui.sanAutoUsing.replace("{target}", effectiveSan.dns.length ? `DNS=${effectiveSan.dns[0]}` : `IP=${effectiveSan.ips[0]}`)}
                   </div>
                 )}
               </div>

@@ -12,5 +12,17 @@
     "sql-formatter",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "uppercaseKeywords": "Uppercase Keywords",
+    "indent": "Indent",
+    "copyResult": "Copy Result",
+    "sqlInput": "SQL Input",
+    "sqlPlaceholder": "SELECT a,b,c FROM t WHERE a=1 AND b='x' ORDER BY c DESC;",
+    "formatResult": "Formatted Result",
+    "resultPlaceholder": "Formatted SQL will appear here...",
+    "errorPrefix": "Error: ",
+    "formatFailed": "Formatting failed.",
+    "tip": "Tip: This is a lightweight formatter; complex queries with deep subqueries or window functions may need manual adjustment."
+  }
 }

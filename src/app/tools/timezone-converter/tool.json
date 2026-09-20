@@ -15,6 +15,28 @@
     "IANA时区",
     "时间戳",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "inputTitle": "输入",
+    "sourceTimezone": "源时区",
+    "targetTimezone": "目标时区",
+    "date": "日期",
+    "time": "时间",
+    "timePlaceholder": "HH:mm:ss",
+    "tip": "提示：DST（夏令时）地区会按该日期对应的时区规则自动计算。",
+    "resultTitle": "结果",
+    "copyMs": "复制毫秒时间戳",
+    "targetTime": "目标时区：",
+    "utcTime": "UTC：",
+    "sourceNormalized": "源时区规范化：",
+    "unixSec": "Unix（秒）：",
+    "unixMs": "Unix（毫秒）：",
+    "copyTarget": "复制目标时间",
+    "copyUtc": "复制 UTC",
+    "copySec": "复制秒时间戳",
+    "copied": "已复制",
+    "errorPrefix": "错误：",
+    "errDateTimeFormat": "日期/时间格式错误。",
+    "errConvertFailed": "转换失败。"
+  }
 }
-

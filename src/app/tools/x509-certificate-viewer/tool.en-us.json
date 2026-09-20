@@ -41,6 +41,8 @@
     "emailAddresses": "Email Addresses",
     "copyToClipboard": "Copy to Clipboard",
     "uploadCertificate": "Upload Certificate (PEM/DER)",
+    "replaceCertificate": "Replace Certificate File",
+    "dragDropHint": "Support click to upload and drag & drop certificate files. Dragging directly replaces current content.",
     "copyPem": "Copy PEM",
     "copyJson": "Copy JSON",
     "fileLabel": "File: ",

@@ -8,6 +8,27 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "密码学工具",
-  "keywords": ["免费URL编码", "在线URL解码", "URL转换器", "网址编码工具", "URL编解码器"]
+  "keywords": [
+    "免费URL编码",
+    "在线URL解码",
+    "URL转换器",
+    "网址编码工具",
+    "URL编解码器"
+  ],
+  "ui": {
+    "encode": "编码",
+    "decode": "解码",
+    "useForm": "使用 x-www-form-urlencoded（空格为 +）",
+    "text": "原文",
+    "urlEncoded": "URL 编码",
+    "encodedResult": "编码结果",
+    "decodedResult": "解码结果",
+    "copy": "复制",
+    "encodePlaceholder": "输入要编码的内容…",
+    "decodePlaceholder": "输入要解码的 URL 编码内容…",
+    "resultPlaceholder": "结果会显示在这里…",
+    "errorPrefix": "错误：",
+    "invalidInput": "无法解析输入内容",
+    "hint": "提示：标准模式使用 encodeURIComponent / decodeURIComponent；表单模式会将空格编码为 “+”。"
+  }
 }
-

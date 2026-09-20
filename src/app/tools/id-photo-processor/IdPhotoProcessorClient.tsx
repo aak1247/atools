@@ -3,41 +3,22 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type PresetKey = "one-inch" | "two-inch" | "custom";
 
 type Preset = { key: PresetKey; name: string; width: number; height: number };
 
-type Ui = {
-  hint: string;
-  pick: string;
-  replace: string;
-  clear: string;
-  dropReplaceHint: string;
-  preset: string;
-  presets: Record<PresetKey, string>;
-  size: string;
-  width: string;
-  height: string;
-  bg: string;
-  zoom: string;
-  offsetX: string;
-  offsetY: string;
-  export: string;
-  exportPng: string;
-  exportJpg: string;
-  download: string;
-  errPickImage: string;
-};
-
-const DEFAULT_UI: Ui = {
+const DEFAULT_UI = {
   hint: "证件照处理器：选择尺寸与背景色，调整缩放与位置，一键导出证件照（全程本地处理不上传）。",
   pick: "选择照片",
   replace: "点击替换照片",
   clear: "清空",
   dropReplaceHint: "支持拖拽新照片到此区域直接替换",
   preset: "尺寸预设",
-  presets: { "one-inch": "一寸（295×413）", "two-inch": "二寸（413×579）", custom: "自定义" },
+  presetOneInch: "一寸（295×413）",
+  presetTwoInch: "二寸（413×579）",
+  presetCustom: "自定义",
   size: "尺寸",
   width: "宽度(px)",
   height: "高度(px)",
@@ -50,19 +31,24 @@ const DEFAULT_UI: Ui = {
   exportJpg: "导出 JPG",
   download: "下载",
   errPickImage: "请选择图片文件（PNG/JPG/WebP）。",
-};
+} as const;
+
+type Ui = typeof DEFAULT_UI;
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 export default function IdPhotoProcessorClient() {
   return (
     <ToolPageLayout toolSlug="id-photo-processor" maxWidthClassName="max-w-6xl">
-      {({ config }) => <Inner ui={{ ...DEFAULT_UI, ...((config.ui ?? {}) as Partial<Ui>) }} />}
+      <IdPhotoProcessorInner />
     </ToolPageLayout>
   );
 }
 
-function Inner({ ui }: { ui: Ui }) {
+function IdPhotoProcessorInner() {
+  const config = useOptionalToolConfig("id-photo-processor");
+  const ui: Ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<Ui>) };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -89,11 +75,11 @@ function Inner({ ui }: { ui: Ui }) {
 
   const presets = useMemo<Preset[]>(
     () => [
-      { key: "one-inch", name: ui.presets["one-inch"], width: 295, height: 413 },
-      { key: "two-inch", name: ui.presets["two-inch"], width: 413, height: 579 },
-      { key: "custom", name: ui.presets.custom, width: customW, height: customH },
+      { key: "one-inch", name: ui.presetOneInch, width: 295, height: 413 },
+      { key: "two-inch", name: ui.presetTwoInch, width: 413, height: 579 },
+      { key: "custom", name: ui.presetCustom, width: customW, height: customH },
     ],
-    [customH, customW, ui.presets],
+    [customH, customW, ui.presetCustom, ui.presetOneInch, ui.presetTwoInch],
   );
 
   const target = useMemo(() => presets.find((p) => p.key === presetKey) ?? presets[1]!, [presetKey, presets]);
@@ -273,9 +259,9 @@ function Inner({ ui }: { ui: Ui }) {
                 onChange={(e) => setPresetKey(e.target.value as PresetKey)}
                 className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
               >
-                <option value="one-inch">{ui.presets["one-inch"]}</option>
-                <option value="two-inch">{ui.presets["two-inch"]}</option>
-                <option value="custom">{ui.presets.custom}</option>
+                <option value="one-inch">{ui.presetOneInch}</option>
+                <option value="two-inch">{ui.presetTwoInch}</option>
+                <option value="custom">{ui.presetCustom}</option>
               </select>
             </label>
 

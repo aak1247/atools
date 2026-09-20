@@ -445,10 +445,6 @@ export default function MarkdownToWordClient() {
     <ToolPageLayout toolSlug="markdown-to-word">
       <div className="space-y-6">
         {/* 工具标题和说明 */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">{ui.title}</h2>
-          <p className="text-slate-600">{ui.description}</p>
-        </div>
 
         {/* 控制按钮 */}
         <div

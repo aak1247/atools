@@ -8,6 +8,30 @@
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
   "category": "图片工具",
-  "keywords": ["免费二维码生成", "在线QR码制作", "二维码生成器", "QR生成工具", "二维码制作"]
+  "keywords": [
+    "免费二维码生成",
+    "在线QR码制作",
+    "二维码生成器",
+    "QR生成工具",
+    "二维码制作"
+  ],
+  "ui": {
+    "content": "内容",
+    "placeholder": "输入要生成二维码的文本或链接…",
+    "size": "尺寸（px）",
+    "margin": "留白（margin）",
+    "level": "容错等级",
+    "levelL": "L（7%）",
+    "levelM": "M（15%）",
+    "levelQ": "Q（25%）",
+    "levelH": "H（30%）",
+    "fg": "前景色",
+    "bg": "背景色",
+    "download": "下载 PNG",
+    "clear": "清空",
+    "preview": "预览",
+    "hint": "提示：二维码在浏览器本地生成，不上传任何内容。",
+    "errorPrefix": "错误：",
+    "genFailed": "生成失败"
+  }
 }
-

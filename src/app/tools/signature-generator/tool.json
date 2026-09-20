@@ -14,6 +14,28 @@
     "手写签名",
     "签名图片生成",
     "透明PNG签名"
-  ]
+  ],
+  "ui": {
+    "strokeSettings": "签名设置",
+    "strokeColor": "笔迹颜色",
+    "strokeWidth": "笔迹粗细",
+    "usePressure": "启用笔压（手写笔）",
+    "clear": "清空",
+    "undo": "撤销",
+    "export": "导出",
+    "background": "导出背景",
+    "transparent": "透明",
+    "white": "白色",
+    "autoTrim": "自动裁切空白",
+    "padding": "留白",
+    "exportWidth": "导出宽度",
+    "downloadPng": "下载 PNG",
+    "copyPng": "复制 PNG",
+    "preview": "预览",
+    "initCanvasError": "画布初始化失败。",
+    "exportFailed": "导出失败，请重试。",
+    "emptyError": "请先在画布上签名。",
+    "clipboardNotSupported": "当前浏览器不支持复制图片到剪贴板。",
+    "hint": "提示：导出透明 PNG 后，可在「PDF 电子盖章」工具中作为印章/签名使用。"
+  }
 }
-

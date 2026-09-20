@@ -44,6 +44,7 @@
     "ipLabel": "IP (one per line)",
     "autoSanFromCnLabel": "If SAN is empty, use CN as SAN",
     "autoSanFromCnHint": "Many CAs only check SAN (and ignore CN), so it is recommended to keep this on.",
+    "sanAutoUsing": "SAN will automatically use: {target}",
     "keyUsageTitle": "Key & Usage",
     "keyLabel": "Key",
     "signHashLabel": "Signature Hash",

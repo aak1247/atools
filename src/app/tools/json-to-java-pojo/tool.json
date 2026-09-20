@@ -15,6 +15,19 @@
     "JsonProperty",
     "接口响应建模",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "rootTypeName": "根类型名",
+    "arrayType": "数组类型",
+    "jsonProperty": "@JsonProperty",
+    "formatJson": "格式化 JSON",
+    "copyJavaCode": "复制 Java 代码",
+    "jsonInput": "JSON 输入",
+    "javaOutput": "Java 输出",
+    "errorPrefix": "错误：",
+    "jsonParseError": "JSON 解析失败，请检查格式。",
+    "generateError": "生成失败",
+    "rootClassDefNotFound": "生成失败：未找到根类定义。",
+    "note": "说明：生成的是轻量 POJO（public 字段 + 可选嵌套 static class）；混合类型会降级为 Object。"
+  }
 }
-

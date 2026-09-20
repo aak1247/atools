@@ -12,5 +12,28 @@
     "random-number-generator",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "params": "Parameters",
+    "min": "Min",
+    "max": "Max",
+    "count": "Count (1-10000)",
+    "outputFormat": "Output Format",
+    "formatNewline": "Newline",
+    "formatComma": "Comma-separated",
+    "unique": "Unique (no duplicates)",
+    "rangeSizePrefix": "Range size: ",
+    "generate": "Generate",
+    "reset": "Reset to default",
+    "result": "Result",
+    "copy": "Copy",
+    "copied": "Copied",
+    "placeholder": "Click \"Generate\" to view results...",
+    "note": "Note: Uses crypto.getRandomValues to generate cryptographically strong random numbers.",
+    "errorPrefix": "Error: ",
+    "errSafeInteger": "Please enter min/max within safe integer range",
+    "errRangeTooLarge": "Range is too large (max 2^32 supported)",
+    "errUniqueExceedsRange": "In unique mode, count cannot exceed the range size",
+    "errGenerateFailed": "Generation failed"
+  }
 }

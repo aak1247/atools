@@ -175,12 +175,8 @@ export default function MusicPlayerClient() {
   return (
     <ToolPageLayout toolSlug="music-player" maxWidthClassName="max-w-5xl">
       <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">音乐播放器</h2>
-        <p className="mt-2 text-sm text-slate-500">导入本地音频文件，播放列表播放（不上传服务器）</p>
-      </div>
 
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div
           className={`rounded-2xl border-2 border-dashed p-3 transition ${
             isDragging ? "border-slate-400 bg-slate-50/70" : "border-slate-200 bg-slate-50/70"

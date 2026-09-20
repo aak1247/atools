@@ -15,6 +15,20 @@
     "Android开发",
     "接口响应建模",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "rootTypeName": "根类型名",
+    "annotation": "注解",
+    "annotationKotlinx": "kotlinx.serialization",
+    "annotationNone": "无（字段名尽量与 JSON 一致）",
+    "formatJson": "格式化 JSON",
+    "copyKotlinCode": "复制 Kotlin 代码",
+    "jsonInput": "JSON 输入",
+    "kotlinOutput": "Kotlin 输出",
+    "errorPrefix": "错误：",
+    "jsonParseError": "JSON 解析失败，请检查格式。",
+    "generateError": "生成失败",
+    "notePrefix": "说明：混合类型/混合数组会降级为 ",
+    "noteSuffix": "；字段缺失/为 null 会生成可空类型。"
+  }
 }
-

@@ -14,15 +14,16 @@
     "Pure Tools"
   ],
   "ui": {
-    "copyCode": "Copy code",
+    "copyCode": "Copy Code",
     "curlInputTitle": "cURL Input",
-    "generatedCodeTitle": "Generated code",
+    "generatedCodeTitle": "Generated Code",
     "generatedCodePlaceholder": "Generated code will appear here after parsing…",
     "methodLabel": "Method: ",
     "urlLabel": "URL: ",
     "note": "Tip: This is a lightweight parser. Complex cURL commands (multipart uploads, certs, proxies, etc.) may need manual tweaks.",
+    "fileUploadComment": "// TODO: Select file in browser before appending",
     "errorPrefix": "Error: ",
-    "errEmpty": "Please paste a cURL command.",
+    "errEmpty": "Please enter a cURL command.",
     "errNoUrl": "No URL detected. Make sure your cURL command includes a request URL."
   }
 }

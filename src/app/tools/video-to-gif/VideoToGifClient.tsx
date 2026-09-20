@@ -227,12 +227,8 @@ function VideoToGifInner() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">{ui.title}</h2>
-        <p className="mt-2 text-sm text-slate-500">{ui.subtitle}</p>
-      </div>
 
-      <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
+      <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
         <div
           className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dashed p-4 transition ${
             isDragging

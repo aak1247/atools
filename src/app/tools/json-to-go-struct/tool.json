@@ -15,6 +15,17 @@
     "接口响应建模",
     "json tag",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "rootTypeName": "根类型名",
+    "formatJson": "格式化 JSON",
+    "copyGoCode": "复制 Go 代码",
+    "jsonInput": "JSON 输入",
+    "goOutput": "Go Struct 输出",
+    "errorPrefix": "错误：",
+    "jsonParseError": "JSON 解析失败，请检查格式。",
+    "generateError": "生成失败",
+    "rootDefNotFound": "生成失败：未找到根结构体定义。",
+    "note": "说明：对象字段会生成 JSON Tag，遇到多类型/混合数组会降级为 any。"
+  }
 }
-

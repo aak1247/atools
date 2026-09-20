@@ -14,6 +14,7 @@ const DEFAULT_UI = {
   formatLabel: "输出格式",
   copyButton: "复制到剪贴板",
   uploadButton: "上传.md文件",
+  replaceMdFile: "替换.md文件",
   clearButton: "清空",
   inputPlaceholder: "在此粘贴Markdown内容...",
   outputPlaceholder: "Confluence格式化内容将显示在这里...",
@@ -27,6 +28,7 @@ const DEFAULT_UI = {
   realTimePreview: "实时预览",
   copyFailed: "复制失败，请重试",
   fileError: "文件错误：{message}",
+  fileReadError: "文件读取失败",
   unsupportedFormat: "不支持的文件格式",
   description: "将Markdown格式转换为Confluence Wiki Markup格式",
   enterpriseWikiDescription: "企业维基格式：适用于企业版 Confluence，提供更丰富的格式支持",
@@ -34,6 +36,9 @@ const DEFAULT_UI = {
   featuresTitle: "支持的转换功能：",
   wikiFormatFeatures: "Wiki Markup 格式",
   enterpriseFormatFeatures: "企业维基格式",
+  dropzoneHint: "支持点击上传与拖拽上传 Markdown 文件，拖拽可直接替换当前内容。",
+  currentFilePrefix: " 当前文件：",
+  inDevelopmentSuffix: " (开发中)",
   features: {
     wikiHeaders: "标题转换 (保持 #/##/###/#### 格式)",
     wikiTextStyles: "文本样式 (保持 **粗体**、*斜体* 格式)",
@@ -363,10 +368,21 @@ export default function MarkdownToConfluenceClient() {
   const config = useOptionalToolConfig("markdown-to-confluence");
 
   // 配置合并，英文优先，中文回退
-  const ui: MarkdownToConfluenceUi = {
-    ...DEFAULT_UI,
-    ...((config?.ui ?? {}) as Partial<MarkdownToConfluenceUi>)
-  };
+  const ui = useMemo<MarkdownToConfluenceUi>(() => {
+    const customUi = (config?.ui ?? {}) as Partial<MarkdownToConfluenceUi>;
+    return {
+      ...DEFAULT_UI,
+      ...customUi,
+      features: {
+        ...DEFAULT_UI.features,
+        ...(customUi.features ?? {}),
+      },
+      formatDescription: {
+        ...DEFAULT_UI.formatDescription,
+        ...(customUi.formatDescription ?? {}),
+      },
+    };
+  }, [config?.ui]);
 
   const conversion = useMemo(() => {
     const converter = new MarkdownToConfluenceConverter(outputFormat);
@@ -396,7 +412,7 @@ export default function MarkdownToConfluenceClient() {
       setManualError("");
     };
     reader.onerror = () => {
-      setManualError(ui.fileError.replace("{message}", "文件读取失败"));
+      setManualError(ui.fileError.replace("{message}", ui.fileReadError));
     };
     reader.readAsText(file);
   };
@@ -439,10 +455,6 @@ export default function MarkdownToConfluenceClient() {
     <ToolPageLayout toolSlug="markdown-to-confluence">
       <div className="space-y-6">
         {/* 工具标题和说明 */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">{ui.title}</h2>
-          <p className="text-slate-600">{ui.description}</p>
-        </div>
 
         {/* 控制按钮 */}
         <div
@@ -466,7 +478,7 @@ export default function MarkdownToConfluenceClient() {
               onClick={openFilePicker}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition"
             >
-              📁 {uploadedFileName ? "替换.md文件" : ui.uploadButton}
+              📁 {uploadedFileName ? ui.replaceMdFile : ui.uploadButton}
             </button>
 
             <button
@@ -484,8 +496,8 @@ export default function MarkdownToConfluenceClient() {
             </button>
           </div>
           <p className="mt-2 text-center text-xs text-slate-500">
-            支持点击上传与拖拽上传 Markdown 文件，拖拽可直接替换当前内容。
-            {uploadedFileName ? ` 当前文件：${uploadedFileName}` : ""}
+            {ui.dropzoneHint}
+            {uploadedFileName ? `${ui.currentFilePrefix}${uploadedFileName}` : ""}
           </p>
         </div>
 
@@ -503,7 +515,7 @@ export default function MarkdownToConfluenceClient() {
             >
               <option value="enterprise">{ui.enterpriseWiki}</option>
               <option value="wiki">{ui.wikiMarkup}</option>
-              <option value="storage" disabled>{ui.storageFormat} (开发中)</option>
+              <option value="storage" disabled>{ui.storageFormat}{ui.inDevelopmentSuffix}</option>
             </select>
           </div>
           <div className="text-xs text-slate-500 text-center max-w-md">

@@ -14,6 +14,21 @@
     "数据导出",
     "报表导出",
     "本地处理"
-  ]
+  ],
+  "ui": {
+    "sheetName": "工作表名",
+    "fileName": "文件名",
+    "copyInput": "复制输入",
+    "download": "下载 {filename}",
+    "jsonInput": "JSON 输入（数组对象）",
+    "jsonPlaceholder": "[{\"id\":1,\"name\":\"Alice\"},{\"id\":2,\"name\":\"Bob\"}]",
+    "exportStatus": "导出状态",
+    "generatedRows": "已生成：{count} 行",
+    "waitingInput": "输入有效 JSON 后会自动生成 .xlsx。",
+    "tip": "提示：会自动汇总所有对象的键作为表头，并按字母排序。",
+    "errorPrefix": "错误：",
+    "arrayRequiredError": "请输入 JSON 数组（数组对象）。",
+    "noObjectsError": "数组中未找到对象元素。",
+    "parseError": "解析失败"
+  }
 }
-

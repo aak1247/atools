@@ -60,8 +60,9 @@ const DEFAULT_UI = {
   uuidFormat: "UUID (唯一标识符)",
   hexFormatFull: "十六进制 (Hex)",
   randomString: "随机字符串",
-  batchGenerateFull: "📦 {text} ({count}个)",
-  copySelected: "📋 {text} ({count}个)"
+  batchGenerateFull: "📦 {text} ({count})",
+  copySelected: "📋 {text} ({count})",
+  unknownError: "未知错误"
 } as const;
 
 type ApiKeyGeneratorUi = typeof DEFAULT_UI;
@@ -308,7 +309,7 @@ export default function ApiKeyGeneratorClient() {
       setSelectedKeys(new Set());
       setError("");
     } catch (err) {
-      setError(ui.generationError.replace("{message}", err instanceof Error ? err.message : "未知错误"));
+      setError(ui.generationError.replace("{message}", err instanceof Error ? err.message : ui.unknownError));
     }
   };
 
@@ -325,7 +326,7 @@ export default function ApiKeyGeneratorClient() {
       setSelectedKeys(new Set());
       setError("");
     } catch (err) {
-      setError(ui.batchGenerationError.replace("{message}", err instanceof Error ? err.message : "未知错误"));
+      setError(ui.batchGenerationError.replace("{message}", err instanceof Error ? err.message : ui.unknownError));
     }
   };
 
@@ -439,10 +440,6 @@ export default function ApiKeyGeneratorClient() {
     <ToolPageLayout toolSlug="api-key-generator">
       <div className="space-y-6">
         {/* 工具标题和说明 */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">{ui.title}</h2>
-          <p className="text-slate-600">{ui.description}</p>
-        </div>
 
         {/* 配置选项 */}
         <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-6">
@@ -456,13 +453,13 @@ export default function ApiKeyGeneratorClient() {
                 className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:border-blue-500 focus:outline-none"
               >
                 <option value="api_key">{ui.apiKeyStandard}</option>
-                <option value="jwt">JWT Token</option>
-                <option value="bearer">Bearer Token</option>
-                <option value="secret">Secret Key (Base64)</option>
-                <option value="random">Random String</option>
-                <option value="uuid">UUID v4</option>
-                <option value="hex">Hexadecimal</option>
-                <option value="base64">Base64</option>
+                <option value="jwt">{ui.jwtTokenFormat}</option>
+                <option value="bearer">{ui.bearerTokenFormat}</option>
+                <option value="secret">{ui.secretKeyFormat}</option>
+                <option value="random">{ui.randomString}</option>
+                <option value="uuid">{ui.uuidFormat}</option>
+                <option value="hex">{ui.hexFormatFull}</option>
+                <option value="base64">{ui.base64Format}</option>
               </select>
             </div>
 

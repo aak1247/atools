@@ -8,6 +8,44 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#f8f9fa",
   "icon": "/icon.svg",
-  "keywords": ["免费指南针", "在线方位工具", "数字指南针", "方向测量", "导航工具"]
+  "keywords": [
+    "免费指南针",
+    "在线方位工具",
+    "数字指南针",
+    "方向测量",
+    "导航工具"
+  ],
+  "ui": {
+    "dash": "—",
+    "trueNorth": "真北",
+    "magneticNorth": "磁北",
+    "needleAriaLabel": "指南针指针",
+    "sourcePrefix": "来源：",
+    "sourceIos": "iOS 指南针",
+    "sourceAbsolute": "绝对方位",
+    "sourceRelative": "相对方位",
+    "controls": "控制",
+    "statusRunning": "运行中",
+    "statusIdle": "未开始",
+    "startCompass": "启动指南针",
+    "stop": "停止",
+    "enableTrueNorth": "启用真北",
+    "smoothing": "平滑",
+    "smoothingAriaLabel": "平滑系数",
+    "smoothingHint": "平滑越高越跟手，越低越稳定。",
+    "trueNorthInfo": "真北信息",
+    "enabled": "已启用",
+    "disabled": "未启用",
+    "declination": "磁偏角",
+    "location": "定位",
+    "trueNorthExplain": "真北为：磁北 + 磁偏角（基于 WMM 模型估算，精度受设备磁力计与环境干扰影响）。",
+    "insecureContextHint": "当前页面不是安全上下文，浏览器可能会禁止传感器/定位。请使用 HTTPS 或在本机通过 localhost 访问。",
+    "tipsTitle": "使用提示",
+    "tipSensorPermission": "iPhone 首次使用需要点击“启动指南针”并允许“动作与方向”权限；若指南针不稳定，远离金属物体并做“8 字”校准动作。",
+    "tipTrueNorth": "“启用真北”会请求定位权限，用于估算磁偏角；拒绝定位仍可使用磁北。",
+    "errNeedSecureContext": "需要在 HTTPS 或 localhost 环境下使用方向传感器。",
+    "errSensorPermissionDenied": "无法获取方向传感器权限，请在浏览器设置中允许访问“动作与方向”。",
+    "errLocationPermissionDenied": "无法获取定位权限，已切换为磁北显示。",
+    "errDeclinationUnavailable": "已获取定位，但无法计算磁偏角，已切换为磁北显示。"
+  }
 }
-

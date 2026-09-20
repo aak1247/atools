@@ -5,6 +5,7 @@ import type { FC } from "react";
 import { useMemo, useRef, useState } from "react";
 import YAML from "yaml";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type DelimiterOption = "auto" | "," | "\t" | ";" | "|";
 
@@ -20,6 +21,7 @@ const DEFAULT_UI = {
   chooseCsvFile: "选择 CSV 文件",
   replaceCsvFile: "替换 CSV 文件",
   dropCsvHint: "支持点击上传与拖拽上传 CSV，拖拽可直接替换当前内容。",
+  currentFilePrefix: " 当前文件：",
   copyYaml: "复制 YAML",
   downloadYaml: "下载 YAML",
   csvInputTitle: "CSV 输入",
@@ -308,7 +310,7 @@ const CsvToYamlInner: FC<{ ui: CsvToYamlUi }> = ({ ui }) => {
         </div>
         <div className="mt-2 text-[11px] text-slate-500">
           {ui.dropCsvHint}
-          {uploadedFileName ? ` 当前文件：${uploadedFileName}` : ""}
+          {uploadedFileName ? `${ui.currentFilePrefix}${uploadedFileName}` : ""}
         </div>
       </div>
 
@@ -349,16 +351,15 @@ const CsvToYamlInner: FC<{ ui: CsvToYamlUi }> = ({ ui }) => {
 };
 
 const CsvToYamlClient: FC = () => {
+  const config = useOptionalToolConfig("csv-to-yaml");
+  const ui: CsvToYamlUi = {
+    ...DEFAULT_UI,
+    ...((config?.ui ?? {}) as Partial<CsvToYamlUi>),
+  };
+
   return (
     <ToolPageLayout toolSlug="csv-to-yaml" maxWidthClassName="max-w-5xl">
-      {({ config }) => (
-        <CsvToYamlInner
-          ui={{
-            ...DEFAULT_UI,
-            ...((config.ui as Partial<CsvToYamlUi> | undefined) ?? {}),
-          }}
-        />
-      )}
+      <CsvToYamlInner ui={ui} />
     </ToolPageLayout>
   );
 };

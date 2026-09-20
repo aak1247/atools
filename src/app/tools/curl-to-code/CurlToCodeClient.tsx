@@ -3,6 +3,7 @@
 import type { FC } from "react";
 import { useMemo, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 type ParsedCurl = {
   ok: true;
@@ -24,6 +25,7 @@ const DEFAULT_UI = {
   methodLabel: "方法：",
   urlLabel: "URL：",
   note: "提示：当前为轻量解析器，复杂 curl（多文件 form、证书、代理等）可能需要手动调整。",
+  fileUploadComment: "// TODO: 需要在浏览器选择文件后再 append",
   errorPrefix: "错误：",
   errEmpty: "请输入 curl 命令。",
   errNoUrl: "未识别到 URL，请确认 curl 命令包含请求地址。",
@@ -245,7 +247,7 @@ const headersToCode = (headers: Record<string, string>) => {
   return `{\n${lines.join("\n")}\n}`;
 };
 
-const buildFetchCode = (parsed: Extract<ParsedCurl, { ok: true }>): string => {
+const buildFetchCode = (parsed: Extract<ParsedCurl, { ok: true }>, ui: CurlToCodeUi): string => {
   const hasHeaders = Object.keys(parsed.headers).length > 0;
   const hasBody = typeof parsed.body === "string" && parsed.body.length > 0;
 
@@ -255,7 +257,7 @@ const buildFetchCode = (parsed: Extract<ParsedCurl, { ok: true }>): string => {
       `const formData = new FormData();`,
       ...parsed.formParts.map((p) =>
         p.isFile
-          ? `// TODO: 需要在浏览器选择文件后再 append\n// formData.append(${jsString(p.name)}, file);`
+          ? `${ui.fileUploadComment}\n// formData.append(${jsString(p.name)}, file);`
           : `formData.append(${jsString(p.name)}, ${jsString(p.value)});`,
       ),
       "",
@@ -283,7 +285,7 @@ const buildFetchCode = (parsed: Extract<ParsedCurl, { ok: true }>): string => {
   return lines.join("\n");
 };
 
-const buildAxiosCode = (parsed: Extract<ParsedCurl, { ok: true }>): string => {
+const buildAxiosCode = (parsed: Extract<ParsedCurl, { ok: true }>, ui: CurlToCodeUi): string => {
   const hasHeaders = Object.keys(parsed.headers).length > 0;
   const hasBody = typeof parsed.body === "string" && parsed.body.length > 0;
 
@@ -295,7 +297,7 @@ const buildAxiosCode = (parsed: Extract<ParsedCurl, { ok: true }>): string => {
       `const formData = new FormData();`,
       ...parsed.formParts.map((p) =>
         p.isFile
-          ? `// TODO: 需要在浏览器选择文件后再 append\n// formData.append(${jsString(p.name)}, file);`
+          ? `${ui.fileUploadComment}\n// formData.append(${jsString(p.name)}, file);`
           : `formData.append(${jsString(p.name)}, ${jsString(p.value)});`,
       ),
       "",
@@ -331,8 +333,8 @@ const CurlToCodeInner: FC<{ ui: CurlToCodeUi }> = ({ ui }) => {
   const parsed = useMemo(() => parseCurl(input), [input]);
   const code = useMemo(() => {
     if (!parsed.ok) return "";
-    return target === "fetch" ? buildFetchCode(parsed) : buildAxiosCode(parsed);
-  }, [parsed, target]);
+    return target === "fetch" ? buildFetchCode(parsed, ui) : buildAxiosCode(parsed, ui);
+  }, [parsed, target, ui]);
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -423,16 +425,15 @@ const CurlToCodeInner: FC<{ ui: CurlToCodeUi }> = ({ ui }) => {
 };
 
 const CurlToCodeClient: FC = () => {
+  const config = useOptionalToolConfig("curl-to-code");
+  const ui: CurlToCodeUi = {
+    ...DEFAULT_UI,
+    ...((config?.ui ?? {}) as Partial<CurlToCodeUi>),
+  };
+
   return (
     <ToolPageLayout toolSlug="curl-to-code">
-      {({ config }) => (
-        <CurlToCodeInner
-          ui={{
-            ...DEFAULT_UI,
-            ...((config.ui as Partial<CurlToCodeUi> | undefined) ?? {}),
-          }}
-        />
-      )}
+      <CurlToCodeInner ui={ui} />
     </ToolPageLayout>
   );
 };
