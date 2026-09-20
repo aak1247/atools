@@ -2,7 +2,7 @@
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
-import type { ChangeEvent, FC } from "react";
+import type { ChangeEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type ExtractMode = "auto" | "keepRed";
@@ -829,7 +829,7 @@ function SealExtractorInner() {
       } catch (err) {
         if (seq !== extractSeqRef.current) return;
         setError(
-          err instanceof Error ? err.message : "印章提取失败，请稍后重试",
+          err instanceof Error ? err.message : ui.errExtractFailed,
         );
       } finally {
         if (seq === extractSeqRef.current) {
@@ -837,7 +837,7 @@ function SealExtractorInner() {
         }
       }
     },
-    [replaceResultUrl],
+    [replaceResultUrl, ui.errExtractFailed],
   );
 
   const scheduleExtract = useCallback(
@@ -941,7 +941,7 @@ function SealExtractorInner() {
   const processFile = useCallback(
     async (selected: File) => {
       if (!selected.type.startsWith("image/")) {
-        setError("请选择图片文件（支持 JPG、PNG、WebP 等格式）");
+        setError(ui.errPickImage);
         return;
       }
       cleanupUrls();
@@ -979,6 +979,7 @@ function SealExtractorInner() {
       sensitivity,
       targetColor,
       tolerance,
+      ui.errPickImage,
     ],
   );
 
@@ -989,7 +990,7 @@ function SealExtractorInner() {
       const sampleFile = await generateSampleSealFile();
       await processFile(sampleFile);
     } catch {
-      setError("加载示例印章失败，请重试");
+      setError(ui.errLoadSampleFailed);
     } finally {
       setIsLoadingSample(false);
     }
@@ -1200,7 +1201,7 @@ function SealExtractorInner() {
   const applyCropModal = () => {
     const rect = cropDraftRef.current ?? cropRect;
     if (!rect) {
-      setError("请先拖拽选择截取区域");
+      setError(ui.errSelectCropArea);
       return;
     }
     setCropRect(rect);
@@ -1344,7 +1345,7 @@ function SealExtractorInner() {
 	        const blob = await new Promise<Blob>((resolve, reject) => {
 	          canvas.toBlob(
 	            (b) =>
-	              b ? resolve(b) : reject(new Error("预览生成失败")),
+	              b ? resolve(b) : reject(new Error(ui.errCropPreviewFailed)),
 	            "image/png",
 	            1,
 	          );
@@ -1364,7 +1365,7 @@ function SealExtractorInner() {
     return () => {
       cancelled = true;
     };
-  }, [cropEnabled, cropRect, file, replaceCroppedPreviewUrl]);
+  }, [cropEnabled, cropRect, file, replaceCroppedPreviewUrl, ui.errCropPreviewFailed]);
 
   useEffect(
     () => () => {
@@ -1378,8 +1379,7 @@ function SealExtractorInner() {
   );
 
   return (
-    <ToolPageLayout toolSlug="seal-extractor" maxWidthClassName="max-w-5xl">
-      <div className="space-y-8">
+    <div className="space-y-8">
 		      {isCropModalOpen && (
 	        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
 	          <div
@@ -1392,9 +1392,9 @@ function SealExtractorInner() {
 	          >
 	            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
 	              <div>
-	                <p className="text-sm font-semibold text-slate-900">截取区域</p>
+	                <p className="text-sm font-semibold text-slate-900">{ui.cropModalTitle}</p>
 	                <p className="mt-0.5 text-xs text-slate-500">
-	                  在大图上拖拽框选需要处理的区域
+	                  {ui.cropModalSubtitle}
 	                </p>
 	              </div>
 	              <button
@@ -1423,7 +1423,7 @@ function SealExtractorInner() {
 
 	              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 	                <p className="text-xs text-slate-500">
-	                  提示：截取能显著提升识别稳定性；框选完成后点击“应用截取”。
+	                  {ui.cropModalHint}
 	                </p>
 	                <div className="flex items-center justify-end gap-2">
 	                  <button
@@ -1494,27 +1494,26 @@ function SealExtractorInner() {
 		                </svg>
 		              </div>
 		              <p className="text-lg font-semibold text-slate-800">
-		                点击选择图片 / 拖拽文件到此处
+		                {ui.dropTitle}
 		              </p>
 		              <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
 		                <span className="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-700">
 		                  快捷支持
 		                </span>
 		                <span>
-		                  可直接按{" "}
+		                  {ui.pasteHintPrefix}
 		                  <kbd className="rounded border border-slate-300 bg-white px-1.5 py-0.5 font-mono text-[11px] shadow-sm">
 		                    Ctrl + V
-		                  </kbd>{" "}
-		                  粘贴剪贴板截图
+		                  </kbd>{ui.pasteHintSuffix}
 		                </span>
 		              </div>
 		              <p className="mt-2 text-xs text-slate-400">
-		                支持 JPG、PNG、WebP 等图片，全程浏览器本地提取，安全零上传
+		                {ui.formatSupport}
 		              </p>
 		            </label>
 
 		            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-		              <span className="text-xs text-slate-400">手头没有印章文件？</span>
+		              <span className="text-xs text-slate-400">{ui.noSamplePrompt}</span>
 		              <button
 		                type="button"
 		                onClick={loadSampleSeal}
@@ -1524,12 +1523,12 @@ function SealExtractorInner() {
 		                {isLoadingSample ? (
 		                  <>
 		                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-rose-600 border-t-transparent" />
-		                    正在生成示例…
+		                    {ui.generatingSample}
 		                  </>
 		                ) : (
 		                  <>
 		                    <span>✨</span>
-		                    一键加载示例印章试用
+		                    {ui.loadSample}
 		                  </>
 		                )}
 		              </button>
@@ -1560,7 +1559,7 @@ function SealExtractorInner() {
                     onClick={openFilePicker}
                     className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
                   >
-                    点击替换图片
+                    {ui.replaceImage}
                   </button>
                   <button
                     type="button"
@@ -1571,7 +1570,7 @@ function SealExtractorInner() {
                   </button>
 	                <div className="h-6 w-px bg-slate-200" />
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-slate-500">提取模式：</span>
+                  <span className="text-slate-500">{ui.modeLabel}</span>
                   <div className="inline-flex rounded-full bg-white p-1 shadow-sm">
                     <button
                       type="button"
@@ -1599,7 +1598,7 @@ function SealExtractorInner() {
 		                </div>
 		                <div className="h-6 w-px bg-slate-200" />
 			                <div className="flex items-center gap-2 text-sm">
-			                  <span className="text-slate-500">目标颜色：</span>
+			                  <span className="text-slate-500">{ui.targetColorLabel}</span>
 			                  <input
 			                    type="color"
 			                    value={targetColor}
@@ -1607,9 +1606,9 @@ function SealExtractorInner() {
 			                      handleTargetColorChange(e.target.value)
 			                    }
 			                    className="h-8 w-10 rounded-lg border border-slate-200 bg-white shadow-sm"
-			                    title="选择印章颜色"
+			                    title={ui.targetColorTitle}
 			                  />
-			                  <span className="text-slate-500">容差：</span>
+			                  <span className="text-slate-500">{ui.toleranceLabel}</span>
 			                  <div className="flex items-center gap-2">
 			                    <input
 			                      type="range"
@@ -1634,7 +1633,7 @@ function SealExtractorInner() {
 			                    />
 			                    <span className="text-xs text-slate-400">°</span>
 			                  </div>
-			                  <span className="text-slate-500">灰度过滤：</span>
+			                  <span className="text-slate-500">{ui.grayFilterLabel}</span>
 			                  <div className="flex items-center gap-2">
 			                    <input
 			                      type="range"
@@ -1664,7 +1663,7 @@ function SealExtractorInner() {
 			                    />
 			                    <span className="text-xs text-slate-400">S</span>
 			                  </div>
-				                  <span className="text-slate-500">通道占比：</span>
+				                  <span className="text-slate-500">{ui.channelRatioLabel}</span>
 				                  <div className="inline-flex rounded-full bg-white p-1 shadow-sm">
 				                    <button
 				                      type="button"
@@ -1742,13 +1741,13 @@ function SealExtractorInner() {
 				                  </div>
 			                  {mode !== "auto" && (
 			                    <span className="text-xs text-slate-400">
-			                      （仅智能识别生效）
+			                      {ui.autoModeOnlyHint}
 			                    </span>
 			                  )}
 			                </div>
 		                <div className="h-6 w-px bg-slate-200" />
 		                <div className="flex items-center gap-2 text-sm">
-		                  <span className="text-slate-500">截取区域：</span>
+		                  <span className="text-slate-500">{ui.cropAreaLabel}</span>
 	                  <div className="inline-flex rounded-full bg-white p-1 shadow-sm">
 	                    <button
 	                      type="button"
@@ -1789,17 +1788,17 @@ function SealExtractorInner() {
 		                        onClick={openCropModal}
 		                        className="rounded-lg bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 hover:text-slate-900"
 		                      >
-		                        {cropRect ? "重新截取" : "开始截取"}
+		                        {cropRect ? ui.cropRecrop : ui.cropStart}
 		                      </button>
 		                      <span className="text-xs text-slate-400">
-		                        弹窗大图框选
+		                        {ui.cropModalBtnHint}
 		                      </span>
 		                    </>
 		                  )}
 		                </div>
 	                <div className="h-6 w-px bg-slate-200" />
 	                <div className="flex items-center gap-2 text-sm">
-	                  <span className="text-slate-500">智能填充：</span>
+	                  <span className="text-slate-500">{ui.holeFillLabel}</span>
 	                  <div className="flex items-center gap-2">
 	                    <input
 	                      type="range"
@@ -1840,7 +1839,7 @@ function SealExtractorInner() {
                   />
                 </div>
                 <div className="w-24 text-right text-xs text-slate-500">
-                  灵敏度：{" "}
+                  {ui.sensitivityLabel} 
                   <span className="font-semibold text-rose-500">
                     {sensitivity}%
                   </span>
@@ -1848,13 +1847,13 @@ function SealExtractorInner() {
 	              </div>
 	            </div>
               <div className="text-[11px] text-slate-500">
-                支持拖拽新印章图片到此区域直接替换
+                {ui.dropReplaceHint}
               </div>
 
 	            <div className="grid gap-8 md:grid-cols-2">
 	              <div className="group relative overflow-hidden rounded-2xl bg-slate-100">
 	                <div className="absolute left-4 top-4 z-10 rounded-lg bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
-	                  {cropEnabled && cropRect ? "截取预览" : "原图"}
+	                  {cropEnabled && cropRect ? ui.cropPreview : ui.originalImage}
 	                </div>
 		                <div className="aspect-[4/3] w-full overflow-hidden">
 		                  {cropEnabled && cropRect ? (
@@ -1862,19 +1861,19 @@ function SealExtractorInner() {
 		                      // eslint-disable-next-line @next/next/no-img-element
 		                      <img
 		                        src={croppedPreviewUrl}
-		                        alt="截取预览"
+		                        alt={ui.cropPreview}
 		                        className="h-full w-full object-contain p-4"
 		                      />
 		                    ) : (
 		                      <div className="flex h-full items-center justify-center p-4 text-xs text-slate-400">
-		                        正在生成截取预览…
+		                        {ui.generatingCropPreview}
 		                      </div>
 		                    )
 		                  ) : (
 		                    // eslint-disable-next-line @next/next/no-img-element
 		                    <img
 		                      src={originalUrl ?? ""}
-		                      alt="原始图片"
+		                      alt={ui.originalImage}
 		                      className="h-full w-full object-contain p-4"
 		                    />
 		                  )}
@@ -1899,17 +1898,17 @@ function SealExtractorInner() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={resultUrl}
-                      alt="印章提取结果"
+                      alt={ui.resultTitle}
                       className="h-full w-full object-contain p-4"
                     />
                   ) : (
                     <div className="flex h-full flex-col items-center justify-center p-6 text-center">
                       <div className="mb-2 text-2xl">🔍</div>
                       <p className="text-sm font-semibold text-slate-700">
-                        未检测到明显红色印章区域
+                        {ui.noSealDetected}
                       </p>
                       <p className="mt-1 max-w-xs text-xs text-slate-500">
-                        印章可能颜色较深/偏暗，或受文字遮挡。建议尝试以下快捷优化：
+                        {ui.noSealSuggestion}
                       </p>
                       <div className="mt-4 flex flex-wrap justify-center gap-2">
                         <button
@@ -1925,21 +1924,21 @@ function SealExtractorInner() {
                           }}
                           className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 shadow-sm transition hover:bg-rose-100"
                         >
-                          提高灵敏度至 85%
+                          {ui.quickSensitivity85}
                         </button>
                         <button
                           type="button"
                           onClick={() => handleModeChange("keepRed")}
                           className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                         >
-                          切换为“仅保留红色”
+                          {ui.quickKeepRed}
                         </button>
                         <button
                           type="button"
                           onClick={openCropModal}
                           className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                         >
-                          框选印章局部
+                          {ui.quickCropArea}
                         </button>
                       </div>
                     </div>
@@ -1952,8 +1951,10 @@ function SealExtractorInner() {
                     </p>
                     {originalSize && resultSize && (
                       <p className="text-xs text-emerald-600">
-                        透明背景 PNG，体积约为原图的{" "}
-                        {((resultSize / originalSize) * 100).toFixed(1)}%
+                        {ui.resultRatioTemplate.replace(
+                          "{ratio}",
+                          ((resultSize / originalSize) * 100).toFixed(1),
+                        )}
                       </p>
                     )}
                   </div>
@@ -1963,7 +1964,7 @@ function SealExtractorInner() {
                       download={`seal-${file.name.replace(/\.[^.]+$/, "")}.png`}
                       className="rounded-lg bg-rose-600 px-4 py-1.5 text-xs font-medium text-white shadow-md transition-transform hover:scale-105 hover:bg-rose-700 active:scale-95"
                     >
-                      下载电子章
+                      {ui.downloadSeal}
                     </a>
                   )}
                 </div>
@@ -1979,13 +1980,11 @@ function SealExtractorInner() {
         </div>
       )}
 
-	      <div className="mx-auto max-w-4xl rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-4 text-xs text-slate-500">
-		        <p>
-		          小提示：本工具采用纯前端像素级处理算法，通过识别红色区域并透明化其他像素来完成印章提取。
-		          可先截取印章所在区域提升识别稳定性；智能填充会按阈值自动修补小空洞并平滑过渡。
-		        </p>
-	      </div>
-	    </div>
-	    </ToolPageLayout>
-	    );
-	}
+      <div className="mx-auto max-w-4xl rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-4 text-xs text-slate-500">
+        <p>
+          {ui.tip}
+        </p>
+      </div>
+    </div>
+  );
+}

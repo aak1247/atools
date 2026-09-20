@@ -5,5 +5,23 @@
   "seoDescription": "免费在线语音转文字工具，使用Web Speech API实现实时语音识别，支持中文、英文等多种语言，完全免费无需注册，纯浏览器实现，保护隐私安全。",
   "category": "文本处理",
   "keywords": ["语音转文字", "STT", "语音识别", "实时转录"],
-  "themeColor": "#0f172a"
+  "themeColor": "#0f172a",
+  "ui": {
+    "title": "语音转文字",
+    "outputLabel": "识别结果",
+    "languageSelect": "选择识别语言",
+    "statusLabel": "当前状态",
+    "startButton": "开始识别",
+    "stopButton": "停止识别",
+    "clearButton": "清空",
+    "copyButton": "复制",
+    "statusReady": "就绪",
+    "statusListening": "正在聆听...",
+    "statusStopped": "已停止",
+    "noSupport": "当前浏览器不支持语音识别",
+    "noSupportDesc": "请使用 Chrome、Edge 或 Safari 浏览器访问此功能。",
+    "interimResults": "临时识别结果",
+    "finalResults": "最终识别结果",
+    "note": "说明：语音识别依赖浏览器内置 Web Speech API（推荐使用 Chrome 或 Edge）。识别准确度取决于网络连接和语音引擎。"
+  }
 }

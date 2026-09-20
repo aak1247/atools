@@ -5,26 +5,28 @@ import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 const DEFAULT_UI = {
-  title: "Text to Speech",
-  inputLabel: "Input Text",
-  inputPlaceholder: "Enter text to convert...",
-  voiceSelect: "Select Voice",
-  rateLabel: "Rate",
-  pitchLabel: "Pitch",
-  volumeLabel: "Volume",
-  speakButton: "Start Speaking",
-  pauseButton: "Pause",
-  resumeButton: "Resume",
-  stopButton: "Stop",
-  clearButton: "Clear",
-  statusReady: "Ready",
-  statusSpeaking: "Speaking...",
-  statusPaused: "Paused",
-  statusStopped: "Stopped",
-  noVoices: "No voices detected. Please use a browser that supports Web Speech API",
-  sampleText: "This is a sample text for testing the text-to-speech functionality.",
-  loadingVoices: "Loading voice list...",
-  note: "Note: Long text will be automatically split into segments. Available voices depend on your browser and operating system.",
+  title: "文字转语音",
+  inputLabel: "输入文本",
+  inputPlaceholder: "输入要朗读的文本...",
+  sampleButton: "示例文本",
+  statusLabel: "当前状态",
+  voiceSelect: "选择发音人 / 语音",
+  rateLabel: "语速",
+  pitchLabel: "音调",
+  volumeLabel: "音量",
+  speakButton: "开始朗读",
+  pauseButton: "暂停",
+  resumeButton: "继续",
+  stopButton: "停止",
+  clearButton: "清空",
+  statusReady: "就绪",
+  statusSpeaking: "正在朗读...",
+  statusPaused: "已暂停",
+  statusStopped: "已停止",
+  noVoices: "未检测到可用语音，请使用支持 Web Speech API 的浏览器。",
+  sampleText: "这是一段用于测试文字转语音功能的示例文本。欢迎使用纯粹工具站！",
+  loadingVoices: "正在加载语音列表...",
+  note: "说明：长文本会自动分段朗读。可用语音列表取决于您的浏览器和操作系统支持。",
 } as const;
 
 type TextToSpeechUi = typeof DEFAULT_UI;
@@ -191,7 +193,7 @@ export default function TextToSpeechClient() {
                   onClick={handleInsertSample}
                   className="text-xs font-medium text-blue-600 hover:text-blue-700"
                 >
-                  示例文本
+                  {ui.sampleButton}
                 </button>
               </div>
               <textarea
@@ -206,7 +208,7 @@ export default function TextToSpeechClient() {
             <div className="space-y-5">
               {/* 状态显示 */}
               <div className="rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-slate-200">
-                <div className="text-xs text-slate-600">Status</div>
+                <div className="text-xs text-slate-600">{ui.statusLabel}</div>
                 <div className="mt-1 text-sm font-semibold text-slate-900">
                   {status === "ready" && ui.statusReady}
                   {status === "speaking" && ui.statusSpeaking}

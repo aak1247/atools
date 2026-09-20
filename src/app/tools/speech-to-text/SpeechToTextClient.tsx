@@ -5,20 +5,22 @@ import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 
 const DEFAULT_UI = {
-  title: "Speech to Text",
-  outputLabel: "Recognition Results",
-  languageSelect: "Select Language",
-  startButton: "Start Recording",
-  stopButton: "Stop Recording",
-  clearButton: "Clear",
-  copyButton: "Copy",
-  statusReady: "Ready",
-  statusListening: "Listening...",
-  statusStopped: "Stopped",
-  noSupport: "Your browser does not support speech recognition. Please use Chrome or Edge.",
-  interimResults: "Interim Results",
-  finalResults: "Final Results",
-  note: "Note: Speech recognition requires a browser that supports Web Speech API (Chrome or Edge recommended). Recognition accuracy depends on your network connection and browser speech engine.",
+  title: "语音转文字",
+  outputLabel: "识别结果",
+  languageSelect: "选择识别语言",
+  statusLabel: "当前状态",
+  startButton: "开始识别",
+  stopButton: "停止识别",
+  clearButton: "清空",
+  copyButton: "复制",
+  statusReady: "就绪",
+  statusListening: "正在聆听...",
+  statusStopped: "已停止",
+  noSupport: "当前浏览器不支持语音识别",
+  noSupportDesc: "请使用 Chrome、Edge 或 Safari 浏览器访问此功能。",
+  interimResults: "临时识别结果",
+  finalResults: "最终识别结果",
+  note: "说明：语音识别依赖浏览器内置 Web Speech API（推荐使用 Chrome 或 Edge）。识别准确度取决于网络连接和语音引擎。",
 } as const;
 
 type SpeechToTextUi = typeof DEFAULT_UI;
@@ -134,7 +136,7 @@ export default function SpeechToTextClient() {
           <div className="rounded-2xl bg-rose-50 px-6 py-8 text-center ring-1 ring-rose-200">
             <div className="mb-4 text-6xl">⚠️</div>
             <h3 className="mb-2 text-xl font-semibold text-rose-900">{ui.noSupport}</h3>
-            <p className="text-sm text-rose-700">Please use Chrome, Edge, or Safari to access this feature.</p>
+            <p className="text-sm text-rose-700">{ui.noSupportDesc}</p>
           </div>
         </div>
       </ToolPageLayout>
@@ -172,7 +174,7 @@ export default function SpeechToTextClient() {
 
               {/* 状态显示 */}
               <div className="flex-1 min-w-[200px]">
-                <label className="mb-2 block text-sm font-medium text-slate-700">Status</label>
+                <label className="mb-2 block text-sm font-medium text-slate-700">{ui.statusLabel}</label>
                 <div className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
                   status === "listening"
                     ? "bg-green-100 text-green-900"

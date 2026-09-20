@@ -8,9 +8,18 @@
   "themeColor": "#0f172a",
   "backgroundColor": "#0f172a",
   "icon": "/icon.svg",
-  "keywords": ["image to PDF", "multi-image merge PDF", "scanned PDF", "PDF generation", "local processing"],
+  "keywords": [
+    "image to PDF",
+    "multi-image merge PDF",
+    "scanned PDF",
+    "PDF generation",
+    "local processing"
+  ],
   "ui": {
     "selectImages": "Select Images",
+    "addImages": "Add Images",
+    "replaceImages": "Replace Images",
+    "dropReplaceHint": "Drag and drop images here to replace directly (will clear current list)",
     "sortByName": "Sort by Name",
     "clear": "Clear",
     "selectedCount": "Selected {count} images",

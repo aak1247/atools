@@ -1,6 +1,7 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { zip } from "fflate";
 import {
@@ -40,7 +41,66 @@ const MAX_DISPLAY = 900;
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 8;
 
-export default function ImageCropperClient() {
+const DEFAULT_UI = {
+  title: "图片裁剪工具",
+  subtitle: "放大缩小 + 移动视角 + 批量裁剪，纯本地运行",
+  dropTitle: "点击或拖拽图片到此处",
+  dropFormats: "支持常见图片格式",
+  currentImage: "当前图片：",
+  replaceImage: "点击替换图片",
+  clear: "清空",
+  dropHint: "支持拖拽新图片到此区域直接替换",
+  selectCropArea: "选择裁剪区域",
+  modeSelect: "框选",
+  modePan: "移动",
+  zoomInTitle: "放大",
+  zoomOutTitle: "缩小",
+  fitViewTitle: "重置视角",
+  fitViewLabel: "适合",
+  canvasTip: "提示：滚轮缩放；“框选”模式拖拽选择；“移动”模式拖拽平移。按 Enter 添加区域，按 Esc 取消当前选择。",
+  cropParams: "裁剪参数（原图像素）",
+  editingActive: "正在编辑：已添加区域",
+  editingCurrent: "正在编辑：当前选择",
+  notSelected: "未选择",
+  exportFormat: "导出格式",
+  generateCurrent: "生成当前结果",
+  generateBatch: "批量生成",
+  addRegion: "添加区域",
+  updateRegion: "更新区域",
+  cancelCurrent: "取消当前",
+  clearResults: "清空结果",
+  errPrefix: "错误：",
+  regionListTitle: "裁剪区域列表",
+  totalPrefix: "共",
+  totalSuffix: "个",
+  clearAllRegions: "清空全部",
+  emptyRegionsTip: "先在画布上框选一个区域，然后点击“添加区域”。",
+  regionPrefix: "区域",
+  delete: "删除",
+  cropResultsTitle: "裁剪结果",
+  generateZip: "生成 ZIP",
+  downloadZip: "下载 ZIP",
+  resultPrefix: "结果",
+  download: "下载",
+  bytesUnit: "字节",
+  noResults: "尚未生成结果",
+  zipSizePrefix: "ZIP 大小：",
+  exportFormatHintPrefix: "导出格式：",
+  exportFormatHintSuffix: "（可批量生成并打包 ZIP）",
+  errSelectImage: "请选择图片文件",
+  errSelectArea: "请先选择裁剪区域",
+  errExportFailed: "导出失败",
+  errAddRegionFirst: "请先添加至少一个裁剪区域",
+  errInvalidRegion: "请先选择一个有效区域",
+} as const;
+
+function ImageCropperInner() {
+  const config = useOptionalToolConfig("image-cropper");
+  const ui = {
+    ...DEFAULT_UI,
+    ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>),
+  };
+
   const [file, setFile] = useState<File | null>(null);
   const [bitmap, setBitmap] = useState<ImageBitmap | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -317,7 +377,7 @@ export default function ImageCropperClient() {
 
   const processFile = async (selected: File) => {
     if (!selected.type.startsWith("image/")) {
-      setError("请选择图片文件");
+      setError(ui.errSelectImage);
       return;
     }
     setError(null);
@@ -459,7 +519,7 @@ export default function ImageCropperClient() {
 
   const exportCurrent = async () => {
     if (!bitmap || !selection || selection.w < 1 || selection.h < 1) {
-      setError("请先选择裁剪区域");
+      setError(ui.errSelectArea);
       return;
     }
     setError(null);
@@ -467,7 +527,7 @@ export default function ImageCropperClient() {
     try {
       const blob = await cropRectToBlob(selection, outputFormat);
       if (!blob) {
-        setError("导出失败");
+        setError(ui.errExportFailed);
         return;
       }
       const url = URL.createObjectURL(blob);
@@ -475,13 +535,13 @@ export default function ImageCropperClient() {
       const extension = getImageExportExtension(outputFormat);
       setResults([{ id: createId(), url, size: blob.size, filename: `cropped-${baseName}.${extension}` }]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "导出失败");
+      setError(err instanceof Error ? err.message : ui.errExportFailed);
     }
   };
 
   const exportAll = async () => {
     if (!bitmap || regions.length === 0) {
-      setError("请先添加至少一个裁剪区域");
+      setError(ui.errAddRegionFirst);
       return;
     }
     setError(null);
@@ -503,12 +563,12 @@ export default function ImageCropperClient() {
         });
       }
       if (nextResults.length === 0) {
-        setError("导出失败");
+        setError(ui.errExportFailed);
         return;
       }
       setResults(nextResults);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "导出失败");
+      setError(err instanceof Error ? err.message : ui.errExportFailed);
     }
   };
 
@@ -555,7 +615,7 @@ export default function ImageCropperClient() {
 
   const addRegion = () => {
     if (!selection || selection.w < 1 || selection.h < 1) {
-      setError("请先选择一个有效区域");
+      setError(ui.errInvalidRegion);
       return;
     }
     setError(null);
@@ -607,11 +667,10 @@ export default function ImageCropperClient() {
   }, [activeRegionId, selection, regions]);
 
   return (
-    <ToolPageLayout toolSlug="image-cropper" maxWidthClassName="max-w-6xl">
-      <div className="space-y-8">
+    <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">图片裁剪工具</h2>
-        <p className="mt-2 text-sm text-slate-500">放大缩小 + 移动视角 + 批量裁剪，纯本地运行</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900">{ui.title}</h2>
+        <p className="mt-2 text-sm text-slate-500">{ui.subtitle}</p>
       </div>
 
       <div className="mt-8 glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
@@ -634,8 +693,8 @@ export default function ImageCropperClient() {
             onDragLeave={handleDragLeave}
             onClick={openFilePicker}
           >
-            <div className="text-sm font-medium text-slate-700">点击或拖拽图片到此处</div>
-            <div className="mt-1 text-xs text-slate-500">支持常见图片格式</div>
+            <div className="text-sm font-medium text-slate-700">{ui.dropTitle}</div>
+            <div className="mt-1 text-xs text-slate-500">{ui.dropFormats}</div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -650,7 +709,7 @@ export default function ImageCropperClient() {
               onDragLeave={handleDragLeave}
             >
               <div className="text-sm text-slate-700">
-                <span className="font-semibold text-slate-900">当前图片：</span>
+                <span className="font-semibold text-slate-900">{ui.currentImage}</span>
                 {file.name}
                 {bitmap && (
                   <span className="ml-2 text-xs text-slate-500">
@@ -664,25 +723,25 @@ export default function ImageCropperClient() {
                   onClick={openFilePicker}
                   className="rounded-xl bg-white px-4 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95"
                 >
-                  点击替换图片
+                  {ui.replaceImage}
                 </button>
                 <button
                   type="button"
                   onClick={resetWorkspace}
                   className="rounded-xl bg-white px-4 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95"
                 >
-                  清空
+                  {ui.clear}
                 </button>
               </div>
               <div className="w-full text-[11px] text-slate-500">
-                支持拖拽新图片到此区域直接替换
+                {ui.dropHint}
               </div>
             </div>
 
             <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="text-sm font-semibold text-slate-900">选择裁剪区域</div>
+                  <div className="text-sm font-semibold text-slate-900">{ui.selectCropArea}</div>
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="inline-flex rounded-xl bg-slate-100 p-1">
                       <button
@@ -694,7 +753,7 @@ export default function ImageCropperClient() {
                             : "text-slate-600 hover:text-slate-800"
                         }`}
                       >
-                        框选
+                        {ui.modeSelect}
                       </button>
                       <button
                         type="button"
@@ -705,7 +764,7 @@ export default function ImageCropperClient() {
                             : "text-slate-600 hover:text-slate-800"
                         }`}
                       >
-                        移动
+                        {ui.modePan}
                       </button>
                     </div>
 
@@ -714,7 +773,7 @@ export default function ImageCropperClient() {
                         type="button"
                         onClick={() => updateZoom(viewport.zoom / 1.2, displaySize ? { x: displaySize.width / 2, y: displaySize.height / 2 } : null)}
                         className="rounded-lg bg-white px-2 py-1 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 active:scale-95"
-                        title="缩小"
+                        title={ui.zoomOutTitle}
                       >
                         −
                       </button>
@@ -726,13 +785,13 @@ export default function ImageCropperClient() {
                         value={viewport.zoom}
                         onChange={(e) => updateZoom(Number(e.target.value), null)}
                         className="w-28"
-                        aria-label="缩放"
+                        aria-label="Zoom"
                       />
                       <button
                         type="button"
                         onClick={() => updateZoom(viewport.zoom * 1.2, displaySize ? { x: displaySize.width / 2, y: displaySize.height / 2 } : null)}
                         className="rounded-lg bg-white px-2 py-1 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 active:scale-95"
-                        title="放大"
+                        title={ui.zoomInTitle}
                       >
                         +
                       </button>
@@ -740,9 +799,9 @@ export default function ImageCropperClient() {
                         type="button"
                         onClick={() => setViewport({ zoom: 1, panX: 0, panY: 0 })}
                         className="rounded-lg bg-white px-2 py-1 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 active:scale-95"
-                        title="重置视角"
+                        title={ui.fitViewTitle}
                       >
-                        适合
+                        {ui.fitViewLabel}
                       </button>
                       <div className="text-[11px] font-medium text-slate-600 tabular-nums">
                         {(viewport.zoom * 100).toFixed(0)}%
@@ -768,16 +827,16 @@ export default function ImageCropperClient() {
                   </div>
                 </div>
                 <div className="mt-3 text-xs text-slate-500">
-                  提示：滚轮缩放；“框选”模式拖拽选择；“移动”模式拖拽平移。按 Enter 添加区域，按 Esc 取消当前选择。
+                  {ui.canvasTip}
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm font-semibold text-slate-900">裁剪参数（原图像素）</div>
+                    <div className="text-sm font-semibold text-slate-900">{ui.cropParams}</div>
                     <div className="text-xs text-slate-500">
-                      {activeRegion ? "正在编辑：已添加区域" : selection ? "正在编辑：当前选择" : "未选择"}
+                      {activeRegion ? ui.editingActive : selection ? ui.editingCurrent : ui.notSelected}
                     </div>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-3">
@@ -813,7 +872,7 @@ export default function ImageCropperClient() {
 
                   <div className="mt-4 flex flex-wrap items-center gap-2">
                     <div className="inline-flex flex-wrap items-center gap-2 rounded-2xl bg-slate-100 px-2 py-1">
-                      <span className="px-2 text-xs text-slate-600">导出格式</span>
+                      <span className="px-2 text-xs text-slate-600">{ui.exportFormat}</span>
                       {IMAGE_EXPORT_FORMATS.map((format) => (
                         <button
                           key={format}
@@ -834,7 +893,7 @@ export default function ImageCropperClient() {
                       onClick={() => void exportCurrent()}
                       className="rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-700 active:scale-[0.99]"
                     >
-                      生成当前结果
+                      {ui.generateCurrent}
                     </button>
                     <button
                       type="button"
@@ -846,7 +905,7 @@ export default function ImageCropperClient() {
                           : "bg-slate-900 text-white hover:bg-slate-950"
                       }`}
                     >
-                      批量生成
+                      {ui.generateBatch}
                     </button>
                     <button
                       type="button"
@@ -858,7 +917,7 @@ export default function ImageCropperClient() {
                           : "text-slate-700 hover:bg-slate-100"
                       }`}
                     >
-                      添加区域
+                      {ui.addRegion}
                     </button>
                     <button
                       type="button"
@@ -870,14 +929,14 @@ export default function ImageCropperClient() {
                           : "text-slate-700 hover:bg-slate-100"
                       }`}
                     >
-                      更新区域
+                      {ui.updateRegion}
                     </button>
                     <button
                       type="button"
                       onClick={clearCurrentSelection}
                       className="rounded-2xl px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 active:scale-[0.99]"
                     >
-                      取消当前
+                      {ui.cancelCurrent}
                     </button>
                     <button
                       type="button"
@@ -889,17 +948,17 @@ export default function ImageCropperClient() {
                           : "text-slate-700 hover:bg-slate-100"
                       }`}
                     >
-                      清空结果
+                      {ui.clearResults}
                     </button>
                   </div>
-                  {error && <div className="mt-3 text-sm text-rose-600">错误：{error}</div>}
+                  {error && <div className="mt-3 text-sm text-rose-600">{ui.errPrefix}{error}</div>}
                 </div>
 
                 <div className="rounded-2xl bg-white p-4 ring-1 ring-black/5">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-sm font-semibold text-slate-900">裁剪区域列表</div>
+                    <div className="text-sm font-semibold text-slate-900">{ui.regionListTitle}</div>
                     <div className="flex items-center gap-2">
-                      <div className="text-xs text-slate-500">共 {regions.length} 个</div>
+                      <div className="text-xs text-slate-500">{ui.totalPrefix} {regions.length} {ui.totalSuffix}</div>
                       <button
                         type="button"
                         onClick={clearAllRegions}
@@ -910,13 +969,13 @@ export default function ImageCropperClient() {
                             : "bg-slate-100 text-slate-800 hover:bg-slate-200"
                         }`}
                       >
-                        清空全部
+                        {ui.clearAllRegions}
                       </button>
                     </div>
                   </div>
                   {regions.length === 0 ? (
                     <div className="mt-3 rounded-2xl bg-slate-50 p-4 text-xs text-slate-500">
-                      先在画布上框选一个区域，然后点击“添加区域”。
+                      {ui.emptyRegionsTip}
                     </div>
                   ) : (
                     <div className="mt-3 max-h-56 space-y-2 overflow-auto pr-1">
@@ -939,7 +998,7 @@ export default function ImageCropperClient() {
                             className="min-w-0 flex-1 text-left"
                           >
                             <div className="truncate text-xs font-semibold text-slate-800">
-                              区域 {index + 1}
+                              {ui.regionPrefix} {index + 1}
                             </div>
                             <div className="mt-0.5 truncate text-[11px] text-slate-500 tabular-nums">
                               x={region.rect.x}, y={region.rect.y}, w={region.rect.w}, h={region.rect.h}
@@ -950,7 +1009,7 @@ export default function ImageCropperClient() {
                             onClick={() => removeRegion(region.id)}
                             className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 active:scale-95"
                           >
-                            删除
+                            {ui.delete}
                           </button>
                         </div>
                       ))}
@@ -960,10 +1019,10 @@ export default function ImageCropperClient() {
 
                 <div className="rounded-2xl bg-white p-4 ring-1 ring-black/5">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-sm font-semibold text-slate-900">裁剪结果</div>
+                    <div className="text-sm font-semibold text-slate-900">{ui.cropResultsTitle}</div>
                     <div className="flex items-center gap-2">
                       {results.length > 0 && (
-                        <div className="text-xs text-slate-500">共 {results.length} 个</div>
+                        <div className="text-xs text-slate-500">{ui.totalPrefix} {results.length} {ui.totalSuffix}</div>
                       )}
                       {results.length >= 2 && (
                         <button
@@ -971,7 +1030,7 @@ export default function ImageCropperClient() {
                           onClick={() => void exportZip()}
                           className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
                         >
-                          生成 ZIP
+                          {ui.generateZip}
                         </button>
                       )}
                       {zipUrl && file && (
@@ -980,7 +1039,7 @@ export default function ImageCropperClient() {
                           download={`cropped-${file.name.replace(/\.[^.]+$/, "")}.zip`}
                           className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
                         >
-                          下载 ZIP
+                          {ui.downloadZip}
                         </a>
                       )}
                     </div>
@@ -995,38 +1054,38 @@ export default function ImageCropperClient() {
                           >
                             <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2">
                               <div className="min-w-0 truncate text-xs font-semibold text-slate-800">
-                                结果 {index + 1}
+                                {ui.resultPrefix} {index + 1}
                               </div>
                               <a
                                 href={item.url}
                                 download={item.filename}
                                 className="rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-800 transition hover:bg-slate-200"
                               >
-                                下载
+                                {ui.download}
                               </a>
                             </div>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={item.url}
-                              alt="裁剪结果"
+                              alt="Crop Result"
                               className="h-40 w-full bg-slate-50 object-contain p-2"
                             />
                             <div className="px-3 pb-2 text-[11px] text-slate-500">
-                              {item.size.toLocaleString()} 字节
+                              {item.size.toLocaleString()} {ui.bytesUnit}
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
                       <div className="flex h-64 items-center justify-center text-xs text-slate-400">
-                        尚未生成结果
+                        {ui.noResults}
                       </div>
                     )}
                   </div>
                   <div className="mt-3 text-xs text-slate-500">
                     {zipSize
-                      ? `ZIP 大小：${zipSize.toLocaleString()} 字节`
-                      : `导出格式：${getImageExportLabel(outputFormat)}（可批量生成并打包 ZIP）`}
+                      ? `${ui.zipSizePrefix}${zipSize.toLocaleString()} ${ui.bytesUnit}`
+                      : `${ui.exportFormatHintPrefix}${getImageExportLabel(outputFormat)}${ui.exportFormatHintSuffix}`}
                   </div>
                 </div>
               </div>
@@ -1035,6 +1094,13 @@ export default function ImageCropperClient() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ImageCropperClient() {
+  return (
+    <ToolPageLayout toolSlug="image-cropper" maxWidthClassName="max-w-6xl">
+      <ImageCropperInner />
     </ToolPageLayout>
-    );
+  );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
+import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import {
@@ -11,6 +12,34 @@ import {
   type ImageExportFormat,
 } from "@/lib/image-export";
 import { useFileDropzone } from "../../../hooks/useFileDropzone";
+
+const DEFAULT_UI = {
+  title: "图片格式转换工具",
+  subtitle: "支持在 JPG、PNG、WebP、BMP、ICO、GIF 等常见格式之间转换，完全在浏览器本地完成。",
+  notice: "注意：BMP、ICO、GIF 等部分格式是否可导出取决于当前浏览器的编码支持，如遇失败可尝试换用 PNG/JPG 或更换浏览器。",
+  dropTitle: "点击或拖拽图片到此处",
+  dropFormats: "支持 JPG、PNG、WebP、GIF、SVG 等常见格式（SVG 将被栅格化为位图处理）",
+  originalInfo: "原图信息：",
+  resolution: "分辨率",
+  size: "大小",
+  targetFormat: "目标格式",
+  replaceImage: "点击替换图片",
+  clear: "清空",
+  startConvert: "开始转换",
+  converting: "转换中...",
+  dropHint: "支持拖拽新图片到此区域直接替换",
+  original: "原图",
+  convertedPrefix: "转换后",
+  noResult: "尚未生成结果，请选择目标格式后点击“开始转换”",
+  sizeChange: "体积变化：",
+  downloadPrefix: "下载",
+  errSelectImage: "请选择图片文件",
+  errReadDimensions: "无法读取图片尺寸",
+  errSelectImageFirst: "请先选择需要转换的图片文件",
+  errConvertFailed: "格式转换失败",
+  errCanvasContext: "无法创建画布上下文",
+  errSvgLoad: "SVG 加载失败",
+} as const;
 
 const formatSize = (bytes: number | null): string => {
   if (!bytes || bytes <= 0) return "-";
@@ -64,7 +93,7 @@ const getSvgDimensions = (svgContent: string): { width: number; height: number }
   return { width: 512, height: 512 };
 };
 
-const loadSvgImage = async (svgContent: string): Promise<HTMLImageElement> => {
+const loadSvgImage = async (svgContent: string, errMessage: string): Promise<HTMLImageElement> => {
   const svgBlob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
   const svgUrl = URL.createObjectURL(svgBlob);
 
@@ -73,7 +102,7 @@ const loadSvgImage = async (svgContent: string): Promise<HTMLImageElement> => {
     img.decoding = "async";
     await new Promise<void>((resolve, reject) => {
       img.onload = () => resolve();
-      img.onerror = () => reject(new Error("SVG 加载失败"));
+      img.onerror = () => reject(new Error(errMessage));
       img.src = svgUrl;
     });
     return img;
@@ -85,11 +114,13 @@ const loadSvgImage = async (svgContent: string): Promise<HTMLImageElement> => {
 async function convertImage(
   file: File,
   format: ImageExportFormat,
+  errContext: string,
+  errSvg: string,
 ): Promise<Blob> {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   if (!ctx) {
-    throw new Error("无法创建画布上下文");
+    throw new Error(errContext);
   }
 
   if (isSvgFile(file)) {
@@ -100,7 +131,7 @@ async function convertImage(
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const img = await loadSvgImage(svgContent);
+    const img = await loadSvgImage(svgContent, errSvg);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   } else {
     const imageBitmap = await createImageBitmap(file);
@@ -113,7 +144,13 @@ async function convertImage(
   return exportCanvasToImageBlob(canvas, format);
 }
 
-const ImageConverterClient: FC = () => {
+const ImageConverterInner: FC = () => {
+  const config = useOptionalToolConfig("image-converter");
+  const ui = {
+    ...DEFAULT_UI,
+    ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>),
+  };
+
   const [file, setFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
@@ -152,7 +189,7 @@ const ImageConverterClient: FC = () => {
 
   const processFile = async (selected: File) => {
     if (!selected.type.startsWith("image/")) {
-      setError("请选择图片文件");
+      setError(ui.errSelectImage);
       return;
     }
     setError(null);
@@ -166,7 +203,7 @@ const ImageConverterClient: FC = () => {
     try {
       await computeDimensions(selected);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "无法读取图片尺寸");
+      setError(err instanceof Error ? err.message : ui.errReadDimensions);
       setOriginalWidth(null);
       setOriginalHeight(null);
     }
@@ -190,7 +227,7 @@ const ImageConverterClient: FC = () => {
 
   const handleConvert = async () => {
     if (!file) {
-      setError("请先选择需要转换的图片文件");
+      setError(ui.errSelectImageFirst);
       return;
     }
 
@@ -202,13 +239,13 @@ const ImageConverterClient: FC = () => {
     }
 
     try {
-      const blob = await convertImage(file, targetFormat);
+      const blob = await convertImage(file, targetFormat, ui.errCanvasContext, ui.errSvgLoad);
       setConvertedSize(blob.size);
       const url = URL.createObjectURL(blob);
       setConvertedUrl(url);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "格式转换失败",
+        err instanceof Error ? err.message : ui.errConvertFailed,
       );
     } finally {
       setIsConverting(false);
@@ -237,18 +274,16 @@ const ImageConverterClient: FC = () => {
   );
 
   return (
-    <ToolPageLayout toolSlug="image-converter" maxWidthClassName="max-w-4xl">
-      <div className="space-y-8">
+    <div className="space-y-8">
       <div className="text-center">
         <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-          图片格式转换工具
+          {ui.title}
         </h2>
         <p className="mt-2 text-slate-500">
-          支持在 JPG、PNG、WebP、BMP、ICO、GIF 等常见格式之间转换，完全在浏览器本地完成。
+          {ui.subtitle}
         </p>
         <p className="mt-1 text-xs text-slate-400">
-          注意：BMP、ICO、GIF 等部分格式是否可导出取决于当前浏览器的编码支持，如遇失败可尝试换用
-          PNG/JPG 或更换浏览器。
+          {ui.notice}
         </p>
       </div>
 
@@ -288,10 +323,10 @@ const ImageConverterClient: FC = () => {
               </svg>
             </div>
             <p className="text-lg font-medium text-slate-700">
-              点击或拖拽图片到此处
+              {ui.dropTitle}
             </p>
             <p className="mt-1 text-sm text-slate-500">
-              支持 JPG、PNG、WebP、GIF、SVG 等常见格式（SVG 将被栅格化为位图处理）
+              {ui.dropFormats}
             </p>
           </div>
         ) : (
@@ -309,7 +344,7 @@ const ImageConverterClient: FC = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex flex-wrap items-center gap-2 text-slate-600">
                   <span className="font-medium text-slate-900">
-                    原图信息：
+                    {ui.originalInfo}
                   </span>
                   <span className="truncate" title={file.name}>
                     {file.name}
@@ -317,7 +352,7 @@ const ImageConverterClient: FC = () => {
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-slate-600">
                   <span>
-                    分辨率{" "}
+                    {ui.resolution}{" "}
                     <span className="font-mono">
                       {formatResolution(
                         originalWidth,
@@ -326,13 +361,13 @@ const ImageConverterClient: FC = () => {
                     </span>
                   </span>
                   <span className="text-slate-400">·</span>
-                  <span>大小 {formatSize(originalSize)}</span>
+                  <span>{ui.size} {formatSize(originalSize)}</span>
                 </div>
               </div>
               <div className="flex flex-col items-stretch gap-3 text-xs sm:items-end">
                 <div className="inline-flex flex-wrap items-center gap-2 rounded-full bg-white px-2 py-1 text-xs font-medium text-slate-600 shadow-sm">
                   <span className="px-2 text-[11px] text-slate-500">
-                    目标格式
+                    {ui.targetFormat}
                   </span>
                   {(
                     IMAGE_EXPORT_FORMATS
@@ -359,14 +394,14 @@ const ImageConverterClient: FC = () => {
                     onClick={openFilePicker}
                     className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 active:scale-95"
                   >
-                    点击替换图片
+                    {ui.replaceImage}
                   </button>
                   <button
                     type="button"
                     onClick={handleReset}
                     className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 active:scale-95"
                   >
-                    清空
+                    {ui.clear}
                   </button>
                   <button
                     type="button"
@@ -374,11 +409,11 @@ const ImageConverterClient: FC = () => {
                     disabled={isConverting}
                     className="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-indigo-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    {isConverting ? "转换中..." : "开始转换"}
+                    {isConverting ? ui.converting : ui.startConvert}
                   </button>
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  支持拖拽新图片到此区域直接替换
+                  {ui.dropHint}
                 </p>
               </div>
             </div>
@@ -386,7 +421,7 @@ const ImageConverterClient: FC = () => {
             <div className="grid gap-8 md:grid-cols-2">
               <div className="group relative overflow-hidden rounded-2xl bg-slate-100">
                 <div className="absolute left-4 top-4 z-10 rounded-lg bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
-                  原图
+                  {ui.original}
                 </div>
                 <div className="aspect-[4/3] w-full overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -406,7 +441,7 @@ const ImageConverterClient: FC = () => {
 
               <div className="group relative overflow-hidden rounded-2xl bg-slate-100 ring-2 ring-indigo-500 ring-offset-2">
                 <div className="absolute left-4 top-4 z-10 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-lg">
-                  转换后（{getImageExportLabel(targetFormat)})
+                  {ui.convertedPrefix}（{getImageExportLabel(targetFormat)}）
                 </div>
                 <div className="aspect-[4/3] w-full overflow-hidden">
                   {isConverting ? (
@@ -422,7 +457,7 @@ const ImageConverterClient: FC = () => {
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-xs text-slate-400">
-                      尚未生成结果，请选择目标格式后点击“开始转换”
+                      {ui.noResult}
                     </div>
                   )}
                 </div>
@@ -435,7 +470,7 @@ const ImageConverterClient: FC = () => {
                       originalSize &&
                       convertedSize !== originalSize && (
                         <p className="text-xs text-emerald-600">
-                          体积变化：{" "}
+                          {ui.sizeChange}{" "}
                           {(
                             (convertedSize / originalSize) *
                             100
@@ -453,7 +488,7 @@ const ImageConverterClient: FC = () => {
                       )}.${getImageExportExtension(targetFormat)}`}
                       className="rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-medium text-white shadow-md transition-transform hover:scale-105 hover:bg-indigo-700 active:scale-95"
                     >
-                      下载 {getImageExportLabel(targetFormat)}
+                      {ui.downloadPrefix} {getImageExportLabel(targetFormat)}
                     </a>
                   )}
                 </div>
@@ -469,6 +504,13 @@ const ImageConverterClient: FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const ImageConverterClient: FC = () => {
+  return (
+    <ToolPageLayout toolSlug="image-converter" maxWidthClassName="max-w-4xl">
+      <ImageConverterInner />
     </ToolPageLayout>
   );
 };

@@ -19,6 +19,7 @@
     "title": "Speech to Text",
     "outputLabel": "Recognition Results",
     "languageSelect": "Select Language",
+    "statusLabel": "Status",
     "startButton": "Start Recording",
     "stopButton": "Stop Recording",
     "clearButton": "Clear",
@@ -26,7 +27,8 @@
     "statusReady": "Ready",
     "statusListening": "Listening...",
     "statusStopped": "Stopped",
-    "noSupport": "Your browser does not support speech recognition. Please use Chrome or Edge.",
+    "noSupport": "Your browser does not support speech recognition",
+    "noSupportDesc": "Please use Chrome, Edge, or Safari to access this feature.",
     "interimResults": "Interim Results",
     "finalResults": "Final Results",
     "note": "Note: Speech recognition requires a browser that supports the Web Speech API (Chrome or Edge recommended). Recognition accuracy depends on your network connection and speech engine."

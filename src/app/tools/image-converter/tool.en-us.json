@@ -12,5 +12,32 @@
     "image-converter",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "Image Format Converter",
+    "subtitle": "Convert between common formats such as JPG, PNG, WebP, BMP, ICO, and GIF, completely locally in your browser.",
+    "notice": "Note: Export support for certain formats like BMP, ICO, and GIF depends on browser encoding capabilities. If export fails, try PNG/JPG or a different browser.",
+    "dropTitle": "Click or drag image here",
+    "dropFormats": "Supports JPG, PNG, WebP, GIF, SVG, etc. (SVG will be rasterized to bitmap)",
+    "originalInfo": "Original Info:",
+    "resolution": "Resolution",
+    "size": "Size",
+    "targetFormat": "Target Format",
+    "replaceImage": "Replace Image",
+    "clear": "Clear",
+    "startConvert": "Convert",
+    "converting": "Converting...",
+    "dropHint": "Drag and drop a new image to replace directly",
+    "original": "Original",
+    "convertedPrefix": "Converted",
+    "noResult": "No result generated yet. Select a target format and click \"Convert\".",
+    "sizeChange": "Size change: ",
+    "downloadPrefix": "Download",
+    "errSelectImage": "Please select an image file",
+    "errReadDimensions": "Failed to read image dimensions",
+    "errSelectImageFirst": "Please select an image file to convert first",
+    "errConvertFailed": "Format conversion failed",
+    "errCanvasContext": "Failed to create canvas context",
+    "errSvgLoad": "Failed to load SVG"
+  }
 }

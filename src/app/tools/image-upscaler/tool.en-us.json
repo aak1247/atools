@@ -5,11 +5,20 @@
   "seoDescription": "Free online image upscaler powered by RealCUGAN-ncnn-webassembly (WebAssembly). Upscale anime/illustration-like images by 2× or 3× with denoise/restore presets, running locally in your browser without uploads. If the environment cannot enable Cross-Origin Isolation (COOP/COEP) and SharedArrayBuffer, it falls back to a high-quality resize mode for compatibility.",
   "category": "Image Tools",
   "lang": "en-US",
-  "keywords": ["image upscaler", "upscale image", "RealCUGAN", "WebAssembly", "anime upscaler", "2x 3x"],
+  "keywords": [
+    "image upscaler",
+    "upscale image",
+    "RealCUGAN",
+    "WebAssembly",
+    "anime upscaler",
+    "2x 3x"
+  ],
   "ui": {
     "hint": "Image upscaler: uses RealCUGAN (WebAssembly, local CPU) when available (no uploads). If unsupported, it falls back to high-quality resize.",
     "pick": "Choose image",
+    "replace": "Click to replace image",
     "clear": "Clear",
+    "dropReplaceHint": "Drag and drop a new image here to replace directly",
     "mode": "Mode",
     "modeRealCugan": "RealCUGAN (AI upscaling)",
     "modeResize": "High-quality resize (compatible)",
@@ -41,4 +50,3 @@
     "libCredit": "AI engine: RealCUGAN-ncnn-webassembly (MIT)"
   }
 }
-

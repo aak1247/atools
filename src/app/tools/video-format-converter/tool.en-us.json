@@ -9,7 +9,9 @@
   "ui": {
     "hint": "Convert video formats (MP4/WebM/MKV/MOV/AVI) with basic options. Loads ffmpeg.wasm locally (no uploads).",
     "pick": "Select video file",
+    "replace": "Replace video",
     "clear": "Clear",
+    "dropReplaceHint": "Drag & drop a new video here to replace it directly.",
     "loadFfmpeg": "Load FFmpeg",
     "ffmpegLoading": "Loading…",
     "ffmpegReady": "FFmpeg ready",

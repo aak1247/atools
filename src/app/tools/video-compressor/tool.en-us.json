@@ -9,7 +9,9 @@
   "ui": {
     "hint": "Video compressor to MP4 (H.264) with CRF quality control and optional scaling. Loads ffmpeg.wasm locally (no uploads).",
     "pick": "Select video file",
+    "replace": "Replace video",
     "clear": "Clear",
+    "dropReplaceHint": "Drag & drop a new video here to replace it directly.",
     "loadFfmpeg": "Load FFmpeg",
     "ffmpegLoading": "Loading…",
     "ffmpegReady": "FFmpeg ready",

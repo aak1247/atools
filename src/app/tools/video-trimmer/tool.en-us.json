@@ -12,5 +12,32 @@
     "video-trimmer",
     "ATools",
     "Pure Tools"
-  ]
+  ],
+  "ui": {
+    "title": "Video Trimmer",
+    "subtitle": "Set start and end times, export to WebM (real-time transcoding, no server upload)",
+    "pickTitle": "Select Video File",
+    "pickFile": "Select File",
+    "replaceFile": "Replace Video",
+    "clear": "Clear",
+    "dropReplaceHint": "Drag & drop a new video here to replace it directly",
+    "durationTemplate": "Duration: {time} ({seconds}s)",
+    "rangeTitle": "Trim Range",
+    "startSeconds": "Start (seconds)",
+    "endSeconds": "End (seconds)",
+    "selectedSegmentTemplate": "Selected segment: {time} ({seconds}s)",
+    "exportTitle": "Export",
+    "exportHint": "Export to WebM using MediaRecorder; transcoding speed ≈ playback speed. Some browser/codec combinations may not be supported.",
+    "exportWebm": "Export WebM",
+    "exporting": "Exporting...",
+    "progress": "Progress",
+    "generated": "Generated clip file:",
+    "download": "Download",
+    "errorPrefix": "Error: ",
+    "errChooseFile": "Please select a video file first.",
+    "errNoMediaRecorder": "Your current browser does not support MediaRecorder for WebM export.",
+    "errNoCaptureStream": "Your browser does not support captureStream, unable to export clipped video purely in client.",
+    "errEndAfterStart": "End time must be greater than start time.",
+    "errExportFailed": "Export failed. Please try again later."
+  }
 }

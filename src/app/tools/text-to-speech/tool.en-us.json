@@ -19,6 +19,8 @@
     "title": "Text to Speech",
     "inputLabel": "Input Text",
     "inputPlaceholder": "Enter text to convert...",
+    "sampleButton": "Sample Text",
+    "statusLabel": "Status",
     "voiceSelect": "Select Voice",
     "rateLabel": "Rate",
     "pitchLabel": "Pitch",
@@ -33,7 +35,7 @@
     "statusPaused": "Paused",
     "statusStopped": "Stopped",
     "noVoices": "No voices detected. Please use a browser that supports the Web Speech API.",
-    "sampleText": "This is a sample text for testing the text-to-speech functionality.",
+    "sampleText": "This is a sample text for testing the text-to-speech functionality. Welcome to ATools!",
     "loadingVoices": "Loading voice list...",
     "note": "Note: Long text will be automatically split into segments. Available voices depend on your browser and operating system."
   }

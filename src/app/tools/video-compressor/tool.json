@@ -18,7 +18,9 @@
   "ui": {
     "hint": "视频压缩器：输出 MP4(H.264) 并用 CRF 控制体积/质量，可选 720p/1080p 缩放（纯前端本地处理不上传）。首次需加载 ffmpeg.wasm。",
     "pick": "选择视频文件",
+    "replace": "点击替换视频",
     "clear": "清空",
+    "dropReplaceHint": "支持拖拽新视频到此区域直接替换。",
     "loadFfmpeg": "加载 FFmpeg",
     "ffmpegLoading": "加载中…",
     "ffmpegReady": "FFmpeg 已就绪",

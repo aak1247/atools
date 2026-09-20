@@ -451,7 +451,7 @@ function SealForgeryDetectorInner() {
 
                 {!metrics ? (
                   <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
-                    点击“开始检测”后显示结果。
+                    {ui.clickToDetect}
                   </div>
                 ) : (
                   <div className="mt-4 space-y-3 text-sm text-slate-700">

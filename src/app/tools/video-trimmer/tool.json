@@ -15,6 +15,33 @@
     "WebM转换",
     "视频编辑器"
   ],
+  "ui": {
+    "title": "视频剪辑器",
+    "subtitle": "设置起止时间，导出 WebM（实时转码，不上传）",
+    "pickTitle": "选择视频文件",
+    "pickFile": "选择文件",
+    "replaceFile": "点击替换视频",
+    "clear": "清空",
+    "dropReplaceHint": "支持拖拽新视频到此区域直接替换",
+    "durationTemplate": "时长：{time}（{seconds}s）",
+    "rangeTitle": "剪辑范围",
+    "startSeconds": "开始（秒）",
+    "endSeconds": "结束（秒）",
+    "selectedSegmentTemplate": "选中片段：{time}（{seconds}s）",
+    "exportTitle": "导出",
+    "exportHint": "使用 MediaRecorder 导出 WebM，转码速度≈实时播放速度。部分浏览器/编码格式可能无法导出。",
+    "exportWebm": "导出 WebM",
+    "exporting": "导出中...",
+    "progress": "进度",
+    "generated": "已生成剪辑文件：",
+    "download": "下载",
+    "errorPrefix": "错误：",
+    "errChooseFile": "请先选择一个视频文件。",
+    "errNoMediaRecorder": "当前浏览器不支持 MediaRecorder 导出 WebM。",
+    "errNoCaptureStream": "当前浏览器不支持 captureStream，无法在纯前端导出剪辑视频。",
+    "errEndAfterStart": "结束时间必须大于开始时间。",
+    "errExportFailed": "导出失败，请稍后重试。"
+  },
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true

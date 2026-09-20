@@ -19,7 +19,9 @@
   "ui": {
     "hint": "图片超分辨率提升：优先使用 RealCUGAN（WebAssembly，本地 CPU 运行），不上传图片；若环境不支持则使用高质量缩放作为兼容方案。",
     "pick": "选择图片",
+    "replace": "点击替换图片",
     "clear": "清空",
+    "dropReplaceHint": "支持拖拽新图片到此区域直接替换",
     "mode": "模式",
     "modeRealCugan": "RealCUGAN（AI超分）",
     "modeResize": "高质量缩放（兼容）",
