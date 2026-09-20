@@ -700,7 +700,7 @@ async function extractSealFromFile(
     outputCanvas.toBlob(
       (b) => {
         if (b) resolve(b);
-        else reject(new Error("生成结果失败"));
+        else reject(new Error("Failed to generate result"));
       },
       "image/png",
       1,
@@ -710,7 +710,18 @@ async function extractSealFromFile(
   return { blob, hasSeal };
 }
 
-const SealExtractorClient: FC = () => {
+export default function SealExtractorClient() {
+  return (
+    <ToolPageLayout toolSlug="seal-extractor" maxWidthClassName="max-w-5xl">
+      <SealExtractorInner />
+    </ToolPageLayout>
+  );
+}
+
+function SealExtractorInner() {
+  const config = useOptionalToolConfig("seal-extractor");
+  const ui = { ...DEFAULT_UI, ...((config?.ui ?? {}) as Partial<typeof DEFAULT_UI>) };
+
   const [file, setFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -1968,15 +1979,13 @@ const SealExtractorClient: FC = () => {
         </div>
       )}
 
-      <div className="mx-auto max-w-4xl rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-4 text-xs text-slate-500">
-	        <p>
-	          小提示：本工具采用纯前端像素级处理算法，通过识别红色区域并透明化其他像素来完成印章提取。
-	          可先截取印章所在区域提升识别稳定性；智能填充会按阈值自动修补小空洞并平滑过渡。
-	        </p>
-      </div>
-    </div>
-    </ToolPageLayout>
-    );
-};
-
-export default SealExtractorClient;
+	      <div className="mx-auto max-w-4xl rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-4 text-xs text-slate-500">
+		        <p>
+		          小提示：本工具采用纯前端像素级处理算法，通过识别红色区域并透明化其他像素来完成印章提取。
+		          可先截取印章所在区域提升识别稳定性；智能填充会按阈值自动修补小空洞并平滑过渡。
+		        </p>
+	      </div>
+	    </div>
+	    </ToolPageLayout>
+	    );
+	}
