@@ -27,8 +27,10 @@ export type Messages = {
   editToolOnGithub: string;
   shareCurrentPage: string;
   sharing: string;
+  linkCopied: string;
   installAsApp: string;
   iosInstallHint: string;
+  browserInstallHint: string;
   clarityConsentTitle: string;
   clarityConsentDescription: string;
   clarityConsentAllow: string;
@@ -61,11 +63,13 @@ const zhCN: Messages = {
   clearFilters: "清除筛选",
   toolLoadingTitle: "工具加载中...",
   toolLoadingDescription: "正在加载工具信息...",
-  editToolOnGithub: "编辑此工具",
+  editToolOnGithub: "查看源码 (GitHub)",
   shareCurrentPage: "分享当前页面",
   sharing: "分享中...",
+  linkCopied: "链接已复制到剪贴板",
   installAsApp: "安装此页面为应用",
   iosInstallHint: "在 Safari 浏览器底部菜单中选择“分享”，然后点击“添加到主屏幕”即可安装此工具。",
+  browserInstallHint: "可在浏览器地址栏右侧点击“安装”，或在菜单中选择“添加到主屏幕/安装应用”。",
   clarityConsentTitle: "分析偏好设置",
   clarityConsentDescription:
     "站点默认以 Microsoft Clarity 的无 Cookie 模式收集匿名页面使用数据，用于基础可用性分析。若你同意，我们会额外启用分析类 Cookie，把跨页访问串成更完整的热力图与会话回放；广告存储始终关闭，工具主交互区默认额外遮罩。",
@@ -99,11 +103,13 @@ const enUS: Messages = {
   clearFilters: "Clear filters",
   toolLoadingTitle: "Loading tool...",
   toolLoadingDescription: "Loading tool info...",
-  editToolOnGithub: "Edit this tool",
+  editToolOnGithub: "View source on GitHub",
   shareCurrentPage: "Share this page",
   sharing: "Sharing...",
+  linkCopied: "Link copied to clipboard",
   installAsApp: "Install as app",
   iosInstallHint: "In Safari, tap Share, then choose “Add to Home Screen” to install this tool.",
+  browserInstallHint: "You can install this app from your browser address bar or menu (Add to Home Screen / Install).",
   clarityConsentTitle: "Analytics preferences",
   clarityConsentDescription:
     "This site uses Microsoft Clarity in cookieless mode by default to collect anonymous page-usage data for baseline usability analysis. If you allow it, we additionally enable analytics cookies so cross-page visits can be stitched into fuller heatmaps and session replays; ad storage stays denied and tool interaction areas remain additionally masked.",

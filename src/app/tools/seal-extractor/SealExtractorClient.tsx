@@ -57,6 +57,8 @@ const DEFAULT_UI = {
   quickSensitivity85: "提高灵敏度至 85%",
   quickKeepRed: "切换为“仅保留红色”",
   quickCropArea: "框选印章局部",
+  basicSettingsLabel: "基础设置",
+  fineTuneSettingsLabel: "色彩与细节微调",
   resultRatioTemplate: "透明背景 PNG，体积约为原图的 {ratio}%",
   downloadSeal: "下载电子章",
   tip: "小提示：本工具采用纯前端像素级处理算法，通过识别红色区域并透明化其他像素来完成印章提取。可先截取印章所在区域提升识别稳定性；智能填充会按阈值自动修补小空洞并平滑过渡。",
@@ -639,32 +641,52 @@ async function extractSealFromFile(
       const g = data[idx + 1];
       const b = data[idx + 2];
 
-      const [h, s, v] = rgbToHsv(r, g, b);
+	      const [h, s, v] = rgbToHsv(r, g, b);
 
-      const isTargetHue = hueDistance(h, targetHue) <= tolerance;
-      const sum = r + g + b;
-      const channelValue =
-        channelForRatio === 0 ? r : channelForRatio === 1 ? g : b;
-      const channelRatio = sum > 0 ? channelValue / sum : 0;
-      const hasChannelRatio =
-        useChannelRatioGate && channelRatio >= channelRatioMin;
-      const passesGrayGate = s >= grayCutoff || hasChannelRatio;
-      const isStrong =
-        v >= minValue && (s >= minSaturation || hasChannelRatio);
+	      const redChroma = r - Math.max(g, b);
+	      const isTargetHue = hueDistance(h, targetHue) <= tolerance;
+	      const sum = r + g + b;
+	      const channelValue =
+	        channelForRatio === 0 ? r : channelForRatio === 1 ? g : b;
+	      const channelRatio = sum > 0 ? channelValue / sum : 0;
+	      const hasChannelRatio =
+	        useChannelRatioGate && channelRatio >= channelRatioMin;
 
-      const isSealPixel =
-        options.mode === "keepRed"
-          ? r > 120 && r > g * 1.1 && r > b * 1.1
-          : isTargetHue && passesGrayGate && isStrong;
+	      // 严格剔除黑灰色文字：黑色/深灰色文字即使由于扫描噪点稍偏红，其红蓝绿差值(redChroma)极小且饱和度不足，坚决排除
+	      const minRedChromaRequired = Math.max(16, 22 - (sensitivity / 100) * 8);
+	      const isNotBlackOrGrayText =
+	        redChroma >= minRedChromaRequired &&
+	        r >= 88 &&
+	        s >= Math.max(0.16, grayCutoff);
 
-      if (isSealPixel) {
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x > maxX) maxX = x;
-        if (y > maxY) maxY = y;
-      } else {
-        data[idx + 3] = 0;
-      }
+	      const passesGrayGate =
+	        (s >= grayCutoff || hasChannelRatio) && isNotBlackOrGrayText;
+	      const isStrong =
+	        v >= minValue &&
+	        (s >= minSaturation || hasChannelRatio) &&
+	        redChroma >= minRedChromaRequired;
+
+	      const isSealPixel =
+	        options.mode === "keepRed"
+	          ? r > 110 && redChroma >= 20 && r > g * 1.12 && r > b * 1.12
+	          : isTargetHue && passesGrayGate && isStrong;
+
+	      if (isSealPixel) {
+	        if (x < minX) minX = x;
+	        if (y < minY) minY = y;
+	        if (x > maxX) maxX = x;
+	        if (y > maxY) maxY = y;
+
+	        // 色彩纯化去灰：如果印章像素因压在墨水文字或阴影上导致偏暗发灰，将其适度提纯为自然饱满的印泥红，杜绝灰色残渣
+	        if (r < 170 || redChroma < 55) {
+	          const blendFactor = Math.min(0.65, Math.max(0, (170 - r) / 80));
+	          data[idx] = Math.round(r * (1 - blendFactor) + targetRgb[0] * blendFactor);
+	          data[idx + 1] = Math.round(g * (1 - blendFactor) + targetRgb[1] * blendFactor);
+	          data[idx + 2] = Math.round(b * (1 - blendFactor) + targetRgb[2] * blendFactor);
+	        }
+	      } else {
+	        data[idx + 3] = 0;
+	      }
     }
   }
 
@@ -987,10 +1009,21 @@ function SealExtractorInner() {
     try {
       setIsLoadingSample(true);
       setError(null);
-      const sampleFile = await generateSampleSealFile();
+      // 优先从真实静态样本文件加载真实的合同盖章扫描件
+      const res = await fetch("/samples/sample-contract-seal.jpg");
+      if (!res.ok) throw new Error("Fetch failed");
+      const blob = await res.blob();
+      const sampleFile = new File([blob], "技术服务合作协议_盖章扫描件.jpg", {
+        type: "image/jpeg",
+      });
       await processFile(sampleFile);
     } catch {
-      setError(ui.errLoadSampleFailed);
+      try {
+        const fallback = await generateSampleSealFile();
+        await processFile(fallback);
+      } catch {
+        setError(ui.errLoadSampleFailed);
+      }
     } finally {
       setIsLoadingSample(false);
     }
@@ -1543,312 +1576,290 @@ function SealExtractorInner() {
 		              className="sr-only"
 		              onChange={handleFileChange}
 		            />
-	            <div
-                className={`flex flex-col gap-4 rounded-xl border-2 border-dashed p-4 backdrop-blur-sm transition md:flex-row md:items-center md:justify-between ${
-                  isDragging
-                    ? "border-rose-400 bg-rose-50/50"
-                    : "border-slate-200 bg-slate-50/80"
-                }`}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-              >
-	              <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={openFilePicker}
-                    className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
-                  >
-                    {ui.replaceImage}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetWorkspace}
-                    className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
-                  >
-                    清空
-                  </button>
-	                <div className="h-6 w-px bg-slate-200" />
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-slate-500">{ui.modeLabel}</span>
-                  <div className="inline-flex rounded-full bg-white p-1 shadow-sm">
-                    <button
-                      type="button"
-                      onClick={() => handleModeChange("auto")}
-                      className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        mode === "auto"
-                          ? "bg-rose-500 text-white shadow-sm"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      智能识别
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleModeChange("keepRed")}
-                      className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        mode === "keepRed"
-                          ? "bg-rose-500 text-white shadow-sm"
-                          : "text-slate-600 hover:bg-slate-50"
-                      }`}
-	                    >
-	                      仅保留红色
-	                    </button>
-		                  </div>
-		                </div>
-		                <div className="h-6 w-px bg-slate-200" />
-			                <div className="flex items-center gap-2 text-sm">
-			                  <span className="text-slate-500">{ui.targetColorLabel}</span>
-			                  <input
-			                    type="color"
-			                    value={targetColor}
-			                    onChange={(e) =>
-			                      handleTargetColorChange(e.target.value)
-			                    }
-			                    className="h-8 w-10 rounded-lg border border-slate-200 bg-white shadow-sm"
-			                    title={ui.targetColorTitle}
-			                  />
-			                  <span className="text-slate-500">{ui.toleranceLabel}</span>
-			                  <div className="flex items-center gap-2">
-			                    <input
-			                      type="range"
-			                      min={0}
-			                      max={90}
-			                      step={1}
-			                      value={tolerance}
-			                      onChange={(e) =>
-			                        handleToleranceChange(Number(e.target.value))
-			                      }
-			                      className="h-2 w-24 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
-			                    />
-			                    <input
-			                      type="number"
-			                      min={0}
-			                      max={180}
-			                      value={tolerance}
-			                      onChange={(e) =>
-			                        handleToleranceChange(Number(e.target.value))
-			                      }
-			                      className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 shadow-sm"
-			                    />
-			                    <span className="text-xs text-slate-400">°</span>
-			                  </div>
-			                  <span className="text-slate-500">{ui.grayFilterLabel}</span>
-			                  <div className="flex items-center gap-2">
-			                    <input
-			                      type="range"
-			                      min={0}
-			                      max={1}
-			                      step={0.01}
-			                      value={graySaturationCutoff}
-			                      onChange={(e) =>
-			                        handleGraySaturationCutoffChange(
-			                          Number(e.target.value),
-			                        )
-			                      }
-			                      className="h-2 w-24 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
-			                    />
-			                    <input
-			                      type="number"
-			                      min={0}
-			                      max={1}
-			                      step={0.01}
-			                      value={graySaturationCutoff}
-			                      onChange={(e) =>
-			                        handleGraySaturationCutoffChange(
-			                          Number(e.target.value),
-			                        )
-			                      }
-			                      className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 shadow-sm"
-			                    />
-			                    <span className="text-xs text-slate-400">S</span>
-			                  </div>
-				                  <span className="text-slate-500">{ui.channelRatioLabel}</span>
-				                  <div className="inline-flex rounded-full bg-white p-1 shadow-sm">
-				                    <button
-				                      type="button"
-				                      onClick={() => handleChannelRatioChannelChange("auto")}
-				                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-				                        channelRatioChannel === "auto"
-				                          ? "bg-rose-500 text-white shadow-sm"
-				                          : "text-slate-600 hover:bg-slate-50"
-				                      }`}
-				                    >
-				                      自动
-				                    </button>
-				                    <button
-				                      type="button"
-				                      onClick={() => handleChannelRatioChannelChange("r")}
-				                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-				                        channelRatioChannel === "r"
-				                          ? "bg-rose-500 text-white shadow-sm"
-				                          : "text-slate-600 hover:bg-slate-50"
-				                      }`}
-				                    >
-				                      R
-				                    </button>
-				                    <button
-				                      type="button"
-				                      onClick={() => handleChannelRatioChannelChange("g")}
-				                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-				                        channelRatioChannel === "g"
-				                          ? "bg-rose-500 text-white shadow-sm"
-				                          : "text-slate-600 hover:bg-slate-50"
-				                      }`}
-				                    >
-				                      G
-				                    </button>
-				                    <button
-				                      type="button"
-				                      onClick={() => handleChannelRatioChannelChange("b")}
-				                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-				                        channelRatioChannel === "b"
-				                          ? "bg-rose-500 text-white shadow-sm"
-				                          : "text-slate-600 hover:bg-slate-50"
-				                      }`}
-				                    >
-				                      B
-				                    </button>
-				                  </div>
-				                  <div className="flex items-center gap-2">
-				                    <input
-				                      type="range"
-				                      min={0}
-				                      max={100}
-				                      step={1}
-				                      value={channelRatioMinPercent}
-				                      onChange={(e) =>
-				                        handleChannelRatioMinPercentChange(
-				                          Number(e.target.value),
-				                        )
-				                      }
-				                      className="h-2 w-24 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
-				                    />
-				                    <input
-				                      type="number"
-				                      min={0}
-				                      max={100}
-				                      step={1}
-				                      value={channelRatioMinPercent}
-				                      onChange={(e) =>
-				                        handleChannelRatioMinPercentChange(
-				                          Number(e.target.value),
-				                        )
-				                      }
-				                      className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 shadow-sm"
-				                    />
-				                    <span className="text-xs text-slate-400">%</span>
-				                  </div>
-			                  {mode !== "auto" && (
-			                    <span className="text-xs text-slate-400">
-			                      {ui.autoModeOnlyHint}
-			                    </span>
-			                  )}
-			                </div>
-		                <div className="h-6 w-px bg-slate-200" />
-		                <div className="flex items-center gap-2 text-sm">
-		                  <span className="text-slate-500">{ui.cropAreaLabel}</span>
-	                  <div className="inline-flex rounded-full bg-white p-1 shadow-sm">
-	                    <button
-	                      type="button"
-	                      onClick={() => handleCropEnabledChange(true)}
-	                      className={`rounded-full px-3 py-1 text-xs font-medium ${
-	                        cropEnabled
-	                          ? "bg-rose-500 text-white shadow-sm"
-	                          : "text-slate-600 hover:bg-slate-50"
-	                      }`}
-	                    >
-	                      开启
-	                    </button>
-	                    <button
-	                      type="button"
-	                      onClick={() => handleCropEnabledChange(false)}
-	                      className={`rounded-full px-3 py-1 text-xs font-medium ${
-	                        !cropEnabled
-	                          ? "bg-slate-800 text-white shadow-sm"
-	                          : "text-slate-600 hover:bg-slate-50"
-	                      }`}
-	                    >
-	                      全图
-	                    </button>
-	                  </div>
-		                  {cropEnabled && cropRect && (
+		            <div
+	                className={`space-y-4 rounded-2xl border-2 border-dashed p-4 backdrop-blur-sm transition ${
+	                  isDragging
+	                    ? "border-rose-400 bg-rose-50/50"
+	                    : "border-slate-200 bg-slate-50/80"
+	                }`}
+	                onDrop={handleDrop}
+	                onDragOver={handleDragOver}
+	                onDragLeave={handleDragLeave}
+	              >
+		              {/* 分区 1：基础控制区 */}
+		              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+		                <div className="flex flex-wrap items-center gap-3">
+		                  <div className="flex items-center gap-2">
 		                    <button
 		                      type="button"
-		                      onClick={clearCrop}
-		                      className="rounded-lg bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 hover:text-slate-900"
+		                      onClick={openFilePicker}
+		                      className="rounded-lg bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
 		                    >
-		                      清除
+		                      {ui.replaceImage}
 		                    </button>
-		                  )}
-		                  {cropEnabled && (
-		                    <>
+		                    <button
+		                      type="button"
+		                      onClick={resetWorkspace}
+		                      className="rounded-lg bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-900"
+		                    >
+		                      {ui.clear}
+		                    </button>
+		                  </div>
+
+		                  <div className="hidden h-5 w-px bg-slate-200 sm:block" />
+
+		                  <div className="flex items-center gap-2 text-xs">
+		                    <span className="font-medium text-slate-500">{ui.modeLabel}</span>
+		                    <div className="inline-flex rounded-full bg-white p-1 shadow-sm">
 		                      <button
 		                        type="button"
-		                        onClick={openCropModal}
-		                        className="rounded-lg bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 hover:text-slate-900"
+		                        onClick={() => handleModeChange("auto")}
+		                        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+		                          mode === "auto"
+		                            ? "bg-rose-500 text-white shadow-sm"
+		                            : "text-slate-600 hover:bg-slate-50"
+		                        }`}
 		                      >
-		                        {cropRect ? ui.cropRecrop : ui.cropStart}
+		                        {ui.modeAuto}
 		                      </button>
-		                      <span className="text-xs text-slate-400">
-		                        {ui.cropModalBtnHint}
-		                      </span>
-		                    </>
-		                  )}
-		                </div>
-	                <div className="h-6 w-px bg-slate-200" />
-	                <div className="flex items-center gap-2 text-sm">
-	                  <span className="text-slate-500">{ui.holeFillLabel}</span>
-	                  <div className="flex items-center gap-2">
-	                    <input
-	                      type="range"
-	                      min={0}
-	                      max={30}
-	                      step={1}
-	                      value={holeFillThreshold}
-	                      onChange={(e) =>
-	                        handleHoleFillThresholdChange(Number(e.target.value))
-	                      }
-	                      className="h-2 w-28 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
-	                    />
-	                    <input
-	                      type="number"
-	                      min={0}
-	                      max={50}
-	                      value={holeFillThreshold}
-	                      onChange={(e) =>
-	                        handleHoleFillThresholdChange(Number(e.target.value))
-	                      }
-	                      className="w-16 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 shadow-sm"
-	                    />
-	                    <span className="text-xs text-slate-400">px</span>
-	                  </div>
-	                </div>
-	              </div>
+		                      <button
+		                        type="button"
+		                        onClick={() => handleModeChange("keepRed")}
+		                        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+		                          mode === "keepRed"
+		                            ? "bg-rose-500 text-white shadow-sm"
+		                            : "text-slate-600 hover:bg-slate-50"
+		                        }`}
+		                      >
+		                        {ui.modeKeepRed}
+		                      </button>
+		                    </div>
+		                  </div>
 
-              <div className="flex flex-1 items-center gap-3 md:max-w-sm">
-                <div className="flex-1">
-                  <input
-                    type="range"
-                    min={20}
-                    max={100}
-                    step={5}
-                    value={sensitivity}
-                    onChange={handleSensitivityChange}
-                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
-                  />
-                </div>
-                <div className="w-24 text-right text-xs text-slate-500">
-                  {ui.sensitivityLabel} 
-                  <span className="font-semibold text-rose-500">
-                    {sensitivity}%
-                  </span>
-                </div>
-	              </div>
-	            </div>
-              <div className="text-[11px] text-slate-500">
-                {ui.dropReplaceHint}
-              </div>
+		                  <div className="hidden h-5 w-px bg-slate-200 sm:block" />
+
+		                  <div className="flex items-center gap-2 text-xs">
+		                    <span className="font-medium text-slate-500">{ui.cropAreaLabel}</span>
+		                    <div className="inline-flex rounded-full bg-white p-1 shadow-sm">
+		                      <button
+		                        type="button"
+		                        onClick={() => handleCropEnabledChange(true)}
+		                        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+		                          cropEnabled
+		                            ? "bg-rose-500 text-white shadow-sm"
+		                            : "text-slate-600 hover:bg-slate-50"
+		                        }`}
+		                      >
+		                        {ui.cropEnabled}
+		                      </button>
+		                      <button
+		                        type="button"
+		                        onClick={() => handleCropEnabledChange(false)}
+		                        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+		                          !cropEnabled
+		                            ? "bg-slate-800 text-white shadow-sm"
+		                            : "text-slate-600 hover:bg-slate-50"
+		                        }`}
+		                      >
+		                        {ui.cropFull}
+		                      </button>
+		                    </div>
+		                    {cropEnabled && (
+		                      <div className="inline-flex items-center gap-1.5">
+		                        <button
+		                          type="button"
+		                          onClick={openCropModal}
+		                          className="rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50"
+		                        >
+		                          {cropRect ? ui.cropRecrop : ui.cropStart}
+		                        </button>
+		                        {cropRect && (
+		                          <button
+		                            type="button"
+		                            onClick={clearCrop}
+		                            className="rounded-lg bg-white px-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+		                          >
+		                            {ui.cropClear}
+		                          </button>
+		                        )}
+		                      </div>
+		                    )}
+		                  </div>
+		                </div>
+
+		                <div className="flex items-center gap-3 rounded-xl bg-white/70 px-3 py-1.5 shadow-sm ring-1 ring-slate-200/60 lg:max-w-xs">
+		                  <span className="shrink-0 text-xs font-medium text-slate-600">
+		                    {ui.sensitivityLabel}
+		                  </span>
+		                  <input
+		                    type="range"
+		                    min={20}
+		                    max={100}
+		                    step={5}
+		                    value={sensitivity}
+		                    onChange={handleSensitivityChange}
+		                    className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
+		                  />
+		                  <span className="w-10 text-right text-xs font-bold text-rose-600">
+		                    {sensitivity}%
+		                  </span>
+		                </div>
+		              </div>
+
+		              {/* 分区 2：高级微调区（色彩与细节微调） */}
+		              <div className="rounded-xl border border-slate-200/80 bg-white/80 p-3 shadow-xs backdrop-blur-xs">
+		                <div className="mb-2.5 flex items-center justify-between">
+		                  <div className="flex items-center gap-1.5">
+		                    <span className="inline-block h-2 w-2 rounded-full bg-rose-400" />
+		                    <span className="text-xs font-semibold text-slate-700">
+		                      {ui.fineTuneSettingsLabel}
+		                    </span>
+		                  </div>
+		                  <span className="text-[11px] text-slate-400">
+		                    {ui.dropReplaceHint}
+		                  </span>
+		                </div>
+
+		                <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-xs">
+		                  {/* 目标颜色与容差 */}
+		                  <div className="flex items-center gap-2">
+		                    <span className="text-slate-500">{ui.targetColorLabel}</span>
+		                    <input
+		                      type="color"
+		                      value={targetColor}
+		                      onChange={(e) => handleTargetColorChange(e.target.value)}
+		                      className="h-7 w-8 cursor-pointer rounded border border-slate-200 bg-white shadow-xs"
+		                      title={ui.targetColorTitle}
+		                    />
+		                    <span className="ml-1 text-slate-500">{ui.toleranceLabel}</span>
+		                    <input
+		                      type="range"
+		                      min={0}
+		                      max={90}
+		                      step={1}
+		                      value={tolerance}
+		                      onChange={(e) => handleToleranceChange(Number(e.target.value))}
+		                      className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
+		                    />
+		                    <input
+		                      type="number"
+		                      min={0}
+		                      max={180}
+		                      value={tolerance}
+		                      onChange={(e) => handleToleranceChange(Number(e.target.value))}
+		                      className="w-14 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-700 shadow-xs"
+		                    />
+		                    <span className="text-slate-400">°</span>
+		                  </div>
+
+		                  <div className="hidden h-4 w-px bg-slate-200 md:block" />
+
+		                  {/* 智能填充 */}
+		                  <div className="flex items-center gap-2">
+		                    <span className="text-slate-500">{ui.holeFillLabel}</span>
+		                    <input
+		                      type="range"
+		                      min={0}
+		                      max={30}
+		                      step={1}
+		                      value={holeFillThreshold}
+		                      onChange={(e) => handleHoleFillThresholdChange(Number(e.target.value))}
+		                      className="h-2 w-20 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
+		                    />
+		                    <input
+		                      type="number"
+		                      min={0}
+		                      max={50}
+		                      value={holeFillThreshold}
+		                      onChange={(e) => handleHoleFillThresholdChange(Number(e.target.value))}
+		                      className="w-14 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-700 shadow-xs"
+		                    />
+		                    <span className="text-slate-400">px</span>
+		                  </div>
+
+		                  <div className="hidden h-4 w-px bg-slate-200 md:block" />
+
+		                  {/* 灰度过滤 */}
+		                  <div className="flex items-center gap-2">
+		                    <span className="text-slate-500">{ui.grayFilterLabel}</span>
+		                    <input
+		                      type="range"
+		                      min={0}
+		                      max={1}
+		                      step={0.01}
+		                      value={graySaturationCutoff}
+		                      onChange={(e) => handleGraySaturationCutoffChange(Number(e.target.value))}
+		                      className="h-2 w-16 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500"
+		                    />
+		                    <input
+		                      type="number"
+		                      min={0}
+		                      max={1}
+		                      step={0.01}
+		                      value={graySaturationCutoff}
+		                      onChange={(e) => handleGraySaturationCutoffChange(Number(e.target.value))}
+		                      className="w-14 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-700 shadow-xs"
+		                    />
+		                    <span className="text-slate-400">S</span>
+		                  </div>
+
+		                  <div className="hidden h-4 w-px bg-slate-200 lg:block" />
+
+		                  {/* 通道占比 - 联动禁用 */}
+		                  <div
+		                    className={`flex items-center gap-2 transition-opacity ${
+		                      mode === "keepRed" ? "opacity-40 cursor-not-allowed" : "opacity-100"
+		                    }`}
+		                    title={mode === "keepRed" ? ui.autoModeOnlyHint : undefined}
+		                  >
+		                    <span className="text-slate-500">{ui.channelRatioLabel}</span>
+		                    <div className="inline-flex rounded-full bg-slate-100 p-0.5 shadow-xs">
+		                      {(["auto", "r", "g", "b"] as const).map((ch) => (
+		                        <button
+		                          key={ch}
+		                          type="button"
+		                          disabled={mode === "keepRed"}
+		                          onClick={() => handleChannelRatioChannelChange(ch)}
+		                          className={`rounded-full px-2 py-0.5 text-[11px] font-medium transition disabled:cursor-not-allowed ${
+		                            channelRatioChannel === ch
+		                              ? "bg-rose-500 text-white shadow-xs"
+		                              : "text-slate-600 hover:bg-white"
+		                          }`}
+		                        >
+		                          {ch === "auto" ? ui.channelAuto : ch.toUpperCase()}
+		                        </button>
+		                      ))}
+		                    </div>
+		                    <input
+		                      type="range"
+		                      min={0}
+		                      max={100}
+		                      step={1}
+		                      disabled={mode === "keepRed"}
+		                      value={channelRatioMinPercent}
+		                      onChange={(e) => handleChannelRatioMinPercentChange(Number(e.target.value))}
+		                      className="h-2 w-16 cursor-pointer appearance-none rounded-lg bg-slate-200 accent-rose-500 disabled:cursor-not-allowed"
+		                    />
+		                    <input
+		                      type="number"
+		                      min={0}
+		                      max={100}
+		                      step={1}
+		                      disabled={mode === "keepRed"}
+		                      value={channelRatioMinPercent}
+		                      onChange={(e) => handleChannelRatioMinPercentChange(Number(e.target.value))}
+		                      className="w-12 rounded border border-slate-200 bg-white px-1 py-0.5 text-xs text-slate-700 shadow-xs disabled:cursor-not-allowed disabled:bg-slate-100"
+		                    />
+		                    <span className="text-slate-400">%</span>
+		                    {mode === "keepRed" && (
+		                      <span className="text-[11px] text-slate-400">
+		                        {ui.autoModeOnlyHint}
+		                      </span>
+		                    )}
+		                  </div>
+		                </div>
+		              </div>
+		            </div>
 
 	            <div className="grid gap-8 md:grid-cols-2">
 	              <div className="group relative overflow-hidden rounded-2xl bg-slate-100">

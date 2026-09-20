@@ -7,6 +7,7 @@ import { useOptionalI18n } from "../i18n/I18nProvider";
 import type { ToolConfig } from "../types/tools";
 import { ToolConfigProvider } from "./ToolConfigProvider";
 import { githubToolDirUrl } from "../lib/github";
+import { Github } from "lucide-react";
 
 interface ToolPageLayoutProps {
   toolSlug: string;
@@ -79,9 +80,10 @@ export default function ToolPageLayout({
               href={githubToolDirUrl(toolSlug)}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900"
+              className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
             >
-              {messages.editToolOnGithub}
+              <Github className="h-3.5 w-3.5" />
+              <span>{messages.editToolOnGithub}</span>
             </a>
           </div>
 

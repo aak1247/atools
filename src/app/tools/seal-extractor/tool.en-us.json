@@ -60,6 +60,8 @@
     "quickSensitivity85": "Increase sensitivity to 85%",
     "quickKeepRed": "Switch to 'Keep Red Only'",
     "quickCropArea": "Crop seal region",
+    "basicSettingsLabel": "Basic Settings",
+    "fineTuneSettingsLabel": "Color & Detail Fine-tuning",
     "resultRatioTemplate": "Transparent PNG, ~{ratio}% of original size",
     "downloadSeal": "Download Seal PNG",
     "tip": "Tip: This tool uses pure client-side pixel processing to isolate red regions and make other pixels transparent. Cropping the seal region beforehand boosts stability; smart fill automatically closes small gaps and smooths edges based on the threshold.",

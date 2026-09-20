@@ -66,6 +66,8 @@
     "quickSensitivity85": "提高灵敏度至 85%",
     "quickKeepRed": "切换为“仅保留红色”",
     "quickCropArea": "框选印章局部",
+    "basicSettingsLabel": "基础设置",
+    "fineTuneSettingsLabel": "色彩与细节微调",
     "resultRatioTemplate": "透明背景 PNG，体积约为原图的 {ratio}%",
     "downloadSeal": "下载电子章",
     "tip": "小提示：本工具采用纯前端像素级处理算法，通过识别红色区域并透明化其他像素来完成印章提取。可先截取印章所在区域提升识别稳定性；智能填充会按阈值自动修补小空洞并平滑过渡。",

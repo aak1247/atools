@@ -1,7 +1,7 @@
 "use client";
 
 import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useOptionalI18n } from "../i18n/I18nProvider";
 import { getMessages } from "../i18n/messages";
 
@@ -25,6 +25,27 @@ const PwaActionsBar: FC = () => {
   const [isIos, setIsIos] = useState(false);
   const [isAtPageTop, setIsAtPageTop] = useState(true);
   const [title, setTitle] = useState<string>(messages.siteName);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimerRef = useRef<number | null>(null);
+
+  const showToast = (msg: string, duration = 3000) => {
+    if (toastTimerRef.current) {
+      window.clearTimeout(toastTimerRef.current);
+    }
+    setToastMessage(msg);
+    toastTimerRef.current = window.setTimeout(() => {
+      setToastMessage(null);
+      toastTimerRef.current = null;
+    }, duration);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        window.clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -78,26 +99,50 @@ const PwaActionsBar: FC = () => {
       const url =
         typeof window !== "undefined" ? window.location.href : undefined;
       if (canShare) {
-        await navigator.share({
-          title,
-          text: title,
-          url,
-        });
-        return;
+        try {
+          await navigator.share({
+            title,
+            text: title,
+            url,
+          });
+          return;
+        } catch (err) {
+          // 用户主动关闭分享面板时（AbortError）直接返回，不触发后续复制
+          if (err instanceof Error && err.name === "AbortError") {
+            return;
+          }
+        }
       }
 
       if (url && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
+        showToast(messages.linkCopied);
+      } else if (url) {
+        const textarea = document.createElement("textarea");
+        textarea.value = url;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        showToast(messages.linkCopied);
       }
     } catch {
-      // 用户取消或不支持时静默失败
+      // 无法复制时给出提示
+      if (typeof window !== "undefined") {
+        showToast(messages.linkCopied);
+      }
     } finally {
       setShareInProgress(false);
     }
   };
 
   const handleInstall = async () => {
-    if (isStandalone) return;
+    if (isStandalone) {
+      showToast(messages.installAsApp);
+      return;
+    }
 
     if (installPromptEvent) {
       try {
@@ -110,11 +155,12 @@ const PwaActionsBar: FC = () => {
     }
 
     if (isIos && typeof window !== "undefined") {
-      // iOS 不会触发 beforeinstallprompt，提示用户手动添加到桌面
-      window.alert(
-        messages.iosInstallHint,
-      );
+      showToast(messages.iosInstallHint, 4500);
+      return;
     }
+
+    // 针对桌面端或其他非 iOS 且未触发原生安装事件的浏览器，给予明确操作指引，避免静默无响应
+    showToast(messages.browserInstallHint, 4500);
   };
 
   const showInstallButton = !isStandalone;
@@ -241,6 +287,18 @@ const PwaActionsBar: FC = () => {
           </button>
         )}
       </div>
+
+      {toastMessage && (
+        <div className="fixed bottom-12 inset-x-0 z-[100] flex justify-center pointer-events-none px-4">
+          <div
+            role="status"
+            aria-live="polite"
+            className="pointer-events-auto max-w-md rounded-xl border border-slate-800/80 bg-slate-900/95 px-4 py-2.5 text-center text-xs font-medium text-white shadow-2xl backdrop-blur-md transition-opacity duration-200"
+          >
+            {toastMessage}
+          </div>
+        </div>
+      )}
     </>
   );
 };
