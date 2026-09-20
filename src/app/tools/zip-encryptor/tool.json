@@ -1,8 +1,8 @@
 {
   "name": "免费在线 ZIP 加密解密工具 - 纯粹工具站",
   "shortName": "ZIP加密",
-  "description": "免费在线 ZIP 加密解密工具：本地打包 ZIP 并用 AES-256-GCM 加密为 JSON，支持解密恢复 ZIP。",
-  "seoDescription": "免费在线 ZIP 加密解密工具，支持选择多个文件在浏览器本地打包为 ZIP（fflate），并使用 AES-256-GCM + PBKDF2(SHA-256) 将 ZIP 整体加密为可保存的 JSON；也支持输入密码解密并恢复 ZIP 下载。纯前端本地处理不上传文件，适合临时打包加密与私密文件传输。",
+  "description": "免费在线标准 ZIP 加密解密工具：本地将文件打包为带密码保护的标准 ZIP（支持 WinZip AES-256 和 ZipCrypto），支持在线解密与文件提取。",
+  "seoDescription": "免费在线标准 ZIP 加密解密工具，支持在浏览器本地将多个文件打包并加密为标准的 .zip 压缩包。支持工业级 WinZip AES-256 与经典 ZipCrypto 加密算法，兼容 7-Zip、WinRAR、macOS 归档实用工具及 Windows 原生解压软件直接输入密码解压。同时支持在线解密已加密 ZIP 并提取或重新打包下载。纯前端本地处理不上传文件，保护数据安全。",
   "category": "密码学工具",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
@@ -11,9 +11,12 @@
   "keywords": [
     "ZIP加密",
     "ZIP解密",
+    "标准ZIP密码保护",
+    "WinZip AES-256",
+    "ZipCrypto",
     "文件打包",
-    "AES-256-GCM",
-    "本地处理"
+    "在线解密",
+    "本地安全处理"
   ],
   "pageFeatures": {
     "floatingUploadAction": true,

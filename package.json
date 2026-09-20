@@ -30,6 +30,7 @@
     "@ffmpeg/util": "^0.12.2",
     "@iarna/toml": "^3.0.0",
     "@peculiar/x509": "1.14.2",
+    "@zip.js/zip.js": "^2.16.0",
     "cbor-x": "^1.6.0",
     "crypto-js": "^4.2.0",
     "docx-preview": "^0.3.7",
