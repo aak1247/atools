@@ -18,5 +18,28 @@
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true
+  },
+  "ui": {
+    "uploadSvg": "上传 SVG",
+    "replaceSvg": "点击替换 SVG",
+    "dropReplaceHint": "支持拖拽新 SVG 到此区域直接替换。",
+    "copyOptimizedResult": "复制优化结果",
+    "download": "下载 {filename}",
+    "inputSvg": "输入 SVG",
+    "optimizedResult": "优化结果",
+    "optimizedPlaceholder": "优化后输出…",
+    "options": "选项",
+    "removeComments": "移除注释（<!-- -->）",
+    "removeMetadata": "移除 <metadata>",
+    "removeTitleDesc": "移除 <title>/<desc>（可能影响可访问性）",
+    "minifyWhitespace": "压缩空白（简单 minify）",
+    "lightWeightDescription": "说明：此工具为轻量优化，不等同于 SVGO 的完整规则集；不会改变路径数据和几何结构。",
+    "preview": "预览",
+    "noPreview": "无预览",
+    "invalidSvgError": "不是有效的 SVG（缺少 <svg> 根节点）。",
+    "parseError": "SVG 解析失败：请检查 XML 是否完整。",
+    "optimizeError": "优化失败",
+    "defaultSvgExample": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"120\" viewBox=\"0 0 120 120\">\n  <!-- comment -->\n  <metadata>example</metadata>\n  <rect x=\"10\" y=\"10\" width=\"100\" height=\"100\" fill=\"#3B82F6\"/>\n</svg>\n",
+    "downloadFilename": "optimized.svg"
   }
 }

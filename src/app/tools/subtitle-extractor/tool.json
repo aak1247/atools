@@ -18,5 +18,30 @@
   "pageFeatures": {
     "floatingUploadAction": true,
     "globalDropZone": true
+  },
+  "ui": {
+    "upload": "上传字幕文件",
+    "replaceUpload": "替换字幕文件",
+    "dropHint": "支持点击上传与拖拽上传字幕文件，拖拽可直接替换当前内容。",
+    "currentFilePrefix": " 当前文件：{filename}",
+    "clear": "清空",
+    "parsedCount": "已解析 {count} 条",
+    "copyOutput": "复制输出",
+    "download": "下载 {filename}",
+    "input": "输入",
+    "format": "格式",
+    "encoding": "编码",
+    "auto": "自动",
+    "contentPlaceholder": "粘贴字幕内容或上传文件…",
+    "timelineAdjustment": "时间轴调整",
+    "offsetMs": "偏移（毫秒，可为负）",
+    "offsetPlaceholder": "例如 500 或 -250",
+    "speedRate": "速度倍率（>0）",
+    "explanation": "说明：输出时间 = 输入时间 × 速度倍率 + 偏移；最终会裁剪到 ≥0。",
+    "output": "输出",
+    "outputPlaceholder": "输出结果…",
+    "hint": "提示：本工具纯前端运行，支持 UTF-8/GBK 编码读写与 SRT/VTT/ASS 格式互转（ASS 样式保留仅在 ASS→ASS 时完整）。",
+    "parseError": "解析失败",
+    "generateError": "生成失败"
   }
 }

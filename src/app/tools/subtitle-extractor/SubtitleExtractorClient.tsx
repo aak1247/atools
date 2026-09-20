@@ -271,10 +271,11 @@ const DEFAULT_UI = {
   upload: "上传字幕文件",
   replaceUpload: "替换字幕文件",
   dropHint: "支持点击上传与拖拽上传字幕文件，拖拽可直接替换当前内容。",
+  currentFilePrefix: " 当前文件：{filename}",
   clear: "清空",
-  parsedCount: "已解析",
+  parsedCount: "已解析 {count} 条",
   copyOutput: "复制输出",
-  download: "下载",
+  download: "下载 {filename}",
   input: "输入",
   format: "格式",
   encoding: "编码",
@@ -463,7 +464,7 @@ function SubtitleExtractorInner() {
                 {ui.clear}
               </button>
               <div className="text-xs text-slate-500">
-                {ui.parsedCount} {parsed.cues.length} 条
+                {ui.parsedCount.replace("{count}", parsed.cues.length.toString())}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -480,14 +481,14 @@ function SubtitleExtractorInner() {
                   download={downloadName}
                   className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
                 >
-                  {ui.download} {downloadName}
+                  {ui.download.replace("{filename}", downloadName)}
                 </a>
               )}
             </div>
           </div>
           <div className="mt-2 text-[11px] text-slate-500">
             {ui.dropHint}
-            {uploadedFileName ? ` 当前文件：${uploadedFileName}` : ""}
+            {uploadedFileName ? ui.currentFilePrefix.replace("{filename}", uploadedFileName) : ""}
           </div>
         </div>
 
@@ -568,7 +569,7 @@ function SubtitleExtractorInner() {
 
             <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-sm font-semibold text-slate-900">输出</div>
+                <div className="text-sm font-semibold text-slate-900">{ui.output}</div>
                 <div className="flex flex-wrap items-center gap-2">
                   <label className="text-xs text-slate-600">
                     {ui.format}
