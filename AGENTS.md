@@ -69,6 +69,11 @@ All tools use a unified SEO system:
 - No formal automated test suite is configured yet; verify behavior manually via `npm run dev` and checking critical flows in major browsers.
 - If you introduce a test framework, keep it lightweight and colocate tests with the code they cover (e.g., `Component.test.tsx`). Discuss larger testing changes in a PR first.
 
+## Deployment & Release
+
+- 线上部署与发布统一遵循 [DEPLOY.md](./DEPLOY.md)，采用本地静态导出后 rsync 至生产机器 OpenResty 站点目录的流程。
+- **DEPLOY.md 是仅限本地的内部文档**（含服务器地址等敏感信息），本仓库是开源项目，该文件已加入 `.gitignore`，任何情况下都不得将其提交到仓库。涉及部署敏感信息（服务器 IP、密钥、内部路径等）的内容同样只允许保存在本地文件中。
+
 ## Commit & Pull Request Guidelines
 
 - Use clear, imperative commit messages (e.g., `feat: add watermark remover tool`, `fix: seal extractor threshold handling`).
@@ -77,4 +82,3 @@ All tools use a unified SEO system:
   - Notes on breaking changes or migrations (if any).
   - For UI changes, short text or screenshots describing the impact.
 - Keep changes focused; prefer several small PRs over one very large one.
-

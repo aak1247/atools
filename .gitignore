@@ -53,6 +53,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local-only internal docs (server info, do not publish in this open-source repo)
+DEPLOY.md
+
 # vercel
 .vercel
 
