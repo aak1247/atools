@@ -5,8 +5,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import NextImage from "next/image";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { getRealCUGANBaseURL } from "../../../lib/r2-assets";
+import {
+  checkWebGPUSupport,
+  upscaleImageWebGPU,
+  type WebGPUScaleFactor,
+  type WebGPUStylePreset,
+} from "../../../lib/webgpu-upscaler";
 
-type UpscaleMode = "realcugan" | "resize";
+type UpscaleMode = "webgpu" | "realcugan" | "resize";
 type DenoisePreset = "no-denoise" | "denoise3x" | "conservative";
 
 type Ui = {
@@ -16,15 +22,26 @@ type Ui = {
   clear: string;
   dropReplaceHint: string;
   mode: string;
+  modeWebGPU: string;
   modeRealCugan: string;
   modeResize: string;
   scale: string;
+  preset: string;
+  presetAnime: string;
+  presetBalanced: string;
+  presetSharp: string;
+  gpuDetected: string;
+  gpuUnsupported: string;
   denoise: string;
   denoiseNo: string;
   denoiseStrong: string;
   denoiseConservative: string;
   process: string;
   processing: string;
+  modelLoading: string;
+  modelReady: string;
+  modelLoadingHint: string;
+  modelLoadFailed: string;
   download: string;
   notReadyTitle: string;
   notReadyDesc: string;
@@ -47,28 +64,39 @@ type Ui = {
 };
 
 const DEFAULT_UI: Ui = {
-  hint: "图片超分辨率提升：优先使用 RealCUGAN（WebAssembly，本地 CPU 运行），不上传图片；若环境不支持则使用高质量缩放作为兼容方案。",
+  hint: "图片超分辨率提升：默认使用纯 WebGPU Shader 硬件加速（毫秒级极速放大，无额外模型下载，零上传）；亦支持 RealCUGAN 深度 AI 模型与兼容模式。",
   pick: "选择图片",
   replace: "点击替换图片",
   clear: "清空",
   dropReplaceHint: "支持拖拽新图片到此区域直接替换",
-  mode: "模式",
-  modeRealCugan: "RealCUGAN（AI超分）",
-  modeResize: "高质量缩放（兼容）",
+  mode: "引擎模式",
+  modeWebGPU: "WebGPU 极速超分（推荐·毫秒级）",
+  modeRealCugan: "RealCUGAN（AI深度超分）",
+  modeResize: "高质量缩放（兼容兜底）",
   scale: "放大倍数",
+  preset: "优化风格",
+  presetAnime: "动漫/插画（强化轮廓与线条）",
+  presetBalanced: "通用高清（自适应平滑）",
+  presetSharp: "细节锐化（边缘强化）",
+  gpuDetected: "已启用本地 GPU 硬件加速：{adapter}",
+  gpuUnsupported: "当前浏览器暂未启用 WebGPU，已自动为您切至备用模式。",
   denoise: "降噪/修复",
   denoiseNo: "无降噪",
   denoiseStrong: "强降噪（denoise3x）",
   denoiseConservative: "保守修复（conservative）",
   process: "开始处理",
   processing: "处理中…",
+  modelLoading: "模型加载中…",
+  modelReady: "AI 模型已就绪",
+  modelLoadingHint: "正在加载 RealCUGAN 模型权重与运行时 (约 12MB)，首次加载需数秒…",
+  modelLoadFailed: "模型加载失败",
   download: "下载结果",
   notReadyTitle: "资源未就绪",
   notReadyDesc: "模型与运行时仍在加载，请稍后再试。",
   crossOriginIsolatedTitle: "需要跨域隔离（COOP/COEP）",
-  crossOriginIsolatedDesc: "RealCUGAN（threads）依赖 SharedArrayBuffer。请在支持 Cross-Origin Isolation 的环境中打开（配置 COOP/COEP 响应头）。否则请切换到“高质量缩放”。",
+  crossOriginIsolatedDesc: "RealCUGAN（threads）依赖 SharedArrayBuffer。请在支持 Cross-Origin Isolation 的环境中打开（配置 COOP/COEP 响应头）。否则请切换到“WebGPU 极速超分”或“高质量缩放”。",
   unsupportedTitle: "当前环境不支持",
-  unsupportedDesc: "请使用最新版 Chrome/Firefox；若无法启用跨域隔离，请切换到“高质量缩放”。",
+  unsupportedDesc: "请使用最新版 Chrome/Firefox；若无法启用跨域隔离，请切换到“WebGPU 极速超分”或“高质量缩放”。",
   original: "原图",
   output: "输出",
   fileInfo: "文件：{name}（{w}×{h}）",
@@ -79,8 +107,8 @@ const DEFAULT_UI: Ui = {
   error: "错误：{msg}",
   empty: "尚未生成输出",
   noteTitle: "提示",
-  noteBody: "AI 超分计算耗时与内存占用较高；建议使用 PC 端最新版浏览器。输出为本地生成，不上传。",
-  libCredit: "AI 引擎：RealCUGAN-ncnn-webassembly（MIT）",
+  noteBody: "推荐使用 WebGPU 极速超分：无需下载庞大模型，利用本机显卡并行渲染，秒出结果；全程纯本地浏览器运算，不上传任何数据。",
+  libCredit: "计算引擎：WebGPU WGSL Shader + RealCUGAN-ncnn-webassembly",
 };
 
 type RealCuganProgressEvent = { eventType: "PROC_PROGRESS"; progress_rate: number; remaining_time: number };
@@ -112,7 +140,6 @@ type GlobalRealCugan = {
   onEvent?: (evt: RealCuganEvent) => void;
 };
 
-// 动态获取 RealCUGAN 基础 URL（支持本地和 R2）
 const REALCUGAN_BASE = getRealCUGANBaseURL();
 const REALCUGAN_JS = "realcugan-ncnn-webassembly-simd-threads.js";
 
@@ -149,8 +176,23 @@ const loadRealCugan = async (): Promise<RealCuganModule> => {
         return;
       }
 
+      let hasResolved = false;
+      const onReady = () => {
+        if (hasResolved) return;
+        const ready = getEmscriptenModule();
+        if (!isRealCuganModule(ready)) {
+          g.promise = undefined;
+          reject(new Error("RealCUGAN module not initialized"));
+          return;
+        }
+        hasResolved = true;
+        g.module = ready;
+        resolve(ready);
+      };
+
       const moduleConfig: Partial<RealCuganModule> = {
         locateFile: (path: string) => `${REALCUGAN_BASE}${path}`,
+        onRuntimeInitialized: onReady,
         print: (text: string) => {
           if (typeof text !== "string") return;
           if (text.startsWith("$CALLBACK$")) {
@@ -164,7 +206,7 @@ const loadRealCugan = async (): Promise<RealCuganModule> => {
           }
         },
         printErr: (text: string) => {
-          reject(new Error(typeof text === "string" ? text : "RealCUGAN runtime error"));
+          console.warn("[RealCUGAN]", text);
         },
       };
 
@@ -176,22 +218,23 @@ const loadRealCugan = async (): Promise<RealCuganModule> => {
       script.onload = () => {
         const loaded = getEmscriptenModule();
         if (!loaded || typeof loaded !== "object") {
+          g.promise = undefined;
           reject(new Error("RealCUGAN module missing"));
           return;
         }
-        (loaded as Partial<RealCuganModule>).onRuntimeInitialized = () => {
-          const ready = getEmscriptenModule();
-          if (!isRealCuganModule(ready)) {
-            reject(new Error("RealCUGAN module not initialized"));
-            return;
-          }
-          g.module = ready;
-          resolve(ready);
-        };
+        if (isRealCuganModule(loaded)) {
+          onReady();
+        } else {
+          (loaded as Partial<RealCuganModule>).onRuntimeInitialized = onReady;
+        }
       };
-      script.onerror = () => reject(new Error("Failed to load RealCUGAN script"));
+      script.onerror = () => {
+        g.promise = undefined;
+        reject(new Error("Failed to load RealCUGAN script"));
+      };
       document.head.appendChild(script);
     } catch (e) {
+      g.promise = undefined;
       reject(e instanceof Error ? e : new Error("Failed to init RealCUGAN"));
     }
   });
@@ -237,11 +280,16 @@ function Inner({ ui }: { ui: Ui }) {
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [origSize, setOrigSize] = useState<{ w: number; h: number } | null>(null);
 
-  const [mode, setMode] = useState<UpscaleMode>("realcugan");
+  const [mode, setMode] = useState<UpscaleMode>("webgpu");
   const [scale, setScale] = useState<number>(2);
+  const [stylePreset, setStylePreset] = useState<WebGPUStylePreset>("anime");
   const [denoisePreset, setDenoisePreset] = useState<DenoisePreset>("denoise3x");
 
-  const [loadingRuntime, setLoadingRuntime] = useState(false);
+  const [webgpuSupported, setWebgpuSupported] = useState<boolean | null>(null);
+  const [gpuAdapterName, setGpuAdapterName] = useState<string>("");
+
+  const [modelState, setModelState] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [modelError, setModelError] = useState<string | null>(null);
   const [isWorking, setIsWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -254,6 +302,25 @@ function Inner({ ui }: { ui: Ui }) {
 
   const ptrRef = useRef<{ srcPtr: number; dstPtr: number; outLen: number; w: number; h: number; scale: number } | null>(null);
 
+  // 初始化 WebGPU 检测
+  useEffect(() => {
+    let active = true;
+    checkWebGPUSupport().then((res) => {
+      if (!active) return;
+      setWebgpuSupported(res.supported);
+      if (res.supported) {
+        setGpuAdapterName(res.adapterInfo || "GPU");
+        setMode("webgpu");
+      } else {
+        // 如果不支持 WebGPU，回退到 realcugan 或 resize
+        setMode(hasThreadsSupport() ? "realcugan" : "resize");
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   useEffect(() => {
     return () => {
       if (origUrl) URL.revokeObjectURL(origUrl);
@@ -261,7 +328,7 @@ function Inner({ ui }: { ui: Ui }) {
     };
   }, [downloadUrl, origUrl]);
 
-  const support = useMemo(() => {
+  const realcuganSupport = useMemo(() => {
     if (!hasThreadsSupport()) {
       return { ok: false, reason: ui.crossOriginIsolatedDesc };
     }
@@ -271,11 +338,15 @@ function Inner({ ui }: { ui: Ui }) {
     return { ok: true, reason: "" };
   }, [ui.crossOriginIsolatedDesc, ui.unsupportedDesc]);
 
-  useEffect(() => {
-    if (mode !== "realcugan") return;
-    if (!support.ok) return;
-    setLoadingRuntime(true);
+  const triggerLoadModel = () => {
+    if (!realcuganSupport.ok) return;
     const g = getGlobalRealCugan();
+    if (g.module) {
+      setModelState("ready");
+      return;
+    }
+    setModelState("loading");
+    setModelError(null);
     g.onEvent = (evt) => {
       if (isRealCuganProgressEvent(evt)) {
         const pct = Math.max(0, Math.min(100, Math.round(evt.progress_rate * 100)));
@@ -289,10 +360,20 @@ function Inner({ ui }: { ui: Ui }) {
       }
     };
     loadRealCugan()
-      .catch((e) => setError(e instanceof Error ? e.message : "RealCUGAN load failed"))
-      .finally(() => setLoadingRuntime(false));
+      .then(() => {
+        setModelState("ready");
+      })
+      .catch((e) => {
+        setModelState("error");
+        setModelError(e instanceof Error ? e.message : "RealCUGAN load failed");
+      });
+  };
+
+  useEffect(() => {
+    if (mode !== "realcugan") return;
+    triggerLoadModel();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, support.ok]);
+  }, [mode, realcuganSupport.ok]);
 
   const pick = async (f: File) => {
     setError(null);
@@ -367,20 +448,71 @@ function Inner({ ui }: { ui: Ui }) {
     setProgressPct(null);
     setEtaSeconds(null);
 
+    if (mode === "webgpu") {
+      await runWebGPU();
+      return;
+    }
+
     if (mode === "realcugan") {
-      if (!support.ok) {
-        setError(support.reason);
+      if (!realcuganSupport.ok) {
+        setError(realcuganSupport.reason);
         return;
       }
-      if (loadingRuntime) {
-        setError(ui.notReadyDesc);
+      if (modelState === "error") {
+        setError(modelError || ui.modelLoadFailed);
         return;
+      }
+      if (modelState === "loading") {
+        setIsWorking(true);
+        try {
+          await loadRealCugan();
+          setModelState("ready");
+        } catch (e) {
+          setIsWorking(false);
+          setError(e instanceof Error ? e.message : ui.modelLoadFailed);
+          return;
+        }
       }
       await runRealCugan();
       return;
     }
 
     await runResize();
+  };
+
+  const runWebGPU = async () => {
+    if (!file) return;
+    setIsWorking(true);
+    setProgressPct(30);
+    try {
+      const bmp = await fileToImageBitmap(file);
+      const outW = Math.round(bmp.width * scale);
+      const outH = Math.round(bmp.height * scale);
+      setOutSize({ w: outW, h: outH });
+      setProgressPct(60);
+
+      const renderedCanvas = await upscaleImageWebGPU(bmp, {
+        scale: (scale === 3 ? 3 : 2) as WebGPUScaleFactor,
+        preset: stylePreset,
+      });
+      bmp.close();
+
+      setProgressPct(90);
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        renderedCanvas.toBlob((b) => (b ? resolve(b) : reject(new Error("WebGPU canvas export failed"))), "image/png", 1);
+      });
+
+      const url = URL.createObjectURL(blob);
+      if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(url);
+      setDownloadName(`${file.name.replace(/\.[^.]+$/u, "") || "image"}-webgpu-x${scale}.png`);
+      setProgressPct(100);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "WebGPU processing failed");
+    } finally {
+      setIsWorking(false);
+      setProgressPct(null);
+    }
   };
 
   const runResize = async () => {
@@ -523,7 +655,7 @@ function Inner({ ui }: { ui: Ui }) {
   const progressText = useMemo(() => {
     if (progressPct === null) return null;
     const eta = etaSeconds !== null ? ui.seconds.replace("{n}", String(etaSeconds)) : "-";
-    return `${ui.progress}: ${progressPct}% · ${ui.eta}: ${eta}`;
+    return `${ui.progress}: ${progressPct}%${etaSeconds !== null ? ` · ${ui.eta}: ${eta}` : ""}`;
   }, [etaSeconds, progressPct, ui.eta, ui.progress, ui.seconds]);
 
   return (
@@ -571,15 +703,63 @@ function Inner({ ui }: { ui: Ui }) {
                   onChange={(e) => setMode(e.target.value as UpscaleMode)}
                   className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
                 >
+                  <option value="webgpu">{ui.modeWebGPU}</option>
                   <option value="realcugan">{ui.modeRealCugan}</option>
                   <option value="resize">{ui.modeResize}</option>
                 </select>
               </label>
 
-              {mode === "realcugan" && !support.ok ? (
+              {/* WebGPU 状态提示 */}
+              {mode === "webgpu" && (
+                <div>
+                  {webgpuSupported === true ? (
+                    <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-2.5 text-xs text-emerald-900 ring-1 ring-emerald-200">
+                      <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200" />
+                      <span>{ui.gpuDetected.replace("{adapter}", gpuAdapterName)}</span>
+                    </div>
+                  ) : webgpuSupported === false ? (
+                    <div className="rounded-2xl bg-amber-50 px-4 py-2.5 text-xs text-amber-900 ring-1 ring-amber-200">
+                      {ui.gpuUnsupported}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
+              {/* RealCUGAN 跨域隔离与模型加载状态 */}
+              {mode === "realcugan" && !realcuganSupport.ok ? (
                 <div className="rounded-2xl bg-amber-50 px-4 py-3 text-xs text-amber-900 ring-1 ring-amber-200">
                   <div className="font-semibold">{ui.crossOriginIsolatedTitle}</div>
                   <div className="mt-1">{ui.crossOriginIsolatedDesc}</div>
+                </div>
+              ) : null}
+
+              {mode === "realcugan" && realcuganSupport.ok ? (
+                <div>
+                  {modelState === "loading" ? (
+                    <div className="flex items-center gap-2 rounded-2xl bg-amber-50 px-4 py-2.5 text-xs text-amber-900 ring-1 ring-amber-200">
+                      <svg className="h-4 w-4 animate-spin text-amber-600 shrink-0" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>{ui.modelLoadingHint}</span>
+                    </div>
+                  ) : modelState === "ready" ? (
+                    <div className="flex items-center gap-2 text-xs font-medium text-emerald-700">
+                      <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200" />
+                      <span>{ui.modelReady}</span>
+                    </div>
+                  ) : modelState === "error" ? (
+                    <div className="flex items-center justify-between gap-2 rounded-2xl bg-rose-50 px-4 py-2.5 text-xs text-rose-800 ring-1 ring-rose-200">
+                      <span>{ui.modelLoadFailed}：{modelError}</span>
+                      <button
+                        type="button"
+                        onClick={triggerLoadModel}
+                        className="rounded-lg bg-rose-100 px-2 py-1 font-semibold text-rose-800 hover:bg-rose-200"
+                      >
+                        重试
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -595,20 +775,36 @@ function Inner({ ui }: { ui: Ui }) {
                     <option value={3}>3×</option>
                   </select>
                 </label>
-                <label className="grid gap-1 text-xs text-slate-600">
-                  {ui.denoise}
-                  <select
-                    value={denoisePreset}
-                    onChange={(e) => setDenoisePreset(e.target.value as DenoisePreset)}
-                    className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
-                  >
-                    {denoiseOptions.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+
+                {mode === "webgpu" ? (
+                  <label className="grid gap-1 text-xs text-slate-600">
+                    {ui.preset}
+                    <select
+                      value={stylePreset}
+                      onChange={(e) => setStylePreset(e.target.value as WebGPUStylePreset)}
+                      className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
+                    >
+                      <option value="anime">{ui.presetAnime}</option>
+                      <option value="balanced">{ui.presetBalanced}</option>
+                      <option value="sharp">{ui.presetSharp}</option>
+                    </select>
+                  </label>
+                ) : (
+                  <label className="grid gap-1 text-xs text-slate-600">
+                    {ui.denoise}
+                    <select
+                      value={denoisePreset}
+                      onChange={(e) => setDenoisePreset(e.target.value as DenoisePreset)}
+                      className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
+                    >
+                      {denoiseOptions.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -616,9 +812,27 @@ function Inner({ ui }: { ui: Ui }) {
                   type="button"
                   onClick={() => void process()}
                   disabled={!file || isWorking}
-                  className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60"
                 >
-                  {isWorking ? ui.processing : ui.process}
+                  {isWorking ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>{modelState === "loading" && mode === "realcugan" ? ui.modelLoading : ui.processing}</span>
+                    </>
+                  ) : mode === "realcugan" && modelState === "loading" ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>{ui.modelLoading}</span>
+                    </>
+                  ) : (
+                    <span>{ui.process}</span>
+                  )}
                 </button>
 
                 <a
