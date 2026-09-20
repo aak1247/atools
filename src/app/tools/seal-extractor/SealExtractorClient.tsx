@@ -2,7 +2,7 @@
 
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, FC } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type ExtractMode = "auto" | "keepRed";
