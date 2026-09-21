@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Search, Sparkles, ArrowRight, Command } from "lucide-react";
 import toolsMetaZh from "./tools/tools-meta.zh-cn.json";
 import toolsMetaEn from "./tools/tools-meta.en-us.json";
@@ -19,6 +19,13 @@ type ToolNavItem = {
   category: string;
   icon: string;
   keywords?: string[];
+};
+
+const emptySubscribe = () => () => {};
+
+const getIsApplePlatform = () => {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return false;
+  return /mac|iphone|ipad|ipod/i.test(navigator.userAgent);
 };
 
 const ALL_CATEGORY = "__ALL__";
@@ -38,6 +45,12 @@ export default function ToolNavClient() {
   const [query, setQuery] = useState<string>("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [hasActivatedControls, setHasActivatedControls] = useState(false);
+  const isApplePlatform = useSyncExternalStore(
+    emptySubscribe,
+    getIsApplePlatform,
+    () => false
+  );
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const navSectionRef = useRef<HTMLElement>(null);
   const categoryContainerRef = useRef<HTMLDivElement>(null);
   const categoryDragStateRef = useRef<{
@@ -116,6 +129,24 @@ export default function ToolNavClient() {
       });
     });
   }, [hasActivatedControls]);
+
+
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") {
+        return;
+      }
+      event.preventDefault();
+      const input = searchInputRef.current;
+      if (!input) return;
+      activateControls();
+      input.focus();
+      input.select();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activateControls]);
 
   // Smooth scroll to active category on change
   useEffect(() => {
@@ -221,6 +252,7 @@ export default function ToolNavClient() {
                 <Search className={isCompact ? "h-4 w-4" : "h-5 w-5"} />
               </div>
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder={messages.searchPlaceholder}
                 value={query}
@@ -238,8 +270,16 @@ export default function ToolNavClient() {
                 }`}
               />
               <div className="absolute right-4 flex items-center gap-2">
-                <kbd className="hidden rounded border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500 md:inline-flex items-center gap-1">
-                  <Command className="h-3 w-3" /> K
+                <kbd
+                  title={isApplePlatform ? "⌘ K" : "Ctrl + K"}
+                  className="hidden rounded border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500 md:inline-flex items-center gap-1"
+                >
+                  {isApplePlatform ? (
+                    <Command className="h-3 w-3" />
+                  ) : (
+                    "Ctrl"
+                  )}
+                  K
                 </kbd>
               </div>
             </div>
