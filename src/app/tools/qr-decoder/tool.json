@@ -24,11 +24,9 @@
     "errNoQr": "未识别到二维码",
     "errSelectImage": "请选择图片文件",
     "dropTitle": "点击或拖拽二维码图片到此处",
-    "dropSubtitle": "支持 JPG/PNG/WebP 等",
+    "dropSubtitle": "支持高密度/模糊/低分辨率/普通二维码图片",
     "currentImage": "当前图片：",
-    "inversion": "反色尝试",
-    "inversionRecommended": "attemptBoth（推荐）",
-    "replaceImage": "点击替换图片",
+    "replaceImage": "替换图片",
     "clear": "清空",
     "dropReplaceHint": "支持拖拽新图片到此区域直接替换",
     "preview": "预览",
@@ -38,6 +36,10 @@
     "copied": "已复制",
     "resultPlaceholder": "识别后会显示二维码内容…",
     "errorPrefix": "错误：",
-    "note": "说明：解析在浏览器本地完成，不上传任何图片。"
+    "note": "说明：纯本地离线解析，支持多尺度与自适应二值化图像增强，不上传任何图片。",
+    "openLink": "访问链接",
+    "decoding": "正在解析...",
+    "statusSuccess": "解析成功",
+    "statusEnhancedSuccess": "通过算法增强解析成功"
   }
 }

@@ -2,37 +2,20 @@
 
 import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import jsQR from "jsqr";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
+import { decodeQrImage, type QrDecodeResult } from "../../../lib/qr-decoder";
 
-type InversionAttempts = "attemptBoth" | "dontInvert" | "onlyInvert" | "invertFirst";
-
-type DecodeResult =
-  | { ok: false; error: string }
-  | {
-      ok: true;
-      data: string;
-      location: {
-        topLeftCorner: { x: number; y: number };
-        topRightCorner: { x: number; y: number };
-        bottomRightCorner: { x: number; y: number };
-        bottomLeftCorner: { x: number; y: number };
-      };
-    };
-
-const MAX_DECODE_SIZE = 1200;
+const MAX_PREVIEW_SIZE = 1200;
 
 const DEFAULT_UI = {
   errCanvasContext: "无法创建画布上下文",
   errNoQr: "未识别到二维码",
   errSelectImage: "请选择图片文件",
   dropTitle: "点击或拖拽二维码图片到此处",
-  dropSubtitle: "支持 JPG/PNG/WebP 等",
+  dropSubtitle: "支持高密度/模糊/低分辨率/普通二维码图片",
   currentImage: "当前图片：",
-  inversion: "反色尝试",
-  inversionRecommended: "attemptBoth（推荐）",
-  replaceImage: "点击替换图片",
+  replaceImage: "替换图片",
   clear: "清空",
   dropReplaceHint: "支持拖拽新图片到此区域直接替换",
   preview: "预览",
@@ -42,7 +25,11 @@ const DEFAULT_UI = {
   copied: "已复制",
   resultPlaceholder: "识别后会显示二维码内容…",
   errorPrefix: "错误：",
-  note: "说明：解析在浏览器本地完成，不上传任何图片。",
+  note: "说明：纯本地离线解析，支持多尺度与自适应二值化图像增强，不上传任何图片。",
+  openLink: "访问链接",
+  decoding: "正在解析...",
+  statusSuccess: "解析成功",
+  statusEnhancedSuccess: "通过算法增强解析成功",
 } as const;
 
 type QrDecoderUi = typeof DEFAULT_UI;
@@ -62,19 +49,19 @@ function QrDecoderInner() {
   const [file, setFile] = useState<File | null>(null);
   const [bitmap, setBitmap] = useState<ImageBitmap | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<DecodeResult | null>(null);
+  const [result, setResult] = useState<QrDecodeResult | null>(null);
+  const [isDecoding, setIsDecoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [inversion, setInversion] = useState<InversionAttempts>("attemptBoth");
   const [copied, setCopied] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const drawPreview = (img: ImageBitmap, box?: DecodeResult) => {
+  const drawPreview = (img: ImageBitmap, box?: QrDecodeResult | null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const scale = Math.min(1, MAX_DECODE_SIZE / Math.max(img.width, img.height));
+    const scale = Math.min(1, MAX_PREVIEW_SIZE / Math.max(img.width, img.height));
     const width = Math.max(1, Math.round(img.width * scale));
     const height = Math.max(1, Math.round(img.height * scale));
 
@@ -106,27 +93,22 @@ function QrDecoderInner() {
       ctx.lineTo(location.bottomLeftCorner.x * factorX, location.bottomLeftCorner.y * factorY);
       ctx.closePath();
       ctx.stroke();
+
+      // Draw subtle corner accents
+      ctx.fillStyle = "#22c55e";
+      const corners = [
+        location.topLeftCorner,
+        location.topRightCorner,
+        location.bottomRightCorner,
+        location.bottomLeftCorner,
+      ];
+      for (const pt of corners) {
+        ctx.beginPath();
+        ctx.arc(pt.x * factorX, pt.y * factorY, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.restore();
     }
-  };
-
-  const decode = async (img: ImageBitmap) => {
-    const scale = Math.min(1, MAX_DECODE_SIZE / Math.max(img.width, img.height));
-    const width = Math.max(1, Math.round(img.width * scale));
-    const height = Math.max(1, Math.round(img.height * scale));
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return { ok: false as const, error: ui.errCanvasContext };
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(img, 0, 0, width, height);
-
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const qr = jsQR(imageData.data, width, height, { inversionAttempts: inversion });
-    if (!qr) return { ok: false as const, error: ui.errNoQr };
-    return { ok: true as const, data: qr.data, location: qr.location };
   };
 
   const processFile = async (selected: File) => {
@@ -137,28 +119,59 @@ function QrDecoderInner() {
     setError(null);
     setResult(null);
     setFile(selected);
-    const next = await createImageBitmap(selected);
-    setBitmap((prev) => {
-      if (prev) prev.close();
-      return next;
-    });
+    try {
+      const next = await createImageBitmap(selected);
+      setBitmap((prev) => {
+        if (prev) prev.close();
+        return next;
+      });
+    } catch {
+      // Fallback for browsers or formats where createImageBitmap might fail
+      const img = new Image();
+      img.src = URL.createObjectURL(selected);
+      await img.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0);
+      const next = await createImageBitmap(canvas);
+      setBitmap((prev) => {
+        if (prev) prev.close();
+        return next;
+      });
+    }
   };
 
   useEffect(() => {
     if (!bitmap) return;
     let cancelled = false;
     const run = async () => {
-      const res = await decode(bitmap);
-      if (cancelled) return;
-      setResult(res);
-      drawPreview(bitmap, res);
+      setIsDecoding(true);
+      drawPreview(bitmap, null);
+      try {
+        const res = await decodeQrImage(bitmap, { inversionAttempts: "attemptBoth" });
+        if (cancelled) return;
+        setResult(res);
+        drawPreview(bitmap, res);
+      } catch (err) {
+        if (cancelled) return;
+        const fallbackRes: QrDecodeResult = {
+          ok: false,
+          error: err instanceof Error ? err.message : ui.errNoQr,
+        };
+        setResult(fallbackRes);
+        drawPreview(bitmap, fallbackRes);
+      } finally {
+        if (!cancelled) setIsDecoding(false);
+      }
     };
     void run();
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bitmap, inversion]);
+  }, [bitmap]);
 
   useEffect(() => {
     return () => {
@@ -205,6 +218,20 @@ function QrDecoderInner() {
   };
 
   const canCopy = useMemo(() => result?.ok === true && result.data.trim().length > 0, [result]);
+
+  const isUrl = useMemo(() => {
+    if (!result?.ok || !result.data) return false;
+    try {
+      const u = new URL(result.data.trim());
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, [result]);
+
+  const isEnhanced = useMemo(() => {
+    return Boolean(result?.ok && result.pipeline && result.pipeline.startsWith("enhanced"));
+  }, [result]);
 
   const copy = async () => {
     if (!result || !result.ok) return;
@@ -258,21 +285,14 @@ function QrDecoderInner() {
                     {bitmap.width} × {bitmap.height}
                   </span>
                 )}
+                {isDecoding && (
+                  <span className="ml-3 inline-flex items-center gap-1.5 text-xs font-medium text-blue-600">
+                    <span className="inline-block h-2 w-2 animate-ping rounded-full bg-blue-500" />
+                    {ui.decoding}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2">
-                <label className="flex items-center gap-2 text-xs text-slate-700">
-                  {ui.inversion}
-                  <select
-                    value={inversion}
-                    onChange={(e) => setInversion(e.target.value as InversionAttempts)}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
-                  >
-                    <option value="attemptBoth">{ui.inversionRecommended}</option>
-                    <option value="dontInvert">dontInvert</option>
-                    <option value="onlyInvert">onlyInvert</option>
-                    <option value="invertFirst">invertFirst</option>
-                  </select>
-                </label>
                 <button
                   type="button"
                   onClick={openFilePicker}
@@ -300,34 +320,67 @@ function QrDecoderInner() {
                 <div className="mt-3 text-xs text-slate-500">{ui.previewHint}</div>
               </div>
 
-              <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-black/5">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-sm font-semibold text-slate-900">{ui.resultTitle}</div>
-                  <button
-                    type="button"
-                    disabled={!canCopy}
-                    onClick={copy}
-                    className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-medium text-slate-800 transition hover:bg-slate-200 disabled:opacity-60"
-                  >
-                    {copied ? ui.copied : ui.copy}
-                  </button>
+              <div className="rounded-2xl bg-white/60 p-4 ring-1 ring-black/5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-sm font-semibold text-slate-900">{ui.resultTitle}</div>
+                    <div className="flex items-center gap-2">
+                      {isUrl && (
+                        <a
+                          href={result?.ok ? result.data.trim() : "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-xl bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-100"
+                        >
+                          {ui.openLink}
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        disabled={!canCopy}
+                        onClick={copy}
+                        className="rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-800 disabled:opacity-50"
+                      >
+                        {copied ? ui.copied : ui.copy}
+                      </button>
+                    </div>
+                  </div>
+
+                  <textarea
+                    value={result?.ok ? result.data : ""}
+                    readOnly
+                    placeholder={ui.resultPlaceholder}
+                    className="mt-3 h-48 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-xs text-slate-900 outline-none"
+                  />
+
+                  {result && result.ok && (
+                    <div className="mt-2.5">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium ${
+                          isEnhanced
+                            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
+                            : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            isEnhanced ? "bg-emerald-500" : "bg-slate-500"
+                          }`}
+                        />
+                        {isEnhanced ? ui.statusEnhancedSuccess : ui.statusSuccess}
+                      </span>
+                    </div>
+                  )}
+
+                  {result && !result.ok && (
+                    <div className="mt-3 text-sm text-rose-600">
+                      {ui.errorPrefix}
+                      {result.error}
+                    </div>
+                  )}
                 </div>
 
-                <textarea
-                  value={result?.ok ? result.data : ""}
-                  readOnly
-                  placeholder={ui.resultPlaceholder}
-                  className="mt-3 h-48 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none"
-                />
-
-                {result && !result.ok && (
-                  <div className="mt-3 text-sm text-rose-600">
-                    {ui.errorPrefix}
-                    {result.error}
-                  </div>
-                )}
-
-                <div className="mt-4 text-xs text-slate-500">{ui.note}</div>
+                <div className="mt-4 text-xs text-slate-500 border-t border-slate-100 pt-3">{ui.note}</div>
               </div>
             </div>
           </div>

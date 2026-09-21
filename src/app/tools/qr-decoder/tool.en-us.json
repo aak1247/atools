@@ -10,11 +10,9 @@
     "errNoQr": "No QR code detected",
     "errSelectImage": "Please select an image file",
     "dropTitle": "Click or drop a QR image here",
-    "dropSubtitle": "Supports JPG/PNG/WebP, etc.",
+    "dropSubtitle": "Supports high-density / blurry / low-resolution / standard QR images",
     "currentImage": "Current image: ",
-    "inversion": "Inversion attempts",
-    "inversionRecommended": "attemptBoth (recommended)",
-    "replaceImage": "Click to replace image",
+    "replaceImage": "Replace image",
     "clear": "Clear",
     "dropReplaceHint": "Drag & drop a new image here to replace directly",
     "preview": "Preview",
@@ -24,7 +22,11 @@
     "copied": "Copied",
     "resultPlaceholder": "Decoded QR content will appear here...",
     "errorPrefix": "Error: ",
-    "note": "Note: Decoding runs locally in your browser. No images are uploaded."
+    "note": "Note: 100% offline local processing with multi-scale & adaptive binarization image enhancement. No images are uploaded.",
+    "openLink": "Open link",
+    "decoding": "Decoding...",
+    "statusSuccess": "Decoded successfully",
+    "statusEnhancedSuccess": "Decoded with enhancement algorithm"
   },
   "keywords": [
     "free online QR Decoder",
