@@ -6,6 +6,7 @@ import type { Messages } from "../i18n/messages";
 import LocaleSwitcher from "./LocaleSwitcher";
 import { PwaActionsBar } from "../app/pwa-actions";
 import ClarityConsentManager from "./ClarityConsentManager";
+import GlobalQuickSwitcher from "./tool-switcher/GlobalQuickSwitcher";
 
 export default function SiteShell({
   locale,
@@ -74,8 +75,10 @@ export default function SiteShell({
         </div>
       </main>
 
+      <GlobalQuickSwitcher />
+
       <footer className="border-t border-slate-200/60 bg-white/50 py-8 text-center text-xs text-slate-500 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl px-4 xl:max-w-7xl 2xl:max-w-[1600px]"
+        <div className="mx-auto max-w-5xl px-4 xl:max-w-7xl 2xl:max-w-[1600px]">
           <p>
             © {new Date().getFullYear()} {messages.siteName}. {messages.footerTagline}
           </p>

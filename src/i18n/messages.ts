@@ -36,6 +36,16 @@ export type Messages = {
   clarityConsentAllow: string;
   clarityConsentDeny: string;
   clarityConsentClose: string;
+  quickSwitcherTitle: string;
+  quickSwitcherPlaceholder: string;
+  quickSwitcherShortcutHint: string;
+  quickSwitcherRecent: string;
+  quickSwitcherAll: string;
+  quickSwitcherNoResults: string;
+  quickSwitcherCurrent: string;
+  quickSwitcherHintNavigate: string;
+  quickSwitcherHintOpen: string;
+  quickSwitcherHintClose: string;
 };
 
 const zhCN: Messages = {
@@ -76,6 +86,16 @@ const zhCN: Messages = {
   clarityConsentAllow: "允许完整分析",
   clarityConsentDeny: "仅保留匿名统计",
   clarityConsentClose: "关闭",
+  quickSwitcherTitle: "快速切换工具",
+  quickSwitcherPlaceholder: "搜索工具 (支持名称、关键词、拼音)...",
+  quickSwitcherShortcutHint: "切换工具",
+  quickSwitcherRecent: "最近使用",
+  quickSwitcherAll: "全部工具",
+  quickSwitcherNoResults: "未找到相关工具",
+  quickSwitcherCurrent: "当前工具",
+  quickSwitcherHintNavigate: "移动",
+  quickSwitcherHintOpen: "打开",
+  quickSwitcherHintClose: "关闭",
 };
 
 const enUS: Messages = {
@@ -116,6 +136,16 @@ const enUS: Messages = {
   clarityConsentAllow: "Allow full analytics",
   clarityConsentDeny: "Keep anonymous only",
   clarityConsentClose: "Close",
+  quickSwitcherTitle: "Quick Switcher",
+  quickSwitcherPlaceholder: "Search tools by name, keyword, or category...",
+  quickSwitcherShortcutHint: "Switch Tool",
+  quickSwitcherRecent: "Recent Tools",
+  quickSwitcherAll: "All Tools",
+  quickSwitcherNoResults: "No matching tools found",
+  quickSwitcherCurrent: "Current",
+  quickSwitcherHintNavigate: "Navigate",
+  quickSwitcherHintOpen: "Open",
+  quickSwitcherHintClose: "Close",
 };
 
 export const getMessages = (locale: Locale): Messages => {
