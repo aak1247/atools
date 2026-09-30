@@ -2324,7 +2324,10 @@ const XmindMindMapCanvas = forwardRef<XmindMindMapCanvasHandle, Props>(function 
         <div className="flex flex-wrap items-center gap-2">{controls}</div>
       </div>
 
-      <div ref={containerRef} className="relative h-[70vh] w-full overflow-hidden rounded-3xl bg-white ring-1 ring-slate-200">
+      <div
+        ref={containerRef}
+        className="relative min-h-[500px] h-[70vh] supports-[height:70svh]:h-[70svh] w-full overflow-hidden rounded-3xl bg-white ring-1 ring-slate-200"
+      >
         <canvas ref={canvasRef} className="absolute inset-0" />
         {hoveredNodeId && hoveredNodeTitle && (
           <div className="pointer-events-none absolute left-4 top-4 max-w-[min(520px,calc(100%-2rem))] rounded-2xl bg-slate-900/90 px-3 py-2 text-xs text-white shadow-lg">

@@ -4,6 +4,7 @@ import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { PDFDocument } from "pdf-lib";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
 import XmindMindMapCanvas from "./XmindMindMapCanvas";
@@ -1431,7 +1432,8 @@ export default function XmindViewerClient() {
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasHandleRef = useRef<XmindMindMapCanvasHandle>(null);
   const idCounterRef = useRef(0);
-  const isEnglish = providedConfig?.lang?.toLowerCase().startsWith("en") ?? false;
+  const [isEnglish] = useState(providedConfig?.lang?.toLowerCase().startsWith("en") ?? false);
+  const [isMounted, setIsMounted] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [parsed, setParsed] = useState<ParsedXmind | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -1489,6 +1491,7 @@ export default function XmindViewerClient() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    setIsMounted(true);
     try {
       const modeRaw = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
       if (modeRaw === "read" || modeRaw === "edit") setViewerMode(modeRaw);
@@ -3126,40 +3129,47 @@ export default function XmindViewerClient() {
   return (
     <ToolPageLayout toolSlug="xmind-viewer" maxWidthClassName="max-w-7xl">
       <div className="space-y-8">
+      {isMounted && typeof document !== "undefined" && draftStatus === "available" && editorSheets.length === 0
+        ? createPortal(
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-xl rounded-2xl border border-amber-300/80 bg-amber-50/95 p-4 shadow-2xl backdrop-blur-md transition-all duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-amber-950 flex items-center gap-1.5">
+                    <span className="inline-block h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                    {ui.draftDetected}
+                  </div>
+                  <div className="mt-0.5 text-xs text-amber-800/90">{ui.draftPrompt}</div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={restoreDraft}
+                    className="rounded-xl bg-amber-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-700 active:scale-95"
+                  >
+                    {ui.restoreDraft}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDraftStatus("dismissed")}
+                    className="rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-300/80 transition hover:bg-amber-100 active:scale-95"
+                  >
+                    {ui.ignoreDraft}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={deleteDraft}
+                    className="rounded-xl bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 ring-1 ring-rose-200 transition hover:bg-rose-100 active:scale-95"
+                  >
+                    {ui.deleteDraft}
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
+
       <div className="glass-card rounded-3xl p-6 shadow-2xl ring-1 ring-black/5">
-        {draftStatus === "available" && editorSheets.length === 0 && (
-          <div className="mb-6 rounded-3xl bg-amber-50 p-5 ring-1 ring-amber-200">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <div className="text-sm font-semibold text-amber-900">{ui.draftDetected}</div>
-                <div className="mt-1 text-xs text-amber-800">{ui.draftPrompt}</div>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={restoreDraft}
-                  className="rounded-2xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
-                >
-                  {ui.restoreDraft}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDraftStatus("dismissed")}
-                  className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-amber-900 ring-1 ring-amber-200 transition hover:bg-amber-100"
-                >
-                  {ui.ignoreDraft}
-                </button>
-                <button
-                  type="button"
-                  onClick={deleteDraft}
-                  className="rounded-2xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
-                >
-                  {ui.deleteDraft}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div
           className={[
