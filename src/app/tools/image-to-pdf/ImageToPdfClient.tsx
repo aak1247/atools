@@ -1,20 +1,34 @@
 "use client";
 
 import type { ChangeEvent } from "react";
-import { PDFDocument, rgb, type PDFPage } from "pdf-lib";
-import { useEffect, useRef, useState } from "react";
+import { PDFDocument, rgb, type PDFImage } from "pdf-lib";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ToolPageLayout from "../../../components/ToolPageLayout";
 import { useOptionalToolConfig } from "../../../components/ToolConfigProvider";
-
+import ImageEditorModal from "./ImageEditorModal";
+import {
+  bakeImageToBytes,
+  bakePreviewFromBitmap,
+  IDENTITY_EDIT,
+  isIdentityEdit,
+  loadBitmap,
+  outputSize,
+  parseJpegOrientation,
+  type BakeFormat,
+  type ImageEdit,
+} from "./imageEdit";
 type PageSizePreset = "auto" | "a4" | "letter";
+type OrientationPreset = "auto" | "portrait" | "landscape";
 type FitMode = "contain" | "cover";
+type PreviewMode = "simulate" | "pdf";
 
 type Item = {
   id: string;
   file: File;
-  url: string;
   width: number;
   height: number;
+  edit: ImageEdit;
+  previewUrl: string;
 };
 
 const makeId = () => Math.random().toString(16).slice(2);
@@ -31,7 +45,12 @@ const DEFAULT_UI = {
   generating: "生成中…",
   generatePdf: "生成 PDF",
   imageList: "图片列表",
-  dragSortHint: "支持拖拽排序可后续增强；目前可用上下按钮调整。",
+  previewTitle: "PDF 页面预览",
+  pagesCount: "共 {count} 页",
+  modeSimulate: "模拟",
+  modePdf: "PDF",
+  pageLabel: "第 {index} 页",
+  dragSortHint: "预览按最终 PDF 页面结构实时展示；点击页面可编辑（旋转 / 缩放 / 裁剪），上下按钮调整页序。",
   selectImagesHint: "请选择图片（JPG/PNG/WebP/GIF 等，具体取决于浏览器解码能力）。",
   delete: "删除",
   pageSettings: "页面设置",
@@ -40,6 +59,7 @@ const DEFAULT_UI = {
   letter: "Letter",
   autoByImageSize: "按图片尺寸（DPI）",
   orientation: "方向",
+  orientationAuto: "自动（跟随图片）",
   portrait: "竖版",
   landscape: "横版",
   fitMode: "适配",
@@ -49,7 +69,10 @@ const DEFAULT_UI = {
   margins: "页边距（pt）",
   backgroundColor: "背景色",
   backgroundColorLabel: "背景色",
-  tip: "提示：本工具使用浏览器本地生成 PDF，不上传图片。若要保留原始 JPEG 体积优势，建议上传 JPG/JPEG（会直接嵌入）；其他格式会转为 PNG 再嵌入。",
+  edit: "编辑",
+  editedBadge: "已编辑",
+  pdfPreview: "PDF 预览",
+  tip: "提示：本工具使用浏览器本地生成 PDF，不上传图片。图片保持原始方向；未编辑的 JPG/JPEG 会直接嵌入以保留体积优势，经过旋转 / 缩放 / 裁剪的图片会重新编码。",
   readImageError: "读取图片失败",
   buildError: "生成失败"
 } as const;
@@ -65,30 +88,31 @@ const sizePresetToPoints = (preset: PageSizePreset, orientation: "portrait" | "l
   return { w: 0, h: 0 };
 };
 
-const readImageSize = async (file: File): Promise<{ width: number; height: number }> => {
-  const bmp = await createImageBitmap(file);
-  return { width: bmp.width, height: bmp.height };
+/** 单张图片最终页面的 pt 尺寸（与生成逻辑共用同一套规则） */
+const resolvePagePt = (
+  edit: ImageEdit,
+  width: number,
+  height: number,
+  pageSize: PageSizePreset,
+  orientation: OrientationPreset,
+  dpi: number,
+): { w: number; h: number } => {
+  const out = outputSize(edit, width, height);
+  const effOrientation: "portrait" | "landscape" =
+    orientation === "auto" ? (out.h >= out.w ? "portrait" : "landscape") : orientation;
+  if (pageSize === "auto") {
+    let w = (out.w / dpi) * 72;
+    let h = (out.h / dpi) * 72;
+    if (effOrientation === "landscape" && h > w) [w, h] = [h, w];
+    if (effOrientation === "portrait" && w > h) [w, h] = [h, w];
+    return { w, h };
+  }
+  return sizePresetToPoints(pageSize, effOrientation);
 };
 
 const fileExt = (name: string) => {
   const m = name.toLowerCase().match(/\.([a-z0-9]+)$/);
   return m ? m[1] : "";
-};
-
-const blobToUint8 = async (blob: Blob): Promise<Uint8Array> => new Uint8Array(await blob.arrayBuffer());
-
-const toPngBytes = async (file: File): Promise<Uint8Array> => {
-  const bmp = await createImageBitmap(file);
-  const canvas = document.createElement("canvas");
-  canvas.width = bmp.width;
-  canvas.height = bmp.height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas unavailable");
-  ctx.drawImage(bmp, 0, 0);
-  const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Failed to export PNG"))), "image/png", 1);
-  });
-  return blobToUint8(blob);
 };
 
 const scaleRect = (srcW: number, srcH: number, dstW: number, dstH: number, mode: FitMode) => {
@@ -101,6 +125,53 @@ const scaleRect = (srcW: number, srcH: number, dstW: number, dstH: number, mode:
   const y = (dstH - h) / 2;
   return { x, y, w, h };
 };
+
+/** 模拟单页渲染：页面比例、背景、页边距、适配模式均与最终 PDF 一致 */
+function PageThumb({
+  spec,
+  bg,
+  marginPt,
+  fit,
+  index,
+  onOpen,
+}: {
+  spec: { previewUrl: string; name: string; pt: { w: number; h: number } };
+  bg: string;
+  marginPt: number;
+  fit: FitMode;
+  index: number;
+  onOpen: () => void;
+}) {
+  // padding 百分比相对宽度计算，页面整体按 pt 比例缩放
+  const padPct = Math.min(30, (marginPt / spec.pt.w) * 100);
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      title={spec.name}
+      className="group relative block shrink-0 overflow-hidden rounded-lg shadow-md ring-1 ring-slate-300 transition hover:ring-blue-400"
+      style={{
+        width: 184,
+        aspectRatio: `${spec.pt.w} / ${spec.pt.h}`,
+        backgroundColor: bg,
+        padding: `${padPct}%`,
+      }}
+    >
+      <span className="block h-full w-full overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={spec.previewUrl}
+          alt={spec.name}
+          className="h-full w-full"
+          style={{ objectFit: fit === "cover" ? "cover" : "contain" }}
+        />
+      </span>
+      <span className="absolute bottom-1 right-1 rounded-md bg-slate-900/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+        {index}
+      </span>
+    </button>
+  );
+}
 
 export default function ImageToPdfClient() {
   return (
@@ -119,7 +190,7 @@ function ImageToPdfInner() {
 
   const [items, setItems] = useState<Item[]>([]);
   const [pageSize, setPageSize] = useState<PageSizePreset>("a4");
-  const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
+  const [orientation, setOrientation] = useState<OrientationPreset>("auto");
   const [fit, setFit] = useState<FitMode>("contain");
   const [dpi, setDpi] = useState(150);
   const [margin, setMargin] = useState(18);
@@ -130,41 +201,90 @@ function ImageToPdfInner() {
   const [isDragging, setIsDragging] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [downloadName, setDownloadName] = useState<string>("images.pdf");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("simulate");
 
   useEffect(() => {
     return () => {
-      for (const it of items) URL.revokeObjectURL(it.url);
       if (downloadUrl) URL.revokeObjectURL(downloadUrl);
     };
-  }, [downloadUrl, items]);
+  }, [downloadUrl]);
+
+  // 图片列表（顺序/编辑）或页面设置变化后，已生成的 PDF 失效，回到模拟视图
+  const structureKey = useMemo(
+    () =>
+      JSON.stringify({
+        items: items.map((it) => [it.id, it.file.name, it.file.size, it.edit]),
+        pageSize,
+        orientation,
+        fit,
+        dpi,
+        margin,
+        bg,
+      }),
+    [items, pageSize, orientation, fit, dpi, margin, bg],
+  );
+  const structureKeyRef = useRef(structureKey);
+  useEffect(() => {
+    if (structureKeyRef.current === structureKey) return;
+    structureKeyRef.current = structureKey;
+    // 置空后由 downloadUrl 的 cleanup effect 负责 revoke
+    setDownloadUrl(null);
+    setPreviewMode("simulate");
+  }, [structureKey]);
 
   const totalCount = items.length;
+  const editingItem = items.find((it) => it.id === editingId) ?? null;
+  const safeDpi = clamp(Math.round(dpi), 36, 600);
+  const safeMargin = clamp(Math.round(margin), 0, 120);
+
+  const pageSpecs = useMemo(
+    () =>
+      items.map((it) => ({
+        it,
+        out: outputSize(it.edit, it.width, it.height),
+        pt: resolvePagePt(it.edit, it.width, it.height, pageSize, orientation, safeDpi),
+      })),
+    [items, pageSize, orientation, safeDpi],
+  );
+
+  const buildPreview = async (file: File, edit: ImageEdit): Promise<string> => {
+    const bmp = await loadBitmap(file);
+    try {
+      return bakePreviewFromBitmap(bmp, edit, 480);
+    } finally {
+      bmp.close();
+    }
+  };
 
   const pick = async (files: File[], options: { replace?: boolean } = {}) => {
     const shouldReplace = options.replace === true;
     setError(null);
-    if (downloadUrl) {
-      URL.revokeObjectURL(downloadUrl);
-      setDownloadUrl(null);
-    }
     const next: Item[] = [];
     for (const f of files) {
-      const url = URL.createObjectURL(f);
       try {
-        const { width, height } = await readImageSize(f);
-        next.push({ id: makeId(), file: f, url, width, height });
+        const bmp = await loadBitmap(f);
+        const width = bmp.width;
+        const height = bmp.height;
+        let previewUrl = "";
+        try {
+          previewUrl = bakePreviewFromBitmap(bmp, { ...IDENTITY_EDIT }, 480);
+        } finally {
+          bmp.close();
+        }
+        next.push({
+          id: makeId(),
+          file: f,
+          width,
+          height,
+          edit: { ...IDENTITY_EDIT },
+          previewUrl,
+        });
       } catch (e) {
-        URL.revokeObjectURL(url);
         setError(e instanceof Error ? e.message : ui.readImageError);
       }
     }
-    setItems((prev) => {
-      if (shouldReplace) {
-        for (const item of prev) URL.revokeObjectURL(item.url);
-        return next;
-      }
-      return [...prev, ...next];
-    });
+    setItems((prev) => (shouldReplace ? next : [...prev, ...next]));
     if (files.length > 0) {
       const base = files[0].name.replace(/\.[^.]+$/, "") || "images";
       setDownloadName(`${base}.pdf`);
@@ -205,11 +325,8 @@ function ImageToPdfInner() {
   };
 
   const remove = (id: string) => {
-    setItems((prev) => {
-      const target = prev.find((x) => x.id === id);
-      if (target) URL.revokeObjectURL(target.url);
-      return prev.filter((x) => x.id !== id);
-    });
+    setItems((prev) => prev.filter((x) => x.id !== id));
+    if (editingId === id) setEditingId(null);
   };
 
   const move = (id: string, dir: -1 | 1) => {
@@ -227,11 +344,9 @@ function ImageToPdfInner() {
   };
 
   const clear = () => {
-    for (const it of items) URL.revokeObjectURL(it.url);
     setItems([]);
     setError(null);
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    setDownloadUrl(null);
+    setEditingId(null);
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -243,66 +358,63 @@ function ImageToPdfInner() {
     );
   };
 
+  const applyEdit = (id: string, edit: ImageEdit) => {
+    setEditingId(null);
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, edit } : it)));
+    const target = items.find((it) => it.id === id);
+    if (!target) return;
+    void buildPreview(target.file, edit)
+      .then((previewUrl) => {
+        setItems((cur) => cur.map((it) => (it.id === id ? { ...it, previewUrl } : it)));
+      })
+      .catch(() => {
+        // 保留旧预览图
+      });
+  };
+
+  /** 嵌入单张图片：未编辑且 EXIF 方向正常时直嵌原始字节，否则按编辑参数重编码 */
+  const prepareEmbed = async (it: Item, doc: PDFDocument): Promise<PDFImage> => {
+    const ext = fileExt(it.file.name);
+    const mime = it.file.type;
+    const isJpeg = mime === "image/jpeg" || mime === "image/jpg" || ext === "jpg" || ext === "jpeg";
+    const isPng = mime === "image/png" || ext === "png";
+
+    if (isJpeg || isPng) {
+      const bytes = new Uint8Array(await it.file.arrayBuffer());
+      const orientationTag = isJpeg ? parseJpegOrientation(bytes) : 1;
+      if (orientationTag <= 1 && isIdentityEdit(it.edit)) {
+        return isJpeg ? await doc.embedJpg(bytes) : await doc.embedPng(bytes);
+      }
+      const format: BakeFormat = isPng ? "png" : "jpeg";
+      const baked = await bakeImageToBytes(it.file, it.edit, {
+        format,
+        quality: 0.92,
+        background: "#FFFFFF",
+      });
+      return baked.format === "jpeg"
+        ? await doc.embedJpg(baked.bytes)
+        : await doc.embedPng(baked.bytes);
+    }
+
+    const baked = await bakeImageToBytes(it.file, it.edit, { format: "png" });
+    return doc.embedPng(baked.bytes);
+  };
+
   const build = async () => {
     if (items.length === 0) return;
     setIsWorking(true);
     setError(null);
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-    setDownloadUrl(null);
 
     try {
       const doc = await PDFDocument.create();
       const bgRgb = hexToRgb(bg);
-      const pad = clamp(Math.round(margin), 0, 120);
-      const safeDpi = clamp(Math.round(dpi), 36, 600);
 
       for (const it of items) {
-        const ext = fileExt(it.file.name);
-        const mime = it.file.type;
-
-        const isJpeg = mime === "image/jpeg" || mime === "image/jpg" || ext === "jpg" || ext === "jpeg";
-        const isPng = mime === "image/png" || ext === "png";
-
-        let embedded: { width: number; height: number; draw: (page: PDFPage, rect: { x: number; y: number; w: number; h: number }) => void };
-
-        if (isJpeg) {
-          const bytes = new Uint8Array(await it.file.arrayBuffer());
-          const img = await doc.embedJpg(bytes);
-          embedded = {
-            width: it.width,
-            height: it.height,
-            draw: (page, rect) => page.drawImage(img, { x: rect.x, y: rect.y, width: rect.w, height: rect.h }),
-          };
-        } else if (isPng) {
-          const bytes = new Uint8Array(await it.file.arrayBuffer());
-          const img = await doc.embedPng(bytes);
-          embedded = {
-            width: it.width,
-            height: it.height,
-            draw: (page, rect) => page.drawImage(img, { x: rect.x, y: rect.y, width: rect.w, height: rect.h }),
-          };
-        } else {
-          const pngBytes = await toPngBytes(it.file);
-          const img = await doc.embedPng(pngBytes);
-          embedded = {
-            width: it.width,
-            height: it.height,
-            draw: (page, rect) => page.drawImage(img, { x: rect.x, y: rect.y, width: rect.w, height: rect.h }),
-          };
-        }
-
-        let pageW = 0;
-        let pageH = 0;
-        if (pageSize === "auto") {
-          pageW = (embedded.width / safeDpi) * 72;
-          pageH = (embedded.height / safeDpi) * 72;
-          if (orientation === "landscape" && pageH > pageW) [pageW, pageH] = [pageH, pageW];
-          if (orientation === "portrait" && pageW > pageH) [pageW, pageH] = [pageH, pageW];
-        } else {
-          const preset = sizePresetToPoints(pageSize, orientation);
-          pageW = preset.w;
-          pageH = preset.h;
-        }
+        const img = await prepareEmbed(it, doc);
+        const out = outputSize(it.edit, it.width, it.height);
+        const pt = resolvePagePt(it.edit, it.width, it.height, pageSize, orientation, safeDpi);
+        const pageW = pt.w;
+        const pageH = pt.h;
 
         const page = doc.addPage([pageW, pageH]);
         page.drawRectangle({
@@ -313,15 +425,16 @@ function ImageToPdfInner() {
           color: rgb(bgRgb.r / 255, bgRgb.g / 255, bgRgb.b / 255),
         });
 
-        const contentW = Math.max(1, pageW - pad * 2);
-        const contentH = Math.max(1, pageH - pad * 2);
-        const rect = scaleRect(embedded.width, embedded.height, contentW, contentH, fit);
-        embedded.draw(page, { x: pad + rect.x, y: pad + rect.y, w: rect.w, h: rect.h });
+        const contentW = Math.max(1, pageW - safeMargin * 2);
+        const contentH = Math.max(1, pageH - safeMargin * 2);
+        const rect = scaleRect(out.w, out.h, contentW, contentH, fit);
+        page.drawImage(img, { x: safeMargin + rect.x, y: safeMargin + rect.y, width: rect.w, height: rect.h });
       }
 
       const bytes = await doc.save();
       const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }));
       setDownloadUrl(url);
+      setPreviewMode("pdf");
     } catch (e) {
       setError(e instanceof Error ? e.message : ui.buildError);
     } finally {
@@ -379,6 +492,14 @@ function ImageToPdfInner() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void build()}
+              disabled={items.length === 0 || isWorking}
+              className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+            >
+              {isWorking ? ui.generating : ui.generatePdf}
+            </button>
             {downloadUrl && (
               <a
                 href={downloadUrl}
@@ -388,17 +509,9 @@ function ImageToPdfInner() {
                 {ui.download.replace('{filename}', downloadName)}
               </a>
             )}
-            <button
-              type="button"
-              onClick={() => void build()}
-              disabled={items.length === 0 || isWorking}
-              className="rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
-            >
-              {isWorking ? ui.generating : ui.generatePdf}
-            </button>
           </div>
           <div className="w-full text-[11px] text-slate-500">
-            {items.length > 0 ? ui.dropReplaceHint : ui.selectImagesHint}
+            {items.length > 0 ? ui.dragSortHint : ui.selectImagesHint}
           </div>
         </div>
 
@@ -411,56 +524,119 @@ function ImageToPdfInner() {
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
           <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-slate-900">{ui.imageList}</div>
-              <div className="text-xs text-slate-500">{ui.dragSortHint}</div>
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-semibold text-slate-900">{ui.previewTitle}</div>
+                {items.length > 0 && (
+                  <div className="text-xs text-slate-500">
+                    {ui.pagesCount.replace("{count}", totalCount.toString())}
+                  </div>
+                )}
+              </div>
+              {items.length > 0 && downloadUrl && (
+                <div className="inline-flex rounded-xl bg-slate-100 p-1">
+                  {(["simulate", "pdf"] as PreviewMode[]).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setPreviewMode(m)}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                        previewMode === m
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-800"
+                      }`}
+                    >
+                      {m === "simulate" ? ui.modeSimulate : ui.modePdf}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
             {items.length === 0 ? (
               <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200">
                 {ui.selectImagesHint}
               </div>
+            ) : previewMode === "pdf" && downloadUrl ? (
+              <iframe
+                src={downloadUrl}
+                title={ui.pdfPreview}
+                className="mt-4 h-[640px] w-full rounded-2xl border border-slate-100 bg-slate-50"
+              />
             ) : (
               <div className="mt-4 grid gap-3">
-                {items.map((it, idx) => (
-                  <div key={it.id} className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
-                    <div className="h-12 w-12 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={it.url} alt={it.file.name} className="h-full w-full object-cover" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold text-slate-900">
-                        {idx + 1}. {it.file.name}
+                {pageSpecs.map((spec, idx) => {
+                  const it = spec.it;
+                  const edited = !isIdentityEdit(it.edit);
+                  return (
+                    <div key={it.id} className="flex items-start gap-4 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200">
+                      <PageThumb
+                        spec={{ previewUrl: it.previewUrl, name: it.file.name, pt: spec.pt }}
+                        bg={bg}
+                        marginPt={safeMargin}
+                        fit={fit}
+                        index={idx + 1}
+                        onOpen={() => setEditingId(it.id)}
+                      />
+                      <div className="min-w-0 flex-1 py-1">
+                        <div className="flex items-center gap-2">
+                          <span className="shrink-0 rounded-md bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 ring-1 ring-slate-200">
+                            {ui.pageLabel.replace("{index}", (idx + 1).toString())}
+                          </span>
+                          <span className="truncate text-sm font-semibold text-slate-900">{it.file.name}</span>
+                          {edited && (
+                            <span className="shrink-0 rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700">
+                              {ui.editedBadge}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-1 text-xs text-slate-600">
+                          {it.width}×{it.height}px
+                          {edited && (
+                            <span className="text-blue-700">
+                              {" "}→ {spec.out.w}×{spec.out.h}px
+                            </span>
+                          )}
+                          <span className="text-slate-400"> · {(it.file.size / 1024).toFixed(1)} KB</span>
+                        </div>
+                        <div className="mt-0.5 text-xs text-slate-500">
+                          页面 {Math.round(spec.pt.w)}×{Math.round(spec.pt.h)} pt
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setEditingId(it.id)}
+                            className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100"
+                          >
+                            {ui.edit}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => move(it.id, -1)}
+                            disabled={idx === 0}
+                            className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100 disabled:opacity-60"
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => move(it.id, 1)}
+                            disabled={idx === items.length - 1}
+                            className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100 disabled:opacity-60"
+                          >
+                            ↓
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => remove(it.id)}
+                            className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 ring-1 ring-rose-100 transition hover:bg-rose-100"
+                          >
+                            {ui.delete}
+                          </button>
+                        </div>
                       </div>
-                      <div className="mt-0.5 text-xs text-slate-600">
-                        {it.width}×{it.height}px · {(it.file.size / 1024).toFixed(1)} KB
-                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => move(it.id, -1)}
-                        disabled={idx === 0}
-                        className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100 disabled:opacity-60"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => move(it.id, 1)}
-                        disabled={idx === items.length - 1}
-                        className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-100 disabled:opacity-60"
-                      >
-                        ↓
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => remove(it.id)}
-                        className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 ring-1 ring-rose-100 transition hover:bg-rose-100"
-                      >
-                        {ui.delete}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -486,9 +662,10 @@ function ImageToPdfInner() {
                   {ui.orientation}
                   <select
                     value={orientation}
-                    onChange={(e) => setOrientation(e.target.value as "portrait" | "landscape")}
+                    onChange={(e) => setOrientation(e.target.value as OrientationPreset)}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                   >
+                    <option value="auto">{ui.orientationAuto}</option>
                     <option value="portrait">{ui.portrait}</option>
                     <option value="landscape">{ui.landscape}</option>
                   </select>
@@ -559,6 +736,16 @@ function ImageToPdfInner() {
           </div>
         </div>
       </div>
+
+      {editingItem && (
+        <ImageEditorModal
+          file={editingItem.file}
+          edit={editingItem.edit}
+          ui={ui}
+          onApply={(edit) => applyEdit(editingItem.id, edit)}
+          onClose={() => setEditingId(null)}
+        />
+      )}
     </div>
   );
 }
