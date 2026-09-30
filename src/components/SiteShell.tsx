@@ -21,7 +21,7 @@ export default function SiteShell({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full glass border-b border-white/20 transition-all duration-300">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6 lg:px-8 xl:max-w-7xl 2xl:max-w-[1600px]">
           <Link
             href={`/${locale}`}
             className="flex items-center gap-2 text-sm font-semibold tracking-tight text-slate-900 transition-opacity hover:opacity-80"
@@ -68,14 +68,14 @@ export default function SiteShell({
       </header>
 
       <main className="flex-1">
-        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 xl:max-w-7xl 2xl:max-w-[1600px]">
           <PwaActionsBar />
           {children}
         </div>
       </main>
 
       <footer className="border-t border-slate-200/60 bg-white/50 py-8 text-center text-xs text-slate-500 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-5xl px-4 xl:max-w-7xl 2xl:max-w-[1600px]"
           <p>
             © {new Date().getFullYear()} {messages.siteName}. {messages.footerTagline}
           </p>
