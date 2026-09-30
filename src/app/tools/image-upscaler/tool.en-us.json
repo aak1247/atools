@@ -1,14 +1,15 @@
 {
-  "name": "Free Online Image Upscaler (WebGPU / RealCUGAN) - ATools",
+  "name": "Free Online Image Upscaler (GPU Accelerated / RealCUGAN) - ATools",
   "shortName": "Upscale",
-  "description": "Free online image upscaler with 2×/3× enlargement. Uses WebGPU Shader hardware acceleration by default, with RealCUGAN AI and high-quality resize fallbacks.",
-  "seoDescription": "Free online image upscaler powered by pure WebGPU Shaders (EASU + RCAS) and RealCUGAN. Upscale anime, illustrations, and photos by 2× or 3× in milliseconds locally in your browser without uploads or massive model downloads. Private and blazing fast.",
+  "description": "Free online image upscaler with 2×/3× enlargement. Uses WebGPU / WebGL 2 Shader hardware acceleration by default, with RealCUGAN AI and high-quality resize fallbacks.",
+  "seoDescription": "Free online image upscaler powered by pure WebGPU / WebGL 2 Shaders (EASU + RCAS) and RealCUGAN. Upscale anime, illustrations, and photos by 2× or 3× in milliseconds locally in your browser without uploads or massive model downloads. Private and blazing fast.",
   "category": "Image Tools",
   "lang": "en-US",
   "keywords": [
     "image upscaler",
     "upscale image",
     "WebGPU",
+    "WebGL2",
     "RealCUGAN",
     "WebAssembly",
     "anime upscaler",
@@ -16,13 +17,13 @@
     "GPU acceleration"
   ],
   "ui": {
-    "hint": "Image upscaler: uses WebGPU Shader acceleration by default (millisecond speeds, zero model downloads, 100% private & client-side). RealCUGAN AI and compatible resize modes are also supported.",
+    "hint": "Image upscaler: uses GPU Shader acceleration by default (supports WebGPU / WebGL 2, millisecond speeds, zero model downloads, 100% private & client-side). RealCUGAN AI and compatible resize modes are also supported.",
     "pick": "Choose image",
     "replace": "Click to replace image",
     "clear": "Clear",
     "dropReplaceHint": "Drag and drop a new image here to replace directly",
     "mode": "Engine mode",
-    "modeWebGPU": "WebGPU Shader (Fastest · Milliseconds)",
+    "modeGPU": "GPU Fast Upscale (Recommended · WebGPU/WebGL2)",
     "modeRealCugan": "RealCUGAN (Deep AI)",
     "modeResize": "High-quality resize (Compatible)",
     "scale": "Scale",
@@ -31,7 +32,7 @@
     "presetBalanced": "Balanced HD (Adaptive smooth)",
     "presetSharp": "High sharpness (Edge boost)",
     "gpuDetected": "Local GPU acceleration active: {adapter}",
-    "gpuUnsupported": "WebGPU is not enabled in this browser. Switched to fallback mode automatically.",
+    "gpuUnsupported": "GPU acceleration is not enabled in this browser. Switched to fallback mode automatically.",
     "denoise": "Denoise / restore",
     "denoiseNo": "No denoise",
     "denoiseStrong": "Strong denoise (denoise3x)",
@@ -46,9 +47,9 @@
     "notReadyTitle": "Not ready",
     "notReadyDesc": "The runtime is still loading. Please try again shortly.",
     "crossOriginIsolatedTitle": "Cross-Origin Isolation required (COOP/COEP)",
-    "crossOriginIsolatedDesc": "RealCUGAN (threads) requires SharedArrayBuffer. Open under Cross-Origin Isolation (set COOP/COEP response headers). Otherwise switch to “WebGPU Shader” or “High-quality resize”.",
+    "crossOriginIsolatedDesc": "RealCUGAN (threads) requires SharedArrayBuffer. Open under Cross-Origin Isolation (set COOP/COEP response headers). Otherwise switch to “GPU Fast Upscale” or “High-quality resize”.",
     "unsupportedTitle": "Unsupported",
-    "unsupportedDesc": "Use the latest Chrome/Firefox. If you cannot enable Cross-Origin Isolation, switch to “WebGPU Shader” or “High-quality resize”.",
+    "unsupportedDesc": "Use the latest Chrome/Firefox. If you cannot enable Cross-Origin Isolation, switch to “GPU Fast Upscale” or “High-quality resize”.",
     "original": "Original",
     "output": "Output",
     "fileInfo": "File: {name} ({w}×{h})",
@@ -59,7 +60,7 @@
     "error": "Error: {msg}",
     "empty": "No output yet",
     "noteTitle": "Note",
-    "noteBody": "WebGPU is recommended: runs instantly via your local graphics hardware without downloading multi-megabyte models. Completely private and client-side.",
-    "libCredit": "Engines: WebGPU WGSL Shader + RealCUGAN-ncnn-webassembly"
+    "noteBody": "GPU acceleration is recommended: runs in milliseconds via your local graphics hardware (WebGPU / WebGL 2) without downloading multi-megabyte models. Completely private and client-side.",
+    "libCredit": "Engines: WebGPU / WebGL 2 Shader + RealCUGAN-ncnn-webassembly"
   }
 }

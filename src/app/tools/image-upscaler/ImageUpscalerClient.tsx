@@ -11,8 +11,13 @@ import {
   type WebGPUScaleFactor,
   type WebGPUStylePreset,
 } from "../../../lib/webgpu-upscaler";
+import {
+  checkWebGL2Support,
+  upscaleImageWebGL2,
+  type WebGLScaleFactor,
+} from "../../../lib/webgl-upscaler";
 
-type UpscaleMode = "webgpu" | "realcugan" | "resize";
+type UpscaleMode = "gpu" | "realcugan" | "resize";
 type DenoisePreset = "no-denoise" | "denoise3x" | "conservative";
 
 type Ui = {
@@ -22,7 +27,7 @@ type Ui = {
   clear: string;
   dropReplaceHint: string;
   mode: string;
-  modeWebGPU: string;
+  modeGPU: string;
   modeRealCugan: string;
   modeResize: string;
   scale: string;
@@ -64,13 +69,13 @@ type Ui = {
 };
 
 const DEFAULT_UI: Ui = {
-  hint: "图片超分辨率提升：默认使用纯 WebGPU Shader 硬件加速（毫秒级极速放大，无额外模型下载，零上传）；亦支持 RealCUGAN 深度 AI 模型与兼容模式。",
+  hint: "图片超分辨率提升：默认使用 GPU Shader 硬件加速（支持 WebGPU / WebGL 2，毫秒级极速放大，无额外模型下载，零上传）；亦支持 RealCUGAN 深度 AI 模型与兼容模式。",
   pick: "选择图片",
   replace: "点击替换图片",
   clear: "清空",
   dropReplaceHint: "支持拖拽新图片到此区域直接替换",
   mode: "引擎模式",
-  modeWebGPU: "WebGPU 极速超分（推荐·毫秒级）",
+  modeGPU: "GPU 极速超分（推荐·WebGPU/WebGL2）",
   modeRealCugan: "RealCUGAN（AI深度超分）",
   modeResize: "高质量缩放（兼容兜底）",
   scale: "放大倍数",
@@ -79,7 +84,7 @@ const DEFAULT_UI: Ui = {
   presetBalanced: "通用高清（自适应平滑）",
   presetSharp: "细节锐化（边缘强化）",
   gpuDetected: "已启用本地 GPU 硬件加速：{adapter}",
-  gpuUnsupported: "当前浏览器暂未启用 WebGPU，已自动为您切至备用模式。",
+  gpuUnsupported: "当前浏览器暂未启用 GPU 硬件加速，已自动切至兼容模式。",
   denoise: "降噪/修复",
   denoiseNo: "无降噪",
   denoiseStrong: "强降噪（denoise3x）",
@@ -94,9 +99,9 @@ const DEFAULT_UI: Ui = {
   notReadyTitle: "资源未就绪",
   notReadyDesc: "模型与运行时仍在加载，请稍后再试。",
   crossOriginIsolatedTitle: "需要跨域隔离（COOP/COEP）",
-  crossOriginIsolatedDesc: "RealCUGAN（threads）依赖 SharedArrayBuffer。请在支持 Cross-Origin Isolation 的环境中打开（配置 COOP/COEP 响应头）。否则请切换到“WebGPU 极速超分”或“高质量缩放”。",
+  crossOriginIsolatedDesc: "RealCUGAN（threads）依赖 SharedArrayBuffer。请在支持 Cross-Origin Isolation 的环境中打开（配置 COOP/COEP 响应头）。否则请切换到“GPU 极速超分”或“高质量缩放”。",
   unsupportedTitle: "当前环境不支持",
-  unsupportedDesc: "请使用最新版 Chrome/Firefox；若无法启用跨域隔离，请切换到“WebGPU 极速超分”或“高质量缩放”。",
+  unsupportedDesc: "请使用最新版 Chrome/Firefox；若无法启用跨域隔离，请切换到“GPU 极速超分”或“高质量缩放”。",
   original: "原图",
   output: "输出",
   fileInfo: "文件：{name}（{w}×{h}）",
@@ -107,8 +112,8 @@ const DEFAULT_UI: Ui = {
   error: "错误：{msg}",
   empty: "尚未生成输出",
   noteTitle: "提示",
-  noteBody: "推荐使用 WebGPU 极速超分：无需下载庞大模型，利用本机显卡并行渲染，秒出结果；全程纯本地浏览器运算，不上传任何数据。",
-  libCredit: "计算引擎：WebGPU WGSL Shader + RealCUGAN-ncnn-webassembly",
+  noteBody: "推荐使用 GPU 极速超分：基于 WebGPU / WebGL 2 着色器并行计算，毫秒级出图，无需下载庞大模型；全程纯本地浏览器运算，不上传任何数据。",
+  libCredit: "计算引擎：WebGPU / WebGL 2 Shader + RealCUGAN-ncnn-webassembly",
 };
 
 type RealCuganProgressEvent = { eventType: "PROC_PROGRESS"; progress_rate: number; remaining_time: number };
@@ -280,12 +285,12 @@ function Inner({ ui }: { ui: Ui }) {
   const [origUrl, setOrigUrl] = useState<string | null>(null);
   const [origSize, setOrigSize] = useState<{ w: number; h: number } | null>(null);
 
-  const [mode, setMode] = useState<UpscaleMode>("webgpu");
+  const [mode, setMode] = useState<UpscaleMode>("gpu");
   const [scale, setScale] = useState<number>(2);
   const [stylePreset, setStylePreset] = useState<WebGPUStylePreset>("anime");
   const [denoisePreset, setDenoisePreset] = useState<DenoisePreset>("denoise3x");
 
-  const [webgpuSupported, setWebgpuSupported] = useState<boolean | null>(null);
+  const [gpuBackend, setGpuBackend] = useState<"webgpu" | "webgl2" | "none" | null>(null);
   const [gpuAdapterName, setGpuAdapterName] = useState<string>("");
 
   const [modelState, setModelState] = useState<"idle" | "loading" | "ready" | "error">("idle");
@@ -302,20 +307,32 @@ function Inner({ ui }: { ui: Ui }) {
 
   const ptrRef = useRef<{ srcPtr: number; dstPtr: number; outLen: number; w: number; h: number; scale: number } | null>(null);
 
-  // 初始化 WebGPU 检测
+  // 初始化探测 GPU 支持：优先 WebGPU，次选 WebGL 2
   useEffect(() => {
     let active = true;
-    checkWebGPUSupport().then((res) => {
+    checkWebGPUSupport().then((gpuRes) => {
       if (!active) return;
-      setWebgpuSupported(res.supported);
-      if (res.supported) {
-        setGpuAdapterName(res.adapterInfo || "GPU");
-        setMode("webgpu");
-      } else {
-        // 如果不支持 WebGPU，回退到 realcugan 或 resize
-        setMode(hasThreadsSupport() ? "realcugan" : "resize");
+      if (gpuRes.supported) {
+        setGpuBackend("webgpu");
+        setGpuAdapterName(gpuRes.adapterInfo || "WebGPU");
+        setMode("gpu");
+        return;
       }
+
+      // WebGPU 不可用，检测 WebGL 2
+      const glRes = checkWebGL2Support();
+      if (glRes.supported) {
+        setGpuBackend("webgl2");
+        setGpuAdapterName(glRes.renderer || "WebGL 2");
+        setMode("gpu");
+        return;
+      }
+
+      // 均不支持，回退到 realcugan 或 resize
+      setGpuBackend("none");
+      setMode(hasThreadsSupport() ? "realcugan" : "resize");
     });
+
     return () => {
       active = false;
     };
@@ -448,8 +465,8 @@ function Inner({ ui }: { ui: Ui }) {
     setProgressPct(null);
     setEtaSeconds(null);
 
-    if (mode === "webgpu") {
-      await runWebGPU();
+    if (mode === "gpu") {
+      await runGPU();
       return;
     }
 
@@ -480,10 +497,14 @@ function Inner({ ui }: { ui: Ui }) {
     await runResize();
   };
 
-  const runWebGPU = async () => {
+  // GPU 执行：自适应多层级降级调度
+  const runGPU = async () => {
     if (!file) return;
     setIsWorking(true);
     setProgressPct(30);
+
+    const scaleFactor = (scale === 3 ? 3 : 2) as WebGPUScaleFactor;
+
     try {
       const bmp = await fileToImageBitmap(file);
       const outW = Math.round(bmp.width * scale);
@@ -491,24 +512,53 @@ function Inner({ ui }: { ui: Ui }) {
       setOutSize({ w: outW, h: outH });
       setProgressPct(60);
 
-      const renderedCanvas = await upscaleImageWebGPU(bmp, {
-        scale: (scale === 3 ? 3 : 2) as WebGPUScaleFactor,
-        preset: stylePreset,
-      });
+      let renderedCanvas: HTMLCanvasElement | null = null;
+
+      // 1. 如果支持 WebGPU，优先走 WebGPU
+      if (gpuBackend === "webgpu") {
+        try {
+          renderedCanvas = await upscaleImageWebGPU(bmp, {
+            scale: scaleFactor,
+            preset: stylePreset,
+          });
+        } catch (webgpuErr) {
+          console.warn("WebGPU execution failed, attempting WebGL 2 fallback:", webgpuErr);
+        }
+      }
+
+      // 2. 若 WebGPU 未产出结果或未支持，尝试 WebGL 2
+      if (!renderedCanvas && checkWebGL2Support().supported) {
+        try {
+          renderedCanvas = await upscaleImageWebGL2(bmp, {
+            scale: scaleFactor as WebGLScaleFactor,
+            preset: stylePreset,
+          });
+        } catch (webglErr) {
+          console.warn("WebGL 2 execution failed, attempting 2D fallback:", webglErr);
+        }
+      }
+
       bmp.close();
 
-      setProgressPct(90);
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        renderedCanvas.toBlob((b) => (b ? resolve(b) : reject(new Error("WebGPU canvas export failed"))), "image/png", 1);
-      });
+      if (renderedCanvas) {
+        setProgressPct(90);
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          renderedCanvas.toBlob((b) => (b ? resolve(b) : reject(new Error("GPU canvas export failed"))), "image/png", 1);
+        });
+        const url = URL.createObjectURL(blob);
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+        setDownloadUrl(url);
+        setDownloadName(`${file.name.replace(/\.[^.]+$/u, "") || "image"}-gpu-x${scale}.png`);
+        setProgressPct(100);
+        return;
+      }
 
-      const url = URL.createObjectURL(blob);
-      if (downloadUrl) URL.revokeObjectURL(downloadUrl);
-      setDownloadUrl(url);
-      setDownloadName(`${file.name.replace(/\.[^.]+$/u, "") || "image"}-webgpu-x${scale}.png`);
-      setProgressPct(100);
+      // 3. 若 GPU 渲染均失败，静默降级到 2D 平滑缩放
+      await runResize();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "WebGPU processing failed");
+      console.warn("GPU processing exception, fallback to resize:", e);
+      setError(null);
+      await runResize();
     } finally {
       setIsWorking(false);
       setProgressPct(null);
@@ -703,21 +753,21 @@ function Inner({ ui }: { ui: Ui }) {
                   onChange={(e) => setMode(e.target.value as UpscaleMode)}
                   className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-slate-400"
                 >
-                  <option value="webgpu">{ui.modeWebGPU}</option>
+                  <option value="gpu">{ui.modeGPU}</option>
                   <option value="realcugan">{ui.modeRealCugan}</option>
                   <option value="resize">{ui.modeResize}</option>
                 </select>
               </label>
 
-              {/* WebGPU 状态提示 */}
-              {mode === "webgpu" && (
+              {/* GPU 状态提示 */}
+              {mode === "gpu" && (
                 <div>
-                  {webgpuSupported === true ? (
+                  {gpuBackend === "webgpu" || gpuBackend === "webgl2" ? (
                     <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 px-4 py-2.5 text-xs text-emerald-900 ring-1 ring-emerald-200">
                       <span className="inline-block h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-200" />
-                      <span>{ui.gpuDetected.replace("{adapter}", gpuAdapterName)}</span>
+                      <span>{ui.gpuDetected.replace("{adapter}", `${gpuBackend.toUpperCase()} (${gpuAdapterName})`)}</span>
                     </div>
-                  ) : webgpuSupported === false ? (
+                  ) : gpuBackend === "none" ? (
                     <div className="rounded-2xl bg-amber-50 px-4 py-2.5 text-xs text-amber-900 ring-1 ring-amber-200">
                       {ui.gpuUnsupported}
                     </div>
@@ -776,7 +826,7 @@ function Inner({ ui }: { ui: Ui }) {
                   </select>
                 </label>
 
-                {mode === "webgpu" ? (
+                {mode === "gpu" ? (
                   <label className="grid gap-1 text-xs text-slate-600">
                     {ui.preset}
                     <select

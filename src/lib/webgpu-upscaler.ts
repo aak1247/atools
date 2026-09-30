@@ -95,7 +95,10 @@ async function getGPUDevice(): Promise<GPUDevice> {
       cachedDevicePromise = null;
     });
     return device;
-  })();
+  })().catch((err) => {
+    cachedDevicePromise = null;
+    throw err;
+  });
 
   return cachedDevicePromise;
 }
@@ -401,28 +404,7 @@ export async function upscaleImageWebGPU(
     ],
   });
 
-  // 7. 构建渲染管线 (Pass 2 - RCAS)
-  const rcasPipeline = device.createRenderPipeline({
-    layout: "auto",
-    vertex: { module: rcasModule, entryPoint: "vs_main" },
-    fragment: {
-      module: rcasModule,
-      entryPoint: "fs_main",
-      targets: [{ format: "rgba8unorm" }],
-    },
-    primitive: { topology: "triangle-list" },
-  });
-
-  const rcasBindGroup = device.createBindGroup({
-    layout: rcasPipeline.getBindGroupLayout(0),
-    entries: [
-      { binding: 0, resource: sampler },
-      { binding: 1, resource: pass1Texture.createView() },
-      { binding: 2, resource: { buffer: rcasUniformBuffer } },
-    ],
-  });
-
-  // 8. 准备用于输出展示与读取的 Canvas
+  // 7. 准备用于输出展示与读取的 Canvas
   const outCanvas = document.createElement("canvas");
   outCanvas.width = dstW;
   outCanvas.height = dstH;
@@ -435,6 +417,27 @@ export async function upscaleImageWebGPU(
     device,
     format: canvasFormat,
     alphaMode: "premultiplied",
+  });
+
+  // 8. 构建渲染管线 (Pass 2 - RCAS 渲染至 Canvas，格式必须与 canvasFormat 严格一致)
+  const rcasPipeline = device.createRenderPipeline({
+    layout: "auto",
+    vertex: { module: rcasModule, entryPoint: "vs_main" },
+    fragment: {
+      module: rcasModule,
+      entryPoint: "fs_main",
+      targets: [{ format: canvasFormat }],
+    },
+    primitive: { topology: "triangle-list" },
+  });
+
+  const rcasBindGroup = device.createBindGroup({
+    layout: rcasPipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: sampler },
+      { binding: 1, resource: pass1Texture.createView() },
+      { binding: 2, resource: { buffer: rcasUniformBuffer } },
+    ],
   });
 
   // 9. 执行 GPU 渲染指令录制
