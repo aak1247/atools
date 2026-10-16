@@ -1,0 +1,43 @@
+{
+  "name": "免费在线 AGY CPA 格式 JSON 生成器 - 纯粹工具站",
+  "shortName": "AGY JSON 生成",
+  "description": "免费在线 AGY（Antigravity）CPA 账号格式转 JSON 配置生成器：粘贴账号行自动生成 antigravity-邮箱.json 配置文件，支持批量转换与 ZIP 打包下载，纯本地处理。",
+  "seoDescription": "免费在线 AGY CPA 格式 JSON 生成器 - ATools 纯粹工具站：一键将 email----password--------client_id----refresh_token 格式的账号行转换为 Antigravity 客户端使用的 JSON 配置文件，自动按 antigravity-邮箱.json 命名，字段完整包含 refresh_token、project_id、expires_in、timestamp、type 等，时间戳自动生成。支持批量多行转换、单文件复制下载与 ZIP 打包导出，可切换缩进输出。全程浏览器本地处理，数据不上传服务器，零注册零限制，是批量管理多个 AGY 账号配置文件的必备效率工具。",
+  "lang": "zh-CN",
+  "themeColor": "#0f172a",
+  "backgroundColor": "#0f172a",
+  "icon": "/icon.svg",
+  "category": "开发工具",
+  "keywords": [
+    "AGY",
+    "Antigravity",
+    "CPA格式",
+    "JSON生成器",
+    "refresh_token",
+    "antigravity json",
+    "账号格式转换",
+    "免费在线工具"
+  ],
+  "ui": {
+    "hint": "支持批量多行粘贴 CPA 格式账号行（每行一条，自动忽略空行），实时批量生成 Antigravity 客户端使用的 JSON 配置文件；全部处理在浏览器本地完成，数据不会上传。",
+    "formatHint": "格式：邮箱----密码--------client_id----refresh_token（任意 ≥4 个连续短横线都视为分隔符）",
+    "inputTitle": "账号输入（每行一条，支持批量粘贴）",
+    "inputPlaceholder": "email@gmail.com----password--------clientid----1//RefreshTokenString",
+    "statsTemplate": "共 {total} 行：成功 {ok} 条，失败 {failed} 条",
+    "blankIgnoredTemplate": "已自动忽略 {blank} 个空行",
+    "outputTitle": "生成结果",
+    "emptyResult": "输入 CPA 账号行后，这里会实时显示生成的 JSON 文件。",
+    "pretty": "缩进输出",
+    "copy": "复制",
+    "copied": "已复制",
+    "download": "下载",
+    "downloadAll": "打包下载 ZIP",
+    "downloadEach": "逐个下载全部",
+    "clear": "清空",
+    "errNoEmail": "缺少邮箱字段",
+    "errInvalidEmail": "邮箱格式无效",
+    "errNoToken": "字段不足，缺少 refresh_token",
+    "errDuplicate": "邮箱重复，已跳过",
+    "warnTokenFormat": "refresh_token 未以 1// 开头，请确认是否为有效的 Google OAuth token"
+  }
+}

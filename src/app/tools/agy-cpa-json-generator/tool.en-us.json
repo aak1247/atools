@@ -1,0 +1,39 @@
+{
+  "name": "Free Online AGY CPA to JSON Generator - ATools",
+  "shortName": "AGY CPA to JSON",
+  "description": "Free online AGY (Antigravity) CPA account format to JSON config generator. Batch convert account lines into antigravity-<email>.json files and download as ZIP, fully local.",
+  "seoDescription": "Free online AGY CPA to JSON Generator — ATools (Pure Tools). Convert email----password--------client_id----refresh_token account lines into Antigravity client JSON config files in bulk, named automatically as antigravity-<email>.json with refresh_token, project_id, expires_in, timestamp and type fields filled in. Copy or download each file, or export everything as a single ZIP, with optional pretty printing. 100% free, no sign-up: everything runs locally in your browser and nothing is ever uploaded — perfect for managing multiple AGY account configs.",
+  "category": "Developer Tools",
+  "lang": "en-US",
+  "keywords": [
+    "free online AGY CPA to JSON generator",
+    "Antigravity JSON generator",
+    "CPA format converter",
+    "refresh_token JSON",
+    "AGY",
+    "ATools",
+    "Pure Tools"
+  ],
+  "ui": {
+    "hint": "Paste CPA-format account lines in bulk (one per line, blank lines are ignored automatically) to generate Antigravity client JSON config files in real time. Everything runs locally in your browser — nothing is uploaded.",
+    "formatHint": "Format: email----password--------client_id----refresh_token (any run of 4+ hyphens is treated as a separator)",
+    "inputTitle": "Accounts (one per line, batch paste supported)",
+    "inputPlaceholder": "email@gmail.com----password--------clientid----1//RefreshTokenString",
+    "statsTemplate": "{total} lines: {ok} succeeded, {failed} failed",
+    "blankIgnoredTemplate": "{blank} blank line(s) ignored",
+    "outputTitle": "Generated files",
+    "emptyResult": "Enter CPA account lines above and the generated JSON files will appear here in real time.",
+    "pretty": "Pretty print",
+    "copy": "Copy",
+    "copied": "Copied",
+    "download": "Download",
+    "downloadAll": "Download all as ZIP",
+    "downloadEach": "Download each file",
+    "clear": "Clear",
+    "errNoEmail": "Missing email field",
+    "errInvalidEmail": "Invalid email format",
+    "errNoToken": "Not enough fields, refresh_token missing",
+    "errDuplicate": "Duplicate email, skipped",
+    "warnTokenFormat": "refresh_token does not start with 1// — verify it is a valid Google OAuth token"
+  }
+}
