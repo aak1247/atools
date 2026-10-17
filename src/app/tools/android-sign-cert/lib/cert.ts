@@ -184,3 +184,28 @@ export function formatDate(date: Date): string {
 }
 
 export { DER_TAG, DerWriter, derChildren, derRead, derOidToString };
+
+const RSA_ENCRYPTION_OID = "1.2.840.113549.1.1.1";
+
+/**
+ * 从 SPKI DER 提取 RSA 模数的十六进制值。
+ * 这是 App 备案表单（如阿里云/腾讯云）中"公钥"字段要求的格式，
+ * 即 jadx 等工具在签名信息中显示的"模数"（RSA 2048 为 512 个十六进制字符）。
+ * 非 RSA 证书返回空字符串。
+ */
+export function rsaModulusHexFromSpki(spkiDer: Uint8Array): string {
+  try {
+    const spki = derRead(spkiDer);
+    const [algElement, keyElement] = derChildren(spki);
+    if (!algElement || !keyElement || keyElement.tag !== DER_TAG.BIT_STRING) return "";
+    const algOidElement = derChildren(algElement)[0];
+    if (!algOidElement || derOidToString(algOidElement) !== RSA_ENCRYPTION_OID) return "";
+    // BIT STRING 内容首字节为未使用位数（公钥恒为 0），其后是 RSAPublicKey SEQUENCE
+    const rsaPublicKey = derRead(keyElement.content.subarray(1));
+    const modulusElement = derChildren(rsaPublicKey)[0];
+    if (!modulusElement) return "";
+    return bytesToHex(derIntegerBytes(modulusElement));
+  } catch {
+    return "";
+  }
+}

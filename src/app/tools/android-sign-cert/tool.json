@@ -1,8 +1,8 @@
 {
   "name": "免费在线安卓签名证书生成器（App备案公钥/签名MD5一键获取）- 纯粹工具站",
   "shortName": "安卓签名证书",
-  "description": "免费在线安卓签名证书工具：一键生成 App 备案所需的密钥库（JKS/PKCS12），或解析已有密钥库/APK 提取公钥、签名MD5、包名等备案信息。",
-  "seoDescription": "免费在线安卓签名证书生成器与解析工具，为 App 备案（工信部移动应用备案）准备签名材料：浏览器本地生成 RSA 密钥与自签证书并打包为 JKS / PKCS12 密钥库（Android Studio、apksigner、HBuilderX 均可使用），一键显示备案要填写的公钥 MD5、签名 MD5（证书 MD5 指纹）与 SHA1/SHA256 指纹；也可上传已有 .jks/.keystore/.p12/.pfx 密钥库或 .apk 安装包，解析出包名、版本、签名方案（v1/v2/v3）及对应证书的公钥与签名 MD5。全程在浏览器本地计算，密钥库与密码不会上传到服务器。",
+  "description": "免费在线安卓签名证书工具：一键生成 App 备案所需的密钥库（JKS/PKCS12），或解析已有密钥库/APK 提取公钥（模数）、签名MD5、包名等备案信息。",
+  "seoDescription": "免费在线安卓签名证书生成器与解析工具，为 App 备案（工信部移动应用备案）准备签名材料：浏览器本地生成 RSA 密钥与自签证书并打包为 JKS / PKCS12 密钥库（Android Studio、apksigner、HBuilderX 均可使用），一键显示备案要填写的公钥（签名证书 RSA 模数的十六进制，即 jadx 显示的“模数”）、签名 MD5（证书 MD5 指纹）与 SHA1/SHA256 指纹；也可上传已有 .jks/.keystore/.p12/.pfx 密钥库或 .apk 安装包，解析出包名、版本、签名方案（v1/v2/v3）及对应证书的公钥与签名 MD5。全程在浏览器本地计算，密钥库与密码不会上传到服务器。",
   "category": "开发工具",
   "lang": "zh-CN",
   "themeColor": "#0f172a",
@@ -10,7 +10,7 @@
   "icon": "/icon.svg",
   "ui": {
     "title": "安卓签名证书生成器",
-    "description": "说明：本工具在浏览器本地生成/解析安卓签名密钥库，用于 App 备案（公钥 MD5、签名 MD5、包名）。密钥库与密码全程不会上传。",
+    "description": "说明：本工具在浏览器本地生成/解析安卓签名密钥库，用于 App 备案（公钥、签名 MD5、包名）。密钥库与密码全程不会上传。",
     "tabGenerate": "生成密钥库",
     "tabParseKeystore": "解析密钥库",
     "tabParseApk": "解析 APK",
@@ -24,11 +24,10 @@
     "downloadButton": "下载",
     "chooseFileButton": "选择文件",
     "beianInfoTitle": "App 备案信息（安卓平台）",
-    "beianInfoHint": "在工信部 App 备案表单（安卓平台）中通常需要填写：包名、公钥、签名 MD5。签名 MD5 为签名证书的 MD5 指纹，公钥为证书公钥的 MD5 值（32 位十六进制，不带冒号）。",
+    "beianInfoHint": "在工信部 App 备案表单（安卓平台）中需要填写：包名、公钥、签名 MD5。公钥为签名证书的 RSA 模数（十六进制，即 jadx 等工具显示的“模数”）；签名 MD5 为签名证书的 MD5 指纹（32 位十六进制，不带冒号）。",
     "packageNameLabel": "包名",
     "publicKeyMd5Label": "公钥（MD5）",
     "signatureMd5Label": "签名 MD5",
-    "publicKeyMd5Hint": "取自下方证书的公钥（建议与实际签名 APK 的一致）",
     "signatureMd5Hint": "证书 MD5 指纹（32 位十六进制，不带冒号）",
     "fingerprintsTitle": "证书指纹",
     "certMd5Label": "MD5（签名 MD5）",
@@ -92,7 +91,9 @@
     "parseFailedError": "解析失败",
     "generateFailedError": "生成失败",
     "webcryptoUnavailableError": "当前环境不支持 WebCrypto（crypto.subtle）。请使用 HTTPS 或现代浏览器。",
-    "localOnlyBadge": "本地计算 · 不上传"
+    "localOnlyBadge": "本地计算 · 不上传",
+    "publicKeyLabel": "公钥（模数，十六进制）",
+    "publicKeyHint": "签名证书的 RSA 模数（即 jadx 等工具显示的“模数”），RSA 2048 为 512 个十六进制字符"
   },
   "keywords": [
     "在线",

@@ -21,7 +21,7 @@ import type { ParsedCertificate } from "./lib/cert";
 // 中文默认值
 const DEFAULT_UI = {
   title: "安卓签名证书生成器",
-  description: "说明：本工具在浏览器本地生成/解析安卓签名密钥库，用于 App 备案（公钥 MD5、签名 MD5、包名）。密钥库与密码全程不会上传。",
+  description: "说明：本工具在浏览器本地生成/解析安卓签名密钥库，用于 App 备案（公钥、签名 MD5、包名）。密钥库与密码全程不会上传。",
   tabGenerate: "生成密钥库",
   tabParseKeystore: "解析密钥库",
   tabParseApk: "解析 APK",
@@ -35,11 +35,11 @@ const DEFAULT_UI = {
   downloadButton: "下载",
   chooseFileButton: "选择文件",
   beianInfoTitle: "App 备案信息（安卓平台）",
-  beianInfoHint: "在工信部 App 备案表单（安卓平台）中通常需要填写：包名、公钥、签名 MD5。签名 MD5 为签名证书的 MD5 指纹，公钥为证书公钥的 MD5 值（32 位十六进制，不带冒号）。",
+  beianInfoHint: "在工信部 App 备案表单（安卓平台）中需要填写：包名、公钥、签名 MD5。公钥为签名证书的 RSA 模数（十六进制，即 jadx 等工具显示的“模数”）；签名 MD5 为签名证书的 MD5 指纹（32 位十六进制，不带冒号）。",
   packageNameLabel: "包名",
-  publicKeyMd5Label: "公钥（MD5）",
+  publicKeyLabel: "公钥（模数，十六进制）",
+  publicKeyHint: "签名证书的 RSA 模数（即 jadx 等工具显示的“模数”），RSA 2048 为 512 个十六进制字符",
   signatureMd5Label: "签名 MD5",
-  publicKeyMd5Hint: "取自下方证书的公钥（建议与实际签名 APK 的一致）",
   signatureMd5Hint: "证书 MD5 指纹（32 位十六进制，不带冒号）",
   fingerprintsTitle: "证书指纹",
   certMd5Label: "MD5（签名 MD5）",
@@ -118,6 +118,8 @@ interface CertDisplayData {
   sha1: string;
   sha256: string;
   publicKeyMd5: string;
+  /** 备案“公钥”字段：RSA 模数的十六进制 */
+  publicKeyHex: string;
 }
 
 interface GenerateResult {
@@ -290,7 +292,7 @@ function AndroidSignCertInner() {
           <div className="text-sm font-semibold text-slate-900">{ui.beianInfoTitle}</div>
         </div>
         <div className="mt-3 space-y-3">
-          <FieldValue label={ui.publicKeyMd5Label} value={cert.publicKeyMd5} onCopy={() => void copy(cert.publicKeyMd5)} hint={ui.publicKeyMd5Hint} highlight />
+          <FieldValue label={ui.publicKeyLabel} value={cert.publicKeyHex || "-"} onCopy={() => void copy(cert.publicKeyHex)} hint={ui.publicKeyHint} highlight />
           <FieldValue label={ui.signatureMd5Label} value={cert.md5} onCopy={() => void copy(cert.md5)} hint={ui.signatureMd5Hint} highlight />
         </div>
         <div className="mt-3 rounded-2xl bg-white/70 px-3 py-2 text-xs text-slate-600">{ui.beianInfoHint}</div>
@@ -404,13 +406,14 @@ function AndroidSignCertInner() {
       const sha1 = await certLib.sha1Hex(certDer);
       const sha256 = await certLib.sha256Hex(certDer);
       const publicKeyMd5 = await certLib.md5Hex(info.spkiDer);
+      const publicKeyHex = certLib.rsaModulusHexFromSpki(info.spkiDer);
 
       const extension = format === "jks" ? "jks" : "p12";
       setGenerateResult({
         format,
         filename: `${aliasTrimmed.replace(/[\\/:*?"<>|]/g, "_")}.${extension}`,
         keystoreBytes,
-        cert: { alias: aliasTrimmed, certDer, info, md5, sha1, sha256, publicKeyMd5 },
+        cert: { alias: aliasTrimmed, certDer, info, md5, sha1, sha256, publicKeyMd5, publicKeyHex },
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : ui.generateFailedError);
@@ -445,7 +448,7 @@ function AndroidSignCertInner() {
           certLib.sha256Hex(certDer),
           certLib.md5Hex(info.spkiDer),
         ]);
-        return { alias: entryAlias, certDer, info, md5, sha1, sha256, publicKeyMd5 };
+        return { alias: entryAlias, certDer, info, md5, sha1, sha256, publicKeyMd5, publicKeyHex: certLib.rsaModulusHexFromSpki(info.spkiDer) };
       };
 
       const results: KeystoreEntryResult[] = [];
@@ -533,7 +536,7 @@ function AndroidSignCertInner() {
           certLib.sha256Hex(certDer),
           certLib.md5Hex(info.spkiDer),
         ]);
-        return { certDer, info, md5, sha1, sha256, publicKeyMd5 };
+        return { certDer, info, md5, sha1, sha256, publicKeyMd5, publicKeyHex: certLib.rsaModulusHexFromSpki(info.spkiDer) };
       };
 
       const seen = new Set<string>();
@@ -926,6 +929,7 @@ function AndroidSignCertInner() {
                       <div key={index} className="mt-4 rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100">
                         <div className="space-y-2">
                           <FingerprintRow label={ui.signatureMd5Label} value={cert.md5} onCopy={() => void copy(cert.md5)} />
+                          <FingerprintRow label={ui.publicKeyLabel} value={cert.publicKeyHex || "-"} onCopy={() => void copy(cert.publicKeyHex)} />
                           <FingerprintRow label={ui.pubKeyMd5Label} value={cert.publicKeyMd5} onCopy={() => void copy(cert.publicKeyMd5)} />
                           <FingerprintRow label={ui.certSha256Label} value={cert.sha256} onCopy={() => void copy(cert.sha256)} />
                           <InfoRow label={ui.subjectLabel} value={cert.info.subject || "-"} />

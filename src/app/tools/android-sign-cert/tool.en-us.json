@@ -1,8 +1,8 @@
 {
   "name": "Free Online Android Signing Certificate Generator (App Filing Public Key / Signature MD5) - atools",
   "shortName": "Android Cert",
-  "description": "Free online Android signing certificate tool: generate keystores (JKS/PKCS12) for app filing, or parse existing keystores/APKs to extract public key, signature MD5 and package name.",
-  "seoDescription": "Free online Android signing certificate generator and parser for app filing: generate RSA keys and self-signed certificates entirely in your browser and package them as JKS or PKCS12 keystores usable with Android Studio, apksigner and HBuilderX. Instantly shows the public key MD5, signature MD5 (certificate MD5 fingerprint) and SHA-1/SHA-256 fingerprints required by China app filing forms. You can also upload an existing .jks/.keystore/.p12/.pfx keystore or a signed .apk to extract the package name, version, signing schemes (v1/v2/v3) and certificate fingerprints. Everything runs locally in your browser; keystores and passwords never leave your device.",
+  "description": "Free online Android signing certificate tool: generate keystores (JKS/PKCS12) for app filing, or parse existing keystores/APKs to extract the public key (modulus), signature MD5 and package name.",
+  "seoDescription": "Free online Android signing certificate generator and parser for app filing: generate RSA keys and self-signed certificates entirely in your browser and package them as JKS or PKCS12 keystores usable with Android Studio, apksigner and HBuilderX. Instantly shows the public key (RSA modulus in hex, the “modulus” shown by jadx), signature MD5 (certificate MD5 fingerprint) and SHA-1/SHA-256 fingerprints required by China app filing forms. You can also upload an existing .jks/.keystore/.p12/.pfx keystore or a signed .apk to extract the package name, version, signing schemes (v1/v2/v3) and certificate fingerprints. Everything runs locally in your browser; keystores and passwords never leave your device.",
   "category": "开发工具",
   "lang": "en-US",
   "themeColor": "#0f172a",
@@ -10,7 +10,7 @@
   "icon": "/icon.svg",
   "ui": {
     "title": "Android Signing Certificate Tool",
-    "description": "Note: this tool generates/parses Android signing keystores locally in your browser for app filing (public key MD5, signature MD5, package name). Keystores and passwords are never uploaded.",
+    "description": "Note: this tool generates/parses Android signing keystores locally in your browser for app filing (public key, signature MD5, package name). Keystores and passwords are never uploaded.",
     "tabGenerate": "Generate keystore",
     "tabParseKeystore": "Parse keystore",
     "tabParseApk": "Parse APK",
@@ -24,11 +24,10 @@
     "downloadButton": "Download",
     "chooseFileButton": "Choose file",
     "beianInfoTitle": "App filing info (Android)",
-    "beianInfoHint": "The app filing form (Android platform) usually requires: package name, public key and signature MD5. Signature MD5 is the MD5 fingerprint of the signing certificate; public key is the MD5 of the certificate public key (32 hex characters, no colons).",
+    "beianInfoHint": "The app filing form (Android platform) requires: package name, public key and signature MD5. The public key is the RSA modulus of the signing certificate in hex (the “modulus” shown by tools like jadx); signature MD5 is the MD5 fingerprint of the certificate (32 hex characters, no colons).",
     "packageNameLabel": "Package name",
     "publicKeyMd5Label": "Public key (MD5)",
     "signatureMd5Label": "Signature MD5",
-    "publicKeyMd5Hint": "Taken from the certificate below (keep it identical to the actually signed APK)",
     "signatureMd5Hint": "Certificate MD5 fingerprint (32 hex characters, no colons)",
     "fingerprintsTitle": "Certificate fingerprints",
     "certMd5Label": "MD5 (signature MD5)",
@@ -92,7 +91,9 @@
     "parseFailedError": "Failed to parse",
     "generateFailedError": "Generation failed",
     "webcryptoUnavailableError": "WebCrypto (crypto.subtle) is unavailable in this environment. Please use HTTPS or a modern browser.",
-    "localOnlyBadge": "Local · no upload"
+    "localOnlyBadge": "Local · no upload",
+    "publicKeyLabel": "Public key (modulus, hex)",
+    "publicKeyHint": "RSA modulus of the signing certificate (the “modulus” shown by tools like jadx); 512 hex characters for RSA 2048"
   },
   "keywords": [
     "android signing certificate",
