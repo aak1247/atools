@@ -86,6 +86,15 @@ export default function SiteShell({
             <Link href={`/${locale}/privacy-policy`} className="transition-colors hover:text-slate-700">
               {messages.navPrivacy}
             </Link>
+            <span aria-hidden="true">·</span>
+            <a
+              href="https://beian.miit.gov.cn/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-slate-700"
+            >
+              沪ICP备2026002993号-1
+            </a>
             {clarityEnabled ? (
               <>
                 <span aria-hidden="true">·</span>
